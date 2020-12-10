@@ -18,7 +18,6 @@ func (l *OnClickListener) OnInit(ctx engine.InitContext) {
 }
 
 func (l *OnClickListener) OnStart() {
-
 }
 
 func (l *OnClickListener) OnStop() {
@@ -31,7 +30,7 @@ func (l *OnClickListener) OnMessage(m engine.Message) bool {
 	}
 
 	event := m.Data.(engine.AmphionEvent)
-	if event.Code != engine.EventClick {
+	if event.Code != engine.EventMouseDown {
 		return true
 	}
 

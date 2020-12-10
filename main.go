@@ -7,7 +7,6 @@ import (
 	"github.com/cadmean-ru/amphion/engine/builtin"
 	"github.com/cadmean-ru/amphion/rendering"
 	"log"
-	"strconv"
 	"time"
 )
 
@@ -106,7 +105,7 @@ func main() {
 	circle.AddComponent(circleRenderer)
 	circle.AddComponent(builtin.NewCircleBoundary())
 	circle.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
-		var mousePos = event.Data.(common.Vector3)
+		var mousePos = event.Data.(common.IntVector3)
 		e.GetLogger().Info(nil, fmt.Sprintf("BIG CLICK ON CIRCLE. Mouse pos: %f %f", mousePos.X, mousePos.Y))
 		e.CloseScene(func() {
 			_ = e.ShowScene(createCyberpunkScene(e))
@@ -192,29 +191,9 @@ func main() {
 	//	fmt.Println(string(data))
 	//}
 
-	var counter = 0
-	scene2 := engine.NewSceneObject("scene 2")
-	textScene2 := engine.NewSceneObject("text")
-	textScene2.Transform.Position = common.NewVector3(engine.CenterInParent, engine.CenterInParent, 0)
-	textScene2.Transform.Pivot = common.NewVector3(0.5, 0.5, 0.5)
-	textScene2.Transform.Size = common.NewVector3(800, 200, 0)
-	textScene2Renderer := builtin.NewTextView("This is scene 2")
-	textScene2Renderer.TextAppearance.FontSize = 100
-	textScene2Renderer.Appearance.FillColor = common.BlackColor()
-	textScene2.AddComponent(textScene2Renderer)
-	textScene2.AddComponent(builtin.NewRectBoundary())
-	textScene2.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
-		textScene2Renderer.SetText(strconv.Itoa(counter))
-		e.RequestRendering()
-		counter++
-		return false
-	}))
-	scene2.AddChild(textScene2)
-	scene2.AddComponent(&TestController{})
-
 	triangle.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
 		e.CloseScene(func() {
-			_ = e.ShowScene(scene2)
+			_ = e.ShowScene(scene2(e))
 		})
 		return false
 	}))
@@ -291,11 +270,9 @@ func createCyberpunkScene(e *engine.AmphionEngine) *engine.SceneObject {
 	title := engine.NewSceneObject("title")
 	title.Transform.Position = common.NewVector3(engine.CenterInParent, 0, 0)
 	title.Transform.Pivot = common.NewVector3(0.5, 0, 0.5)
-	title.Transform.Size = common.NewVector3(645, 55, 0)
+	title.Transform.Size = common.NewVector3(680, 55, 0)
 	titleView := builtin.NewTextView("Time till Cyberpunk release")
-	titleView.Appearance.FillColor = common.BlackColor()
-	titleView.Appearance.StrokeWeight = 1
-	titleView.Appearance.StrokeColor = common.WhiteColor()
+	titleView.Appearance.FillColor = common.WhiteColor()
 	titleView.TextAppearance.FontSize = 52
 	title.AddComponent(titleView)
 	//title.AddComponent(builtin.NewBoundaryView())
@@ -311,9 +288,7 @@ func createCyberpunkScene(e *engine.AmphionEngine) *engine.SceneObject {
 	countdown.Transform.Pivot = common.NewVector3(0.5, 0, 0.5)
 	countdown.Transform.Size = common.NewVector3(380, 55, 0)
 	countText := builtin.NewTextView("00d 00h 00m 00s")
-	countText.Appearance.StrokeWeight = 1
-	countText.Appearance.StrokeColor = common.WhiteColor()
-	countText.Appearance.FillColor = common.BlackColor()
+	countText.Appearance.FillColor = common.WhiteColor()
 	countText.TextAppearance.FontSize = 52
 	countdown.AddComponent(countText)
 	countdown.AddComponent(&CyberpunkCountdown{})
@@ -335,7 +310,7 @@ func createCyberpunkScene(e *engine.AmphionEngine) *engine.SceneObject {
 		}
 		e.RequestUpdate()
 	}).Build())
-	//e.BindEventHandler(engine.EventClick, func(event engine.AmphionEvent) bool {
+	//e.BindEventHandler(engine.EventMouseDown, func(event engine.AmphionEvent) bool {
 	//	mousePos := event.Data.(common.Vector3)
 	//	gun.Transform.Position = common.NewVector3(mousePos.X, mousePos.Y, 10)
 	//	e.RequestRendering()
@@ -344,4 +319,67 @@ func createCyberpunkScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene.AddChild(gun)
 
 	return scene
+}
+
+func scene2(e *engine.AmphionEngine) *engine.SceneObject {
+	//var counter = 0
+	scene2 := engine.NewSceneObject("scene 2")
+	textScene2 := engine.NewSceneObject("text")
+	textScene2.Transform.Position = common.NewVector3(engine.CenterInParent, engine.CenterInParent, 0)
+	textScene2.Transform.Pivot = common.NewVector3(0.5, 0.5, 0.5)
+	textScene2.Transform.Size = common.NewVector3(800, 200, 0)
+	textScene2Renderer := builtin.NewTextView("This is scene 2")
+	textScene2Renderer.TextAppearance.FontSize = 100
+	textScene2Renderer.Appearance.FillColor = common.BlackColor()
+	textScene2.AddComponent(textScene2Renderer)
+	textScene2.AddComponent(builtin.NewRectBoundary())
+	//textScene2.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+	//	fmt.Println("Click")
+	//	textScene2Renderer.SetText(strconv.Itoa(counter))
+	//	textScene2Renderer.ForceRedraw()
+	//	e.RequestRendering()
+	//	e.RequestUpdate()
+	//	counter++
+	//	return false
+	//}))
+	scene2.AddChild(textScene2)
+	scene2.AddComponent(&TestController{})
+
+	input := engine.NewSceneObject("input")
+	input.Transform.Position = common.NewVector3(0, 0, 0)
+	input.Transform.Size = common.NewVector3(500, 500 ,0)
+	inputView := builtin.NewInputView()
+	inputView.TextAppearance.FontSize = 10
+	inputView.Appearance.FillColor = common.BlackColor()
+	input.AddComponent(inputView)
+	scene2.AddChild(input)
+
+	dropdown := engine.NewSceneObject("dropdown")
+	dropdown.Transform.Position = common.NewVector3(10, 100, 1)
+	dropdown.Transform.Size = common.NewVector3(450, 35, 0)
+	dropdownView := builtin.NewDropdownView([]string {"opt1", "opt2", "opt3"})
+	dropdown.AddComponent(dropdownView)
+	dropdown.AddComponent(builtin.NewBoundaryView())
+	dropdown.AddComponent(builtin.NewRectBoundary())
+	dropdown.AddComponent(builtin.NewTextView("dfdsf"))
+	dropdown.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+		dropdownView.HandleClick()
+		return true
+	}))
+
+
+	box := engine.NewSceneObject("Moving box")
+	box.Transform.Position = common.NewVector3(10, 100, 0)
+	box.Transform.Size = common.NewVector3(500, 500, 0)
+	boxBg := builtin.NewShapeView(rendering.PrimitiveRectangle)
+	boxBg.Appearance.StrokeWeight = 0
+	boxBg.Appearance.FillColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
+	box.AddComponent(boxBg)
+	box.AddComponent(builtin.NewRectBoundary())
+	box.AddComponent(builtin.NewMouseMover())
+	box.AddChild(dropdown)
+
+	scene2.AddChild(box)
+
+	return scene2
 }

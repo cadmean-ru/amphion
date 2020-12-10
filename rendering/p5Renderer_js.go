@@ -3,8 +3,8 @@
 package rendering
 
 import (
-	"github.com/cadmean-ru/amphion/common"
 	"fmt"
+	"github.com/cadmean-ru/amphion/common"
 	"syscall/js"
 )
 
@@ -40,6 +40,8 @@ func (r *P5Renderer) SetPrimitive(id int64, primitive PrimitiveBuilder, shouldRe
 			pc.status = primitiveStatusRedraw
 		}
 		pc.primitive = primitive.BuildPrimitive()
+	} else {
+		//panic(fmt.Sprintf("Primitive with id %d was not found.\nAdded primitives:\n%+v", id, r.primitives))
 	}
 }
 
@@ -120,15 +122,6 @@ func (r *P5Renderer) postCommands(commands []Command) {
 	//fmt.Println(bytesCopied)
 	r.execCommandsJs.Invoke()
 }
-
-//func (r *P5Renderer) postPrimitives(ps []common.Mappable) {
-//	primitivesNative := make([]interface{}, len(ps))
-//	for i, p := range ps {
-//		primitivesNative[i] = p.ToMap()
-//	}
-//	jsPrimitives := js.ValueOf(primitivesNative)
-//	r.postPrimitivesJs.Invoke(jsPrimitives)
-//}
 
 func NewRenderer() Renderer {
 	return &P5Renderer{}

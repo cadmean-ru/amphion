@@ -2,7 +2,9 @@ package engine
 
 const (
 	FrontCallbackContextChange = -100
-	FrontCallbackClick         = -101
+	FrontCallbackMouseDown     = -101
+	FrontCallbackKeyDown       = -102
+	FrontCallbackMouseUp       = -103
 )
 
 type frontEndCallback struct {

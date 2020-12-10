@@ -194,32 +194,60 @@ func (engine *AmphionEngine) IsForcedToRedraw() bool {
 
 func (engine *AmphionEngine) handleFrontEndCallback(callback frontEndCallback) {
 	switch callback.code {
-	case FrontCallbackClick:
+	case FrontCallbackMouseDown:
 		coords := strings.Split(callback.data, ";")
 		if len(coords) != 2 {
 			panic("Invalid click callback Data")
 		}
-		x, err := strconv.ParseFloat(coords[0], 64)
+		x, err := strconv.ParseInt(coords[0], 10, 32)
 		if err != nil {
 			panic("Invalid click callback Data")
 		}
-		y, err := strconv.ParseFloat(coords[1], 64)
+		y, err := strconv.ParseInt(coords[1], 10, 32)
 		if err != nil {
 			panic("Invalid click callback Data")
 		}
-		event := NewAmphionEvent(engine, EventClick, common.NewVector3(x, y, 0))
+		event := NewAmphionEvent(engine, EventMouseDown, common.NewIntVector3(int(x), int(y), 0))
 		engine.eventChan<-event
-		break
+	case FrontCallbackMouseUp:
+		coords := strings.Split(callback.data, ";")
+		if len(coords) != 2 {
+			panic("Invalid click callback Data")
+		}
+		x, err := strconv.ParseInt(coords[0], 10, 32)
+		if err != nil {
+			panic("Invalid click callback Data")
+		}
+		y, err := strconv.ParseInt(coords[1], 10, 32)
+		if err != nil {
+			panic("Invalid click callback Data")
+		}
+		event := NewAmphionEvent(engine, EventMouseUp, common.NewIntVector3(int(x), int(y), 0))
+		engine.eventChan<-event
 	case FrontCallbackContextChange:
 		engine.globalContext = getGlobalContext()
 		engine.configureScene(engine.currentScene)
 		engine.RequestRendering()
 		engine.forceRedraw = true
+	case FrontCallbackKeyDown:
+		tokens := strings.Split(callback.data, "\n")
+		if len(tokens) != 2 {
+			panic("Invalid key down callback Data")
+		}
+		event := NewAmphionEvent(engine, EventKeyDown, KeyEvent{
+			Key:  tokens[0],
+			Code: tokens[1],
+		})
+		engine.eventChan<-event
 	}
 }
 
 func (engine *AmphionEngine) BindEventHandler(code int, handler EventHandler) {
 	engine.eventBinder.Bind(code, handler)
+}
+
+func (engine *AmphionEngine) UnbindEventHandler(code int, handler EventHandler) {
+	engine.eventBinder.Unbind(code, handler)
 }
 
 func (engine *AmphionEngine) handleFrontEndInterrupt(msg string) {
@@ -300,10 +328,10 @@ func (engine *AmphionEngine) canStop() bool {
 }
 
 func (engine *AmphionEngine) handleClickEvent(event AmphionEvent) bool {
-	clickPos := event.Data.(common.Vector3)
+	clickPos := event.Data.(common.IntVector3)
 	engine.currentScene.ForEachObject(func(o *SceneObject) {
-		if o.IsRendering() && o.HasBoundary() && o.IsPointInsideBoundaries2D(clickPos) {
-			engine.messageDispatcher.Dispatch(NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, EventClick, clickPos)))
+		if o.IsRendering() && o.HasBoundary() && o.IsPointInsideBoundaries2D(clickPos.ToFloat()) {
+			engine.messageDispatcher.Dispatch(NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, EventMouseDown, clickPos)))
 		}
 	})
 	return true
@@ -316,7 +344,6 @@ func (engine *AmphionEngine) handleCloseSceneEvent(_ AmphionEvent) bool {
 	frontEndCloseScene()
 	engine.currentScene = nil
 	engine.state = StateStarted
-	engine.renderer.Clear()
 	engine.logger.Info(engine, "Scene closed")
 	if engine.closeSceneCallback != nil {
 		engine.closeSceneCallback()
@@ -325,7 +352,7 @@ func (engine *AmphionEngine) handleCloseSceneEvent(_ AmphionEvent) bool {
 }
 
 func (engine *AmphionEngine) registerInternalEvenHandlers() {
-	engine.BindEventHandler(EventClick, engine.handleClickEvent)
+	engine.BindEventHandler(EventMouseDown, engine.handleClickEvent)
 	engine.BindEventHandler(EventCloseScene, engine.handleCloseSceneEvent)
 }
 
@@ -358,4 +385,11 @@ func (engine *AmphionEngine) tryLoadApp() bool {
 	}
 
 	return false
+}
+
+func (engine *AmphionEngine) rebuildMessageTree() {
+	if engine.currentScene == nil {
+		return
+	}
+	engine.messageDispatcher = newMessageDispatcherForScene(engine.currentScene)
 }

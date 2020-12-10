@@ -1,13 +1,19 @@
 package engine
 
+import (
+	"reflect"
+)
+
 const (
 	EventUpdate      = -1
 	EventRender      = -2
 	EventCloseScene  = -3
-	EventClick       = -4
+	EventMouseDown   = -4
 	EventDoubleClick = -5
 	EventNavigate    = -6
 	EventStop        = -7
+	EventKeyDown     = -8
+	EventMouseUp     = -9
 )
 
 type AmphionEvent struct {
@@ -26,12 +32,6 @@ func NewAmphionEvent(from interface{}, code int, data interface{}) AmphionEvent 
 
 type EventHandler func(event AmphionEvent) bool
 
-//type EventBinder interface {
-//	Prepare()
-//	Bind(Code int, handler EventHandler)
-//	GetHandlers(Code int) []EventHandler
-//}
-
 type EventBinder struct {
 	handlers map[int][]EventHandler
 }
@@ -42,6 +42,24 @@ func (b *EventBinder) Bind(code int, handler EventHandler) {
 		b.handlers[code][0] = handler
 	} else {
 		b.handlers[code] = append(b.handlers[code], handler)
+	}
+}
+
+func (b *EventBinder) Unbind(code int, handler EventHandler) {
+	if handlers, ok := b.handlers[code]; !ok {
+		var index = -1
+		for i, h := range handlers {
+			p1 := reflect.ValueOf(h).Pointer()
+			p2 := reflect.ValueOf(handler).Pointer()
+			if p1 == p2 {
+				index = i
+				break
+			}
+		}
+		if index != -1 {
+			handlers[index] = handlers[len(handlers) - 1]
+			handlers = handlers[:len(handlers) - 1]
+		}
 	}
 }
 
@@ -67,24 +85,6 @@ func newEventBinder() *EventBinder {
 	}
 }
 
-//func PrepareFrontendCallbackHandlerForPlatform(platform common.Platform) {
-//	switch platform.GetName() {
-//	case "web":
-//		PrepareJsCallbackHandler()
-//		break
-//	}
-//}
-//
-//func PrepareJsCallbackHandler() {
-//	js.Global().Set("frontEndCallback", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-//		e := args[0]
-//		Code := e.Get("Code").Int()
-//		jsEvent := e.Get("Data").String()
-//		event := AmphionEvent{
-//			Code: Code,
-//			Data: jsEvent,
-//		}
-//		instance.handleFrontEndCallback(event)
-//		return nil
-//	}))
-//}
+type KeyEvent struct {
+	Key, Code string
+}

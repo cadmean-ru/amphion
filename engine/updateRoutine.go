@@ -7,6 +7,9 @@ type updateRoutine struct {
 	updateChan         chan bool
 	updateRequested    bool
 	renderingRequested bool
+	newSceneObjects    []*SceneObject
+	startSceneObjects  []*SceneObject
+	stopSceneObjects    []*SceneObject
 }
 
 func (r *updateRoutine) start() {
@@ -27,16 +30,25 @@ func (r *updateRoutine) requestUpdate() {
 }
 
 func (r *updateRoutine) requestRendering() {
-	if r.renderingRequested {
-		return
-	}
-
 	r.renderingRequested = true
 	r.requestUpdate()
 }
 
 func (r *updateRoutine) stop() {
 	r.updateChan<-false
+}
+
+func (r *updateRoutine) initSceneObject(object *SceneObject) {
+	r.newSceneObjects = append(r.newSceneObjects, object)
+	r.startSceneObject(object)
+}
+
+func (r *updateRoutine) startSceneObject(object *SceneObject) {
+	r.startSceneObjects = append(r.startSceneObjects, object)
+}
+
+func (r *updateRoutine) stopSceneObject(object *SceneObject) {
+	r.stopSceneObjects = append(r.stopSceneObjects, object)
 }
 
 func (r *updateRoutine) waitForStop() {
@@ -85,6 +97,27 @@ func (r *updateRoutine) loop() {
 		elapsed := time.Since(lastFrameTime)
 		lastFrameTime = time.Now()
 
+		if len(r.newSceneObjects) > 0 {
+			for _, o := range r.newSceneObjects {
+				r.loopInit(o)
+			}
+			r.newSceneObjects = make([]*SceneObject, 0)
+		}
+
+		if len(r.startSceneObjects) > 0 {
+			for _, o := range r.startSceneObjects {
+				r.loopStart(o)
+			}
+			r.startSceneObjects = make([]*SceneObject, 0)
+		}
+
+		if len(r.stopSceneObjects) > 0 {
+			for _, o := range r.stopSceneObjects {
+				r.loopStop(o)
+			}
+			r.stopSceneObjects = make([]*SceneObject, 0)
+		}
+
 		if r.updateRequested {
 			//engine.logger.Info("Update loop", "Updating components")
 
@@ -120,6 +153,9 @@ func (r *updateRoutine) loop() {
 	}
 
 	r.loopStop(instance.currentScene)
+
+	instance.renderer.PerformRendering()
+	instance.renderer.Clear()
 
 	r.running = false
 }
@@ -178,7 +214,10 @@ func (r *updateRoutine) GetName() string {
 
 func newUpdateRoutine() *updateRoutine {
 	return &updateRoutine{
-		running:    false,
-		updateChan: make(chan bool, 10),
+		running:           false,
+		updateChan:        make(chan bool, 10),
+		newSceneObjects:   make([]*SceneObject, 0),
+		startSceneObjects: make([]*SceneObject, 0),
+		stopSceneObjects:  make([]*SceneObject, 0),
 	}
 }

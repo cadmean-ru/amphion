@@ -15,6 +15,7 @@ func (v *ImageView) OnDraw(ctx engine.DrawingContext) {
 	pr := rendering.NewImagePrimitive(v.resIndex)
 	pr.Transform = transformToRenderingTransform(v.obj.Transform)
 	ctx.GetRenderer().SetPrimitive(v.pId, pr, v.redraw || v.ctx.GetEngine().IsForcedToRedraw())
+	v.redraw = false
 }
 
 func (v *ImageView) GetName() string {

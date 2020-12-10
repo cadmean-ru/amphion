@@ -19,6 +19,8 @@ type SceneObject struct {
 	Transform           Transform
 	parent              *SceneObject
 	enabled             bool
+	initialized         bool
+	started             bool
 }
 
 func (o *SceneObject) GetName() string {
@@ -41,6 +43,25 @@ func (o *SceneObject) AddChild(object *SceneObject) {
 	object.parent = o
 	object.Transform.parent = &o.Transform
 	o.children = append(o.children, object)
+	if !o.initialized {
+		instance.updateRoutine.initSceneObject(o)
+	}
+	instance.rebuildMessageTree()
+}
+
+func (o *SceneObject) RemoveChild(object *SceneObject) {
+	index := -1
+	for i, c := range o.children {
+		if c == object {
+			index = i
+		}
+	}
+	if index != -1 {
+		o.children[index] = o.children[len(o.children)-1]
+		o.children = o.children[:len(o.children)-1]
+
+		instance.rebuildMessageTree()
+	}
 }
 
 func (o *SceneObject) GetChildren() []*SceneObject {
@@ -100,7 +121,15 @@ func (o *SceneObject) GetComponents() []Component {
 }
 
 func (o *SceneObject) SetEnabled(enabled bool) {
+	if o.enabled == enabled {
+		return
+	}
 	o.enabled = enabled
+	if enabled {
+		instance.updateRoutine.startSceneObject(o)
+	} else {
+		instance.updateRoutine.stopSceneObject(o)
+	}
 	for _, c := range o.components {
 		c.SetEnabled(enabled)
 	}
@@ -129,18 +158,26 @@ func (o *SceneObject) OnMessage(message Message) bool {
 }
 
 func (o *SceneObject) init(ctx InitContext) {
+	if o.initialized {
+		return
+	}
 	for _, c := range o.components {
 		instance.currentComponent = c.component
 		c.component.OnInit(ctx)
 	}
+	o.initialized = true
 	instance.currentComponent = nil
 }
 
 func (o *SceneObject) start() {
+	if o.started {
+		return
+	}
 	o.ForEachComponent(func(c Component) {
 		instance.currentComponent = c
 		c.OnStart()
 	})
+	o.started = true
 	instance.currentComponent = nil
 }
 
@@ -169,10 +206,14 @@ func (o *SceneObject) draw(ctx DrawingContext) {
 }
 
 func (o *SceneObject) stop() {
+	if !o.started {
+		return
+	}
 	for _, c := range o.components {
 		instance.currentComponent = c.component
 		c.component.OnStop()
 	}
+	o.started = false
 	instance.currentComponent = nil
 }
 
