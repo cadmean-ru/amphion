@@ -325,9 +325,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	dropdown.Transform.Size = common.NewVector3(450, 35, 0)
 	dropdownView := builtin.NewDropdownView([]string {"opt1", "opt2", "opt3"})
 	dropdown.AddComponent(dropdownView)
-	dropdown.AddComponent(builtin.NewBoundaryView())
 	dropdown.AddComponent(builtin.NewRectBoundary())
-	dropdown.AddComponent(builtin.NewTextView("dfdsf"))
 	dropdown.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
 		dropdownView.HandleClick()
 		return true

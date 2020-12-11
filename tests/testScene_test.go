@@ -4,6 +4,7 @@ import "testing"
 
 func TestStartSceneTest(t *testing.T) {
 	startEngineTest()
-	var scene = createTestScene()
+	var scene = scene2(testEngineInstance)
 	testEngineInstance.ShowScene(scene)
+	testEngineInstance.WaitForStop()
 }

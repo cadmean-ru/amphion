@@ -42,6 +42,7 @@ func (r *P5Renderer) SetPrimitive(id int64, primitive PrimitiveBuilder, shouldRe
 		pc.primitive = primitive.BuildPrimitive()
 	} else {
 		//panic(fmt.Sprintf("Primitive with id %d was not found.\nAdded primitives:\n%+v", id, r.primitives))
+		fmt.Printf("Warning! Primitive with id %d was not found.\n", id)
 	}
 }
 
@@ -68,7 +69,9 @@ func (r *P5Renderer) PerformRendering() {
 
 	for _, p := range r.primitives {
 		if p.primitive == nil {
-			panic(fmt.Sprintf("Primitive was created, but it's data was never set. Primitive id: %d", p.id))
+			//panic(fmt.Sprintf("Primitive was created, but it's data was never set. Primitive id: %d", p.id))
+			fmt.Printf("Primitive was created, but it's data was never set. Primitive id: %d.\n", p.id)
+			continue
 		}
 
 		switch p.status {

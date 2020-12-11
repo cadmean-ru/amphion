@@ -21,9 +21,13 @@ func (v *ViewImpl) OnInit(ctx engine.InitContext) {
 	v.eng = ctx.GetEngine()
 	v.obj = ctx.GetSceneObject()
 	v.redraw = true
+	v.pId = -1
 }
 
 func (v *ViewImpl) OnStart() {
+	if v.pId != -1 {
+		return
+	}
 	v.pId = v.ctx.GetRenderer().AddPrimitive()
 	v.ForceRedraw()
 }
@@ -32,6 +36,7 @@ func (v *ViewImpl) OnStop() {
 	v.ctx.GetRenderer().RemovePrimitive(v.pId)
 	v.ForceRedraw()
 	v.eng.RequestRendering()
+	v.pId = -1
 }
 
 func (v *ViewImpl) OnDraw(_ engine.DrawingContext) {

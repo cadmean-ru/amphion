@@ -162,7 +162,9 @@ func (r *updateRoutine) loop() {
 
 func (r *updateRoutine) loopInit(obj *SceneObject) {
 	obj.init(newInitContext(instance, obj))
-	for _, c := range obj.children {
+	temp := make([]*SceneObject, len(obj.children))
+	copy(temp, obj.children)
+	for _, c := range temp {
 		r.loopInit(c)
 	}
 }
@@ -172,7 +174,9 @@ func (r *updateRoutine) loopStart(obj *SceneObject) {
 		return
 	}
 	obj.start()
-	for _, c := range obj.children {
+	temp := make([]*SceneObject, len(obj.children))
+	copy(temp, obj.children)
+	for _, c := range temp {
 		r.loopStart(c)
 	}
 }

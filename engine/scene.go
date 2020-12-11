@@ -43,7 +43,7 @@ func (o *SceneObject) AddChild(object *SceneObject) {
 	object.parent = o
 	object.Transform.parent = &o.Transform
 	o.children = append(o.children, object)
-	if !o.initialized {
+	if !object.initialized {
 		instance.updateRoutine.initSceneObject(o)
 	}
 	instance.rebuildMessageTree()
@@ -164,6 +164,7 @@ func (o *SceneObject) init(ctx InitContext) {
 	for _, c := range o.components {
 		instance.currentComponent = c.component
 		c.component.OnInit(ctx)
+		c.initialized = true
 	}
 	o.initialized = true
 	instance.currentComponent = nil
@@ -259,7 +260,7 @@ func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
 
 func (o *SceneObject) ForEachComponent(action func(component Component)) {
 	for _, c := range o.components {
-		if !c.enabled {
+		if !c.enabled || !c.initialized {
 			continue
 		}
 		action(c.component)

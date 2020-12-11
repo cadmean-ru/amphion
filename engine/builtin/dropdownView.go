@@ -23,31 +23,36 @@ func (d *DropdownView) OnStart() {
 	d.arrow1Id = d.eng.GetRenderer().AddPrimitive()
 	d.arrow2Id = d.eng.GetRenderer().AddPrimitive()
 
-	comp := d.obj.GetComponentByName("TextView")
-	if comp == nil {
-		panic("No text view for dropdown")
-	}
-	d.textView = comp.(*TextView)
+	siz := d.obj.Transform.Size
+
+	textObj := engine.NewSceneObject("selected item")
+	textObj.Transform.Position = common.NewVector3(5, 5, 1)
+	textObj.Transform.Size = common.NewVector3(siz.X - 10, siz.Y - 10, 0)
+
+	d.textView = NewTextView(d.selectedItem)
 	d.textView.Appearance = rendering.Appearance{
 		FillColor:    common.BlackColor(),
 	}
 	d.textView.TextAppearance = rendering.TextAppearance{
-		FontSize: 16,
+		FontSize: 5,
 	}
-	d.textView.SetText(d.selectedItem)
+
+	textObj.AddComponent(d.textView)
+	d.obj.AddChild(textObj)
 
 	d.optionsContainer = engine.NewSceneObject("OptionsContainer")
-	d.obj.AddChild(d.optionsContainer)
-	d.optionsContainer.AddComponent(NewBoundaryView())
+	optionsBg := NewShapeView(rendering.PrimitiveRectangle)
+	optionsBg.Appearance.FillColor = common.WhiteColor()
+	optionsBg.Appearance.CornerRadius = 10
+	d.optionsContainer.AddComponent(optionsBg)
 
-	siz := d.obj.Transform.Size
 	d.optionsContainer.Transform.Position = common.NewVector3(0, siz.Y, 1)
 	d.optionsContainer.Transform.Size = common.NewVector3(siz.X, float64(35*len(d.items)), 0)
 
 	for i, o := range d.items {
 		var itemText = o
 		item := engine.NewSceneObject(fmt.Sprintf("Item%d", i))
-		item.Transform.Position = common.NewVector3(0, float64(i*35), 0)
+		item.Transform.Position = common.NewVector3(0, float64(i*35), 1)
 		item.Transform.Size = common.NewVector3(siz.X, 35, 0)
 		itemTextView := NewTextView(itemText)
 		itemTextView.Appearance.FillColor = common.BlackColor()
@@ -68,6 +73,7 @@ func (d *DropdownView) OnStart() {
 		d.optionsContainer.AddChild(item)
 	}
 
+	d.obj.AddChild(d.optionsContainer)
 	d.optionsContainer.SetEnabled(false)
 }
 
