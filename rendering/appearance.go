@@ -9,6 +9,7 @@ type Appearance struct {
 	FillColor    common.Color
 	StrokeColor  common.Color
 	StrokeWeight common.AByte
+	CornerRadius common.AByte
 }
 
 func (a Appearance) ToMap() map[string]interface{} {

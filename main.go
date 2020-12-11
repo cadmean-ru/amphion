@@ -374,6 +374,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	boxBg := builtin.NewShapeView(rendering.PrimitiveRectangle)
 	boxBg.Appearance.StrokeWeight = 0
 	boxBg.Appearance.FillColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
+	boxBg.Appearance.CornerRadius = 100
 	box.AddComponent(boxBg)
 	box.AddComponent(builtin.NewRectBoundary())
 	box.AddComponent(builtin.NewMouseMover())

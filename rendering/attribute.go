@@ -10,6 +10,7 @@ const (
 	AttributeText         = 4
 	AttributeFontSize     = 5
 	AttributeResIndex     = 6
+	AttributeCornerRadius = 7
 )
 
 type Attribute struct {
