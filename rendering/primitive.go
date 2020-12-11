@@ -13,6 +13,7 @@ const (
 	PrimitiveTriangle  = 5
 	PrimitiveText      = 6
 	PrimitiveImage     = 7
+	PrimitiveBezier    = 8
 )
 
 type Primitive struct {

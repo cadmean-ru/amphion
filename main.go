@@ -387,14 +387,19 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	boxBg := builtin.NewShapeView(rendering.PrimitiveRectangle)
 	boxBg.Appearance.StrokeWeight = 0
 	boxBg.Appearance.FillColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
-	boxBg.Appearance.CornerRadius = 50
+	boxBg.Appearance.CornerRadius = 10
 	box.AddComponent(boxBg)
 	box.AddComponent(builtin.NewRectBoundary())
 	box.AddComponent(builtin.NewMouseMover())
 	box.AddChild(dropdown)
 	box.AddChild(dropdown1)
-
 	scene2.AddChild(box)
+
+	curve := engine.NewSceneObject("Curve")
+	curve.Transform.Position = common.NewVector3(10, 500, 5)
+	curve.Transform.Size = common.NewVector3(100, 100, 0)
+	curve.AddComponent(builtin.NewBezierView(common.NewVector3(50, 0, 0), common.NewVector3(50, 100, 0)))
+	scene2.AddChild(curve)
 
 	return scene2
 }

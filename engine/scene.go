@@ -251,7 +251,7 @@ func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
 	}
 
 	action(o)
-	
+
 	for _, c := range o.children {
 		c.ForEachObject(action)
 	}
