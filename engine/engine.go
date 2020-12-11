@@ -340,13 +340,7 @@ func (engine *AmphionEngine) handleClickEvent(event AmphionEvent) bool {
 		sort.Slice(candidates, func(i, j int) bool {
 			return candidates[i].Transform.GetGlobalPosition().Z > candidates[j].Transform.GetGlobalPosition().Z
 		})
-		fmt.Println("Candidates:")
-		for _, c := range candidates {
-			fmt.Printf("%s - %f\n", c.GetName(), c.Transform.GetGlobalPosition().Z)
-		}
-		fmt.Printf("\n")
 		o := candidates[0]
-		fmt.Printf("Most relevant: %s\n\n", o.GetName())
 		engine.messageDispatcher.DispatchDirectly(o, NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, EventMouseDown, clickPos)))
 	}
 	return true

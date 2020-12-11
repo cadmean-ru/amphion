@@ -23,3 +23,6 @@ func commencePanic(reason, message string) {
 }
 
 func frontEndCloseScene() {}
+
+func loadAppData() ([]byte, error) { return nil, nil }
+

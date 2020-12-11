@@ -275,7 +275,6 @@ func createCyberpunkScene(e *engine.AmphionEngine) *engine.SceneObject {
 	titleView.Appearance.FillColor = common.WhiteColor()
 	titleView.TextAppearance.FontSize = 52
 	title.AddComponent(titleView)
-	//title.AddComponent(builtin.NewBoundaryView())
 	title.AddComponent(builtin.NewRectBoundary())
 	title.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
 		fmt.Println(title.Transform.GetGlobalPosition().ToString())
@@ -283,40 +282,7 @@ func createCyberpunkScene(e *engine.AmphionEngine) *engine.SceneObject {
 	}))
 	centered.AddChild(title)
 
-	countdown := engine.NewSceneObject("countdown")
-	countdown.Transform.Position = common.NewVector3(engine.CenterInParent, 55, 0)
-	countdown.Transform.Pivot = common.NewVector3(0.5, 0, 0.5)
-	countdown.Transform.Size = common.NewVector3(380, 55, 0)
-	countText := builtin.NewTextView("00d 00h 00m 00s")
-	countText.Appearance.FillColor = common.WhiteColor()
-	countText.TextAppearance.FontSize = 52
-	countdown.AddComponent(countText)
-	countdown.AddComponent(&CyberpunkCountdown{})
-	//countdown.AddComponent(builtin.NewBoundaryView())
-	centered.AddChild(countdown)
 
-	gun := engine.NewSceneObject("gun")
-	gun.Transform.Pivot = common.NewVector3(0.5, 0.5, 0.5)
-	gun.Transform.Size = common.NewVector3(100, 100, 0)
-	gun.AddComponent(builtin.NewImageView(3))
-
-	var prevPos = common.IntVector3{}
-	gun.AddComponent(builtin.NewComponentBuilder("GunMover").OnUpdate(func(ctx engine.UpdateContext) {
-		pos := engine.GetMousePosition()
-		if pos != prevPos {
-			prevPos = pos
-			gun.Transform.Position = common.NewVector3(float64(pos.X), float64(pos.Y), 10)
-			e.RequestRendering()
-		}
-		e.RequestUpdate()
-	}).Build())
-	//e.BindEventHandler(engine.EventMouseDown, func(event engine.AmphionEvent) bool {
-	//	mousePos := event.Data.(common.Vector3)
-	//	gun.Transform.Position = common.NewVector3(mousePos.X, mousePos.Y, 10)
-	//	e.RequestRendering()
-	//	return true
-	//})
-	scene.AddChild(gun)
 
 	return scene
 }
