@@ -246,7 +246,12 @@ func (o *SceneObject) IsPointInsideBoundaries2D(point common.Vector3) bool {
 }
 
 func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
+	if !o.enabled {
+		return
+	}
+
 	action(o)
+	
 	for _, c := range o.children {
 		c.ForEachObject(action)
 	}

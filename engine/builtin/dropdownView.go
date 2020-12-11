@@ -41,7 +41,7 @@ func (d *DropdownView) OnStart() {
 	d.optionsContainer.AddComponent(NewBoundaryView())
 
 	siz := d.obj.Transform.Size
-	d.optionsContainer.Transform.Position = common.NewVector3(0, siz.Y, 0)
+	d.optionsContainer.Transform.Position = common.NewVector3(0, siz.Y, 1)
 	d.optionsContainer.Transform.Size = common.NewVector3(siz.X, float64(35*len(d.items)), 0)
 
 	for i, o := range d.items {

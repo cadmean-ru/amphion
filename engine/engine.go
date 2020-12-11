@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/rendering"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -329,11 +330,25 @@ func (engine *AmphionEngine) canStop() bool {
 
 func (engine *AmphionEngine) handleClickEvent(event AmphionEvent) bool {
 	clickPos := event.Data.(common.IntVector3)
+	candidates := make([]*SceneObject, 0, 1)
 	engine.currentScene.ForEachObject(func(o *SceneObject) {
 		if o.IsRendering() && o.HasBoundary() && o.IsPointInsideBoundaries2D(clickPos.ToFloat()) {
-			engine.messageDispatcher.Dispatch(NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, EventMouseDown, clickPos)))
+			candidates = append(candidates, o)
 		}
 	})
+	if len(candidates) > 0 {
+		sort.Slice(candidates, func(i, j int) bool {
+			return candidates[i].Transform.GetGlobalPosition().Z > candidates[j].Transform.GetGlobalPosition().Z
+		})
+		fmt.Println("Candidates:")
+		for _, c := range candidates {
+			fmt.Printf("%s - %f\n", c.GetName(), c.Transform.GetGlobalPosition().Z)
+		}
+		fmt.Printf("\n")
+		o := candidates[0]
+		fmt.Printf("Most relevant: %s\n\n", o.GetName())
+		engine.messageDispatcher.DispatchDirectly(o, NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, EventMouseDown, clickPos)))
+	}
 	return true
 }
 

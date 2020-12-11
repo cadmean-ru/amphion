@@ -151,6 +151,14 @@ func (d *MessageDispatcher) DispatchUp(from MessageListener, message Message) {
 	c.sendMessageUp(message)
 }
 
+func (d *MessageDispatcher) DispatchDirectly(listener MessageListener, message Message) {
+	if !d.shouldSendMessage(message) {
+		return
+	}
+
+	listener.OnMessage(message)
+}
+
 func (d *MessageDispatcher) shouldSendMessage(message Message) bool {
 	if message.Code == MessageRedraw && instance.state == StateRendering {
 		return false
