@@ -314,9 +314,8 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	input := engine.NewSceneObject("input")
 	input.Transform.Position = common.NewVector3(0, 0, 0)
 	input.Transform.Size = common.NewVector3(500, 500 ,0)
-	inputView := builtin.NewInputView()
-	inputView.TextAppearance.FontSize = 10
-	inputView.Appearance.FillColor = common.BlackColor()
+	inputView := builtin.NewInputField()
+	inputView.AllowMultiline = true
 	input.AddComponent(inputView)
 	scene2.AddChild(input)
 
@@ -344,7 +343,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 
 
 	box := engine.NewSceneObject("Moving box")
-	box.Transform.Position = common.NewVector3(10, 100, 1)
+	box.Transform.Position = common.NewVector3(10, 100, 10)
 	box.Transform.Size = common.NewVector3(500, 500, 0)
 	boxBg := builtin.NewShapeView(rendering.PrimitiveRectangle)
 	boxBg.Appearance.StrokeWeight = 0

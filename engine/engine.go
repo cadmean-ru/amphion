@@ -34,6 +34,7 @@ type AmphionEngine struct {
 	closeSceneCallback func()
 	tasksRoutine       *TasksRoutine
 	resourceManager    *ResourceManager
+	focusedObject      *SceneObject
 }
 
 const (
@@ -342,6 +343,9 @@ func (engine *AmphionEngine) handleClickEvent(event AmphionEvent) bool {
 		})
 		o := candidates[0]
 		engine.messageDispatcher.DispatchDirectly(o, NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, EventMouseDown, clickPos)))
+		engine.focusedObject = o
+	} else {
+		engine.focusedObject = nil
 	}
 	return true
 }

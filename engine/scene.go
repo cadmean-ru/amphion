@@ -257,6 +257,10 @@ func (o *SceneObject) IsPointInsideBoundaries2D(point common.Vector3) bool {
 	return false
 }
 
+func (o *SceneObject) IsFocused() bool {
+	return instance.focusedObject == o
+}
+
 func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
 	if !o.enabled {
 		return
