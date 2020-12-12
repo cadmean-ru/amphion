@@ -321,7 +321,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	scene2.AddChild(input)
 
 	dropdown := engine.NewSceneObject("dropdown")
-	dropdown.Transform.Position = common.NewVector3(10, 10, 1)
+	dropdown.Transform.Position = common.NewVector3(10, 10, 2)
 	dropdown.Transform.Size = common.NewVector3(450, 35, 0)
 	dropdownView := builtin.NewDropdownView([]string {"opt1", "opt2", "opt3"})
 	dropdown.AddComponent(dropdownView)
@@ -336,9 +336,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	dropdown1.Transform.Size = common.NewVector3(450, 35, 0)
 	dropdownView1 := builtin.NewDropdownView([]string {"bruh1", "bruh2", "bruh3"})
 	dropdown1.AddComponent(dropdownView1)
-	dropdown1.AddComponent(builtin.NewBoundaryView())
 	dropdown1.AddComponent(builtin.NewRectBoundary())
-	dropdown1.AddComponent(builtin.NewTextView("dfdsf"))
 	dropdown1.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
 		dropdownView1.HandleClick()
 		return true

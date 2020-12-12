@@ -44,7 +44,7 @@ func (o *SceneObject) AddChild(object *SceneObject) {
 	object.Transform.parent = &o.Transform
 	o.children = append(o.children, object)
 	if !object.initialized {
-		instance.updateRoutine.initSceneObject(o)
+		instance.updateRoutine.initSceneObject(object)
 	}
 	instance.rebuildMessageTree()
 }
@@ -86,6 +86,8 @@ func (o *SceneObject) AddComponent(component Component) {
 	if _, ok := component.(BoundaryComponent); ok {
 		o.boundaryComponents = append(o.boundaryComponents, container)
 	}
+
+	instance.updateRoutine.initSceneObject(o)
 }
 
 func (o *SceneObject) GetComponentByName(n string) Component {
@@ -125,13 +127,13 @@ func (o *SceneObject) SetEnabled(enabled bool) {
 		return
 	}
 	o.enabled = enabled
+	for _, c := range o.components {
+		c.SetEnabled(enabled)
+	}
 	if enabled {
 		instance.updateRoutine.startSceneObject(o)
 	} else {
 		instance.updateRoutine.stopSceneObject(o)
-	}
-	for _, c := range o.components {
-		c.SetEnabled(enabled)
 	}
 	for _, so := range o.children {
 		so.SetEnabled(enabled)
@@ -158,28 +160,36 @@ func (o *SceneObject) OnMessage(message Message) bool {
 }
 
 func (o *SceneObject) init(ctx InitContext) {
-	if o.initialized {
-		return
-	}
+	//if o.initialized {
+	//	return
+	//}
 	for _, c := range o.components {
+		if c.initialized {
+			continue
+		}
 		instance.currentComponent = c.component
 		c.component.OnInit(ctx)
 		c.initialized = true
 	}
+
 	o.initialized = true
 	instance.currentComponent = nil
 }
 
 func (o *SceneObject) start() {
-	if o.started {
-		return
+	for _, c := range o.components {
+		//fmt.Printf("%s %s %+v\n", c.component.GetName(), o.GetName(), c)
+		if !c.enabled || !c.initialized || c.started {
+			continue
+		}
+		instance.currentComponent = c.component
+		c.component.OnStart()
+		c.started = true
 	}
-	o.ForEachComponent(func(c Component) {
-		instance.currentComponent = c
-		c.OnStart()
-	})
+
 	o.started = true
 	instance.currentComponent = nil
+	//fmt.Println()
 }
 
 func (o *SceneObject) update(ctx UpdateContext) {
@@ -207,12 +217,13 @@ func (o *SceneObject) draw(ctx DrawingContext) {
 }
 
 func (o *SceneObject) stop() {
-	if !o.started {
-		return
-	}
 	for _, c := range o.components {
+		if c.enabled || !c.started {
+			continue
+		}
 		instance.currentComponent = c.component
 		c.component.OnStop()
+		c.started = false
 	}
 	o.started = false
 	instance.currentComponent = nil

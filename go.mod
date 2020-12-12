@@ -1,4 +1,4 @@
-module  github.com/cadmean-ru/amphion
+module github.com/cadmean-ru/amphion
 
 go 1.15
 

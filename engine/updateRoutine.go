@@ -99,21 +99,24 @@ func (r *updateRoutine) loop() {
 
 		if len(r.newSceneObjects) > 0 {
 			for _, o := range r.newSceneObjects {
-				r.loopInit(o)
+				//r.loopInit(o)
+				o.init(newInitContext(instance, o))
 			}
 			r.newSceneObjects = make([]*SceneObject, 0)
 		}
 
 		if len(r.startSceneObjects) > 0 {
 			for _, o := range r.startSceneObjects {
-				r.loopStart(o)
+				//r.loopStart(o)
+				o.start()
 			}
 			r.startSceneObjects = make([]*SceneObject, 0)
 		}
 
 		if len(r.stopSceneObjects) > 0 {
 			for _, o := range r.stopSceneObjects {
-				r.loopStop(o)
+				//r.loopStop(o)
+				o.stop()
 			}
 			r.stopSceneObjects = make([]*SceneObject, 0)
 		}

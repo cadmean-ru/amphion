@@ -25,6 +25,13 @@ func (d *DropdownView) OnStart() {
 
 	siz := d.obj.Transform.Size
 
+	bg := NewShapeView(rendering.PrimitiveRectangle)
+	bg.StrokeWeight = 2
+	bg.StrokeColor = common.BlackColor()
+	bg.FillColor = common.WhiteColor()
+	bg.CornerRadius = 10
+	d.obj.AddComponent(bg)
+
 	textObj := engine.NewSceneObject("selected item")
 	textObj.Transform.Position = common.NewVector3(5, 5, 1)
 	textObj.Transform.Size = common.NewVector3(siz.X - 10, siz.Y - 10, 0)
@@ -34,7 +41,7 @@ func (d *DropdownView) OnStart() {
 		FillColor:    common.BlackColor(),
 	}
 	d.textView.TextAppearance = rendering.TextAppearance{
-		FontSize: 5,
+		FontSize: 16,
 	}
 
 	textObj.AddComponent(d.textView)
@@ -47,12 +54,12 @@ func (d *DropdownView) OnStart() {
 	d.optionsContainer.AddComponent(optionsBg)
 
 	d.optionsContainer.Transform.Position = common.NewVector3(0, siz.Y, 1)
-	d.optionsContainer.Transform.Size = common.NewVector3(siz.X, float64(35*len(d.items)), 0)
+	d.optionsContainer.Transform.Size = common.NewVector3(siz.X, float64(35*len(d.items)) + 5, 0)
 
 	for i, o := range d.items {
 		var itemText = o
 		item := engine.NewSceneObject(fmt.Sprintf("Item%d", i))
-		item.Transform.Position = common.NewVector3(0, float64(i*35), 1)
+		item.Transform.Position = common.NewVector3(10, float64(i*35) + 5, 1)
 		item.Transform.Size = common.NewVector3(siz.X, 35, 0)
 		itemTextView := NewTextView(itemText)
 		itemTextView.Appearance.FillColor = common.BlackColor()
@@ -68,8 +75,6 @@ func (d *DropdownView) OnStart() {
 			d.eng.RequestRendering()
 			return false
 		}))
-		//item.AddComponent(NewBoundaryView())
-		//item.AddComponent(NewDropDownItemView(o, d))
 		d.optionsContainer.AddChild(item)
 	}
 
@@ -81,19 +86,23 @@ func (d *DropdownView) OnDraw(ctx engine.DrawingContext) {
 	pos := d.obj.Transform.GetGlobalTopLeftPosition()
 	rect := d.obj.Transform.GetGlobalRect()
 	x1 := int(math.Round(rect.X.Min + rect.X.GetLength() * 0.9))
-	x2 := int(math.Round(rect.X.Max))
+	x2 := int(math.Round(rect.X.Max)) - 20
 	x3 := x1 + int(math.Round(common.NewFloatRange(float64(x1), float64(x2)).GetLength() / 2))
-	y1 := int(math.Round(rect.Y.Min))
-	y2 := int(math.Round(rect.Y.Max))
+	y1 := int(math.Round(rect.Y.Min)) + 12
+	y2 := int(math.Round(rect.Y.Max)) - 12
 	z1 := int(math.Round(pos.Z + 1))
 
 	lp1 := rendering.NewGeometryPrimitive(rendering.PrimitiveLine)
 	lp1.Transform.Position = common.NewIntVector3(x1, y1, z1)
 	lp1.Transform.Size = common.NewIntVector3(x3 - x1, y2 - y1, 0)
+	lp1.Appearance.StrokeWeight = 3
+	lp1.Appearance.StrokeColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
 
 	lp2 := rendering.NewGeometryPrimitive(rendering.PrimitiveLine)
 	lp2.Transform.Position = common.NewIntVector3(x3, y2, z1)
 	lp2.Transform.Size = common.NewIntVector3(x2 - x3, y1 - y2, 0)
+	lp2.Appearance.StrokeWeight = 3
+	lp2.Appearance.StrokeColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
 
 	ctx.GetRenderer().SetPrimitive(d.arrow1Id, lp1, d.ShouldRedraw())
 	ctx.GetRenderer().SetPrimitive(d.arrow2Id, lp2, d.ShouldRedraw())

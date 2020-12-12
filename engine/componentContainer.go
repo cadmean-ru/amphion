@@ -6,6 +6,7 @@ type ComponentContainer struct {
 	sceneObject *SceneObject
 	component   Component
 	initialized bool
+	started     bool
 }
 
 func (c *ComponentContainer) SetEnabled(enabled bool) {
