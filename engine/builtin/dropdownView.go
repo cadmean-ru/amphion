@@ -10,8 +10,9 @@ import (
 
 type DropdownView struct {
 	ViewImpl
-	arrow1Id         int64
-	arrow2Id         int64
+	//arrow1Id         int64
+	//arrow2Id         int64
+	arrowId          int64
 	items            []string
 	selectedItem     string
 	textView         *TextView
@@ -20,8 +21,8 @@ type DropdownView struct {
 }
 
 func (d *DropdownView) OnStart() {
-	d.arrow1Id = d.eng.GetRenderer().AddPrimitive()
-	d.arrow2Id = d.eng.GetRenderer().AddPrimitive()
+	d.arrowId = d.eng.GetRenderer().AddPrimitive()
+	//d.arrow2Id = d.eng.GetRenderer().AddPrimitive()
 
 	siz := d.obj.Transform.Size
 
@@ -85,27 +86,33 @@ func (d *DropdownView) OnStart() {
 func (d *DropdownView) OnDraw(ctx engine.DrawingContext) {
 	pos := d.obj.Transform.GetGlobalTopLeftPosition()
 	rect := d.obj.Transform.GetGlobalRect()
-	x1 := int(math.Round(rect.X.Min + rect.X.GetLength() * 0.9))
+	x1 := int(math.Round(rect.X.Max)) - 40
 	x2 := int(math.Round(rect.X.Max)) - 20
-	x3 := x1 + int(math.Round(common.NewFloatRange(float64(x1), float64(x2)).GetLength() / 2))
+	//x3 := x1 + int(math.Round(common.NewFloatRange(float64(x1), float64(x2)).GetLength() / 2))
 	y1 := int(math.Round(rect.Y.Min)) + 12
 	y2 := int(math.Round(rect.Y.Max)) - 12
 	z1 := int(math.Round(pos.Z + 1))
+	//
+	//lp1 := rendering.NewGeometryPrimitive(rendering.PrimitiveLine)
+	//lp1.Transform.Position = common.NewIntVector3(x1, y1, z1)
+	//lp1.Transform.Size = common.NewIntVector3(x3 - x1, y2 - y1, 0)
+	//lp1.Appearance.StrokeWeight = 3
+	//lp1.Appearance.StrokeColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
+	//
+	//lp2 := rendering.NewGeometryPrimitive(rendering.PrimitiveLine)
+	//lp2.Transform.Position = common.NewIntVector3(x3, y2, z1)
+	//lp2.Transform.Size = common.NewIntVector3(x2 - x3, y1 - y2, 0)
+	//lp2.Appearance.StrokeWeight = 3
+	//lp2.Appearance.StrokeColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
+	//
+	//ctx.GetRenderer().SetPrimitive(d.arrow1Id, lp1, d.ShouldRedraw())
+	//ctx.GetRenderer().SetPrimitive(d.arrow2Id, lp2, d.ShouldRedraw())
 
-	lp1 := rendering.NewGeometryPrimitive(rendering.PrimitiveLine)
-	lp1.Transform.Position = common.NewIntVector3(x1, y1, z1)
-	lp1.Transform.Size = common.NewIntVector3(x3 - x1, y2 - y1, 0)
-	lp1.Appearance.StrokeWeight = 3
-	lp1.Appearance.StrokeColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
+	pr := rendering.NewImagePrimitive(4)
+	pr.Transform.Position = common.NewIntVector3(x1, y1, z1)
+	pr.Transform.Size = common.NewIntVector3(x2 - x1, y2 - y1, 0)
 
-	lp2 := rendering.NewGeometryPrimitive(rendering.PrimitiveLine)
-	lp2.Transform.Position = common.NewIntVector3(x3, y2, z1)
-	lp2.Transform.Size = common.NewIntVector3(x2 - x3, y1 - y2, 0)
-	lp2.Appearance.StrokeWeight = 3
-	lp2.Appearance.StrokeColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
-
-	ctx.GetRenderer().SetPrimitive(d.arrow1Id, lp1, d.ShouldRedraw())
-	ctx.GetRenderer().SetPrimitive(d.arrow2Id, lp2, d.ShouldRedraw())
+	ctx.GetRenderer().SetPrimitive(d.arrowId, pr, d.ShouldRedraw())
 }
 
 func (d *DropdownView) HandleClick() {
@@ -131,8 +138,8 @@ func (d *DropdownView) hideDropdown() {
 }
 
 func (d *DropdownView) OnStop() {
-	d.eng.GetRenderer().RemovePrimitive(d.arrow1Id)
-	d.eng.GetRenderer().RemovePrimitive(d.arrow2Id)
+	d.eng.GetRenderer().RemovePrimitive(d.arrowId)
+	//d.eng.GetRenderer().RemovePrimitive(d.arrow2Id)
 }
 
 func (d *DropdownView) GetName() string {

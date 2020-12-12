@@ -321,7 +321,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 
 	dropdown := engine.NewSceneObject("dropdown")
 	dropdown.Transform.Position = common.NewVector3(10, 10, 2)
-	dropdown.Transform.Size = common.NewVector3(450, 35, 0)
+	dropdown.Transform.Size = common.NewVector3(100, 35, 0)
 	dropdownView := builtin.NewDropdownView([]string {"opt1", "opt2", "opt3"})
 	dropdown.AddComponent(dropdownView)
 	dropdown.AddComponent(builtin.NewRectBoundary())
