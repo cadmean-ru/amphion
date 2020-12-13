@@ -143,6 +143,10 @@ func (d *DropdownView) SetSelectedItem(item string) {
 	d.ForceRedraw()
 }
 
+func (d *DropdownView) GetSelectedItem() string {
+	return d.selectedItem
+}
+
 func (d *DropdownView) showDropdown() {
 	siz := d.obj.Transform.Size
 	d.optionsContainer.Transform.Position = common.NewVector3(0, siz.Y, 0)
