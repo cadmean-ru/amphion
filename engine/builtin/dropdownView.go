@@ -8,6 +8,8 @@ import (
 	"math"
 )
 
+type OnSelectHandler func(item string)
+
 type DropdownView struct {
 	ViewImpl
 	//arrow1Id         int64
@@ -18,6 +20,7 @@ type DropdownView struct {
 	textView         *TextView
 	optionsContainer *engine.SceneObject
 	showItems        bool
+	OnSelect         OnSelectHandler
 }
 
 func (d *DropdownView) OnStart() {
@@ -73,6 +76,9 @@ func (d *DropdownView) OnStart() {
 			d.textView.SetText(newSelectedItem)
 			d.showItems = false
 			d.optionsContainer.SetEnabled(false)
+			if d.OnSelect != nil {
+				d.OnSelect(newSelectedItem)
+			}
 			d.eng.RequestRendering()
 			return false
 		}))
@@ -86,8 +92,8 @@ func (d *DropdownView) OnStart() {
 func (d *DropdownView) OnDraw(ctx engine.DrawingContext) {
 	pos := d.obj.Transform.GetGlobalTopLeftPosition()
 	rect := d.obj.Transform.GetGlobalRect()
-	x1 := int(math.Round(rect.X.Max)) - 40
-	x2 := int(math.Round(rect.X.Max)) - 20
+	x1 := int(math.Round(rect.X.Max)) - 25
+	x2 := int(math.Round(rect.X.Max)) - 5
 	//x3 := x1 + int(math.Round(common.NewFloatRange(float64(x1), float64(x2)).GetLength() / 2))
 	y1 := int(math.Round(rect.Y.Min)) + 12
 	y2 := int(math.Round(rect.Y.Max)) - 12

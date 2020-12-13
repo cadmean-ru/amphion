@@ -30,7 +30,6 @@ func (f *InputField) OnStart() {
 
 	input.AddComponent(f.inputView)
 	input.AddComponent(NewRectBoundary())
-	input.AddComponent(NewBoundaryView())
 
 	f.obj.AddChild(input)
 }
