@@ -130,6 +130,19 @@ func (d *DropdownView) HandleClick() {
 	}
 }
 
+func (d *DropdownView) SetItems(items []string) {
+	d.items = items
+	if len(d.items) > 0 {
+		d.selectedItem = d.items[0]
+	}
+	d.ForceRedraw()
+}
+
+func (d *DropdownView) SetSelectedItem(item string) {
+	d.selectedItem = item
+	d.ForceRedraw()
+}
+
 func (d *DropdownView) showDropdown() {
 	siz := d.obj.Transform.Size
 	d.optionsContainer.Transform.Position = common.NewVector3(0, siz.Y, 0)
