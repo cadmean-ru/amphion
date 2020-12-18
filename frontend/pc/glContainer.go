@@ -1,3 +1,5 @@
+// +build windows linux darwin
+
 package pc
 
 import "github.com/go-gl/gl/all-core/gl"

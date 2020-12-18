@@ -5,8 +5,10 @@ import (
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
+	"github.com/cadmean-ru/amphion/frontend/pc"
 	"github.com/cadmean-ru/amphion/rendering"
 	"log"
+	"runtime"
 	"time"
 )
 
@@ -83,10 +85,17 @@ func (c *TestController) GetName() string {
 	return "TestController"
 }
 
+func init() {
+	runtime.LockOSThread()
+}
+
 func main() {
-	p := common.PlatformFromString("web")
-	e := engine.Initialize(p)
-	e.Start()
+
+	front := pc.NewFrontend()
+	front.Init()
+
+	e := engine.Initialize(front)
+
 
 	scene := engine.NewSceneObject("Test scene")
 
@@ -198,11 +207,17 @@ func main() {
 	//	return false
 	//}))
 
-	if err := e.ShowScene(scene); err != nil {
-		log.Println(err)
-	}
+	go func() {
+		e.Start()
 
-	e.WaitForStop()
+		if err := e.ShowScene(scene); err != nil {
+			log.Println(err)
+		}
+
+		e.WaitForStop()
+	}()
+
+	front.Run()
 }
 
 type CyberpunkCountdown struct {

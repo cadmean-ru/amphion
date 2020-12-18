@@ -1,6 +1,9 @@
 package engine
 
-import "time"
+import (
+	"github.com/cadmean-ru/amphion/frontend/commonFrontend"
+	"time"
+)
 
 type updateRoutine struct {
 	running            bool
@@ -77,8 +80,6 @@ func (r *updateRoutine) loop() {
 
 	defer instance.recover()
 
-	instance.renderer.Prepare()
-
 	// Initialize all components
 	r.loopInit(instance.currentScene)
 
@@ -145,7 +146,7 @@ func (r *updateRoutine) loop() {
 
 			// Render objects
 			r.loopRender(instance.currentScene, ctx)
-			instance.renderer.PerformRendering()
+			instance.frontend.ReceiveMessage(commonFrontend.NewFrontendMessage(commonFrontend.MessageRender))
 
 			instance.forceRedraw = false
 		}

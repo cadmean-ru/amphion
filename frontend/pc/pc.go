@@ -1,4 +1,4 @@
-// +build windows linux
+// +build windows linux darwin
 
 package pc
 
@@ -14,12 +14,13 @@ import (
 const SleepTimeMs = 16
 
 type Frontend struct {
-	window   *glfw.Window
-	wSize    common.IntVector3
-	handler  commonFrontend.CallbackHandler
-	renderer *OpenGLRenderer
-	prepared bool
-	context  commonFrontend.Context
+	window      *glfw.Window
+	wSize       common.IntVector3
+	handler     commonFrontend.CallbackHandler
+	renderer    *OpenGLRenderer
+	initialized bool
+	context     commonFrontend.Context
+	msgChan     chan commonFrontend.Message
 }
 
 func (f *Frontend) Init() {
@@ -28,6 +29,12 @@ func (f *Frontend) Init() {
 	if err = glfw.Init(); err != nil {
 		panic(err)
 	}
+
+	glfw.WindowHint(glfw.ContextVersionMajor, 3)
+	glfw.WindowHint(glfw.ContextVersionMinor, 3)
+	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
+
 	if f.window, err = glfw.CreateWindow(f.wSize.X, f.wSize.Y, "Amphion", nil, nil); err != nil {
 		panic(err)
 	}
@@ -37,16 +44,28 @@ func (f *Frontend) Init() {
 	f.renderer.window = f.window
 	f.renderer.wSize = f.wSize
 
-	f.prepared = true
+	f.renderer.Prepare()
+
+	f.initialized = true
 }
 
-func (f *Frontend) Start() {
-	go f.loop()
-}
-
-func (f *Frontend) loop() {
+func (f *Frontend) Run() {
 	for !f.window.ShouldClose() {
 		glfw.PollEvents()
+
+		select {
+		case msg, ok := <-f.msgChan:
+			if ok {
+				switch msg.Code {
+				case commonFrontend.MessageRender:
+					f.renderer.PerformRendering()
+				}
+			} else {
+
+			}
+		default:
+
+		}
 
 		time.Sleep(SleepTimeMs)
 	}
@@ -55,8 +74,9 @@ func (f *Frontend) loop() {
 }
 
 func (f *Frontend) Stop() {
-	f.window.SetShouldClose(true)
-	f.renderer.Stop()
+	//f.renderer.Stop()
+
+	glfw.Terminate()
 }
 
 func (f *Frontend) Reset() {
@@ -72,10 +92,14 @@ func (f *Frontend) GetInputManager() commonFrontend.InputManager {
 }
 
 func (f *Frontend) GetRenderer() rendering.Renderer {
-	if !f.prepared {
+	if !f.initialized {
 		return nil
 	}
 	return f.renderer
+}
+
+func (f *Frontend) GetPlatform() common.Platform {
+	return common.PlatformFromString("pc")
 }
 
 func (f *Frontend) GetContext() commonFrontend.Context {
@@ -86,11 +110,16 @@ func (f *Frontend) CommencePanic(reason, msg string) {
 	panic(fmt.Sprintf("%s: %s", reason, msg))
 }
 
+func (f *Frontend) ReceiveMessage(message commonFrontend.Message) {
+	f.msgChan<-message
+}
+
 func NewFrontend() *Frontend {
 	return &Frontend{
 		wSize:    common.NewIntVector3(500, 500, 0),
 		renderer: &OpenGLRenderer{
 			primitives: make(map[int64]*glContainer),
 		},
+		msgChan: make(chan commonFrontend.Message, 10),
 	}
 }

@@ -1,4 +1,4 @@
-// +build windows linux
+// +build windows linux darwin
 
 package pc
 
@@ -24,8 +24,6 @@ type OpenGLRenderer struct {
 }
 
 func (r *OpenGLRenderer) Prepare() {
-	fmt.Printf("Prepare goroutine: %d\n", common.GoroutineId())
-
 	var err error
 
 	r.window.MakeContextCurrent()
@@ -76,8 +74,6 @@ func (r *OpenGLRenderer) RemovePrimitive(id int64) {
 }
 
 func (r *OpenGLRenderer) PerformRendering() {
-	fmt.Printf("Rendering goroutine: %d\n", common.GoroutineId())
-
 	gl.ClearColor(1, 1, 1, 1)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
@@ -122,8 +118,6 @@ func (r *OpenGLRenderer) drawRectangle(p *glContainer) {
 		nSize.X, nSize.Y, 0,
 		nSize.X, nPos.Y, 0,
 	}
-
-	fmt.Println(vertices)
 
 	indices := []uint32 {
 		0, 1, 2,

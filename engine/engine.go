@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
-	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/frontend/commonFrontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"sort"
@@ -51,14 +50,14 @@ const (
 	StateRendering = 3
 )
 
-func Initialize(platform common.Platform) *AmphionEngine {
+func Initialize(front commonFrontend.Frontend) *AmphionEngine {
 	if instance != nil {
 		return instance
 	}
 
 	instance = &AmphionEngine{
-		platform:        platform,
-		logger:          GetLoggerForPlatform(platform),
+		platform:        front.GetPlatform(),
+		logger:          GetLoggerForPlatform(front.GetPlatform()),
 		idgen:           common.NewIdGenerator(),
 		state:           StateStopped,
 		stopChan:        make(chan bool),
@@ -67,9 +66,8 @@ func Initialize(platform common.Platform) *AmphionEngine {
 		eventBinder:     newEventBinder(),
 		tasksRoutine:    newTasksRoutine(),
 		resourceManager: newResourceManager(),
-		frontend:        frontend.GetFrontend(),
+		frontend:        front,
 	}
-	instance.frontend.Init()
 	instance.renderer = instance.frontend.GetRenderer()
 	instance.globalContext = instance.frontend.GetContext()
 	return instance
@@ -81,7 +79,6 @@ func GetInstance() *AmphionEngine {
 
 func (engine *AmphionEngine) Start() {
 	engine.started = true
-	engine.frontend.Start()
 	engine.registerInternalEvenHandlers()
 	engine.logger.Info(engine, "Amphion started")
 	engine.state = StateStarted
@@ -315,7 +312,6 @@ func (engine *AmphionEngine) handleStop() {
 
 	engine.logger.Info(engine, "Stopping")
 
-	engine.frontend.Stop()
 	engine.state = StateStopped
 
 	close(engine.eventChan)
