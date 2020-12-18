@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
-	"github.com/cadmean-ru/amphion/frontend/commonFrontend"
+	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"sort"
 	"strconv"
@@ -28,7 +28,7 @@ type AmphionEngine struct {
 	eventChan          chan AmphionEvent
 	updateRoutine      *updateRoutine
 	eventBinder        *EventBinder
-	globalContext      commonFrontend.Context
+	globalContext      frontend.Context
 	forceRedraw        bool
 	messageDispatcher  *MessageDispatcher
 	currentComponent   Component
@@ -36,7 +36,7 @@ type AmphionEngine struct {
 	tasksRoutine       *TasksRoutine
 	resourceManager    *ResourceManager
 	focusedObject      *SceneObject
-	frontend           commonFrontend.Frontend
+	front              frontend.Frontend
 }
 
 const (
@@ -50,7 +50,7 @@ const (
 	StateRendering = 3
 )
 
-func Initialize(front commonFrontend.Frontend) *AmphionEngine {
+func Initialize(front frontend.Frontend) *AmphionEngine {
 	if instance != nil {
 		return instance
 	}
@@ -66,10 +66,11 @@ func Initialize(front commonFrontend.Frontend) *AmphionEngine {
 		eventBinder:     newEventBinder(),
 		tasksRoutine:    newTasksRoutine(),
 		resourceManager: newResourceManager(),
-		frontend:        front,
+		front:           front,
 	}
-	instance.renderer = instance.frontend.GetRenderer()
-	instance.globalContext = instance.frontend.GetContext()
+	instance.renderer = instance.front.GetRenderer()
+	instance.globalContext = instance.front.GetContext()
+	instance.front.SetCallback(instance.handleFrontEndCallback)
 	return instance
 }
 
@@ -106,7 +107,7 @@ func (engine *AmphionEngine) GetCurrentScene() *SceneObject {
 	return engine.currentScene
 }
 
-func (engine *AmphionEngine) GetGlobalContext() commonFrontend.Context {
+func (engine *AmphionEngine) GetGlobalContext() frontend.Context {
 	return engine.globalContext
 }
 
@@ -192,10 +193,10 @@ func (engine *AmphionEngine) IsForcedToRedraw() bool {
 	return engine.forceRedraw
 }
 
-func (engine *AmphionEngine) handleFrontEndCallback(callback frontEndCallback) {
-	switch callback.code {
-	case FrontCallbackMouseDown:
-		coords := strings.Split(callback.data, ";")
+func (engine *AmphionEngine) handleFrontEndCallback(callback frontend.Callback) {
+	switch callback.Code {
+	case frontend.CallbackMouseDown:
+		coords := strings.Split(callback.Data, ";")
 		if len(coords) != 2 {
 			panic("Invalid click callback Data")
 		}
@@ -209,8 +210,8 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontEndCallback) {
 		}
 		event := NewAmphionEvent(engine, EventMouseDown, common.NewIntVector3(int(x), int(y), 0))
 		engine.eventChan<-event
-	case FrontCallbackMouseUp:
-		coords := strings.Split(callback.data, ";")
+	case frontend.CallbackMouseUp:
+		coords := strings.Split(callback.Data, ";")
 		if len(coords) != 2 {
 			panic("Invalid click callback Data")
 		}
@@ -224,13 +225,13 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontEndCallback) {
 		}
 		event := NewAmphionEvent(engine, EventMouseUp, common.NewIntVector3(int(x), int(y), 0))
 		engine.eventChan<-event
-	case FrontCallbackContextChange:
-		engine.globalContext = engine.frontend.GetContext()
+	case frontend.CallbackContextChange:
+		engine.globalContext = engine.front.GetContext()
 		engine.configureScene(engine.currentScene)
 		engine.RequestRendering()
 		engine.forceRedraw = true
-	case FrontCallbackKeyDown:
-		tokens := strings.Split(callback.data, "\n")
+	case frontend.CallbackKeyDown:
+		tokens := strings.Split(callback.Data, "\n")
 		if len(tokens) != 2 {
 			panic("Invalid key down callback Data")
 		}
@@ -251,7 +252,7 @@ func (engine *AmphionEngine) UnbindEventHandler(code int, handler EventHandler) 
 }
 
 func (engine *AmphionEngine) handleFrontEndInterrupt(msg string) {
-	engine.frontend.CommencePanic("Kernel panic", msg)
+	engine.front.CommencePanic("Kernel panic", msg)
 	panic(msg)
 }
 
@@ -262,7 +263,7 @@ func (engine *AmphionEngine) recover() {
 		if engine.currentComponent != nil {
 			engine.logger.Error(engine, fmt.Sprintf("Error in component %s", engine.currentComponent.GetName()))
 		}
-		engine.frontend.CommencePanic("Kernel panic", fmt.Sprintf("%v", err))
+		engine.front.CommencePanic("Kernel panic", fmt.Sprintf("%v", err))
 		panic(err)
 	}
 }
@@ -352,7 +353,7 @@ func (engine *AmphionEngine) handleCloseSceneEvent(_ AmphionEvent) bool {
 	engine.logger.Info(engine, "Closing scene")
 	engine.updateRoutine.stop()
 	engine.updateRoutine.waitForStop()
-	engine.frontend.Reset()
+	engine.front.Reset()
 	engine.currentScene = nil
 	engine.state = StateStarted
 	engine.logger.Info(engine, "Scene closed")

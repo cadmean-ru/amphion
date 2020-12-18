@@ -1,4 +1,4 @@
-package commonFrontend
+package frontend
 
 import "github.com/cadmean-ru/amphion/common"
 

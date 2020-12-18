@@ -1,7 +1,7 @@
 package engine
 
 import (
-	"github.com/cadmean-ru/amphion/frontend/commonFrontend"
+	"github.com/cadmean-ru/amphion/frontend"
 	"time"
 )
 
@@ -146,7 +146,7 @@ func (r *updateRoutine) loop() {
 
 			// Render objects
 			r.loopRender(instance.currentScene, ctx)
-			instance.frontend.ReceiveMessage(commonFrontend.NewFrontendMessage(commonFrontend.MessageRender))
+			instance.front.ReceiveMessage(frontend.NewFrontendMessage(frontend.MessageRender))
 
 			instance.forceRedraw = false
 		}

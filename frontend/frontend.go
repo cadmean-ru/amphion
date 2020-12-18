@@ -1,4 +1,4 @@
-package commonFrontend
+package frontend
 
 import (
 	"github.com/cadmean-ru/amphion/common"
@@ -18,12 +18,26 @@ type Frontend interface {
 	ReceiveMessage(message Message)
 }
 
+const (
+	CallbackContextChange = -100
+	CallbackMouseDown     = -101
+	CallbackKeyDown       = -102
+	CallbackMouseUp       = -103
+)
+
 type Callback struct {
 	Code int
 	Data string
 }
 
-type CallbackHandler func()
+func NewCallback(code int, data string) Callback {
+	return Callback{
+		Code: code,
+		Data: data,
+	}
+}
+
+type CallbackHandler func(callback Callback)
 
 type InputManager interface {
 

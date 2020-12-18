@@ -102,29 +102,33 @@ func main() {
 	rect := engine.NewSceneObject("rect")
 	rect.Transform.Size = common.NewVector3(100, 100, 100)
 	rect.Transform.Position = common.NewVector3(100, 100, -2)
-	rect.AddComponent(builtin.NewShapeView(rendering.PrimitiveRectangle))
+	shape := builtin.NewShapeView(rendering.PrimitiveRectangle)
+	shape.FillColor = common.PinkColor()
+	rect.AddComponent(shape)
 	rect.AddComponent(&Mover{})
 
-	//circle := engine.NewSceneObject("circle")
-	//circle.Transform.Size = common.NewVector3(50, 50, 0)
-	//circle.Transform.Position = common.NewVector3(10, 10 , 1)
-	//circleRenderer := builtin.NewShapeView(rendering.PrimitiveEllipse)
-	//circleRenderer.Appearance.StrokeWeight = 0
-	//circleRenderer.Appearance.FillColor = common.GreenColor()
-	//circle.AddComponent(circleRenderer)
-	//circle.AddComponent(builtin.NewCircleBoundary())
-	//circle.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
-	//	var mousePos = event.Data.(common.IntVector3)
-	//	e.GetLogger().Info(nil, fmt.Sprintf("BIG CLICK ON CIRCLE. Mouse pos: %f %f", mousePos.X, mousePos.Y))
-	//	e.CloseScene(func() {
-	//		_ = e.ShowScene(createCyberpunkScene(e))
-	//	})
-	//	return false
-	//}))
-	//
-	//rect.AddChild(circle)
+	circle := engine.NewSceneObject("circle")
+	circle.Transform.Size = common.NewVector3(50, 50, 0)
+	circle.Transform.Position = common.NewVector3(10, 10 , 1)
+	circleRenderer := builtin.NewShapeView(rendering.PrimitiveEllipse)
+	circleRenderer.Appearance.StrokeWeight = 0
+	circleRenderer.Appearance.FillColor = common.GreenColor()
+	circle.AddComponent(circleRenderer)
+	circle.AddComponent(builtin.NewCircleBoundary())
+	circle.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+		var mousePos = event.Data.(common.IntVector3)
+		e.GetLogger().Info(nil, fmt.Sprintf("BIG CLICK ON CIRCLE. Mouse pos: %d %d", mousePos.X, mousePos.Y))
+		//e.CloseScene(func() {
+		//	_ = e.ShowScene(createCyberpunkScene(e))
+		//})
+		return false
+	}))
+
+	rect.AddChild(circle)
+
+
 	scene.AddChild(rect)
-	//
+
 	//text := engine.NewSceneObject("Close text")
 	//text.Transform.Position = common.NewVector3(engine.CenterInParent, engine.CenterInParent, engine.CenterInParent)
 	//text.Transform.Pivot = common.NewVector3(0.5, 0.5, 0.5)
@@ -164,23 +168,23 @@ func main() {
 	//point.Transform.Position = common.NewVector3(500, 10, 0)
 	//scene.AddChild(point)
 	//
-	//line := engine.NewSceneObject("line")
-	//line.Transform.Position = common.NewVector3(500, 400, 0)
-	//line.Transform.Size = common.NewVector3(100, 10, 0)
-	//lineView := builtin.NewShapeView(rendering.PrimitiveLine)
-	//lineView.Appearance.StrokeColor = common.NewColor(0x2c, 0x68, 0xa8, 0xff)
-	//lineView.Appearance.StrokeWeight = 5
-	//line.AddComponent(lineView)
-	//scene.AddChild(line)
+	line := engine.NewSceneObject("line")
+	line.Transform.Position = common.NewVector3(400, 400, 0)
+	line.Transform.Size = common.NewVector3(100, 10, 0)
+	lineView := builtin.NewShapeView(rendering.PrimitiveLine)
+	lineView.Appearance.StrokeColor = common.NewColor(0x2c, 0x68, 0xa8, 0xff)
+	lineView.Appearance.StrokeWeight = 5
+	line.AddComponent(lineView)
+	scene.AddChild(line)
 	//
-	//triangle := engine.NewSceneObject("triangle")
-	//triangle.Transform.Position = common.NewVector3(500, 600, 0)
-	//triangle.Transform.Size = common.NewVector3(100, 300, 0)
-	//triangleView := builtin.NewShapeView(rendering.PrimitiveTriangle)
-	//triangleView.Appearance.FillColor = common.PinkColor()
-	//triangle.AddComponent(triangleView)
-	//triangle.AddComponent(builtin.NewTriangleBoundary())
-	//scene.AddChild(triangle)
+	triangle := engine.NewSceneObject("triangle")
+	triangle.Transform.Position = common.NewVector3(100, 100, 0)
+	triangle.Transform.Size = common.NewVector3(100, 300, 0)
+	triangleView := builtin.NewShapeView(rendering.PrimitiveTriangle)
+	triangleView.Appearance.FillColor = common.BlueColor()
+	triangle.AddComponent(triangleView)
+	triangle.AddComponent(builtin.NewTriangleBoundary())
+	scene.AddChild(triangle)
 	//
 	//image := engine.NewSceneObject("image")
 	//image.Transform.Position = common.NewVector3(500, 50, -1)

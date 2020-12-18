@@ -1,4 +1,5 @@
 // +build windows linux darwin
+// +build !android
 
 package pc
 
@@ -8,9 +9,9 @@ import (
 	"strings"
 )
 
-const DefaultVertexShaderText = "#version 330 core\nlayout (location = 0) in vec3 aPos;\n\nvoid main()\n{\n    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n}\x00"
+const DefaultVertexShaderText = "#version 330 core\nlayout (location = 0) in vec3 aPos;\n\nout vec4 trashPos;\n\nvoid main()\n{\n    trashPos = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n    gl_Position = trashPos;\n}\x00"
 
-const DefaultFragShaderText = "#version 330 core\nout vec4 FragColor;\n\nvoid main()\n{\n    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n}\x00"
+const DefaultFragShaderText = "#version 330 core\nout vec4 FragColor;\n\nuniform vec4 ourColor;\n\nvoid main()\n{\n    FragColor = ourColor;\n}\x00"
 
 func createAndCompileShaderOrPanic(text string, shaderType uint32) uint32 {
 	shaderSource, free := gl.Strs(text)
@@ -38,10 +39,7 @@ func createAndCompileShaderOrPanic(text string, shaderType uint32) uint32 {
 	return shader
 }
 
-func createAndLinkDefaultProgramOrPanic() uint32 {
-	vertexShader := createAndCompileShaderOrPanic(DefaultVertexShaderText, gl.VERTEX_SHADER)
-	fragShader := createAndCompileShaderOrPanic(DefaultFragShaderText, gl.FRAGMENT_SHADER)
-
+func createAndLinkProgramOrPanic(vertexShader, fragShader uint32) uint32 {
 	shaderProgram := gl.CreateProgram()
 	gl.AttachShader(shaderProgram, vertexShader)
 	gl.AttachShader(shaderProgram, fragShader)
@@ -66,3 +64,12 @@ func createAndLinkDefaultProgramOrPanic() uint32 {
 
 	return shaderProgram
 }
+
+func createAndLinkDefaultProgramOrPanic() uint32 {
+	vertexShader := createAndCompileShaderOrPanic(DefaultVertexShaderText, gl.VERTEX_SHADER)
+	fragShader := createAndCompileShaderOrPanic(DefaultFragShaderText, gl.FRAGMENT_SHADER)
+
+	return createAndLinkProgramOrPanic(vertexShader, fragShader)
+}
+
+const EllipseFragShaderText = "#version 330 core\nout vec4 FragColor;\n\nuniform vec4 ourColor;\n\nuniform vec3 tlPos;\nuniform vec3 brPos;\n\nin vec4 trashPos;\n\nvoid main()\n{\n    float a = (brPos.x - tlPos.x) / 2; //0.1\n    float b = (brPos.y - tlPos.y) / 2; //0.1\n    float x = trashPos.x;\n    float y = trashPos.y;\n    float xc = tlPos.x + a; // 0.3\n    float yc = tlPos.y + b; // -0.3\n    float x2 = x - xc;\n    float y2 = y - yc;\n    float c = x2 / a;\n    float d = y2 / b;\n    float res = c * c + d * d;\n    if (res <= 1)\n        FragColor = ourColor;\n    else\n        discard;\n}\x00"

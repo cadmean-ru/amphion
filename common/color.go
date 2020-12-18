@@ -31,6 +31,13 @@ func (c Color) EncodeToByteArray() []byte {
 	return arr
 }
 
+func (c Color) Normalize() Vector4 {
+	x := float32(c.R) / 255
+	y := float32(c.G) / 255
+	z := float32(c.B) / 255
+	w := float32(c.A) / 255
+	return NewVector4(x, y, z, w)
+}
 
 func BlackColor() Color {
 	return NewColor(0, 0, 0, 255)
