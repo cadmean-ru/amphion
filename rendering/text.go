@@ -11,6 +11,10 @@ type TextPrimitive struct {
 	TextAppearance TextAppearance
 }
 
+func (p *TextPrimitive) GetType() common.AByte {
+	return PrimitiveText
+}
+
 func (p *TextPrimitive) BuildPrimitive() *Primitive {
 	pr := NewPrimitive(PrimitiveText)
 	pr.AddAttribute(NewAttribute(AttributeTransform, p.Transform))

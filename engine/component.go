@@ -51,10 +51,10 @@ func newInitContext(engine *AmphionEngine, object *SceneObject) InitContext {
 }
 
 type UpdateContext struct {
-	DeltaTime float64
+	DeltaTime float32
 }
 
-func newUpdateContext(dTime float64) UpdateContext {
+func newUpdateContext(dTime float32) UpdateContext {
 	return UpdateContext{
 		DeltaTime: dTime,
 	}

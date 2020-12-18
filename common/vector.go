@@ -7,16 +7,16 @@ import (
 
 // Represents a point in 3D space
 type Vector3 struct {
-	X, Y, Z float64
+	X, Y, Z float32
 }
 
-func (v Vector3) SetXYZ(x, y, z float64) {
+func (v Vector3) SetXYZ(x, y, z float32) {
 	v.X = x
 	v.Y = y
 	v.Z = z
 }
 
-func NewVector3(x, y, z float64) Vector3 {
+func NewVector3(x, y, z float32) Vector3 {
 	return Vector3{
 		X: x,
 		Y: y,
@@ -66,10 +66,24 @@ func (v Vector3) Multiply(v2 Vector3) Vector3 {
 // Rounds the valued of the vector
 func (v Vector3) Round() IntVector3 {
 	return IntVector3{
-		X: int(math.Round(v.X)),
-		Y: int(math.Round(v.Y)),
-		Z: int(math.Round(v.Z)),
+		X: int(math.Round(float64(v.X))),
+		Y: int(math.Round(float64(v.Y))),
+		Z: int(math.Round(float64(v.Z))),
 	}
+}
+
+// Transforms vector ro normalized device coordinates vector
+func (v Vector3) Ndc(screen Vector3) Vector3 {
+	xs := screen.X
+	ys := screen.Y
+	x0 := screen.X / 2
+	y0 := screen.Y / 2
+	x := v.X
+	y := v.Y
+	newX := (2*(x-x0))/xs
+	newY := (-2*(y-y0))/ys
+
+	return Vector3{newX, newY, 0}
 }
 
 // Checks if the vector is the same as other vector
@@ -84,10 +98,10 @@ func (v Vector3) Equals(other interface{}) bool {
 }
 
 func (v Vector3) EncodeToByteArray() []byte {
-	arr := make([]byte, 24)
-	_ = CopyByteArray(Float64ToByteArray(v.X), arr, 0, 8)
-	_ = CopyByteArray(Float64ToByteArray(v.Y), arr, 8, 8)
-	_ = CopyByteArray(Float64ToByteArray(v.Z), arr, 16, 8)
+	arr := make([]byte, 12)
+	_ = CopyByteArray(Float32ToByteArray(v.X), arr, 0, 4)
+	_ = CopyByteArray(Float32ToByteArray(v.Y), arr, 4, 4)
+	_ = CopyByteArray(Float32ToByteArray(v.Z), arr, 8, 4)
 	return arr
 }
 

@@ -58,12 +58,12 @@ func (d *DropdownView) OnStart() {
 	d.optionsContainer.AddComponent(optionsBg)
 
 	d.optionsContainer.Transform.Position = common.NewVector3(0, siz.Y, 1)
-	d.optionsContainer.Transform.Size = common.NewVector3(siz.X, float64(35*len(d.items)) + 5, 0)
+	d.optionsContainer.Transform.Size = common.NewVector3(siz.X, float32(35*len(d.items)) + 5, 0)
 
 	for i, o := range d.items {
 		var itemText = o
 		item := engine.NewSceneObject(fmt.Sprintf("Item%d", i))
-		item.Transform.Position = common.NewVector3(10, float64(i*35) + 5, 1)
+		item.Transform.Position = common.NewVector3(10, float32(i*35) + 5, 1)
 		item.Transform.Size = common.NewVector3(siz.X, 35, 0)
 		itemTextView := NewTextView(itemText)
 		itemTextView.Appearance.FillColor = common.BlackColor()
@@ -92,12 +92,12 @@ func (d *DropdownView) OnStart() {
 func (d *DropdownView) OnDraw(ctx engine.DrawingContext) {
 	pos := d.obj.Transform.GetGlobalTopLeftPosition()
 	rect := d.obj.Transform.GetGlobalRect()
-	x1 := int(math.Round(rect.X.Max)) - 25
-	x2 := int(math.Round(rect.X.Max)) - 5
+	x1 := int(math.Round(float64(rect.X.Max))) - 25
+	x2 := int(math.Round(float64(rect.X.Max))) - 5
 	//x3 := x1 + int(math.Round(common.NewFloatRange(float64(x1), float64(x2)).GetLength() / 2))
-	y1 := int(math.Round(rect.Y.Min)) + 12
-	y2 := int(math.Round(rect.Y.Max)) - 12
-	z1 := int(math.Round(pos.Z + 1))
+	y1 := int(math.Round(float64(rect.Y.Min))) + 12
+	y2 := int(math.Round(float64(rect.Y.Max))) - 12
+	z1 := int(math.Round(float64(pos.Z + 1)))
 	//
 	//lp1 := rendering.NewGeometryPrimitive(rendering.PrimitiveLine)
 	//lp1.Transform.Position = common.NewIntVector3(x1, y1, z1)
@@ -150,7 +150,7 @@ func (d *DropdownView) GetSelectedItem() string {
 func (d *DropdownView) showDropdown() {
 	siz := d.obj.Transform.Size
 	d.optionsContainer.Transform.Position = common.NewVector3(0, siz.Y, 0)
-	d.optionsContainer.Transform.Size = common.NewVector3(siz.X, float64(35*len(d.items)), 0)
+	d.optionsContainer.Transform.Size = common.NewVector3(siz.X, float32(35*len(d.items)), 0)
 	d.optionsContainer.SetEnabled(true)
 	d.eng.RequestRendering()
 }

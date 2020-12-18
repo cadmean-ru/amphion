@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/frontend"
+	"github.com/cadmean-ru/amphion/frontend/commonFrontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"sort"
 	"strconv"
@@ -27,7 +29,7 @@ type AmphionEngine struct {
 	eventChan          chan AmphionEvent
 	updateRoutine      *updateRoutine
 	eventBinder        *EventBinder
-	globalContext      *GlobalContext
+	globalContext      commonFrontend.Context
 	forceRedraw        bool
 	messageDispatcher  *MessageDispatcher
 	currentComponent   Component
@@ -35,6 +37,7 @@ type AmphionEngine struct {
 	tasksRoutine       *TasksRoutine
 	resourceManager    *ResourceManager
 	focusedObject      *SceneObject
+	frontend           commonFrontend.Frontend
 }
 
 const (
@@ -56,17 +59,19 @@ func Initialize(platform common.Platform) *AmphionEngine {
 	instance = &AmphionEngine{
 		platform:        platform,
 		logger:          GetLoggerForPlatform(platform),
-		renderer:        rendering.NewRenderer(),
 		idgen:           common.NewIdGenerator(),
 		state:           StateStopped,
 		stopChan:        make(chan bool),
 		eventChan:       make(chan AmphionEvent, 100),
 		updateRoutine:   newUpdateRoutine(),
 		eventBinder:     newEventBinder(),
-		globalContext:   getGlobalContext(),
 		tasksRoutine:    newTasksRoutine(),
 		resourceManager: newResourceManager(),
+		frontend:        frontend.GetFrontend(),
 	}
+	instance.frontend.Init()
+	instance.renderer = instance.frontend.GetRenderer()
+	instance.globalContext = instance.frontend.GetContext()
 	return instance
 }
 
@@ -76,16 +81,12 @@ func GetInstance() *AmphionEngine {
 
 func (engine *AmphionEngine) Start() {
 	engine.started = true
-	engine.renderer.Prepare()
-	prepareInterop()
+	engine.frontend.Start()
 	engine.registerInternalEvenHandlers()
 	engine.logger.Info(engine, "Amphion started")
 	engine.state = StateStarted
 	go engine.eventLoop()
 	engine.tasksRoutine.start()
-	//if engine.tryLoadApp() {
-	//	engine.LoadScene(engine.currentApp.Scenes[0])
-	//}
 }
 
 func (engine *AmphionEngine) Stop() {
@@ -108,7 +109,7 @@ func (engine *AmphionEngine) GetCurrentScene() *SceneObject {
 	return engine.currentScene
 }
 
-func (engine *AmphionEngine) GetGlobalContext() *GlobalContext {
+func (engine *AmphionEngine) GetGlobalContext() commonFrontend.Context {
 	return engine.globalContext
 }
 
@@ -156,9 +157,9 @@ func (engine *AmphionEngine) CloseScene(callback func()) {
 }
 
 func (engine *AmphionEngine) configureScene(scene *SceneObject) {
-	screenInfo := engine.globalContext.screenInfo
-	scene.Transform.Size.X = float64(screenInfo.GetWidth())
-	scene.Transform.Size.Y = float64(screenInfo.GetHeight())
+	screenInfo := engine.globalContext.ScreenInfo
+	scene.Transform.Size.X = float32(screenInfo.GetWidth())
+	scene.Transform.Size.Y = float32(screenInfo.GetHeight())
 }
 
 func (engine *AmphionEngine) eventLoop() {
@@ -227,7 +228,7 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontEndCallback) {
 		event := NewAmphionEvent(engine, EventMouseUp, common.NewIntVector3(int(x), int(y), 0))
 		engine.eventChan<-event
 	case FrontCallbackContextChange:
-		engine.globalContext = getGlobalContext()
+		engine.globalContext = engine.frontend.GetContext()
 		engine.configureScene(engine.currentScene)
 		engine.RequestRendering()
 		engine.forceRedraw = true
@@ -253,7 +254,7 @@ func (engine *AmphionEngine) UnbindEventHandler(code int, handler EventHandler) 
 }
 
 func (engine *AmphionEngine) handleFrontEndInterrupt(msg string) {
-	commencePanic("Kernel panic", msg)
+	engine.frontend.CommencePanic("Kernel panic", msg)
 	panic(msg)
 }
 
@@ -264,7 +265,7 @@ func (engine *AmphionEngine) recover() {
 		if engine.currentComponent != nil {
 			engine.logger.Error(engine, fmt.Sprintf("Error in component %s", engine.currentComponent.GetName()))
 		}
-		commencePanic("Kernel panic", fmt.Sprintf("%v", err))
+		engine.frontend.CommencePanic("Kernel panic", fmt.Sprintf("%v", err))
 		panic(err)
 	}
 }
@@ -314,6 +315,7 @@ func (engine *AmphionEngine) handleStop() {
 
 	engine.logger.Info(engine, "Stopping")
 
+	engine.frontend.Stop()
 	engine.state = StateStopped
 
 	close(engine.eventChan)
@@ -354,7 +356,7 @@ func (engine *AmphionEngine) handleCloseSceneEvent(_ AmphionEvent) bool {
 	engine.logger.Info(engine, "Closing scene")
 	engine.updateRoutine.stop()
 	engine.updateRoutine.waitForStop()
-	frontEndCloseScene()
+	engine.frontend.Reset()
 	engine.currentScene = nil
 	engine.state = StateStarted
 	engine.logger.Info(engine, "Scene closed")
@@ -384,21 +386,21 @@ func (engine *AmphionEngine) GetResourceManager() *ResourceManager {
 func (engine *AmphionEngine) GetName() string {
 	return "Amphion Engine"
 }
-
-func (engine *AmphionEngine) tryLoadApp() bool {
-	if data, err := loadAppData(); err == nil {
-		if app, err := DecodeApp(data); err == nil {
-			engine.currentApp = app
-			return true
-		} else {
-			engine.logger.Warning(engine, "Failed to decode app")
-		}
-	} else {
-		engine.logger.Warning(engine, "Failed to load app")
-	}
-
-	return false
-}
+//
+//func (engine *AmphionEngine) tryLoadApp() bool {
+//	if data, err := loadAppData(); err == nil {
+//		if app, err := DecodeApp(data); err == nil {
+//			engine.currentApp = app
+//			return true
+//		} else {
+//			engine.logger.Warning(engine, "Failed to decode app")
+//		}
+//	} else {
+//		engine.logger.Warning(engine, "Failed to load app")
+//	}
+//
+//	return false
+//}
 
 func (engine *AmphionEngine) rebuildMessageTree() {
 	if engine.currentScene == nil {

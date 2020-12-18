@@ -38,7 +38,7 @@ func (t Transform) ToMap() common.SiMap {
 }
 
 func (t Transform) GetLocalPosition() common.Vector3 {
-	var x, y, z float64
+	var x, y, z float32
 	if t.parent != nil && IsSpecialPosition(t.Position) {
 		pb := t.parent.GetRect()
 		if t.Position.X == CenterInParent {
@@ -107,7 +107,7 @@ func IsSpecialPosition(pos common.Vector3) bool {
 	return IsSpecialPositionValue(pos.X) || IsSpecialPositionValue(pos.Y) || IsSpecialPositionValue(pos.Z)
 }
 
-func IsSpecialPositionValue(x float64) bool {
+func IsSpecialPositionValue(x float32) bool {
 	return x == CenterInParent
 }
 

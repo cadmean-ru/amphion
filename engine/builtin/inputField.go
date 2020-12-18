@@ -9,7 +9,7 @@ import (
 type InputField struct {
 	ViewImpl
 	rendering.Appearance
-	Padding        float64
+	Padding        float32
 	AllowMultiline bool
 	inputView      *InputView
 }

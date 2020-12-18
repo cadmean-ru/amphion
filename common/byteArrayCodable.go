@@ -73,3 +73,10 @@ func Float64ToByteArray(num float64) []byte {
 	binary.LittleEndian.PutUint64(arr, n)
 	return arr
 }
+
+func Float32ToByteArray(num float32) []byte {
+	arr := make([]byte, 4)
+	n := math.Float32bits(num)
+	binary.LittleEndian.PutUint32(arr, n)
+	return arr
+}

@@ -7,10 +7,10 @@ import (
 
 // Represents a range of values between min and max inclusive
 type FloatRange struct {
-	Min, Max float64
+	Min, Max float32
 }
 
-func NewFloatRange(min, max float64) FloatRange {
+func NewFloatRange(min, max float32) FloatRange {
 	if max < min {
 		return FloatRange{
 			Min: max,
@@ -24,12 +24,12 @@ func NewFloatRange(min, max float64) FloatRange {
 }
 
 // Gets the length of the range
-func (r FloatRange) GetLength() float64 {
-	return math.Abs(r.Max - r.Min)
+func (r FloatRange) GetLength() float32 {
+	return float32(math.Abs(float64(r.Max - r.Min)))
 }
 
 // Checks if specific value falls inside the range
-func (r FloatRange) IsValueInside(value float64) bool {
+func (r FloatRange) IsValueInside(value float32) bool {
 	return value >= r.Min && value <= r.Max
 }
 

@@ -27,7 +27,7 @@ func (b RectBoundary) ToString() string {
 	return fmt.Sprintf("(%s %s %s)", b.X.ToString(), b.Y.ToString(), b.Z.ToString())
 }
 
-func NewRectBoundary(minX, maxX, minY, maxY, minZ, maxZ float64) RectBoundary {
+func NewRectBoundary(minX, maxX, minY, maxY, minZ, maxZ float32) RectBoundary {
 	return RectBoundary{
 		X: NewFloatRange(minX, maxX),
 		Y: NewFloatRange(minY, maxY),

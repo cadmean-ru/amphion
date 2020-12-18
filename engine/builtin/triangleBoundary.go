@@ -43,21 +43,21 @@ func (r *TriangleBoundary) IsPointInside2D(point common.Vector3) bool {
 	s1 := area(point, pointA, pointB)
 	s2 := area(point, pointB, pointC)
 	s3 := area(point, pointA, pointC)
-	return math.Abs(s - s1 - s2 - s3) <= 0.0001
+	return math.Abs(float64(s-s1-s2-s3)) <= 0.0001
 }
 
-func area(a, b, c common.Vector3) float64 {
+func area(a, b, c common.Vector3) float32 {
 	ab := length(a, b)
 	bc := length(b, c)
 	ac := length(a, c)
 	p := (ab + bc + ac) / 2
-	return math.Sqrt(p * (p - ab) * (p - bc) * (p - ac))
+	return float32(math.Sqrt(float64(p * (p - ab) * (p - bc) * (p - ac))))
 }
 
-func length(a, b common.Vector3) float64 {
-	x := math.Abs(b.X - a.X)
-	y := math.Abs(b.Y - a.Y)
-	return math.Sqrt(x * x + y * y)
+func length(a, b common.Vector3) float32 {
+	x := math.Abs(float64(b.X - a.X))
+	y := math.Abs(float64(b.Y - a.Y))
+	return float32(math.Sqrt(x*x + y*y))
 }
 
 func NewTriangleBoundary() *TriangleBoundary {

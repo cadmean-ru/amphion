@@ -3,6 +3,7 @@
 package engine
 
 import (
+	"github.com/cadmean-ru/amphion/common"
 	"syscall/js"
 )
 
@@ -34,7 +35,7 @@ func getGlobalContext() *GlobalContext {
 	screenW := screenJs.Get("width").Int()
 	screenH := screenJs.Get("height").Int()
 
-	contextNative.screenInfo = newScreenInfo(screenW, screenH)
+	contextNative.screenInfo = common.newScreenInfo(screenW, screenH)
 
 	host := contextJs.Get("host").String()
 	contextNative.domain = host

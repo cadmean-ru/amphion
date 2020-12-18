@@ -105,6 +105,10 @@ func (r *P5Renderer) Clear() {
 	r.idgen = common.NewIdGenerator()
 }
 
+func (r *P5Renderer) Stop() {
+
+}
+
 func (r *P5Renderer) postCommands(commands []Command) {
 	totalSize := 1
 	for _, c := range commands {

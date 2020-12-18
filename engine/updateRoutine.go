@@ -77,6 +77,8 @@ func (r *updateRoutine) loop() {
 
 	defer instance.recover()
 
+	instance.renderer.Prepare()
+
 	// Initialize all components
 	r.loopInit(instance.currentScene)
 
@@ -127,7 +129,7 @@ func (r *updateRoutine) loop() {
 			r.updateRequested = false
 			instance.state = StateUpdating
 
-			ctx := newUpdateContext(elapsed.Seconds())
+			ctx := newUpdateContext(float32(elapsed.Seconds()))
 
 			// Calling OnUpdate for all objects in scene
 			r.loopUpdate(instance.currentScene, ctx)

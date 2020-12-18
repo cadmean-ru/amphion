@@ -9,6 +9,10 @@ type BezierPrimitive struct {
 	ControlPoint2 common.IntVector3
 }
 
+func (b *BezierPrimitive) GetType() common.AByte {
+	return PrimitiveBezier
+}
+
 func (b *BezierPrimitive) BuildPrimitive() *Primitive {
 	pr := NewPrimitive(PrimitiveBezier)
 	pr.AddAttribute(NewAttribute(AttributeTransform, b.Transform))

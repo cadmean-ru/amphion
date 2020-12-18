@@ -9,6 +9,10 @@ type ImagePrimitive struct {
 	resIndex  common.AInt
 }
 
+func (p *ImagePrimitive) GetType() common.AByte {
+	return PrimitiveImage
+}
+
 func (p *ImagePrimitive) BuildPrimitive() *Primitive {
 	pr := NewPrimitive(PrimitiveImage)
 	pr.AddAttribute(NewAttribute(AttributeTransform, p.Transform))

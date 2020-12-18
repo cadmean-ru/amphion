@@ -61,7 +61,21 @@ func (v IntVector3) Multiply(v2 IntVector3) IntVector3 {
 }
 
 func (v IntVector3) ToFloat() Vector3 {
-	return NewVector3(float64(v.X), float64(v.Y), float64(v.Z))
+	return NewVector3(float32(v.X), float32(v.Y), float32(v.Z))
+}
+
+// Transforms vector ro normalized device coordinates vector
+func (v IntVector3) Ndc(screen IntVector3) Vector3 {
+	xs := float32(screen.X)
+	ys := float32(screen.Y)
+	x0 := float32(screen.X) / 2
+	y0 := float32(screen.Y) / 2
+	x := float32(v.X)
+	y := float32(v.Y)
+	newX := (2*(x-x0))/xs
+	newY := (-2*(y-y0))/ys
+
+	return Vector3{newX, newY, 0}
 }
 
 // Checks if the vector is the same as other vector
