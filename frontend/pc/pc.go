@@ -44,6 +44,7 @@ func (f *Frontend) Init() {
 	f.window.SetMouseButtonCallback(f.mouseButtonCallback)
 	f.window.SetKeyCallback(f.keyCallback)
 	f.window.SetFramebufferSizeCallback(f.frameBufferSizeCallback)
+	f.window.SetFocusCallback(f.focusCallback)
 
 	f.context.ScreenInfo = common.NewScreenInfo(f.wSize.X, f.wSize.Y)
 
@@ -117,6 +118,16 @@ func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, width int, height int
 	f.context.ScreenInfo = common.NewScreenInfo(width, height)
 	f.renderer.handleWindowResize()
 	f.handler(frontend.NewCallback(frontend.CallbackContextChange, ""))
+}
+
+func (f *Frontend) focusCallback(_ *glfw.Window, focused bool) {
+	var code int
+	if focused {
+		code = frontend.CallbackAppShow
+	} else {
+		code = frontend.CallbackAppHide
+	}
+	f.handler(frontend.NewCallback(code, ""))
 }
 
 func (f *Frontend) Stop() {

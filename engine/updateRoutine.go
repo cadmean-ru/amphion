@@ -124,6 +124,13 @@ func (r *updateRoutine) loop() {
 			r.stopSceneObjects = make([]*SceneObject, 0)
 		}
 
+		if instance.suspend {
+			instance.state = StateStarted
+			r.updateRequested = false
+			r.renderingRequested = false
+			continue
+		}
+
 		if r.updateRequested {
 			//engine.logger.Info("Update loop", "Updating components")
 

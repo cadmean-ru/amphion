@@ -13,6 +13,10 @@ func (b *BezierPrimitive) GetType() common.AByte {
 	return PrimitiveBezier
 }
 
+func (b *BezierPrimitive) GetTransform() Transform {
+	return b.Transform
+}
+
 func (b *BezierPrimitive) BuildPrimitive() *Primitive {
 	pr := NewPrimitive(PrimitiveBezier)
 	pr.AddAttribute(NewAttribute(AttributeTransform, b.Transform))

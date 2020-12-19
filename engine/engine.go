@@ -37,6 +37,7 @@ type AmphionEngine struct {
 	resourceManager    *ResourceManager
 	focusedObject      *SceneObject
 	front              frontend.Frontend
+	suspend            bool
 }
 
 const (
@@ -240,6 +241,11 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontend.Callback) 
 			Code: tokens[1],
 		})
 		engine.eventChan<-event
+	case frontend.CallbackAppHide:
+		engine.suspend = true
+	case frontend.CallbackAppShow:
+		engine.suspend = false
+		engine.RequestRendering()
 	}
 }
 

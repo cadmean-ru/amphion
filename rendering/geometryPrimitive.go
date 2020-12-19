@@ -16,6 +16,10 @@ func (p *GeometryPrimitive) GetType() common.AByte {
 	return p.primitiveType
 }
 
+func (p *GeometryPrimitive) GetTransform() Transform {
+	return p.Transform
+}
+
 func (p *GeometryPrimitive) BuildPrimitive() *Primitive {
 	pr := NewPrimitive(p.primitiveType)
 	pr.AddAttribute(NewAttribute(AttributeTransform, p.Transform))

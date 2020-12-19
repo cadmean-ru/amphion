@@ -185,13 +185,13 @@ func main() {
 	triangle.AddComponent(triangleView)
 	triangle.AddComponent(builtin.NewTriangleBoundary())
 	scene.AddChild(triangle)
-	//
-	//image := engine.NewSceneObject("image")
-	//image.Transform.Position = common.NewVector3(500, 50, -1)
-	//image.Transform.Size = common.NewVector3(500, 200, 0)
-	//imageView := builtin.NewImageView(1)
-	//image.AddComponent(imageView)
-	//scene.AddChild(image)
+
+	image := engine.NewSceneObject("image")
+	image.Transform.Position = common.NewVector3(200, 200, 0)
+	image.Transform.Size = common.NewVector3(100, 100, 0)
+	imageView := builtin.NewImageView(3)
+	image.AddComponent(imageView)
+	scene.AddChild(image)
 	//
 	//image2 := engine.NewSceneObject("image2")
 	//image2.Transform.Position = common.NewVector3(500, 500, -1)

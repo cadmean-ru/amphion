@@ -23,6 +23,8 @@ const (
 	CallbackMouseDown     = -101
 	CallbackKeyDown       = -102
 	CallbackMouseUp       = -103
+	CallbackAppHide       = -104
+	CallbackAppShow       = -105
 )
 
 type Callback struct {

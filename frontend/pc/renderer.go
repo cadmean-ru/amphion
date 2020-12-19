@@ -9,15 +9,26 @@ import (
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/all-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
+	"image"
+	"image/draw"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+	"io/ioutil"
+	"log"
+	"os"
+	"sort"
 )
 
 type OpenGLPrimitive interface {
 	GetType() common.AByte
+	GetTransform() rendering.Transform
 }
 
 type OpenGLRenderer struct {
 	defaultProgram uint32
 	ellipseProgram uint32
+	imageProgram   uint32
 	window         *glfw.Window
 	idgen          *common.IdGenerator
 	primitives     map[int64]*glContainer
@@ -46,6 +57,11 @@ func (r *OpenGLRenderer) Prepare() {
 	r.ellipseProgram = createAndLinkProgramOrPanic(
 		createAndCompileShaderOrPanic(DefaultVertexShaderText, gl.VERTEX_SHADER),
 		createAndCompileShaderOrPanic(EllipseFragShaderText, gl.FRAGMENT_SHADER),
+	)
+
+	r.imageProgram = createAndLinkProgramOrPanic(
+		createAndCompileShaderOrPanic(ImageVertexShader, gl.VERTEX_SHADER),
+		createAndCompileShaderOrPanic(ImageFragShader, gl.FRAGMENT_SHADER),
 	)
 
 	gl.Enable(gl.BLEND)
@@ -90,7 +106,22 @@ func (r *OpenGLRenderer) PerformRendering() {
 	gl.ClearColor(1, 1, 1, 1)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
+	list := make([]*glContainer, len(r.primitives))
+
+	i := 0
 	for _, p := range r.primitives {
+		list[i] = p
+		i++
+	}
+
+	// TODO: replace this sort with something like binary search tree
+	sort.Slice(list, func(i, j int) bool {
+		z1 := list[i].primitive.GetTransform().Position.Z
+		z2 := list[j].primitive.GetTransform().Position.Z
+		return z1 < z2
+	})
+
+	for _, p := range list {
 		switch p.primitive.GetType() {
 		case rendering.PrimitivePoint:
 			break
@@ -105,7 +136,7 @@ func (r *OpenGLRenderer) PerformRendering() {
 		case rendering.PrimitiveText:
 			r.drawText(p)
 		case rendering.PrimitiveImage:
-			break
+			r.drawImage(p)
 		case rendering.PrimitiveBezier:
 			break
 		}
@@ -165,8 +196,6 @@ func (r *OpenGLRenderer) drawRectangle(p *glContainer) {
 
 		gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 		gl.BindVertexArray(0)
-
-
 	}
 
 	if p.colorLoc == -1 {
@@ -373,4 +402,102 @@ func (r *OpenGLRenderer) drawText(p *glContainer) {
 	//}
 	//
 	//text.Draw()
+}
+
+func (r *OpenGLRenderer) drawImage(p *glContainer) {
+	ip := p.primitive.(*rendering.ImagePrimitive)
+
+	var texId uint32
+	if _, ok := p.other["tex"]; !ok {
+
+		files, err := ioutil.ReadDir("./res")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		imagePath := "./res/" + files[ip.ResIndex].Name()
+
+		imageFile, err := os.Open(imagePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		defer imageFile.Close()
+
+		img, _, err := image.Decode(imageFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		rgba := image.NewRGBA(img.Bounds())
+		draw.Draw(rgba, rgba.Bounds(), img, image.Pt(0, 0), draw.Src)
+
+		gl.GenTextures(1, &texId)
+
+		gl.BindTexture(gl.TEXTURE_2D, texId)
+
+		gl.TexImage2D(
+			gl.TEXTURE_2D,
+			0,
+			gl.SRGB_ALPHA,
+			int32(rgba.Bounds().Size().X),
+			int32(rgba.Bounds().Size().Y),
+			0,
+			gl.RGBA,
+			gl.UNSIGNED_BYTE,
+			gl.Ptr(rgba.Pix),
+		)
+
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+
+		gl.BindTexture(gl.TEXTURE_2D, 0)
+
+		p.other["tex"] = texId
+	} else {
+		texId = p.other["tex"].(uint32)
+	}
+
+	p.gen()
+
+	if p.redraw {
+		gl.BindVertexArray(p.vao)
+
+		nPos := ip.Transform.Position.Ndc(r.wSize)
+		nSize := ip.Transform.Position.Add(ip.Transform.Size).Ndc(r.wSize)
+
+		vertices := []float32 {
+			nPos.X,  nPos.Y,  0,	0, 1,  // top left
+			nPos.X,  nSize.Y, 0,	0, 0,  // bottom left
+			nSize.X, nSize.Y, 0,	1, 0,  // top right
+			nSize.X, nPos.Y,  0,	1, 1,  // bottom right
+		}
+
+		indices := []uint32 {
+			0, 1, 2,
+			0, 3, 2,
+		}
+
+		gl.BindBuffer(gl.ARRAY_BUFFER, p.vbo)
+		gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+
+		gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, p.ebo)
+		gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
+
+		gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 20, nil)
+		gl.EnableVertexAttribArray(0)
+
+		gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 20, gl.PtrOffset(12))
+		gl.EnableVertexAttribArray(1)
+
+		gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+		gl.BindVertexArray(0)
+	}
+
+	gl.UseProgram(r.imageProgram)
+	gl.BindVertexArray(p.vao)
+	gl.BindTexture(gl.TEXTURE_2D, texId)
+	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
 }
