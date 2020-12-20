@@ -29,6 +29,7 @@ type OpenGLRenderer struct {
 	defaultProgram uint32
 	ellipseProgram uint32
 	imageProgram   uint32
+	textProgram    uint32
 	window         *glfw.Window
 	idgen          *common.IdGenerator
 	primitives     map[int64]*glContainer
@@ -62,6 +63,11 @@ func (r *OpenGLRenderer) Prepare() {
 	r.imageProgram = createAndLinkProgramOrPanic(
 		createAndCompileShaderOrPanic(ImageVertexShader, gl.VERTEX_SHADER),
 		createAndCompileShaderOrPanic(ImageFragShader, gl.FRAGMENT_SHADER),
+	)
+
+	r.textProgram = createAndLinkProgramOrPanic(
+		createAndCompileShaderOrPanic(TextVertexShader, gl.VERTEX_SHADER),
+		createAndCompileShaderOrPanic(TextFragShader, gl.FRAGMENT_SHADER),
 	)
 
 	gl.Enable(gl.BLEND)
@@ -98,7 +104,7 @@ func (r *OpenGLRenderer) SetPrimitive(id int64, primitive interface{}, shouldRed
 }
 
 func (r *OpenGLRenderer) RemovePrimitive(id int64) {
-	r.primitives[id].free()
+	//r.primitives[id].free()
 	delete(r.primitives, id)
 }
 
@@ -106,10 +112,23 @@ func (r *OpenGLRenderer) PerformRendering() {
 	gl.ClearColor(1, 1, 1, 1)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
-	list := make([]*glContainer, len(r.primitives))
+	count := 0
+	for _, p := range r.primitives {
+		if p.primitive == nil {
+			//fmt.Println(fmt.Sprintf("primitive data was never set (id: %d)", id))
+			continue
+		}
+
+		count++
+	}
+
+	list := make([]*glContainer, count)
 
 	i := 0
 	for _, p := range r.primitives {
+		if p.primitive == nil {
+			continue
+		}
 		list[i] = p
 		i++
 	}
@@ -402,6 +421,81 @@ func (r *OpenGLRenderer) drawText(p *glContainer) {
 	//}
 	//
 	//text.Draw()
+
+	tp := p.primitive.(*rendering.TextPrimitive)
+
+	fontName := tp.TextAppearance.Font
+	if fontName == "" {
+		fontName = "Arial"
+	}
+
+	var font *glFont
+	var ok bool
+	var err error
+	if font, ok = r.fonts[fontName]; !ok {
+		font, err = loadFont(fontName)
+		if err != nil {
+			panic(err)
+		}
+		r.fonts[fontName] = font
+	}
+
+	p.gen()
+
+	if p.redraw {
+		gl.BindVertexArray(p.vao)
+		gl.BindBuffer(gl.ARRAY_BUFFER, p.vbo)
+		gl.BufferData(gl.ARRAY_BUFFER, 4*6*4, nil, gl.DYNAMIC_DRAW)
+		gl.VertexAttribPointer(0, 4, gl.FLOAT, false, 4*4, nil)
+		gl.EnableVertexAttribArray(0)
+		gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+		gl.BindVertexArray(0)
+	}
+
+	color := tp.Appearance.FillColor.Normalize()
+
+	gl.UseProgram(r.textProgram)
+	gl.ActiveTexture(gl.TEXTURE0)
+	gl.BindVertexArray(p.vao)
+
+	x := tp.Transform.Position.X
+	y := tp.Transform.Position.Y
+
+	for _, c := range []rune(tp.Text) {
+		if c == ' ' {
+			x += 10
+			continue
+		}
+
+		ch, ok1 := font.characters[c]
+
+		if !ok1 {
+			//fmt.Printf("Char not found %+v\n", c)
+			continue
+		}
+
+		xpos := x + ch.bearing.X
+		ypos := y - (ch.size.Y - ch.bearing.Y)
+
+		pos := common.NewIntVector3(xpos, ypos, 0)
+		npos := pos.Ndc(r.wSize)
+
+		w := ch.size.X
+		h := ch.size.Y
+
+		brpos := pos.Add(common.NewIntVector3(w, h, 0))
+		nbrpos := brpos.Ndc(r.wSize)
+
+		r.drawTex(p, npos, nbrpos, ch.textureId, r.textProgram, func() {
+			gl.Uniform3f(gl.GetUniformLocation(r.textProgram, gl.Str("textColor\x00")), color.X, color.Y, color.Z)
+		})
+
+		x += int(ch.advance)
+	}
+
+	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+	gl.BindVertexArray(0)
+	gl.BindTexture(gl.TEXTURE_2D, 0)
 }
 
 func (r *OpenGLRenderer) drawImage(p *glContainer) {
@@ -460,19 +554,23 @@ func (r *OpenGLRenderer) drawImage(p *glContainer) {
 		texId = p.other["tex"].(uint32)
 	}
 
+	nPos := ip.Transform.Position.Ndc(r.wSize)
+	brPos := ip.Transform.Position.Add(ip.Transform.Size).Ndc(r.wSize)
+
+	r.drawTex(p, nPos, brPos, texId, r.imageProgram, nil)
+}
+
+func (r *OpenGLRenderer) drawTex(p *glContainer, nPos, nbrPos common.Vector3, texId, progId uint32, beforeDraw func()) {
 	p.gen()
 
 	if p.redraw {
 		gl.BindVertexArray(p.vao)
 
-		nPos := ip.Transform.Position.Ndc(r.wSize)
-		nSize := ip.Transform.Position.Add(ip.Transform.Size).Ndc(r.wSize)
-
 		vertices := []float32 {
-			nPos.X,  nPos.Y,  0,	0, 1,  // top left
-			nPos.X,  nSize.Y, 0,	0, 0,  // bottom left
-			nSize.X, nSize.Y, 0,	1, 0,  // top right
-			nSize.X, nPos.Y,  0,	1, 1,  // bottom right
+			nPos.X,   nPos.Y,   0,	0, 0, // top left
+			nPos.X,   nbrPos.Y, 0,	0, 1, // bottom left
+			nbrPos.X, nbrPos.Y, 0,	1, 1, // top right
+			nbrPos.X, nPos.Y,   0,	1, 0, // bottom right
 		}
 
 		indices := []uint32 {
@@ -496,8 +594,14 @@ func (r *OpenGLRenderer) drawImage(p *glContainer) {
 		gl.BindVertexArray(0)
 	}
 
-	gl.UseProgram(r.imageProgram)
+	gl.UseProgram(progId)
 	gl.BindVertexArray(p.vao)
 	gl.BindTexture(gl.TEXTURE_2D, texId)
+
+	if beforeDraw != nil {
+		beforeDraw()
+	}
+
 	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
 }
+

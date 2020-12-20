@@ -21,7 +21,7 @@ func (m *MouseMover) OnStart() {
 	m.engine.BindEventHandler(engine.EventMouseUp, m.handleMouseUp)
 }
 
-func (m *MouseMover) handleMouseUp(event engine.AmphionEvent) bool {
+func (m *MouseMover) handleMouseUp(_ engine.AmphionEvent) bool {
 	m.dragging = false
 	return true
 }
@@ -37,18 +37,18 @@ func (m *MouseMover) OnMessage(msg engine.Message) bool {
 	}
 
 	m.dragging = true
-	m.mousePos = engine.GetMousePosition()
+	m.mousePos = m.engine.GetInputManager().GetMousePosition()
 	m.engine.RequestUpdate()
 
 	return true
 }
 
-func (m *MouseMover) OnUpdate(ctx engine.UpdateContext) {
+func (m *MouseMover) OnUpdate(_ engine.UpdateContext) {
 	if !m.dragging {
 		return
 	}
 
-	newMousePos := engine.GetMousePosition()
+	newMousePos := m.engine.GetInputManager().GetMousePosition()
 	dPos := newMousePos.Sub(m.mousePos)
 	m.mousePos = newMousePos
 	m.object.Transform.Position = m.object.Transform.Position.Add(dPos.ToFloat())

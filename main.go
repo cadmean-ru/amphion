@@ -105,7 +105,7 @@ func main() {
 	shape := builtin.NewShapeView(rendering.PrimitiveRectangle)
 	shape.FillColor = common.PinkColor()
 	rect.AddComponent(shape)
-	rect.AddComponent(&Mover{})
+	//rect.AddComponent(&Mover{})
 
 	circle := engine.NewSceneObject("circle")
 	circle.Transform.Size = common.NewVector3(50, 50, 0)
@@ -129,16 +129,16 @@ func main() {
 
 	scene.AddChild(rect)
 
-	//text := engine.NewSceneObject("Close text")
-	//text.Transform.Position = common.NewVector3(engine.CenterInParent, engine.CenterInParent, engine.CenterInParent)
-	//text.Transform.Pivot = common.NewVector3(0.5, 0.5, 0.5)
-	//text.Transform.Size = common.NewVector3(200, 50, 0)
-	//textComponent := builtin.NewTextView("Close")
-	//textComponent.TextAppearance.FontSize = 30
-	//textComponent.Appearance.FillColor = common.BlackColor()
-	//text.AddComponent(textComponent)
-	//text.AddComponent(builtin.NewRectBoundary())
-	////text.AddComponent(builtin.NewBoundaryView())
+	text := engine.NewSceneObject("Close text")
+	text.Transform.Position = common.NewVector3(engine.CenterInParent, engine.CenterInParent, engine.CenterInParent)
+	text.Transform.Pivot = common.NewVector3(0.5, 0.5, 0.5)
+	text.Transform.Size = common.NewVector3(200, 50, 0)
+	textComponent := builtin.NewTextView("Close")
+	textComponent.TextAppearance.FontSize = 30
+	textComponent.Appearance.FillColor = common.BlackColor()
+	text.AddComponent(textComponent)
+	text.AddComponent(builtin.NewRectBoundary())
+	text.AddComponent(builtin.NewBoundaryView())
 	//text.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
 	//	e.GetLogger().Info(nil, "close")
 	//	e.Stop()
@@ -161,7 +161,7 @@ func main() {
 	//	scene.AddChild(text1)
 	//}
 	//
-	//scene.AddChild(text)
+	scene.AddChild(text)
 	//
 	//point := engine.NewSceneObject("point")
 	//point.AddComponent(builtin.NewShapeView(rendering.PrimitivePoint))
@@ -188,17 +188,17 @@ func main() {
 
 	image := engine.NewSceneObject("image")
 	image.Transform.Position = common.NewVector3(200, 200, 0)
-	image.Transform.Size = common.NewVector3(100, 100, 0)
+	image.Transform.Size = common.NewVector3(500, 100, 0)
 	imageView := builtin.NewImageView(3)
 	image.AddComponent(imageView)
 	scene.AddChild(image)
-	//
-	//image2 := engine.NewSceneObject("image2")
-	//image2.Transform.Position = common.NewVector3(500, 500, -1)
-	//image2.Transform.Size = common.NewVector3(500, 200, 0)
-	//imageView2 := builtin.NewImageView(0)
-	//image2.AddComponent(imageView2)
-	//scene.AddChild(image2)
+
+	image2 := engine.NewSceneObject("image2")
+	image2.Transform.Position = common.NewVector3(200, 300, -1)
+	image2.Transform.Size = common.NewVector3(100, 300, 0)
+	imageView2 := builtin.NewImageView(2)
+	image2.AddComponent(imageView2)
+	scene.AddChild(image2)
 
 	//if data, err := scene.EncodeToYaml(); err == nil {
 	//	fmt.Println(string(data))
@@ -328,7 +328,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	//	return false
 	//}))
 	scene2.AddChild(textScene2)
-	scene2.AddComponent(&TestController{})
+	//scene2.AddComponent(&TestController{})
 
 	input := engine.NewSceneObject("input")
 	input.Transform.Position = common.NewVector3(0, 0, 0)

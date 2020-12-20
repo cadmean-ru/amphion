@@ -386,6 +386,14 @@ func (engine *AmphionEngine) GetResourceManager() *ResourceManager {
 	return engine.resourceManager
 }
 
+func (engine *AmphionEngine) GetFrontend() frontend.Frontend {
+	return engine.front
+}
+
+func (engine *AmphionEngine) GetInputManager() frontend.InputManager {
+	return engine.front.GetInputManager()
+}
+
 func (engine *AmphionEngine) GetName() string {
 	return "Amphion Engine"
 }

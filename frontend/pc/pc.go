@@ -23,6 +23,7 @@ type Frontend struct {
 	initialized bool
 	context     frontend.Context
 	msgChan     chan frontend.Message
+	inputMan    *InputManager
 }
 
 func (f *Frontend) Init() {
@@ -50,8 +51,9 @@ func (f *Frontend) Init() {
 
 	f.renderer.window = f.window
 	f.renderer.wSize = f.wSize
-
 	f.renderer.Prepare()
+
+	f.inputMan.window = f.window
 
 	f.initialized = true
 }
@@ -143,7 +145,7 @@ func (f *Frontend) SetCallback(handler frontend.CallbackHandler) {
 }
 
 func (f *Frontend) GetInputManager() frontend.InputManager {
-	return nil
+	return f.inputMan
 }
 
 func (f *Frontend) GetRenderer() rendering.Renderer {
@@ -174,7 +176,9 @@ func NewFrontend() *Frontend {
 		wSize:    common.NewIntVector3(500, 500, 0),
 		renderer: &OpenGLRenderer{
 			primitives: make(map[int64]*glContainer),
+			fonts:      make(map[string]*glFont),
 		},
+		inputMan: &InputManager{},
 		msgChan: make(chan frontend.Message, 10),
 	}
 }

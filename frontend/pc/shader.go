@@ -76,3 +76,6 @@ const EllipseFragShaderText = "#version 330 core\nout vec4 FragColor;\n\nuniform
 
 const ImageVertexShader = "#version 330 core\nlayout (location = 0) in vec3 aPos;\nlayout (location = 1) in vec2 aTexCoord;\n\nout vec2 texCoord;\n\nvoid main()\n{\n    gl_Position = vec4(aPos, 1.0);\n    texCoord = aTexCoord;\n}\x00"
 const ImageFragShader = "#version 330 core\n\nout vec4 FragColor;\n\nin vec2 texCoord;\n\nuniform sampler2D ourTexture;\n\nvoid main()\n{\n    FragColor = texture(ourTexture, texCoord);\n}\x00"
+
+const TextVertexShader = "#version 330 core\nlayout (location = 0) in vec3 aPos;\nlayout (location = 1) in vec2 aTexCoord;\n\nout vec2 TexCoords;\n\nuniform mat4 projection;\n\nvoid main()\n{\n    gl_Position = vec4(aPos, 1.0);\n    TexCoords = aTexCoord;\n}\x00"
+const TextFragShader = "#version 330 core\nin vec2 TexCoords;\nout vec4 color;\n\nuniform sampler2D text;\nuniform vec3 textColor;\n\nvoid main()\n{    \n    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n    color = vec4(textColor, 1.0) * sampled;\n}\x00"

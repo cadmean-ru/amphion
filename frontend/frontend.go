@@ -42,5 +42,5 @@ func NewCallback(code int, data string) Callback {
 type CallbackHandler func(callback Callback)
 
 type InputManager interface {
-
+	GetMousePosition() common.IntVector3
 }
