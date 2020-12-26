@@ -1,12 +1,14 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
 	"github.com/cadmean-ru/amphion/frontend/pc"
 	"github.com/cadmean-ru/amphion/rendering"
+	"github.com/cadmean-ru/amphion/utils"
 	"log"
 	"runtime"
 	"time"
@@ -90,6 +92,26 @@ func init() {
 }
 
 func main() {
+
+	var generator string
+	var inputPath string
+	var outputPath string
+	var packageName string
+
+	flag.StringVar(&generator, "generate", "", "Launches the specified code generator instead of starting engine. " +
+		"Available generators are: shaders.")
+	flag.StringVar(&inputPath, "i", "", "Define input path")
+	flag.StringVar(&outputPath, "o", "", "Define output path")
+	flag.StringVar(&packageName, "package", "", "Define package name")
+	flag.Parse()
+
+	switch generator {
+	case "shaders":
+		utils.GenerateShaders(inputPath, outputPath, packageName)
+		return
+	default:
+		break
+	}
 
 	front := pc.NewFrontend()
 	front.Init()

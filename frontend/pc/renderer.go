@@ -20,6 +20,8 @@ import (
 	"sort"
 )
 
+//go:generate ../../build/darwin/test --generate shaders -i ./shaders -o ./shaders.gen.go --package pc
+
 type OpenGLPrimitive interface {
 	GetType() common.AByte
 	GetTransform() rendering.Transform
@@ -388,40 +390,6 @@ func (r *OpenGLRenderer) drawLine(p *glContainer) {
 }
 
 func (r *OpenGLRenderer) drawText(p *glContainer) {
-	//tp := p.primitive.(*rendering.TextPrimitive)
-	//
-	//fontName := tp.TextAppearance.Font
-	//if fontName == "" {
-	//	fontName = "Arial"
-	//}
-	//
-	//var font *glFont
-	//var ok bool
-	//var err error
-	//if font, ok = r.fonts[fontName]; !ok {
-	//	font, err = loadFont(fontName)
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	//	r.fonts[fontName] = font
-	//}
-	//
-	//if _, ok = p.other["japanText"]; !ok {
-	//	p.other["japanText"] = v41.NewText(font.japanFont, 1, 1)
-	//}
-	//
-	//text := p.other["japanText"].(*v41.Text)
-	//
-	//if p.redraw {
-	//	text.SetString(string(tp.Text))
-	//	color := tp.Appearance.FillColor.Normalize()
-	//	text.SetColor(mgl32.Vec3{color.X, color.Y, color.Z})
-	//	nPos := tp.Transform.Position.Ndc(r.wSize)
-	//	text.SetPosition(mgl32.Vec2{nPos.X, nPos.Y})
-	//}
-	//
-	//text.Draw()
-
 	tp := p.primitive.(*rendering.TextPrimitive)
 
 	fontName := tp.TextAppearance.Font
