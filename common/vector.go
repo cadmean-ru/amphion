@@ -32,6 +32,12 @@ func (v Vector3) ToMap() SiMap {
 	}
 }
 
+func (v *Vector3) FromMap(siMap SiMap) {
+	v.X = RequireFloat32(siMap["x"])
+	v.Y = RequireFloat32(siMap["y"])
+	v.Z = RequireFloat32(siMap["z"])
+}
+
 func (v Vector3) ToString() string {
 	return fmt.Sprintf("(%f, %f, %f)", v.X, v.Y, v.Z)
 }
@@ -115,4 +121,10 @@ func OneVector() Vector3 {
 		Y: 1,
 		Z: 1,
 	}
+}
+
+func NewVector3FromMap(siMap SiMap) Vector3 {
+	var v Vector3
+	v.FromMap(siMap)
+	return v
 }

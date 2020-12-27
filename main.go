@@ -118,6 +118,22 @@ func main() {
 
 	e := engine.Initialize(front)
 
+	cm := e.GetComponentsManager()
+	cm.RegisterComponentType(&Mover{})
+	cm.RegisterComponentType(&CyberpunkCountdown{})
+	cm.RegisterComponentType(&builtin.ShapeView{})
+	cm.RegisterComponentType(&builtin.CircleBoundary{})
+	cm.RegisterComponentType(&builtin.OnClickListener{})
+	cm.RegisterComponentType(&builtin.TextView{})
+	cm.RegisterComponentType(&builtin.RectBoundary{})
+	cm.RegisterComponentType(&builtin.TriangleBoundary{})
+	cm.RegisterComponentType(&builtin.BezierView{})
+	cm.RegisterComponentType(&builtin.DropdownView{})
+	cm.RegisterComponentType(&builtin.ImageView{})
+	cm.RegisterComponentType(&builtin.InputField{})
+	cm.RegisterComponentType(&builtin.InputView{})
+	cm.RegisterComponentType(&builtin.MouseMover{})
+	cm.RegisterComponentType(&builtin.BuilderComponent{})
 
 	scene := engine.NewSceneObject("Test scene")
 

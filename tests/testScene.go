@@ -5,6 +5,7 @@ import (
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
+	"github.com/cadmean-ru/amphion/frontend/pc"
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
@@ -54,7 +55,7 @@ func (m *mover) GetName() string {
 	return "mover"
 }
 
-func createTestScene() *engine.SceneObject {
+func CreateTestScene() *engine.SceneObject {
 	scene := engine.NewSceneObject("Test scene")
 
 	rect := engine.NewSceneObject("rect")
@@ -87,7 +88,7 @@ func createTestScene() *engine.SceneObject {
 
 	for i := 0; i < 10; i++ {
 		text1 := engine.NewSceneObject(fmt.Sprintf("text%d", i))
-		text1.Transform.Position = common.NewVector3(10, float64(i) * 50, 0)
+		text1.Transform.Position = common.NewVector3(10, float32(i) * 50, 0)
 		text1.Transform.Size = common.NewVector3(200, 50, 0)
 		textComponent1 := builtin.NewTextView(fmt.Sprintf("Bruh %d", i))
 		textComponent1.TextAppearance.FontSize = 30
@@ -186,8 +187,8 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 var testEngineInstance *engine.AmphionEngine
 
 func startEngineTest() *engine.AmphionEngine {
-	p := common.PlatformFromString("test")
-	e := engine.Initialize(p)
+	front := pc.NewFrontend()
+	e := engine.Initialize(front)
 	testEngineInstance = e
 	e.Start()
 	return e

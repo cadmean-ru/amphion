@@ -39,10 +39,14 @@ func (o *SceneObject) GetParent() *SceneObject {
 	return o.parent
 }
 
-func (o *SceneObject) AddChild(object *SceneObject) {
+func (o *SceneObject) appendChild(object *SceneObject) {
 	object.parent = o
 	object.Transform.parent = &o.Transform
 	o.children = append(o.children, object)
+}
+
+func (o *SceneObject) AddChild(object *SceneObject) {
+	o.appendChild(object)
 	if !object.initialized {
 		instance.updateRoutine.initSceneObject(object)
 	}
@@ -68,6 +72,15 @@ func (o *SceneObject) GetChildren() []*SceneObject {
 	c := make([]*SceneObject, len(o.children))
 	copy(c, o.children)
 	return c
+}
+
+func (o *SceneObject) GetChildByName(name string) *SceneObject {
+	for _, c := range o.children {
+		if c != nil && c.name == name {
+			return c
+		}
+	}
+	return nil
 }
 
 func (o *SceneObject) AddComponent(component Component) {
@@ -160,9 +173,6 @@ func (o *SceneObject) OnMessage(message Message) bool {
 }
 
 func (o *SceneObject) init(ctx InitContext) {
-	//if o.initialized {
-	//	return
-	//}
 	for _, c := range o.components {
 		if c.initialized {
 			continue
@@ -178,7 +188,6 @@ func (o *SceneObject) init(ctx InitContext) {
 
 func (o *SceneObject) start() {
 	for _, c := range o.components {
-		//fmt.Printf("%s %s %+v\n", c.component.GetName(), o.GetName(), c)
 		if !c.enabled || !c.initialized || c.started {
 			continue
 		}
@@ -189,7 +198,6 @@ func (o *SceneObject) start() {
 
 	o.started = true
 	instance.currentComponent = nil
-	//fmt.Println()
 }
 
 func (o *SceneObject) update(ctx UpdateContext) {
@@ -282,16 +290,69 @@ func (o *SceneObject) ForEachComponent(action func(component Component)) {
 	}
 }
 
-func (o *SceneObject) ToMap() map[string]interface{} {
+func (o *SceneObject) ToMap() common.SiMap {
 	mChildren := make([]map[string]interface{}, len(o.children))
 	for i, c := range o.children {
 		mChildren[i] = c.ToMap()
 	}
 
+	mComponents := make([]map[string]interface{}, len(o.components))
+	for i, c := range o.components {
+		var state map[string]interface{}
+
+		if sc, ok := c.component.(StatefulComponent); ok {
+			state = sc.GetInstanceState()
+		}
+
+		cMap := map[string]interface{} {
+			"name":  c.GetComponent().GetName(),
+			"state": state,
+		}
+
+		mComponents[i] = cMap
+	}
+
 	return map[string]interface{}{
 		"name": o.name,
+		"id": o.id,
 		"children": mChildren,
+		"components": mComponents,
 		"transform": o.Transform.ToMap(),
+	}
+}
+
+func (o *SceneObject) FromMap(siMap common.SiMap) {
+	o.name = siMap["name"].(string)
+	o.id = common.RequireInt64(siMap["id"])
+	o.Transform = NewTransformFromMap(common.RequireSiMap(siMap["transform"]))
+
+	// Decode components
+	iComponents := siMap["components"].([]interface{})
+	o.components = make([]*ComponentContainer, 0, len(iComponents))
+	o.renderingComponents = make([]*ComponentContainer, 0, 1)
+	o.updatingComponents = make([]*ComponentContainer, 0, 1)
+	o.boundaryComponents = make([]*ComponentContainer, 0, 1)
+	for _, c := range iComponents {
+		cMap := common.RequireSiMap(c)
+		cName := cMap["name"].(string)
+		cState := common.RequireSiMap(cMap["state"])
+		component := instance.GetComponentsManager().MakeComponent(cName)
+		if component == nil {
+			continue
+		}
+		if sc, ok := component.(StatefulComponent); ok {
+			sc.SetInstanceState(cState)
+		}
+		o.AddComponent(component)
+	}
+
+	// Decode children
+	iChildren := siMap["children"].([]interface{})
+	o.children = make([]*SceneObject, 0, len(iChildren))
+	for _, c := range iChildren {
+		obj := &SceneObject{}
+		obj.FromMap(common.RequireSiMap(c))
+		o.appendChild(obj)
 	}
 }
 
@@ -300,7 +361,15 @@ func (o *SceneObject) EncodeToYaml() ([]byte, error) {
 }
 
 func (o *SceneObject) DecodeFromYaml(data []byte) error {
-	return yaml.Unmarshal(data, o)
+	oMap := make(common.SiMap)
+	err := yaml.Unmarshal(data, &oMap)
+	if err != nil {
+		return err
+	}
+
+	o.FromMap(oMap)
+
+	return nil
 }
 
 func NewSceneObject(name string) *SceneObject {

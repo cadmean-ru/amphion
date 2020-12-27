@@ -5,18 +5,28 @@ import (
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
+// Basic component interface. A component is a piece of functionality, that can be attached to scene objects.
 type Component interface {
 	NamedObject
+
+	// This method is called only once when the component is first created.
 	OnInit(ctx InitContext)
+
+	// This method is called every time the component is being enabled.
+	// If the scene object is enabled on component attachment this method will also be called.
 	OnStart()
+
+	// This method is called when the component is being disabled.
 	OnStop()
 }
 
+// Interface for components that can receive updates.
 type UpdatingComponent interface {
 	Component
 	OnUpdate(ctx UpdateContext)
 }
 
+// Interface for views.
 type ViewComponent interface {
 	OnDraw(ctx DrawingContext)
 	ForceRedraw()
@@ -74,12 +84,14 @@ func newRenderingContext(renderer rendering.Renderer) DrawingContext {
 	}
 }
 
+// A component, that determines the bounding box of an object in the scene. Used for mouse interactions.
 type BoundaryComponent interface {
 	Component
 	common.Boundary
 }
 
+// Interface for components, that can persist state.
 type StatefulComponent interface {
-	SaveInstanceState() common.SiMap
-	LoadState(state common.SiMap)
+	GetInstanceState() common.SiMap
+	SetInstanceState(state common.SiMap)
 }

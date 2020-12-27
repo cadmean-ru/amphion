@@ -37,6 +37,13 @@ func (t Transform) ToMap() common.SiMap {
 	return t.RenderingRepresentation()
 }
 
+func (t *Transform) FromMap(siMap common.SiMap) {
+	t.Position = common.NewVector3FromMap(common.RequireSiMap(siMap["position"]))
+	t.Pivot = common.NewVector3FromMap(common.RequireSiMap(siMap["pivot"]))
+	t.Rotation = common.NewVector3FromMap(common.RequireSiMap(siMap["rotation"]))
+	t.Size = common.NewVector3FromMap(common.RequireSiMap(siMap["size"]))
+}
+
 func (t Transform) GetLocalPosition() common.Vector3 {
 	var x, y, z float32
 	if t.parent != nil && IsSpecialPosition(t.Position) {
@@ -109,6 +116,12 @@ func IsSpecialPosition(pos common.Vector3) bool {
 
 func IsSpecialPositionValue(x float32) bool {
 	return x == CenterInParent
+}
+
+func NewTransformFromMap(siMap common.SiMap) Transform {
+	var t Transform
+	t.FromMap(siMap)
+	return t
 }
 
 const (

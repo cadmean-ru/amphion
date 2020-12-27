@@ -31,6 +31,7 @@ type AmphionEngine struct {
 	globalContext      frontend.Context
 	forceRedraw        bool
 	messageDispatcher  *MessageDispatcher
+	componentsManager  *ComponentsManager
 	currentComponent   Component
 	closeSceneCallback func()
 	tasksRoutine       *TasksRoutine
@@ -57,17 +58,18 @@ func Initialize(front frontend.Frontend) *AmphionEngine {
 	}
 
 	instance = &AmphionEngine{
-		platform:        front.GetPlatform(),
-		logger:          GetLoggerForPlatform(front.GetPlatform()),
-		idgen:           common.NewIdGenerator(),
-		state:           StateStopped,
-		stopChan:        make(chan bool),
-		eventChan:       make(chan AmphionEvent, 100),
-		updateRoutine:   newUpdateRoutine(),
-		eventBinder:     newEventBinder(),
-		tasksRoutine:    newTasksRoutine(),
-		resourceManager: newResourceManager(),
-		front:           front,
+		platform:          front.GetPlatform(),
+		logger:            GetLoggerForPlatform(front.GetPlatform()),
+		idgen:             common.NewIdGenerator(),
+		state:             StateStopped,
+		stopChan:          make(chan bool),
+		eventChan:         make(chan AmphionEvent, 100),
+		updateRoutine:     newUpdateRoutine(),
+		eventBinder:       newEventBinder(),
+		tasksRoutine:      newTasksRoutine(),
+		resourceManager:   newResourceManager(),
+		componentsManager: newComponentsManager(),
+		front:             front,
 	}
 	instance.renderer = instance.front.GetRenderer()
 	instance.globalContext = instance.front.GetContext()
@@ -392,6 +394,10 @@ func (engine *AmphionEngine) GetFrontend() frontend.Frontend {
 
 func (engine *AmphionEngine) GetInputManager() frontend.InputManager {
 	return engine.front.GetInputManager()
+}
+
+func (engine *AmphionEngine) GetComponentsManager() *ComponentsManager {
+	return engine.componentsManager
 }
 
 func (engine *AmphionEngine) GetName() string {
