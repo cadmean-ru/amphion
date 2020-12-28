@@ -2,6 +2,7 @@ package engine
 
 import (
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/require"
 	"gopkg.in/yaml.v2"
 	"regexp"
 )
@@ -300,8 +301,8 @@ func (o *SceneObject) ToMap() common.SiMap {
 	for i, c := range o.components {
 		var state map[string]interface{}
 
-		if sc, ok := c.component.(StatefulComponent); ok {
-			state = sc.GetInstanceState()
+		if IsStatefulComponent(c.component) {
+			state = GetComponentState(c.component)
 		}
 
 		cMap := map[string]interface{} {
@@ -323,7 +324,7 @@ func (o *SceneObject) ToMap() common.SiMap {
 
 func (o *SceneObject) FromMap(siMap common.SiMap) {
 	o.name = siMap["name"].(string)
-	o.id = common.RequireInt64(siMap["id"])
+	o.id = require.Int64(siMap["id"])
 	o.Transform = NewTransformFromMap(common.RequireSiMap(siMap["transform"]))
 
 	// Decode components
@@ -340,8 +341,8 @@ func (o *SceneObject) FromMap(siMap common.SiMap) {
 		if component == nil {
 			continue
 		}
-		if sc, ok := component.(StatefulComponent); ok {
-			sc.SetInstanceState(cState)
+		if IsStatefulComponent(component) {
+			SetComponentState(component, cState)
 		}
 		o.AddComponent(component)
 	}

@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"github.com/cadmean-ru/amphion/common/require"
 	"math"
 )
 
@@ -33,9 +34,9 @@ func (v Vector3) ToMap() SiMap {
 }
 
 func (v *Vector3) FromMap(siMap SiMap) {
-	v.X = RequireFloat32(siMap["x"])
-	v.Y = RequireFloat32(siMap["y"])
-	v.Z = RequireFloat32(siMap["z"])
+	v.X = require.Float32(siMap["x"])
+	v.Y = require.Float32(siMap["y"])
+	v.Z = require.Float32(siMap["z"])
 }
 
 func (v Vector3) ToString() string {

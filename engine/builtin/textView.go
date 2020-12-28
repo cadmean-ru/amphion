@@ -8,9 +8,10 @@ import (
 
 type TextView struct {
 	ViewImpl
-	Appearance     rendering.Appearance
-	TextAppearance rendering.TextAppearance
-	text           common.AString
+	TextColor common.Color   `state:"TextColor"`
+	Font      string         `state:"Font"`
+	FontSize  common.AByte   `state:"FontSize"`
+	text      common.AString `state:"Text"`
 }
 
 func (t *TextView) GetName() string {
@@ -20,8 +21,13 @@ func (t *TextView) GetName() string {
 func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 	pr := rendering.NewTextPrimitive(t.text)
 	pr.Transform = transformToRenderingTransform(t.obj.Transform)
-	pr.Appearance = t.Appearance
-	pr.TextAppearance = t.TextAppearance
+	pr.Appearance = rendering.Appearance{
+		FillColor: t.TextColor,
+	}
+	pr.TextAppearance = rendering.TextAppearance{
+		Font:     t.Font,
+		FontSize: t.FontSize,
+	}
 	ctx.GetRenderer().SetPrimitive(t.pId, pr, t.ShouldRedraw())
 	t.redraw = false
 }
@@ -37,6 +43,8 @@ func (t *TextView) GetText() string {
 
 func NewTextView(text string) *TextView {
 	return &TextView{
-		text:    common.AString(text),
+		TextColor: common.BlackColor(),
+		FontSize:  16,
+		text:      common.AString(text),
 	}
 }

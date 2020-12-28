@@ -1,7 +1,5 @@
 package engine
 
-import "reflect"
-
 // Default component interface implementation
 type ComponentImpl struct {
 	__name__    string
@@ -33,12 +31,6 @@ func (c ComponentImpl) NameOf(outer interface{}) string {
 		return c.__name__
 	}
 
-	t := reflect.TypeOf(outer)
-
-	if t.Kind() == reflect.Ptr {
-		t = reflect.Indirect(reflect.ValueOf(outer)).Type()
-	}
-
-	c.__name__ = t.PkgPath() + "." + t.Name()
+	c.__name__ = NameOfComponent(outer)
 	return c.__name__
 }

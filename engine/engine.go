@@ -6,6 +6,7 @@ import (
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -424,4 +425,14 @@ func (engine *AmphionEngine) rebuildMessageTree() {
 		return
 	}
 	engine.messageDispatcher = newMessageDispatcherForScene(engine.currentScene)
+}
+
+func NameOfComponent(component interface{}) string {
+	t := reflect.TypeOf(component)
+
+	if t.Kind() == reflect.Ptr {
+		t = reflect.Indirect(reflect.ValueOf(component)).Type()
+	}
+
+	return t.PkgPath() + "." + t.Name()
 }
