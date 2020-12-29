@@ -1,21 +1,21 @@
 package builtin
 
 import (
-	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
 type TextView struct {
 	ViewImpl
-	TextColor common.Color   `state:"TextColor"`
-	Font      string         `state:"Font"`
-	FontSize  common.AByte   `state:"FontSize"`
-	text      common.AString `state:"Text"`
+	TextColor a.Color  `state:"TextColor"`
+	Font      string   `state:"Font"`
+	FontSize  a.Byte   `state:"FontSize"`
+	text      a.String `state:"Text"`
 }
 
 func (t *TextView) GetName() string {
-	return "TextView"
+	return engine.NameOfComponent(t)
 }
 
 func (t *TextView) OnDraw(ctx engine.DrawingContext) {
@@ -33,7 +33,7 @@ func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 }
 
 func (t *TextView) SetText(text string) {
-	t.text = common.AString(text)
+	t.text = a.String(text)
 	t.redraw = true
 }
 
@@ -43,8 +43,8 @@ func (t *TextView) GetText() string {
 
 func NewTextView(text string) *TextView {
 	return &TextView{
-		TextColor: common.BlackColor(),
+		TextColor: a.BlackColor(),
 		FontSize:  16,
-		text:      common.AString(text),
+		text:      a.String(text),
 	}
 }

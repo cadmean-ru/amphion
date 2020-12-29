@@ -1,17 +1,19 @@
 package rendering
 
-import "github.com/cadmean-ru/amphion/common"
+import (
+	"github.com/cadmean-ru/amphion/common/a"
+)
 
 const textPrimitiveMinBytesSize = 1 + transformBytesSize + appearanceBytesSize + textAppearanceBytesSize + 4
 
 type TextPrimitive struct {
 	Transform      Transform
 	Appearance     Appearance
-	Text           common.AString
+	Text           a.String
 	TextAppearance TextAppearance
 }
 
-func (p *TextPrimitive) GetType() common.AByte {
+func (p *TextPrimitive) GetType() a.Byte {
 	return PrimitiveText
 }
 
@@ -30,7 +32,7 @@ func (p *TextPrimitive) BuildPrimitive() *Primitive {
 	return pr
 }
 
-func NewTextPrimitive(text common.AString) *TextPrimitive {
+func NewTextPrimitive(text a.String) *TextPrimitive {
 	return &TextPrimitive{
 		Transform:      NewTransform(),
 		Appearance:     DefaultAppearance(),

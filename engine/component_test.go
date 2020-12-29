@@ -3,15 +3,17 @@ package engine
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 type testStatefulWithTags struct {
 	ComponentImpl
-	Bruh  string       "state"
-	Bruh2 float64      `state:"breh"`
-	Color common.Color `state:"color"`
+	Bruh  string  "state"
+	Bruh2 float64 `state:"breh"`
+	Color a.Color `state:"color"`
+	Arr   []int   `state:"arr"`
 }
 
 func (t testStatefulWithTags) GetName() string {
@@ -29,31 +31,33 @@ func TestIsStatefulComponent(t *testing.T) {
 }
 
 func TestGetComponentState(t *testing.T) {
-	a := assert.New(t)
+	assertions := assert.New(t)
 
 	comp := &testStatefulWithTags{}
 	comp.Bruh = "abc"
 	comp.Bruh2 = 6.9
-	comp.Color = common.PinkColor()
+	comp.Color = a.PinkColor()
+	comp.Arr = []int {1, 3, 4}
 
 	state := GetComponentState(comp)
 
 	fmt.Println(state)
 
-	a.Contains(state, "Bruh", `State should contain key "Bruh"`)
-	a.Equal("abc", state["Bruh"], `The value of "Bruh" should match`)
+	assertions.Contains(state, "Bruh", `State should contain key "Bruh"`)
+	assertions.Equal("abc", state["Bruh"], `The value of "Bruh" should match`)
 
-	a.Contains(state, "breh", `State should contain key "breh"`)
-	a.Equal(6.9, state["breh"], `The value of "breh" should match`)
+	assertions.Contains(state, "breh", `State should contain key "breh"`)
+	assertions.Equal(6.9, state["breh"], `The value of "breh" should match`)
 }
 
 func TestSetComponentState(t *testing.T) {
-	a := assert.New(t)
+	assertions := assert.New(t)
 
 	state := common.SiMap {
 		"Bruh": "abc",
 		"breh": 6.9,
 		"color": common.SiMap{"r": 255, "g": 192, "b": 203, "a": 255},
+		"arr": []interface{} {1, 3, 4},
 	}
 
 	comp := &testStatefulWithTags{}
@@ -62,6 +66,6 @@ func TestSetComponentState(t *testing.T) {
 
 	fmt.Printf("%+v\n", comp)
 
-	a.Equal("abc", comp.Bruh)
-	a.Equal(6.9, comp.Bruh2)
+	assertions.Equal("abc", comp.Bruh)
+	assertions.Equal(6.9, comp.Bruh2)
 }

@@ -3,6 +3,7 @@ package tests
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
 	"github.com/cadmean-ru/amphion/frontend/pc"
@@ -69,7 +70,7 @@ func CreateTestScene() *engine.SceneObject {
 	circle.Transform.Position = common.NewVector3(10, 10 , 1)
 	circleRenderer := builtin.NewShapeView(rendering.PrimitiveEllipse)
 	circleRenderer.Appearance.StrokeWeight = 0
-	circleRenderer.Appearance.FillColor = common.GreenColor()
+	circleRenderer.Appearance.FillColor = a.GreenColor()
 	circle.AddComponent(circleRenderer)
 	//circle.AddComponent(builtin.NewBoundaryView())
 
@@ -82,7 +83,7 @@ func CreateTestScene() *engine.SceneObject {
 	text.Transform.Size = common.NewVector3(200, 50, 0)
 	textComponent := builtin.NewTextView("Center")
 	textComponent.TextAppearance.FontSize = 30
-	textComponent.Appearance.FillColor = common.BlackColor()
+	textComponent.Appearance.FillColor = a.BlackColor()
 	text.AddComponent(textComponent)
 	text.AddComponent(builtin.NewBoundaryView())
 
@@ -92,7 +93,7 @@ func CreateTestScene() *engine.SceneObject {
 		text1.Transform.Size = common.NewVector3(200, 50, 0)
 		textComponent1 := builtin.NewTextView(fmt.Sprintf("Bruh %d", i))
 		textComponent1.TextAppearance.FontSize = 30
-		textComponent1.Appearance.FillColor = common.BlackColor()
+		textComponent1.Appearance.FillColor = a.BlackColor()
 		text1.AddComponent(textComponent1)
 		text1.AddComponent(builtin.NewBoundaryView())
 		scene.AddChild(text1)
@@ -112,7 +113,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	textScene2.Transform.Size = common.NewVector3(800, 200, 0)
 	textScene2Renderer := builtin.NewTextView("This is scene 2")
 	textScene2Renderer.TextAppearance.FontSize = 100
-	textScene2Renderer.Appearance.FillColor = common.BlackColor()
+	textScene2Renderer.Appearance.FillColor = a.BlackColor()
 	textScene2.AddComponent(textScene2Renderer)
 	textScene2.AddComponent(builtin.NewRectBoundary())
 	//textScene2.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
@@ -132,7 +133,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	input.Transform.Size = common.NewVector3(500, 500 ,0)
 	inputView := builtin.NewInputView()
 	inputView.TextAppearance.FontSize = 10
-	inputView.Appearance.FillColor = common.BlackColor()
+	inputView.Appearance.FillColor = a.BlackColor()
 	input.AddComponent(inputView)
 	scene2.AddChild(input)
 
@@ -166,7 +167,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	box.Transform.Size = common.NewVector3(500, 500, 0)
 	boxBg := builtin.NewShapeView(rendering.PrimitiveRectangle)
 	boxBg.Appearance.StrokeWeight = 0
-	boxBg.Appearance.FillColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
+	boxBg.Appearance.FillColor = a.NewColor(0xc4, 0xc4, 0xc4, 0xff)
 	boxBg.Appearance.CornerRadius = 10
 	box.AddComponent(boxBg)
 	box.AddComponent(builtin.NewRectBoundary())

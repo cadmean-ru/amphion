@@ -2,6 +2,7 @@ package rendering
 
 import (
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 )
 
 const (
@@ -17,7 +18,7 @@ const (
 )
 
 type Primitive struct {
-	Type       common.AByte
+	Type       a.Byte
 	Attributes []Attribute
 }
 
@@ -40,7 +41,7 @@ func (p *Primitive) EncodeToByteArray() []byte {
 	return data
 }
 
-func NewPrimitive(pType common.AByte) *Primitive {
+func NewPrimitive(pType a.Byte) *Primitive {
 	return &Primitive{
 		Type:       pType,
 		Attributes: make([]Attribute, 0, 1),

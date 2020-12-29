@@ -6,6 +6,7 @@ package pc
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/all-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -23,7 +24,7 @@ import (
 //go:generate ../../build/darwin/test --generate shaders -i ./shaders -o ./shaders.gen.go --package pc
 
 type OpenGLPrimitive interface {
-	GetType() common.AByte
+	GetType() a.Byte
 	GetTransform() rendering.Transform
 }
 

@@ -11,7 +11,7 @@ type TriangleBoundary struct {
 }
 
 func (r *TriangleBoundary) GetName() string {
-	return "TriangleBoundary"
+	return engine.NameOfComponent(r)
 }
 
 func (r *TriangleBoundary) OnInit(ctx engine.InitContext) {

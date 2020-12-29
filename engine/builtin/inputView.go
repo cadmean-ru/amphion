@@ -73,7 +73,7 @@ func (v *InputView) OnStop() {
 }
 
 func (v *InputView) GetName() string {
-	return "InputView"
+	return engine.NameOfComponent(v)
 }
 
 func NewInputView() *InputView {

@@ -1,6 +1,9 @@
 package rendering
 
-import "github.com/cadmean-ru/amphion/common"
+import (
+	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
+)
 
 type BezierPrimitive struct {
 	Transform     Transform
@@ -9,7 +12,7 @@ type BezierPrimitive struct {
 	ControlPoint2 common.IntVector3
 }
 
-func (b *BezierPrimitive) GetType() common.AByte {
+func (b *BezierPrimitive) GetType() a.Byte {
 	return PrimitiveBezier
 }
 

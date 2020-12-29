@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
 	"github.com/cadmean-ru/amphion/frontend/pc"
@@ -141,7 +142,7 @@ func main() {
 	rect.Transform.Size = common.NewVector3(100, 100, 100)
 	rect.Transform.Position = common.NewVector3(100, 100, -2)
 	shape := builtin.NewShapeView(rendering.PrimitiveRectangle)
-	shape.FillColor = common.PinkColor()
+	shape.FillColor = a.PinkColor()
 	rect.AddComponent(shape)
 	//rect.AddComponent(&Mover{})
 
@@ -150,7 +151,7 @@ func main() {
 	circle.Transform.Position = common.NewVector3(10, 10 , 1)
 	circleRenderer := builtin.NewShapeView(rendering.PrimitiveEllipse)
 	circleRenderer.Appearance.StrokeWeight = 0
-	circleRenderer.Appearance.FillColor = common.GreenColor()
+	circleRenderer.Appearance.FillColor = a.GreenColor()
 	circle.AddComponent(circleRenderer)
 	circle.AddComponent(builtin.NewCircleBoundary())
 	circle.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
@@ -173,7 +174,7 @@ func main() {
 	text.Transform.Size = common.NewVector3(200, 50, 0)
 	textComponent := builtin.NewTextView("Close")
 	textComponent.TextAppearance.FontSize = 30
-	textComponent.Appearance.FillColor = common.BlackColor()
+	textComponent.Appearance.FillColor = a.BlackColor()
 	text.AddComponent(textComponent)
 	text.AddComponent(builtin.NewRectBoundary())
 	text.AddComponent(builtin.NewBoundaryView())
@@ -210,7 +211,7 @@ func main() {
 	line.Transform.Position = common.NewVector3(400, 400, 0)
 	line.Transform.Size = common.NewVector3(100, 10, 0)
 	lineView := builtin.NewShapeView(rendering.PrimitiveLine)
-	lineView.Appearance.StrokeColor = common.NewColor(0x2c, 0x68, 0xa8, 0xff)
+	lineView.Appearance.StrokeColor = a.NewColor(0x2c, 0x68, 0xa8, 0xff)
 	lineView.Appearance.StrokeWeight = 5
 	line.AddComponent(lineView)
 	scene.AddChild(line)
@@ -219,7 +220,7 @@ func main() {
 	triangle.Transform.Position = common.NewVector3(100, 100, 0)
 	triangle.Transform.Size = common.NewVector3(100, 300, 0)
 	triangleView := builtin.NewShapeView(rendering.PrimitiveTriangle)
-	triangleView.Appearance.FillColor = common.BlueColor()
+	triangleView.Appearance.FillColor = a.BlueColor()
 	triangle.AddComponent(triangleView)
 	triangle.AddComponent(builtin.NewTriangleBoundary())
 	scene.AddChild(triangle)
@@ -307,7 +308,7 @@ func createCyberpunkScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("cyberpunk")
 	sceneBg := builtin.NewShapeView(rendering.PrimitiveRectangle)
 	sceneBg.Appearance.StrokeWeight = 0
-	sceneBg.Appearance.FillColor = common.NewColor(0xfc, 0xee, 0x0a, 0xff)
+	sceneBg.Appearance.FillColor = a.NewColor(0xfc, 0xee, 0x0a, 0xff)
 	scene.AddComponent(sceneBg)
 	sceneImage := builtin.NewImageView(2)
 	scene.AddComponent(sceneImage)
@@ -329,7 +330,7 @@ func createCyberpunkScene(e *engine.AmphionEngine) *engine.SceneObject {
 	title.Transform.Pivot = common.NewVector3(0.5, 0, 0.5)
 	title.Transform.Size = common.NewVector3(680, 55, 0)
 	titleView := builtin.NewTextView("Time till Cyberpunk release")
-	titleView.Appearance.FillColor = common.WhiteColor()
+	titleView.Appearance.FillColor = a.WhiteColor()
 	titleView.TextAppearance.FontSize = 52
 	title.AddComponent(titleView)
 	title.AddComponent(builtin.NewRectBoundary())
@@ -353,7 +354,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	textScene2.Transform.Size = common.NewVector3(800, 200, 0)
 	textScene2Renderer := builtin.NewTextView("This is scene 2")
 	textScene2Renderer.TextAppearance.FontSize = 100
-	textScene2Renderer.Appearance.FillColor = common.BlackColor()
+	textScene2Renderer.Appearance.FillColor = a.BlackColor()
 	textScene2.AddComponent(textScene2Renderer)
 	textScene2.AddComponent(builtin.NewRectBoundary())
 	//textScene2.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
@@ -404,7 +405,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	box.Transform.Size = common.NewVector3(500, 500, 0)
 	boxBg := builtin.NewShapeView(rendering.PrimitiveRectangle)
 	boxBg.Appearance.StrokeWeight = 0
-	boxBg.Appearance.FillColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
+	boxBg.Appearance.FillColor = a.NewColor(0xc4, 0xc4, 0xc4, 0xff)
 	boxBg.Appearance.CornerRadius = 10
 	box.AddComponent(boxBg)
 	box.AddComponent(builtin.NewRectBoundary())

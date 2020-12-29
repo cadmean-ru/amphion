@@ -10,7 +10,7 @@ type RectBoundary struct {
 }
 
 func (r *RectBoundary) GetName() string {
-	return "RectBoundary"
+	return engine.NameOfComponent(r)
 }
 
 func (r *RectBoundary) OnInit(ctx engine.InitContext) {

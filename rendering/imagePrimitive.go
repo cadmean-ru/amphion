@@ -1,15 +1,17 @@
 package rendering
 
-import "github.com/cadmean-ru/amphion/common"
+import (
+	"github.com/cadmean-ru/amphion/common/a"
+)
 
 const imagePrimitiveBytesSize = primitiveBytesSize + 4
 
 type ImagePrimitive struct {
 	Transform Transform
-	ResIndex  common.AInt
+	ResIndex  a.Int
 }
 
-func (p *ImagePrimitive) GetType() common.AByte {
+func (p *ImagePrimitive) GetType() a.Byte {
 	return PrimitiveImage
 }
 
@@ -24,7 +26,7 @@ func (p *ImagePrimitive) BuildPrimitive() *Primitive {
 	return pr
 }
 
-func NewImagePrimitive(index common.AInt) *ImagePrimitive {
+func NewImagePrimitive(index a.Int) *ImagePrimitive {
 	return &ImagePrimitive{
 		Transform: NewTransform(),
 		ResIndex:  index,

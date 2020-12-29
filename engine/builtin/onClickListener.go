@@ -10,7 +10,7 @@ type OnClickListener struct {
 }
 
 func (l *OnClickListener) GetName() string {
-	return "OnClickListener"
+	return engine.NameOfComponent(l)
 }
 
 func (l *OnClickListener) OnInit(ctx engine.InitContext) {

@@ -2,6 +2,7 @@ package builtin
 
 import (
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 )
@@ -20,8 +21,8 @@ func (f *InputField) OnStart() {
 	input := engine.NewSceneObject("input")
 
 	f.inputView = NewInputView()
-	f.inputView.Appearance.FillColor = common.BlackColor()
-	f.inputView.TextAppearance.FontSize = 15
+	f.inputView.TextColor = a.BlackColor()
+	f.inputView.FontSize = 15
 	f.inputView.AllowMultiline = f.AllowMultiline
 
 	input.Transform.Position = common.NewVector3(f.Padding, f.Padding, 1)
@@ -42,14 +43,14 @@ func (f *InputField) OnDraw(ctx engine.DrawingContext) {
 }
 
 func (f *InputField) GetName() string {
-	return "InputField"
+	return engine.NameOfComponent(f)
 }
 
 func NewInputField() *InputField {
 	return &InputField{
 		Appearance: rendering.Appearance{
-			FillColor:    common.WhiteColor(),
-			StrokeColor:  common.BlackColor(),
+			FillColor:    a.WhiteColor(),
+			StrokeColor:  a.BlackColor(),
 			StrokeWeight: 2,
 			CornerRadius: 10,
 		},

@@ -2,6 +2,7 @@ package builtin
 
 import (
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 )
@@ -28,8 +29,8 @@ func NewBezierView(cp1, cp2 common.Vector3) *BezierView {
 		ControlPoint1: cp1,
 		ControlPoint2: cp2,
 		Appearance: rendering.Appearance{
-			FillColor:    common.TransparentColor(),
-			StrokeColor:  common.BlackColor(),
+			FillColor:    a.TransparentColor(),
+			StrokeColor:  a.BlackColor(),
 			StrokeWeight: 1,
 		},
 	}

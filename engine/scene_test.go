@@ -3,6 +3,7 @@ package engine
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
 	"testing"
 )
@@ -46,7 +47,8 @@ func createTestScene() *SceneObject {
 	test2 := &testStatefulWithTags{}
 	test2.Bruh = "Nice"
 	test2.Bruh2 = 2
-	test2.Color = common.GreenColor()
+	test2.Color = a.GreenColor()
+	test2.Arr = []int {42, 69}
 	rect.AddComponent(test)
 	rect.AddComponent(test2)
 
@@ -103,6 +105,9 @@ children:
   - name: github.com/cadmean-ru/amphion/engine.testStatefulWithTags
     state:
       Bruh: Nice
+      arr:
+      - 42
+      - 69
       breh: 2
       color:
         a: 255

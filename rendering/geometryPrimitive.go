@@ -1,7 +1,7 @@
 package rendering
 
 import (
-	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 )
 
 const primitiveBytesSize = 1 + transformBytesSize + appearanceBytesSize
@@ -9,10 +9,10 @@ const primitiveBytesSize = 1 + transformBytesSize + appearanceBytesSize
 type GeometryPrimitive struct {
 	Transform     Transform
 	Appearance    Appearance
-	primitiveType common.AByte
+	primitiveType a.Byte
 }
 
-func (p *GeometryPrimitive) GetType() common.AByte {
+func (p *GeometryPrimitive) GetType() a.Byte {
 	return p.primitiveType
 }
 
@@ -32,7 +32,7 @@ func (p *GeometryPrimitive) BuildPrimitive() *Primitive {
 	return pr
 }
 
-func NewGeometryPrimitive(pType common.AByte) *GeometryPrimitive {
+func NewGeometryPrimitive(pType a.Byte) *GeometryPrimitive {
 	if pType < 0 || pType > 5 {
 		pType = 0
 	}

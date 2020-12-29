@@ -1,14 +1,15 @@
 package builtin
 
 import (
-	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
+// Displays an image given it's resource index
 type ImageView struct {
 	ViewImpl
-	resIndex common.AInt
+	resIndex a.Int
 }
 
 func (v *ImageView) OnDraw(ctx engine.DrawingContext) {
@@ -19,10 +20,10 @@ func (v *ImageView) OnDraw(ctx engine.DrawingContext) {
 }
 
 func (v *ImageView) GetName() string {
-	return "ImageView"
+	return engine.NameOfComponent(v)
 }
 
-func NewImageView(index common.AInt) *ImageView {
+func NewImageView(index a.Int) *ImageView {
 	return &ImageView{
 		resIndex: index,
 	}

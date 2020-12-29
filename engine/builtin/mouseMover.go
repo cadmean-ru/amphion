@@ -61,7 +61,7 @@ func (m *MouseMover) OnStop() {
 }
 
 func (m *MouseMover) GetName() string {
-	return "MouseMover"
+	return engine.NameOfComponent(m)
 }
 
 func NewMouseMover() *MouseMover {

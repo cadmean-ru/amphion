@@ -34,6 +34,7 @@ type ViewComponent interface {
 	ForceRedraw()
 }
 
+// Contains necessary objects for component initialization
 type InitContext struct {
 	engine      *AmphionEngine
 	sceneObject *SceneObject
@@ -62,6 +63,7 @@ func newInitContext(engine *AmphionEngine, object *SceneObject) InitContext {
 	}
 }
 
+// Contains info about current update cycle
 type UpdateContext struct {
 	DeltaTime float32
 }
@@ -72,6 +74,7 @@ func newUpdateContext(dTime float32) UpdateContext {
 	}
 }
 
+// Contains renderer
 type DrawingContext struct {
 	renderer rendering.Renderer
 }
@@ -98,6 +101,8 @@ type StatefulComponent interface {
 	SetInstanceState(state common.SiMap)
 }
 
+// Checks if the given component has state.
+// A component becomes stateful if is implements StatefulComponent interface or contains fields with state tag.
 func IsStatefulComponent(component Component) bool {
 	if _, ok := component.(StatefulComponent); ok {
 		return true
@@ -116,6 +121,7 @@ func IsStatefulComponent(component Component) bool {
 	return false
 }
 
+// Retrieves component's state and returns it as string-interface map.
 func GetComponentState(component Component) common.SiMap {
 	if sc, ok := component.(StatefulComponent); ok {
 		return sc.GetInstanceState()
@@ -147,6 +153,7 @@ func GetComponentState(component Component) common.SiMap {
 	return state
 }
 
+// Sets the component's state to the given state map.
 func SetComponentState(component Component, state common.SiMap) {
 	if sc, ok := component.(StatefulComponent); ok {
 		sc.SetInstanceState(state)
@@ -161,9 +168,9 @@ func SetComponentState(component Component, state common.SiMap) {
 			sf := t.Field(i)
 			vf := v.Field(i)
 			if sf.Tag == "state" && sf.Name == key {
-				setFieldValue(vf, value)
+				setReflectValue(vf, value)
 			} else if sf.Tag.Get("state") == key {
-				setFieldValue(vf, value)
+				setReflectValue(vf, value)
 			} else {
 				continue
 			}
@@ -171,7 +178,7 @@ func SetComponentState(component Component, state common.SiMap) {
 	}
 }
 
-func setFieldValue(vf reflect.Value, value interface{}) {
+func setReflectValue(vf reflect.Value, value interface{}) {
 	var newValue reflect.Value
 
 	switch vf.Kind() {
@@ -186,11 +193,21 @@ func setFieldValue(vf reflect.Value, value interface{}) {
 		}
 		newValue = reflect.Indirect(structValue)
 	case reflect.Ptr:
-		structValue := reflect.New(vf.Type())
-		if structValue.Type().Implements(reflect.TypeOf((*common.Unmappable)(nil)).Elem()) {
-			structValue.Interface().(common.Unmappable).FromMap(common.RequireSiMap(value))
+		setReflectValue(reflect.Indirect(vf), value)
+	case reflect.Slice:
+		if arr, ok := value.([]interface{}); ok {
+			arrValue := reflect.MakeSlice(vf.Type(), len(arr), len(arr))
+
+			for i, v := range arr {
+				elemValue := reflect.New(vf.Type().Elem())
+				setReflectValue(elemValue, v)
+				arrValue.Index(i).Set(reflect.Indirect(elemValue))
+			}
+
+			newValue = arrValue
+		} else {
+			newValue = reflect.MakeSlice(vf.Type(), 0, 0)
 		}
-		newValue = structValue
 	}
 
 	if vf.CanSet() {

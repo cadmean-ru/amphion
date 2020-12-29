@@ -1,15 +1,18 @@
 package rendering
 
-import "github.com/cadmean-ru/amphion/common"
+import (
+	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
+)
 
 const appearanceBytesSize = 9
 const textAppearanceBytesSize = 1
 
 type Appearance struct {
-	FillColor    common.Color
-	StrokeColor  common.Color
-	StrokeWeight common.AByte
-	CornerRadius common.AByte
+	FillColor    a.Color
+	StrokeColor  a.Color
+	StrokeWeight a.Byte
+	CornerRadius a.Byte
 }
 
 func (a Appearance) ToMap() map[string]interface{} {
@@ -30,16 +33,16 @@ func (a Appearance) EncodeToByteArray() []byte {
 
 func DefaultAppearance() Appearance {
 	return Appearance{
-		FillColor:    common.WhiteColor(),
-		StrokeColor:  common.BlackColor(),
+		FillColor:    a.WhiteColor(),
+		StrokeColor:  a.BlackColor(),
 		StrokeWeight: 1,
 	}
 }
 
 
 type TextAppearance struct {
-	Font      string
-	FontSize  common.AByte
+	Font     string
+	FontSize a.Byte
 }
 
 func (a TextAppearance) ToMap() map[string]interface{} {

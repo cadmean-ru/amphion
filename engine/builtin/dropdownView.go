@@ -3,6 +3,7 @@ package builtin
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 	"math"
@@ -31,8 +32,8 @@ func (d *DropdownView) OnStart() {
 
 	bg := NewShapeView(rendering.PrimitiveRectangle)
 	bg.StrokeWeight = 2
-	bg.StrokeColor = common.BlackColor()
-	bg.FillColor = common.WhiteColor()
+	bg.StrokeColor = a.BlackColor()
+	bg.FillColor = a.WhiteColor()
 	bg.CornerRadius = 10
 	d.obj.AddComponent(bg)
 
@@ -41,20 +42,15 @@ func (d *DropdownView) OnStart() {
 	textObj.Transform.Size = common.NewVector3(siz.X - 10, siz.Y - 10, 0)
 
 	d.textView = NewTextView(d.selectedItem)
-	d.textView.Appearance = rendering.Appearance{
-		FillColor:    common.BlackColor(),
-	}
-	d.textView.TextAppearance = rendering.TextAppearance{
-		FontSize: 16,
-	}
+	d.textView.FontSize = 16
 
 	textObj.AddComponent(d.textView)
 	d.obj.AddChild(textObj)
 
 	d.optionsContainer = engine.NewSceneObject("OptionsContainer")
 	optionsBg := NewShapeView(rendering.PrimitiveRectangle)
-	optionsBg.Appearance.FillColor = common.WhiteColor()
-	optionsBg.Appearance.CornerRadius = 10
+	optionsBg.FillColor = a.WhiteColor()
+	optionsBg.CornerRadius = 10
 	d.optionsContainer.AddComponent(optionsBg)
 
 	d.optionsContainer.Transform.Position = common.NewVector3(0, siz.Y, 1)
@@ -66,8 +62,8 @@ func (d *DropdownView) OnStart() {
 		item.Transform.Position = common.NewVector3(10, float32(i*35) + 5, 1)
 		item.Transform.Size = common.NewVector3(siz.X, 35, 0)
 		itemTextView := NewTextView(itemText)
-		itemTextView.Appearance.FillColor = common.BlackColor()
-		itemTextView.TextAppearance.FontSize = 14
+		itemTextView.TextColor = a.BlackColor()
+		itemTextView.FontSize = 14
 		item.AddComponent(itemTextView)
 		item.AddComponent(NewRectBoundary())
 		item.AddComponent(NewOnClickListener(func(event engine.AmphionEvent) bool {
@@ -98,21 +94,6 @@ func (d *DropdownView) OnDraw(ctx engine.DrawingContext) {
 	y1 := int(math.Round(float64(rect.Y.Min))) + 12
 	y2 := int(math.Round(float64(rect.Y.Max))) - 12
 	z1 := int(math.Round(float64(pos.Z + 1)))
-	//
-	//lp1 := rendering.NewGeometryPrimitive(rendering.PrimitiveLine)
-	//lp1.Transform.Position = common.NewIntVector3(x1, y1, z1)
-	//lp1.Transform.Size = common.NewIntVector3(x3 - x1, y2 - y1, 0)
-	//lp1.Appearance.StrokeWeight = 3
-	//lp1.Appearance.StrokeColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
-	//
-	//lp2 := rendering.NewGeometryPrimitive(rendering.PrimitiveLine)
-	//lp2.Transform.Position = common.NewIntVector3(x3, y2, z1)
-	//lp2.Transform.Size = common.NewIntVector3(x2 - x3, y1 - y2, 0)
-	//lp2.Appearance.StrokeWeight = 3
-	//lp2.Appearance.StrokeColor = common.NewColor(0xc4, 0xc4, 0xc4, 0xff)
-	//
-	//ctx.GetRenderer().SetPrimitive(d.arrow1Id, lp1, d.ShouldRedraw())
-	//ctx.GetRenderer().SetPrimitive(d.arrow2Id, lp2, d.ShouldRedraw())
 
 	pr := rendering.NewImagePrimitive(4)
 	pr.Transform.Position = common.NewIntVector3(x1, y1, z1)
@@ -162,11 +143,10 @@ func (d *DropdownView) hideDropdown() {
 
 func (d *DropdownView) OnStop() {
 	d.eng.GetRenderer().RemovePrimitive(d.arrowId)
-	//d.eng.GetRenderer().RemovePrimitive(d.arrow2Id)
 }
 
 func (d *DropdownView) GetName() string {
-	return "DropdownView"
+	return engine.NameOfComponent(d)
 }
 
 func NewDropdownView(options []string) *DropdownView {

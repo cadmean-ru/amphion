@@ -10,7 +10,7 @@ type CircleBoundary struct {
 }
 
 func (r *CircleBoundary) GetName() string {
-	return "CircleBoundary"
+	return engine.NameOfComponent(r)
 }
 
 func (r *CircleBoundary) OnInit(ctx engine.InitContext) {
