@@ -46,7 +46,7 @@ func ByteArrayToInt64(arr []byte) int64 {
 	return val
 }
 
-func IntToByteArray(num int) []byte {
+func IntToByteArray(num int32) []byte {
 	//return Int64ToByteArray(int64(num))
 
 	bytes := make([]byte, 4)

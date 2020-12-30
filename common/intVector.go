@@ -64,6 +64,14 @@ func (v IntVector3) ToFloat() Vector3 {
 	return NewVector3(float32(v.X), float32(v.Y), float32(v.Z))
 }
 
+func (v IntVector3) ToInt32() Int32Vector3 {
+	return Int32Vector3{
+		X: int32(v.X),
+		Y: int32(v.Y),
+		Z: int32(v.Z),
+	}
+}
+
 // Transforms vector ro normalized device coordinates vector
 func (v IntVector3) Ndc(screen IntVector3) Vector3 {
 	xs := float32(screen.X)
@@ -91,9 +99,9 @@ func (v IntVector3) Equals(other interface{}) bool {
 
 func (v IntVector3) EncodeToByteArray() []byte {
 	arr := make([]byte, 12)
-	_ = CopyByteArray(IntToByteArray(v.X), arr, 0, 4)
-	_ = CopyByteArray(IntToByteArray(v.Y), arr, 4, 4)
-	_ = CopyByteArray(IntToByteArray(v.Z), arr, 8, 4)
+	_ = CopyByteArray(IntToByteArray(int32(v.X)), arr, 0, 4)
+	_ = CopyByteArray(IntToByteArray(int32(v.Y)), arr, 4, 4)
+	_ = CopyByteArray(IntToByteArray(int32(v.Z)), arr, 8, 4)
 	return arr
 }
 
@@ -107,4 +115,8 @@ func OneIntVector() IntVector3 {
 		Y: 1,
 		Z: 1,
 	}
+}
+
+type Int32Vector3 struct {
+	X, Y, Z int32
 }

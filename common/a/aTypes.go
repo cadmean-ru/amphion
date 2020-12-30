@@ -14,10 +14,10 @@ func (b Byte) GetName() string {
 	return "Byte"
 }
 
-type Int int
+type Int int32
 
 func (i Int) EncodeToByteArray() []byte {
-	return common.IntToByteArray(int(i))
+	return common.IntToByteArray(int32(i))
 }
 
 func (i Int) GetName() string {

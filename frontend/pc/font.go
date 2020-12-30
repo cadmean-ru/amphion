@@ -22,33 +22,27 @@ type glCharacter struct {
 	char      rune
 	size      common.IntVector3
 	bearing   common.IntVector3
-	advance   uint32
+	advance   common.IntVector3
 }
 
 type glFont struct {
 	name       string
 	characters map[rune]*glCharacter
+	maxHeight  int
+	ttf        *truetype.Font
 }
 
-//var ft C.FT_Library
-//
-//func initFreeType() {
-//	if C.FT_Init_FreeType(&ft) != 0 {
-//		panic("could not init freetype")
-//	}
-//}
+func (f *glFont) kern(a, b rune) int {
+	i1 := f.ttf.Index(a)
+	i2 := f.ttf.Index(b)
+	return f.ttf.Kern(fixed.Int26_6(f.maxHeight<<6), i1, i2).Round()
+}
 
 func loadFont(name string) (*glFont, error) {
 	fontPath, err := findfont.Find(fmt.Sprintf("%s.ttf", name))
 	if err != nil {
 		return nil, err
 	}
-
-	//fontData, err := os.Open(fontPath)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//defer fontData.Close()
 
 	fontData, err := ioutil.ReadFile(fontPath)
 
@@ -57,7 +51,7 @@ func loadFont(name string) (*glFont, error) {
 		return nil, err
 	}
 
-	fupe := fixed.Int26_6(f.FUnitsPerEm())
+	fupe := fixed.Int26_6(18<<6)
 
 	face := truetype.NewFace(f, &truetype.Options{
 		Size:              18,
@@ -68,6 +62,13 @@ func loadFont(name string) (*glFont, error) {
 	glFont := glFont{
 		name:       name,
 		characters: make(map[rune]*glCharacter),
+		ttf:        f,
+	}
+
+	maxH := 0
+
+	for _, r := range "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890\uE00A" {
+		face.Glyph(fixed.Point26_6{}, r)
 	}
 
 	for _, r := range "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890\uE00A" {
@@ -84,30 +85,16 @@ func loadFont(name string) (*glFont, error) {
 		bruh := image.NewGray(dr)
 		draw.Draw(bruh, dr, mask, maskp, draw.Src)
 
-		//bruh1 := make([]byte, dr.Size().X * dr.Size().Y)
-		//
-		//l := 0
-		//for j := dr.Size().Y-1; j >= 0; j-- {
-		//	for k := 0; k < dr.Size().X; k ++ {
-		//		i1 := j * dr.Size().X + k
-		//		i2 := l * dr.Size().X + k
-		//		bruh1[i2] = bruh.Pix[i1]
-		//	}
-		//	l++
-		//}
-		//
-		//cf, err := os.Create(fmt.Sprintf("%v.png", r))
-		//if err == nil {
-		//	err = png.Encode(cf, bruh)
-		//	_ = cf.Close()
-		//}
-
 		c := glCharacter{
 			textureId: 0,
 			char:      r,
 			size:      common.NewIntVector3(dr.Size().X, dr.Size().Y, 0),
 			bearing:   common.NewIntVector3(hm.LeftSideBearing.Round(), vm.TopSideBearing.Round(), 0),
-			advance:   uint32(hm.AdvanceWidth.Round()),
+			advance:   common.NewIntVector3(hm.AdvanceWidth.Round(), vm.AdvanceHeight.Round(), 0),
+		}
+
+		if dr.Size().Y > maxH {
+			maxH = dr.Size().Y
 		}
 
 		gl.GenTextures(1, &c.textureId)
@@ -132,83 +119,7 @@ func loadFont(name string) (*glFont, error) {
 		glFont.characters[r] = &c
 	}
 
+	glFont.maxHeight = maxH
+
 	return &glFont, nil
-
-	//runeRanges := make(gltext.RuneRanges, 0)
-	//runeRanges = append(runeRanges, gltext.RuneRange{Low: 32, High: 128})
-	//runeRanges = append(runeRanges, gltext.RuneRange{Low: 0x3000, High: 0x3030})
-	//runeRanges = append(runeRanges, gltext.RuneRange{Low: 0x3040, High: 0x309f})
-	//runeRanges = append(runeRanges, gltext.RuneRange{Low: 0x30a0, High: 0x30ff})
-	//runeRanges = append(runeRanges, gltext.RuneRange{Low: 0x4e00, High: 0x9faf})
-	//runeRanges = append(runeRanges, gltext.RuneRange{Low: 0xff00, High: 0xffef})
-	//
-	//scale := fixed.Int26_6(32)
-	//runesPerRow := fixed.Int26_6(128)
-	//config, err := gltext.NewTruetypeFontConfig(fontData, scale, runeRanges, runesPerRow, 5)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//font := &glFont{}
-	//
-	//font.japanFont, err = v41.NewFont(config)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//return font, nil
-
-	//var face C.FT_Face
-	//if C.FT_New_Face(&ft, fontPath, 0, &face) != 0 {
-	//	return nil, errors.New("failed to load font")
-	//}
-	//
-	//C.FT_Set_Pixel_Sizes(face, 0, 48)
-	//
-	//abc := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 "
-	//
-	//f := glFont{
-	//	name:       name,
-	//	characters: make(map[rune]*glCharacter, len(abc)),
-	//}
-	//
-	//for _, r := range abc {
-	//	if C.FT_Load_Char(face, r, C.FT_LOAD_RENDER) != 0 {
-	//		return nil, errors.New("failed to load character")
-	//	}
-	//
-	//	var tex uint32
-	//	gl.GenTextures(1, &tex)
-	//	gl.BindTexture(gl.TEXTURE_2D, tex)
-	//	gl.TexImage2D(
-	//		gl.TEXTURE_2D,
-	//		0,
-	//		gl.RED,
-	//		face.glyph.bitmap.width,
-	//		face.glyph.bitmap.rows,
-	//		0,
-	//		gl.RED,
-	//		gl.UNSIGNED_BYTE,
-	//		face.glyph.bitmap.buffer,
-	//	)
-	//
-	//	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-	//	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-	//	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	//	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-	//
-	//	c := glCharacter{
-	//		textureId: tex,
-	//		char:      r,
-	//		size:      common.NewIntVector3(face.glyph.bitmap.width, face.glyph.bitmap.rows, 0),
-	//		bearing:   common.NewIntVector3(face.glyph.bitmap_left, face.glyph.bitmap_top, 0),
-	//		advance:   face.glyph.advance.x,
-	//	}
-	//
-	//	f.characters[r] = &c
-	//}
-	//
-	//C.FT_Done_Face(face)
-	//
-	//return &f, nil
 }

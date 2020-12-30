@@ -1,28 +1,27 @@
 #version 330 core
-out vec4 FragColor;
 
-uniform vec4 ourColor;
+flat in vec3 fTopLeft;
+flat in vec3 fBottomRight;
+in vec4 fPosition;
+in vec4 fFillColor;
 
-uniform vec3 tlPos;
-uniform vec3 brPos;
-
-in vec4 trashPos;
+out vec4 resultColor;
 
 void main()
 {
-    float a = (brPos.x - tlPos.x) / 2; //0.1
-    float b = (brPos.y - tlPos.y) / 2; //0.1
-    float x = trashPos.x;
-    float y = trashPos.y;
-    float xc = tlPos.x + a; // 0.3
-    float yc = tlPos.y + b; // -0.3
+    float a = (fBottomRight.x - fTopLeft.x) / 2;
+    float b = (fBottomRight.y - fTopLeft.y) / 2;
+    float x = fPosition.x;
+    float y = fPosition.y;
+    float xc = fTopLeft.x + a;
+    float yc = fTopLeft.y + b;
     float x2 = x - xc;
     float y2 = y - yc;
     float c = x2 / a;
     float d = y2 / b;
     float res = c * c + d * d;
     if (res <= 1)
-    FragColor = ourColor;
+        resultColor = fFillColor;
     else
-    discard;
+        discard;
 }

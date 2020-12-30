@@ -10,7 +10,6 @@ import (
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"math"
-	"time"
 )
 
 const SleepTimeMs = 16
@@ -38,7 +37,7 @@ func (f *Frontend) Init() {
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 
-	if f.window, err = glfw.CreateWindow(f.wSize.X, f.wSize.Y, "Amphion", nil, nil); err != nil {
+	if f.window, err = glfw.CreateWindow(int(f.wSize.X), int(f.wSize.Y), "Amphion", nil, nil); err != nil {
 		panic(err)
 	}
 
@@ -47,7 +46,7 @@ func (f *Frontend) Init() {
 	f.window.SetFramebufferSizeCallback(f.frameBufferSizeCallback)
 	f.window.SetFocusCallback(f.focusCallback)
 
-	f.context.ScreenInfo = common.NewScreenInfo(f.wSize.X, f.wSize.Y)
+	f.context.ScreenInfo = common.NewScreenInfo(int(f.wSize.X), int(f.wSize.Y))
 
 	f.renderer.window = f.window
 	f.renderer.wSize = f.wSize
@@ -74,9 +73,11 @@ func (f *Frontend) Run() {
 
 		}
 
-		glfw.PollEvents()
+		//glfw.PollEvents()
+		//
+		//time.Sleep(SleepTimeMs)
 
-		time.Sleep(SleepTimeMs)
+		glfw.WaitEventsTimeout(SleepTimeMs)
 	}
 
 	glfw.Terminate()

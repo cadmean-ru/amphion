@@ -17,7 +17,7 @@ package {{ .PackageName }}
 {{ .Shaders }}
 `
 
-var shaderTemplate = `var {{ .Name }}Str = "{{ escapeNewLine .Code }}{{ "\\x00" }}"`
+var shaderTemplate = `const {{ .Name }}Str = "{{ escapeNewLine .Code }}{{ "\\x00" }}"`
 
 type shaderFileData struct {
 	BuildTags   string

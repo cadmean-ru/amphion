@@ -8,10 +8,10 @@ import (
 
 type TextView struct {
 	ViewImpl
-	TextColor a.Color  `state:"TextColor"`
-	Font      string   `state:"Font"`
-	FontSize  a.Byte   `state:"FontSize"`
-	text      a.String `state:"Text"`
+	TextColor a.Color  `state:"textColor"`
+	Font      string   `state:"font"`
+	FontSize  a.Byte   `state:"fontSize"`
+	text      a.String `state:"text"`
 }
 
 func (t *TextView) GetName() string {

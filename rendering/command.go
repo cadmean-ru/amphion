@@ -24,7 +24,7 @@ func (c Command) GetLength() int {
 func (c Command) EncodeToByteArray() []byte {
 	arr := make([]byte, 5 + c.dataSize)
 	arr[0] = c.code
-	dataSizeBytes := common.IntToByteArray(c.dataSize)
+	dataSizeBytes := common.IntToByteArray(int32(c.dataSize))
 	_ = common.CopyByteArray(dataSizeBytes, arr, 1, 4)
 	_ = common.CopyByteArray(c.data, arr, 5, c.dataSize)
 	return arr
