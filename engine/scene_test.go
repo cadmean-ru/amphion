@@ -40,8 +40,8 @@ func createTestScene() *SceneObject {
 	scene := NewSceneObject("Test scene")
 
 	rect := NewSceneObject("rect")
-	rect.Transform.Size = common.NewVector3(100, 100, 100)
-	rect.Transform.Position = common.NewVector3(100, 100, -2)
+	rect.Transform.Size = a.NewVector3(100, 100, 100)
+	rect.Transform.Position = a.NewVector3(100, 100, -2)
 	test := &testComponent{}
 	test.num = 69
 	test2 := &testStatefulWithTags{}
@@ -53,8 +53,8 @@ func createTestScene() *SceneObject {
 	rect.AddComponent(test2)
 
 	circle := NewSceneObject("circle")
-	circle.Transform.Size = common.NewVector3(50, 50, 0)
-	circle.Transform.Position = common.NewVector3(10, 10 , 1)
+	circle.Transform.Size = a.NewVector3(50, 50, 0)
+	circle.Transform.Position = a.NewVector3(10, 10 , 1)
 
 	rect.AddChild(circle)
 	scene.AddChild(rect)

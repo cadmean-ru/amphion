@@ -6,7 +6,7 @@ package pc
 import (
 	"errors"
 	"fmt"
-	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/flopp/go-findfont"
 	"github.com/go-gl/gl/all-core/gl"
 	"github.com/golang/freetype/truetype"
@@ -20,9 +20,9 @@ import (
 type glCharacter struct {
 	textureId uint32
 	char      rune
-	size      common.IntVector3
-	bearing   common.IntVector3
-	advance   common.IntVector3
+	size      a.IntVector3
+	bearing   a.IntVector3
+	advance   a.IntVector3
 }
 
 type glFont struct {
@@ -88,9 +88,9 @@ func loadFont(name string) (*glFont, error) {
 		c := glCharacter{
 			textureId: 0,
 			char:      r,
-			size:      common.NewIntVector3(dr.Size().X, dr.Size().Y, 0),
-			bearing:   common.NewIntVector3(hm.LeftSideBearing.Round(), vm.TopSideBearing.Round(), 0),
-			advance:   common.NewIntVector3(hm.AdvanceWidth.Round(), vm.AdvanceHeight.Round(), 0),
+			size:      a.NewIntVector3(dr.Size().X, dr.Size().Y, 0),
+			bearing:   a.NewIntVector3(hm.LeftSideBearing.Round(), vm.TopSideBearing.Round(), 0),
+			advance:   a.NewIntVector3(hm.AdvanceWidth.Round(), vm.AdvanceHeight.Round(), 0),
 		}
 
 		if dr.Size().Y > maxH {

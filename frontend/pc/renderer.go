@@ -38,7 +38,7 @@ type OpenGLRenderer struct {
 	idgen          *common.IdGenerator
 	primitives     map[int64]*glContainer
 	shouldDelete   bool
-	wSize          common.IntVector3
+	wSize          a.IntVector3
 	fonts          map[string]*glFont
 	projection     [16]float32
 }
@@ -474,13 +474,13 @@ func (r *OpenGLRenderer) drawText(p *glContainer) {
 		xpos := x + ch.bearing.X
 		ypos := y
 
-		pos := common.NewIntVector3(xpos, ypos, 0)
+		pos := a.NewIntVector3(xpos, ypos, 0)
 		npos := pos.Ndc(r.wSize)
 
 		w := ch.size.X
 		h := ch.size.Y
 
-		brpos := pos.Add(common.NewIntVector3(w, h, 0))
+		brpos := pos.Add(a.NewIntVector3(w, h, 0))
 		nbrpos := brpos.Ndc(r.wSize)
 
 		r.drawTex(p, npos, nbrpos, ch.textureId, r.textProgram, func() {
@@ -561,7 +561,7 @@ func (r *OpenGLRenderer) drawImage(p *glContainer) {
 	r.drawTex(p, nPos, brPos, texId, r.imageProgram, nil)
 }
 
-func (r *OpenGLRenderer) drawTex(p *glContainer, nPos, nbrPos common.Vector3, texId, progId uint32, beforeDraw func()) {
+func (r *OpenGLRenderer) drawTex(p *glContainer, nPos, nbrPos a.Vector3, texId, progId uint32, beforeDraw func()) {
 	p.gen()
 
 	//if p.redraw {

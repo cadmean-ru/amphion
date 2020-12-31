@@ -1,11 +1,11 @@
 package builtin
 
 import (
-	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 )
 
-type ClickHandler func(vector3 common.IntVector3) bool
+type ClickHandler func(vector3 a.IntVector3) bool
 
 type ViewImpl struct {
 	redraw  bool

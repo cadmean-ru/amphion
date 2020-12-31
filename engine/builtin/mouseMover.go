@@ -1,7 +1,7 @@
 package builtin
 
 import (
-	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 )
 
@@ -9,7 +9,7 @@ type MouseMover struct {
 	object   *engine.SceneObject
 	engine   *engine.AmphionEngine
 	dragging bool
-	mousePos common.IntVector3
+	mousePos a.IntVector2
 }
 
 func (m *MouseMover) OnInit(ctx engine.InitContext) {
@@ -51,7 +51,7 @@ func (m *MouseMover) OnUpdate(_ engine.UpdateContext) {
 	newMousePos := m.engine.GetInputManager().GetMousePosition()
 	dPos := newMousePos.Sub(m.mousePos)
 	m.mousePos = newMousePos
-	m.object.Transform.Position = m.object.Transform.Position.Add(dPos.ToFloat())
+	m.object.Transform.Position = m.object.Transform.Position.Add(dPos.ToFloat3())
 	m.engine.GetMessageDispatcher().DispatchDown(m.object, engine.NewMessage(m, engine.MessageRedraw, nil))
 	m.engine.RequestRendering()
 }

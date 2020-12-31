@@ -2,7 +2,6 @@ package engine
 
 import (
 	"fmt"
-	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -53,11 +52,11 @@ func TestGetComponentState(t *testing.T) {
 func TestSetComponentState(t *testing.T) {
 	assertions := assert.New(t)
 
-	state := common.SiMap {
-		"Bruh": "abc",
-		"breh": 6.9,
-		"color": common.SiMap{"r": 255, "g": 192, "b": 203, "a": 255},
-		"arr": []interface{} {1, 3, 4},
+	state := a.SiMap{
+		"Bruh":  "abc",
+		"breh":  6.9,
+		"color": a.SiMap{"r": 255, "g": 192, "b": 203, "a": 255},
+		"arr":   []interface{} {1, 3, 4},
 	}
 
 	comp := &testStatefulWithTags{}

@@ -1,14 +1,16 @@
 package rendering
 
-import "github.com/cadmean-ru/amphion/common"
+import (
+	"github.com/cadmean-ru/amphion/common/a"
+)
 
 const transformBytesSize = 48
 
 type Transform struct {
-	Position common.IntVector3
-	Pivot    common.IntVector3
-	Rotation common.IntVector3
-	Size     common.IntVector3
+	Position a.IntVector3
+	Pivot    a.IntVector3
+	Rotation a.IntVector3
+	Size     a.IntVector3
 }
 
 func (t Transform) ToMap() map[string]interface{} {
@@ -22,18 +24,18 @@ func (t Transform) ToMap() map[string]interface{} {
 
 func (t Transform) EncodeToByteArray() []byte {
 	bytes := make([]byte, transformBytesSize)
-	_ = common.CopyByteArray(t.Position.EncodeToByteArray(), bytes, 0,  12)
-	_ = common.CopyByteArray(t.Pivot.EncodeToByteArray(),    bytes, 12, 12)
-	_ = common.CopyByteArray(t.Rotation.EncodeToByteArray(), bytes, 24, 12)
-	_ = common.CopyByteArray(t.Size.EncodeToByteArray(),     bytes, 36, 12)
+	_ = a.CopyByteArray(t.Position.EncodeToByteArray(), bytes, 0,  12)
+	_ = a.CopyByteArray(t.Pivot.EncodeToByteArray(),    bytes, 12, 12)
+	_ = a.CopyByteArray(t.Rotation.EncodeToByteArray(), bytes, 24, 12)
+	_ = a.CopyByteArray(t.Size.EncodeToByteArray(),     bytes, 36, 12)
 	return bytes
 }
 
 func NewTransform() Transform {
 	return Transform{
-		Position:    common.ZeroIntVector(),
-		Pivot:       common.ZeroIntVector(),
-		Rotation:    common.ZeroIntVector(),
-		Size:        common.OneIntVector(),
+		Position: a.ZeroIntVector(),
+		Pivot:    a.ZeroIntVector(),
+		Rotation: a.ZeroIntVector(),
+		Size:     a.OneIntVector(),
 	}
 }

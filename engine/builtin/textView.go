@@ -6,12 +6,14 @@ import (
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
+// Component for displaying text
 type TextView struct {
 	ViewImpl
-	TextColor a.Color  `state:"textColor"`
-	Font      string   `state:"font"`
-	FontSize  a.Byte   `state:"fontSize"`
-	text      a.String `state:"text"`
+	TextColor  a.Color  `state:"textColor"`
+	Font       string   `state:"font"`
+	FontSize   a.Byte   `state:"fontSize"`
+	FontWeight a.Byte   `state:"fontWeight"`
+	Text       a.String `state:"text"`
 }
 
 func (t *TextView) GetName() string {
@@ -19,10 +21,11 @@ func (t *TextView) GetName() string {
 }
 
 func (t *TextView) OnDraw(ctx engine.DrawingContext) {
-	pr := rendering.NewTextPrimitive(t.text)
+	pr := rendering.NewTextPrimitive(t.Text)
 	pr.Transform = transformToRenderingTransform(t.obj.Transform)
 	pr.Appearance = rendering.Appearance{
-		FillColor: t.TextColor,
+		FillColor:    t.TextColor,
+		StrokeWeight: t.FontWeight,
 	}
 	pr.TextAppearance = rendering.TextAppearance{
 		Font:     t.Font,
@@ -33,18 +36,19 @@ func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 }
 
 func (t *TextView) SetText(text string) {
-	t.text = a.String(text)
+	t.Text = a.String(text)
 	t.redraw = true
 }
 
 func (t *TextView) GetText() string {
-	return string(t.text)
+	return string(t.Text)
 }
 
 func NewTextView(text string) *TextView {
 	return &TextView{
-		TextColor: a.BlackColor(),
-		FontSize:  16,
-		text:      a.String(text),
+		TextColor:  a.BlackColor(),
+		FontSize:   16,
+		FontWeight: 0,
+		Text:       a.String(text),
 	}
 }

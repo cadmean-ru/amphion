@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"reflect"
@@ -36,7 +37,6 @@ type AmphionEngine struct {
 	currentComponent   Component
 	closeSceneCallback func()
 	tasksRoutine       *TasksRoutine
-	resourceManager    *ResourceManager
 	focusedObject      *SceneObject
 	front              frontend.Frontend
 	suspend            bool
@@ -68,7 +68,6 @@ func Initialize(front frontend.Frontend) *AmphionEngine {
 		updateRoutine:     newUpdateRoutine(),
 		eventBinder:       newEventBinder(),
 		tasksRoutine:      newTasksRoutine(),
-		resourceManager:   newResourceManager(),
 		componentsManager: newComponentsManager(),
 		front:             front,
 	}
@@ -116,13 +115,13 @@ func (engine *AmphionEngine) GetGlobalContext() frontend.Context {
 }
 
 func (engine *AmphionEngine) LoadScene(scene string) {
-	engine.RunTask(NewTaskBuilder().Run(func() (interface{}, error) {
-		return loadScene(scene)
-	}).Than(func(res interface{}) {
-		engine.loadedScene = res.(*SceneObject)
-	}).Err(func(err error) {
-		engine.logger.Error(engine, fmt.Sprintf("Error loading scene: %e", err))
-	}).Build())
+	//engine.RunTask(NewTaskBuilder().Run(func() (interface{}, error) {
+	//	return loadScene(scene)
+	//}).Than(func(res interface{}) {
+	//	engine.loadedScene = res.(*SceneObject)
+	//}).Err(func(err error) {
+	//	engine.logger.Error(engine, fmt.Sprintf("Error loading scene: %e", err))
+	//}).Build())
 }
 
 func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
@@ -212,7 +211,7 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontend.Callback) 
 		if err != nil {
 			panic("Invalid click callback Data")
 		}
-		event := NewAmphionEvent(engine, EventMouseDown, common.NewIntVector3(int(x), int(y), 0))
+		event := NewAmphionEvent(engine, EventMouseDown, a.NewIntVector3(int(x), int(y), 0))
 		engine.eventChan<-event
 	case frontend.CallbackMouseUp:
 		coords := strings.Split(callback.Data, ";")
@@ -227,7 +226,7 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontend.Callback) 
 		if err != nil {
 			panic("Invalid click callback Data")
 		}
-		event := NewAmphionEvent(engine, EventMouseUp, common.NewIntVector3(int(x), int(y), 0))
+		event := NewAmphionEvent(engine, EventMouseUp, a.NewIntVector3(int(x), int(y), 0))
 		engine.eventChan<-event
 	case frontend.CallbackContextChange:
 		engine.globalContext = engine.front.GetContext()
@@ -338,7 +337,7 @@ func (engine *AmphionEngine) canStop() bool {
 }
 
 func (engine *AmphionEngine) handleClickEvent(event AmphionEvent) bool {
-	clickPos := event.Data.(common.IntVector3)
+	clickPos := event.Data.(a.IntVector3)
 	candidates := make([]*SceneObject, 0, 1)
 	engine.currentScene.ForEachObject(func(o *SceneObject) {
 		if o.IsRendering() && o.HasBoundary() && o.IsPointInsideBoundaries2D(clickPos.ToFloat()) {
@@ -385,9 +384,9 @@ func (engine *AmphionEngine) RunTask(task Task) {
 	engine.tasksRoutine.RunTask(task)
 }
 
-func (engine *AmphionEngine) GetResourceManager() *ResourceManager {
-	return engine.resourceManager
-}
+//func (engine *AmphionEngine) GetResourceManager() *ResourceManager {
+//	return engine.resourceManager
+//}
 
 func (engine *AmphionEngine) GetFrontend() frontend.Frontend {
 	return engine.front

@@ -1,4 +1,4 @@
-package common
+package a
 
 type SiMap map[string]interface{}
 

@@ -1,7 +1,6 @@
 package rendering
 
 import (
-	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 )
 
@@ -15,19 +14,19 @@ type Appearance struct {
 	CornerRadius a.Byte
 }
 
-func (a Appearance) ToMap() map[string]interface{} {
+func (ap Appearance) ToMap() map[string]interface{} {
 	return map[string]interface{}{
-		"fillColor":    a.FillColor.ToMap(),
-		"strokeColor":  a.StrokeColor.ToMap(),
-		"strokeWeight": a.StrokeWeight,
+		"fillColor":    ap.FillColor.ToMap(),
+		"strokeColor":  ap.StrokeColor.ToMap(),
+		"strokeWeight": ap.StrokeWeight,
 	}
 }
 
-func (a Appearance) EncodeToByteArray() []byte {
+func (ap Appearance) EncodeToByteArray() []byte {
 	arr := make([]byte, appearanceBytesSize)
-	_ = common.CopyByteArray(a.FillColor.EncodeToByteArray(), arr, 0, 4)
-	_ = common.CopyByteArray(a.StrokeColor.EncodeToByteArray(), arr, 4, 4)
-	_ = common.CopyByteArray(a.StrokeWeight.EncodeToByteArray(), arr, 8, 1)
+	_ = a.CopyByteArray(ap.FillColor.EncodeToByteArray(), arr, 0, 4)
+	_ = a.CopyByteArray(ap.StrokeColor.EncodeToByteArray(), arr, 4, 4)
+	_ = a.CopyByteArray(ap.StrokeWeight.EncodeToByteArray(), arr, 8, 1)
 	return arr
 }
 

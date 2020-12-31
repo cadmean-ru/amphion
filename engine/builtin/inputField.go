@@ -1,7 +1,6 @@
 package builtin
 
 import (
-	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
@@ -25,9 +24,9 @@ func (f *InputField) OnStart() {
 	f.inputView.FontSize = 15
 	f.inputView.AllowMultiline = f.AllowMultiline
 
-	input.Transform.Position = common.NewVector3(f.Padding, f.Padding, 1)
+	input.Transform.Position = a.NewVector3(f.Padding, f.Padding, 1)
 	size := f.obj.Transform.Size
-	input.Transform.Size = common.NewVector3(size.X - f.Padding, size.Y - f.Padding, 0)
+	input.Transform.Size = a.NewVector3(size.X - f.Padding, size.Y - f.Padding, 0)
 
 	input.AddComponent(f.inputView)
 	input.AddComponent(NewRectBoundary())

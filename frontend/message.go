@@ -6,6 +6,7 @@ import (
 
 const (
 	MessageRender = 0
+	MessageExit   = 1
 )
 
 type Message struct {

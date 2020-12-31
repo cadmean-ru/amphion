@@ -1,7 +1,6 @@
 package a
 
 import (
-	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/require"
 )
 
@@ -18,7 +17,7 @@ func NewColor(r, g, b, a byte) Color {
 	}
 }
 
-func (c Color) ToMap() common.SiMap {
+func (c Color) ToMap() SiMap {
 	return map[string]interface{}{
 		"r": c.R,
 		"g": c.G,
@@ -27,7 +26,7 @@ func (c Color) ToMap() common.SiMap {
 	}
 }
 
-func (c *Color) FromMap(siMap common.SiMap) {
+func (c *Color) FromMap(siMap SiMap) {
 	c.R = require.Byte(siMap["r"])
 	c.G = require.Byte(siMap["g"])
 	c.B = require.Byte(siMap["b"])
@@ -43,12 +42,12 @@ func (c Color) EncodeToByteArray() []byte {
 	return arr
 }
 
-func (c Color) Normalize() common.Vector4 {
+func (c Color) Normalize() Vector4 {
 	x := float32(c.R) / 255
 	y := float32(c.G) / 255
 	z := float32(c.B) / 255
 	w := float32(c.A) / 255
-	return common.NewVector4(x, y, z, w)
+	return NewVector4(x, y, z, w)
 }
 
 func BlackColor() Color {

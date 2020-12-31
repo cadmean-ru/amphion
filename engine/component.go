@@ -2,6 +2,7 @@ package engine
 
 import (
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
 	"github.com/cadmean-ru/amphion/rendering"
 	"reflect"
@@ -97,8 +98,8 @@ type BoundaryComponent interface {
 
 // Interface for components, that can persist state.
 type StatefulComponent interface {
-	GetInstanceState() common.SiMap
-	SetInstanceState(state common.SiMap)
+	GetInstanceState() a.SiMap
+	SetInstanceState(state a.SiMap)
 }
 
 // Checks if the given component has state.
@@ -122,14 +123,14 @@ func IsStatefulComponent(component Component) bool {
 }
 
 // Retrieves component's state and returns it as string-interface map.
-func GetComponentState(component Component) common.SiMap {
+func GetComponentState(component Component) a.SiMap {
 	if sc, ok := component.(StatefulComponent); ok {
 		return sc.GetInstanceState()
 	}
 
 	t, v := getStructTypeAndValue(component)
 
-	state := make(common.SiMap)
+	state := make(a.SiMap)
 
 	fCount := t.NumField()
 	for i := 0; i < fCount; i++ {
@@ -144,7 +145,7 @@ func GetComponentState(component Component) common.SiMap {
 			continue
 		}
 		value := vf.Interface()
-		if m, ok := value.(common.Mappable); ok {
+		if m, ok := value.(a.Mappable); ok {
 			value = m.ToMap()
 		}
 		state[key] = value
@@ -154,7 +155,7 @@ func GetComponentState(component Component) common.SiMap {
 }
 
 // Sets the component's state to the given state map.
-func SetComponentState(component Component, state common.SiMap) {
+func SetComponentState(component Component, state a.SiMap) {
 	if sc, ok := component.(StatefulComponent); ok {
 		sc.SetInstanceState(state)
 		return
@@ -188,8 +189,8 @@ func setReflectValue(vf reflect.Value, value interface{}) {
 		newValue = reflect.ValueOf(require.String(value))
 	case reflect.Struct:
 		structValue := reflect.New(vf.Type())
-		if structValue.Type().Implements(reflect.TypeOf((*common.Unmappable)(nil)).Elem()) {
-			structValue.Interface().(common.Unmappable).FromMap(common.RequireSiMap(value))
+		if structValue.Type().Implements(reflect.TypeOf((*a.Unmappable)(nil)).Elem()) {
+			structValue.Interface().(a.Unmappable).FromMap(a.RequireSiMap(value))
 		}
 		newValue = reflect.Indirect(structValue)
 	case reflect.Ptr:

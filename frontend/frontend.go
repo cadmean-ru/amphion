@@ -2,6 +2,7 @@ package frontend
 
 import (
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
@@ -42,5 +43,5 @@ func NewCallback(code int, data string) Callback {
 type CallbackHandler func(callback Callback)
 
 type InputManager interface {
-	GetMousePosition() common.IntVector3
+	GetMousePosition() a.IntVector2
 }

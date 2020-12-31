@@ -26,13 +26,13 @@ func (v *InputView) handleKeyDown(event engine.AmphionEvent) bool {
 	keyEvent := event.Data.(engine.KeyEvent)
 
 	if isPrintableKeyCode(keyEvent.Code) {
-		v.SetText(string(v.text) + keyEvent.Key)
+		v.SetText(string(v.Text) + keyEvent.Key)
 		v.ForceRedraw()
 	} else if v.AllowMultiline && keyEvent.Code == "Enter" {
-		v.SetText(string(v.text) + "\n")
+		v.SetText(string(v.Text) + "\n")
 		v.ForceRedraw()
 	} else if keyEvent.Code == "Backspace" {
-		v.SetText(string(v.text)[:len(v.text)-1])
+		v.SetText(string(v.Text)[:len(v.Text)-1])
 		v.ForceRedraw()
 	}
 
@@ -40,7 +40,7 @@ func (v *InputView) handleKeyDown(event engine.AmphionEvent) bool {
 		v.eng.RequestRendering()
 	}
 
-	v.cursorPos = len(v.text)
+	v.cursorPos = len(v.Text)
 
 	return true
 }
@@ -79,7 +79,7 @@ func (v *InputView) GetName() string {
 func NewInputView() *InputView {
 	return &InputView{
 		TextView: TextView{
-			text: "\n",
+			Text: "\n",
 		},
 	}
 }

@@ -1,15 +1,14 @@
 package rendering
 
 import (
-	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 )
 
 type BezierPrimitive struct {
 	Transform     Transform
 	Appearance    Appearance
-	ControlPoint1 common.IntVector3
-	ControlPoint2 common.IntVector3
+	ControlPoint1 a.IntVector3
+	ControlPoint2 a.IntVector3
 }
 
 func (b *BezierPrimitive) GetType() a.Byte {
@@ -31,7 +30,7 @@ func (b *BezierPrimitive) BuildPrimitive() *Primitive {
 	return pr
 }
 
-func NewBezierPrimitive(cp1, cp2 common.IntVector3) *BezierPrimitive {
+func NewBezierPrimitive(cp1, cp2 a.IntVector3) *BezierPrimitive {
 	return &BezierPrimitive{
 		ControlPoint1: cp1,
 		ControlPoint2: cp2,

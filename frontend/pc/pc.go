@@ -6,6 +6,7 @@ package pc
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -16,7 +17,7 @@ const SleepTimeMs = 16
 
 type Frontend struct {
 	window      *glfw.Window
-	wSize       common.IntVector3
+	wSize       a.IntVector3
 	handler     frontend.CallbackHandler
 	renderer    *OpenGLRenderer
 	initialized bool
@@ -116,7 +117,7 @@ func (f *Frontend) keyCallback(_ *glfw.Window, key glfw.Key, scancode int, actio
 }
 
 func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, width int, height int) {
-	f.wSize = common.NewIntVector3(width, height, 0)
+	f.wSize = a.NewIntVector3(width, height, 0)
 	f.renderer.wSize = f.wSize
 	f.context.ScreenInfo = common.NewScreenInfo(width, height)
 	f.renderer.handleWindowResize()
@@ -174,7 +175,7 @@ func (f *Frontend) ReceiveMessage(message frontend.Message) {
 
 func NewFrontend() *Frontend {
 	return &Frontend{
-		wSize:    common.NewIntVector3(500, 500, 0),
+		wSize: a.NewIntVector3(500, 500, 0),
 		renderer: &OpenGLRenderer{
 			primitives: make(map[int64]*glContainer),
 			fonts:      make(map[string]*glFont),

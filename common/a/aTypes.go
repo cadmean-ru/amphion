@@ -1,7 +1,5 @@
 package a
 
-import "github.com/cadmean-ru/amphion/common"
-
 type Byte byte
 
 func (b Byte) EncodeToByteArray() []byte {
@@ -17,7 +15,7 @@ func (b Byte) GetName() string {
 type Int int32
 
 func (i Int) EncodeToByteArray() []byte {
-	return common.IntToByteArray(int32(i))
+	return IntToByteArray(int32(i))
 }
 
 func (i Int) GetName() string {
@@ -27,7 +25,7 @@ func (i Int) GetName() string {
 type Long int64
 
 func (l Long) EncodeToByteArray() []byte {
-	return common.Int64ToByteArray(int64(l))
+	return Int64ToByteArray(int64(l))
 }
 
 func (l Long) GetName() string {
@@ -37,7 +35,7 @@ func (l Long) GetName() string {
 type Float float32
 
 func (f Float) EncodeToByteArray() []byte {
-	return common.Float64ToByteArray(float64(f))
+	return Float64ToByteArray(float64(f))
 }
 
 func (f Float) GetName() string {
@@ -47,7 +45,7 @@ func (f Float) GetName() string {
 type Double float32
 
 func (d Double) EncodeToByteArray() []byte {
-	return common.Float64ToByteArray(float64(d))
+	return Float64ToByteArray(float64(d))
 }
 
 func (d Double) GetName() string {
@@ -59,8 +57,8 @@ type String string
 func (s String) EncodeToByteArray() []byte {
 	sbytes := []byte(s)
 	data := make([]byte, len(sbytes) + 4)
-	_ = common.CopyByteArray(Int(len(sbytes)).EncodeToByteArray(), data, 0, 4)
-	_ = common.CopyByteArray(sbytes, data, 4, len(sbytes))
+	_ = CopyByteArray(Int(len(sbytes)).EncodeToByteArray(), data, 0, 4)
+	_ = CopyByteArray(sbytes, data, 4, len(sbytes))
 	return data
 }
 

@@ -1,7 +1,7 @@
 package engine
 
 import (
-	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
 	"gopkg.in/yaml.v2"
 	"regexp"
@@ -246,7 +246,7 @@ func (o *SceneObject) HasBoundary() bool {
 	return len(o.boundaryComponents) > 0
 }
 
-func (o *SceneObject) IsPointInsideBoundaries(point common.Vector3) bool {
+func (o *SceneObject) IsPointInsideBoundaries(point a.Vector3) bool {
 	for _, b := range o.boundaryComponents {
 		if b.component.(BoundaryComponent).IsPointInside(point) {
 			return true
@@ -256,7 +256,7 @@ func (o *SceneObject) IsPointInsideBoundaries(point common.Vector3) bool {
 	return false
 }
 
-func (o *SceneObject) IsPointInsideBoundaries2D(point common.Vector3) bool {
+func (o *SceneObject) IsPointInsideBoundaries2D(point a.Vector3) bool {
 	for _, b := range o.boundaryComponents {
 		if b.component.(BoundaryComponent).IsPointInside2D(point) {
 			return true
@@ -291,7 +291,7 @@ func (o *SceneObject) ForEachComponent(action func(component Component)) {
 	}
 }
 
-func (o *SceneObject) ToMap() common.SiMap {
+func (o *SceneObject) ToMap() a.SiMap {
 	mChildren := make([]map[string]interface{}, len(o.children))
 	for i, c := range o.children {
 		mChildren[i] = c.ToMap()
@@ -322,10 +322,10 @@ func (o *SceneObject) ToMap() common.SiMap {
 	}
 }
 
-func (o *SceneObject) FromMap(siMap common.SiMap) {
+func (o *SceneObject) FromMap(siMap a.SiMap) {
 	o.name = siMap["name"].(string)
 	o.id = require.Int64(siMap["id"])
-	o.Transform = NewTransformFromMap(common.RequireSiMap(siMap["transform"]))
+	o.Transform = NewTransformFromMap(a.RequireSiMap(siMap["transform"]))
 
 	// Decode components
 	iComponents := siMap["components"].([]interface{})
@@ -334,9 +334,9 @@ func (o *SceneObject) FromMap(siMap common.SiMap) {
 	o.updatingComponents = make([]*ComponentContainer, 0, 1)
 	o.boundaryComponents = make([]*ComponentContainer, 0, 1)
 	for _, c := range iComponents {
-		cMap := common.RequireSiMap(c)
+		cMap := a.RequireSiMap(c)
 		cName := cMap["name"].(string)
-		cState := common.RequireSiMap(cMap["state"])
+		cState := a.RequireSiMap(cMap["state"])
 		component := instance.GetComponentsManager().MakeComponent(cName)
 		if component == nil {
 			continue
@@ -352,7 +352,7 @@ func (o *SceneObject) FromMap(siMap common.SiMap) {
 	o.children = make([]*SceneObject, 0, len(iChildren))
 	for _, c := range iChildren {
 		obj := &SceneObject{}
-		obj.FromMap(common.RequireSiMap(c))
+		obj.FromMap(a.RequireSiMap(c))
 		o.appendChild(obj)
 	}
 }
@@ -362,7 +362,7 @@ func (o *SceneObject) EncodeToYaml() ([]byte, error) {
 }
 
 func (o *SceneObject) DecodeFromYaml(data []byte) error {
-	oMap := make(common.SiMap)
+	oMap := make(a.SiMap)
 	err := yaml.Unmarshal(data, &oMap)
 	if err != nil {
 		return err

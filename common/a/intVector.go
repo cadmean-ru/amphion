@@ -1,6 +1,8 @@
-package common
+package a
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Represents a point in 3D space only in integer values
 type IntVector3 struct {

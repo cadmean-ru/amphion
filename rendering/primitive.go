@@ -1,7 +1,6 @@
 package rendering
 
 import (
-	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 )
 
@@ -35,7 +34,7 @@ func (p *Primitive) EncodeToByteArray() []byte {
 	data[0] = byte(p.Type)
 	counter := 1
 	for _, attr := range p.Attributes {
-		_ = common.CopyByteArray(attr.EncodeToByteArray(), data, counter, attr.GetLength())
+		_ = a.CopyByteArray(attr.EncodeToByteArray(), data, counter, attr.GetLength())
 		counter += attr.GetLength()
 	}
 	return data

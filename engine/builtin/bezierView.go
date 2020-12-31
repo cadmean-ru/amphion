@@ -1,7 +1,6 @@
 package builtin
 
 import (
-	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
@@ -10,7 +9,7 @@ import (
 type BezierView struct {
 	ViewImpl
 	rendering.Appearance
-	ControlPoint1, ControlPoint2 common.Vector3
+	ControlPoint1, ControlPoint2 a.Vector3
 }
 
 func (b *BezierView) OnDraw(ctx engine.DrawingContext) {
@@ -24,7 +23,7 @@ func (b *BezierView) GetName() string {
 	return "BezierView"
 }
 
-func NewBezierView(cp1, cp2 common.Vector3) *BezierView {
+func NewBezierView(cp1, cp2 a.Vector3) *BezierView {
 	return &BezierView{
 		ControlPoint1: cp1,
 		ControlPoint2: cp2,
