@@ -384,9 +384,9 @@ func (engine *AmphionEngine) RunTask(task Task) {
 	engine.tasksRoutine.RunTask(task)
 }
 
-//func (engine *AmphionEngine) GetResourceManager() *ResourceManager {
-//	return engine.resourceManager
-//}
+func (engine *AmphionEngine) GetResourceManager() frontend.ResourceManager {
+	return engine.front.GetResourceManager()
+}
 
 func (engine *AmphionEngine) GetFrontend() frontend.Frontend {
 	return engine.front

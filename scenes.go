@@ -101,18 +101,28 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	image := engine.NewSceneObject("image")
 	image.Transform.Position = a.NewVector3(200, 200, 0)
 	image.Transform.Size = a.NewVector3(500, 100, 0)
-	imageView := builtin.NewImageView(3)
+	imageView := builtin.NewImageView(Res_images_babyyoda)
 	image.AddComponent(imageView)
 	scene.AddChild(image)
 
 	image2 := engine.NewSceneObject("image2")
 	image2.Transform.Position = a.NewVector3(200, 300, -1)
 	image2.Transform.Size = a.NewVector3(100, 300, 0)
-	imageView2 := builtin.NewImageView(2)
+	imageView2 := builtin.NewImageView(Res_images_cyberpunk)
 	image2.AddComponent(imageView2)
 	scene.AddChild(image2)
 
 	return scene
+}
+
+func registerResources(e *engine.AmphionEngine) {
+	rm := e.GetResourceManager()
+	rm.RegisterResource("2006.ttf")
+	rm.RegisterResource("images/baby-yoda.jpg")
+	rm.RegisterResource("images/babyyoda2.png")
+	rm.RegisterResource("images/cyberpunk.jpg")
+	rm.RegisterResource("images/gun.png")
+	rm.RegisterResource("test.yaml")
 }
 
 func registerComponents(e *engine.AmphionEngine) {
@@ -132,4 +142,112 @@ func registerComponents(e *engine.AmphionEngine) {
 	cm.RegisterComponentType(&builtin.InputView{})
 	cm.RegisterComponentType(&builtin.MouseMover{})
 	cm.RegisterComponentType(&builtin.BuilderComponent{})
+}
+
+func scene2(e *engine.AmphionEngine) *engine.SceneObject {
+	//var counter = 0
+	scene2 := engine.NewSceneObject("scene 2")
+	textScene2 := engine.NewSceneObject("text")
+	textScene2.Transform.Position = a.NewVector3(engine.CenterInParent, engine.CenterInParent, 0)
+	textScene2.Transform.Pivot = a.NewVector3(0.5, 0.5, 0.5)
+	textScene2.Transform.Size = a.NewVector3(800, 200, 0)
+	textScene2Renderer := builtin.NewTextView("This is scene 2")
+	textScene2Renderer.FontSize = 100
+	textScene2Renderer.TextColor = a.BlackColor()
+	textScene2.AddComponent(textScene2Renderer)
+	textScene2.AddComponent(builtin.NewRectBoundary())
+	//textScene2.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+	//	fmt.Println("Click")
+	//	textScene2Renderer.SetText(strconv.Itoa(counter))
+	//	textScene2Renderer.ForceRedraw()
+	//	e.RequestRendering()
+	//	e.RequestUpdate()
+	//	counter++
+	//	return false
+	//}))
+	scene2.AddChild(textScene2)
+	//scene2.AddComponent(&TestController{})
+
+	input := engine.NewSceneObject("input")
+	input.Transform.Position = a.NewVector3(0, 0, 0)
+	input.Transform.Size = a.NewVector3(500, 500 ,0)
+	inputView := builtin.NewInputField()
+	inputView.AllowMultiline = true
+	input.AddComponent(inputView)
+	scene2.AddChild(input)
+
+	dropdown := engine.NewSceneObject("dropdown")
+	dropdown.Transform.Position = a.NewVector3(10, 10, 2)
+	dropdown.Transform.Size = a.NewVector3(100, 35, 0)
+	dropdownView := builtin.NewDropdownView([]string {"opt1", "opt2", "opt3"})
+	dropdown.AddComponent(dropdownView)
+	dropdown.AddComponent(builtin.NewRectBoundary())
+	dropdown.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+		dropdownView.HandleClick()
+		return true
+	}))
+
+	dropdown1 := engine.NewSceneObject("dropdown1")
+	dropdown1.Transform.Position = a.NewVector3(10, 50, 1)
+	dropdown1.Transform.Size = a.NewVector3(450, 35, 0)
+	dropdownView1 := builtin.NewDropdownView([]string {"bruh1", "bruh2", "bruh3"})
+	dropdown1.AddComponent(dropdownView1)
+	dropdown1.AddComponent(builtin.NewRectBoundary())
+	dropdown1.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+		dropdownView1.HandleClick()
+		return true
+	}))
+
+
+	box := engine.NewSceneObject("Moving box")
+	box.Transform.Position = a.NewVector3(10, 100, 10)
+	box.Transform.Size = a.NewVector3(500, 500, 0)
+	boxBg := builtin.NewShapeView(rendering.PrimitiveRectangle)
+	boxBg.StrokeWeight = 0
+	boxBg.FillColor = a.NewColor(0xc4, 0xc4, 0xc4, 0xff)
+	boxBg.CornerRadius = 10
+	box.AddComponent(boxBg)
+	box.AddComponent(builtin.NewRectBoundary())
+	box.AddComponent(builtin.NewMouseMover())
+	box.AddChild(dropdown)
+	box.AddChild(dropdown1)
+	scene2.AddChild(box)
+
+	curve := engine.NewSceneObject("Curve")
+	curve.Transform.Position = a.NewVector3(10, 500, 5)
+	curve.Transform.Size = a.NewVector3(100, 100, 0)
+	curve.AddComponent(builtin.NewBezierView(a.NewVector3(50, 0, 0), a.NewVector3(50, 100, 0)))
+	scene2.AddChild(curve)
+
+	return scene2
+}
+
+type TestController struct {
+	eng *engine.AmphionEngine
+	log *engine.Logger
+}
+
+func (c *TestController) OnInit(ctx engine.InitContext) {
+	c.eng = ctx.GetEngine()
+	c.log = ctx.GetLogger()
+}
+
+func (c *TestController) OnStart() {
+	c.eng.RunTask(engine.NewTaskBuilder().Run(func() (interface{}, error) {
+		return c.eng.GetResourceManager().ReadFile(5)
+	}).Than(func(res interface{}) {
+		bytes := res.([]byte)
+		str := string(bytes)
+		c.log.Info(c, str)
+	}).Err(func(err error) {
+		c.log.Error(c, err.Error())
+	}).Build())
+}
+
+func (c *TestController) OnStop() {
+
+}
+
+func (c *TestController) GetName() string {
+	return "TestController"
 }

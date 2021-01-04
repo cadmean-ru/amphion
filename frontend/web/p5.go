@@ -23,6 +23,8 @@ type p5 struct {
 	resizeCanvasJs   js.Value
 	redrawJs         js.Value
 	textSizeJs       js.Value
+	loadImageJs      js.Value
+	imageJs          js.Value
 	renderer         *P5Renderer
 	onDraw           func(p5 *p5)
 }
@@ -43,6 +45,8 @@ func (p *p5) prepare() {
 	p.resizeCanvasJs = js.Global().Get("resizeCanvas")
 	p.redrawJs = js.Global().Get("redraw")
 	p.textSizeJs = js.Global().Get("textSize")
+	p.loadImageJs = js.Global().Get("loadImage")
+	p.imageJs = js.Global().Get("image")
 	js.Global().Set("goDraw", js.FuncOf(p.goDraw))
 }
 
@@ -100,6 +104,20 @@ func (p *p5) resizeCanvas(x, y int) {
 	p.resizeCanvasJs.Invoke(x, y)
 }
 
+func (p *p5) loadImage(path string) *p5image {
+	img := &p5image{}
+	imgJs := p.loadImageJs.Invoke(path, js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		img.ready = true
+		return nil
+	}))
+	img.value = imgJs
+	return img
+}
+
+func (p *p5) image(img *p5image, x, y, w, h int) {
+	p.imageJs.Invoke(img.value, x, y, w, h)
+}
+
 func (p *p5) redraw() {
 	p.redrawJs.Invoke()
 }
@@ -107,4 +125,17 @@ func (p *p5) redraw() {
 func (p *p5) goDraw(_ js.Value, _ []js.Value) interface{} {
 	p.onDraw(p)
 	return nil
+}
+
+type p5image struct {
+	value js.Value
+	ready bool
+}
+
+func (i *p5image) GetWidth() int {
+	return i.value.Get("width").Int()
+}
+
+func (i *p5image) GetHeight() int {
+	return i.value.Get("height").Int()
 }

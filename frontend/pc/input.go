@@ -12,7 +12,7 @@ type InputManager struct {
 	window *glfw.Window
 }
 
-func (m *InputManager) GetMousePosition() a.IntVector3 {
+func (m *InputManager) GetMousePosition() a.IntVector2 {
 	x, y := m.window.GetCursorPos()
-	return a.NewIntVector3(int(x), int(y), 0)
+	return a.NewIntVector2(int(x), int(y))
 }

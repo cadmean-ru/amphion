@@ -15,7 +15,6 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-	"io/ioutil"
 	"log"
 	"os"
 	"sort"
@@ -41,6 +40,7 @@ type OpenGLRenderer struct {
 	wSize          a.IntVector3
 	fonts          map[string]*glFont
 	projection     [16]float32
+	front          *Frontend
 }
 
 func (r *OpenGLRenderer) Prepare() {
@@ -101,7 +101,7 @@ func (r *OpenGLRenderer) AddPrimitive() int64 {
 	return id
 }
 
-func (r *OpenGLRenderer) SetPrimitive(id int64, primitive interface{}, shouldRedraw bool) {
+func (r *OpenGLRenderer) SetPrimitive(id int64, primitive rendering.IPrimitive, shouldRedraw bool) {
 	if !shouldRedraw {
 		return
 	}
@@ -504,13 +504,7 @@ func (r *OpenGLRenderer) drawImage(p *glContainer) {
 
 	var texId uint32
 	if _, ok := p.other["tex"]; !ok {
-
-		files, err := ioutil.ReadDir("./res")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		imagePath := "./res/" + files[ip.ResIndex].Name()
+		imagePath := "./res/" + r.front.resMan.PathOf(ip.ResIndex)
 
 		imageFile, err := os.Open(imagePath)
 		if err != nil {

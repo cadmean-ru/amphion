@@ -39,3 +39,10 @@ type Int32Vector2 struct {
 type Vector2 struct {
 	X, Y float32
 }
+
+func NewIntVector2(x, y int) IntVector2 {
+	return IntVector2{
+		X: x,
+		Y: y,
+	}
+}

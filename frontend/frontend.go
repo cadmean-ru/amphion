@@ -17,6 +17,7 @@ type Frontend interface {
 	GetPlatform() common.Platform
 	CommencePanic(reason, msg string)
 	ReceiveMessage(message Message)
+	GetResourceManager() ResourceManager
 }
 
 const (
@@ -44,4 +45,11 @@ type CallbackHandler func(callback Callback)
 
 type InputManager interface {
 	GetMousePosition() a.IntVector2
+}
+
+type ResourceManager interface {
+	RegisterResource(path string)
+	IdOf(path string) a.Int
+	PathOf(id a.Int) string
+	ReadFile(id a.Int) ([]byte, error)
 }

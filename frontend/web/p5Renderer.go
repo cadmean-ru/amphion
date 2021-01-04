@@ -14,6 +14,8 @@ type P5Renderer struct {
 	idgen        *common.IdGenerator
 	primitives   map[int64]*p5Container
 	prevFontSize a.Byte
+	images       map[a.Int]*p5image
+	front        *Frontend
 }
 
 func (r *P5Renderer) Prepare() {
@@ -128,7 +130,14 @@ func (r *P5Renderer) drawP5(p5 *p5) {
 			}
 			p5.text(string(tp.Text), pos.X, pos.Y, size.X, size.Y)
 		case rendering.PrimitiveImage:
-
+			ip := p.primitive.(*rendering.ImagePrimitive)
+			if img, ok := r.images[ip.ResIndex]; ok {
+				if img.ready {
+					p5.image(img, pos.X, pos.Y, size.X, size.Y)
+				}
+			} else {
+				r.images[ip.ResIndex] = p5.loadImage("res/" + r.front.resManager.PathOf(ip.ResIndex))
+			}
 		case rendering.PrimitiveBezier:
 
 		}
@@ -147,10 +156,12 @@ func (r *P5Renderer) Stop() {
 
 }
 
-func newP5Renderer() *P5Renderer {
+func newP5Renderer(front *Frontend) *P5Renderer {
 	return &P5Renderer{
 		p5:         &p5{},
 		primitives: make(map[int64]*p5Container),
 		idgen:      common.NewIdGenerator(),
+		images:     make(map[a.Int]*p5image),
+		front:      front,
 	}
 }

@@ -13,7 +13,7 @@ import (
 	"math"
 )
 
-const SleepTimeMs = 16
+const SleepTimeS = float64(1) / 120
 
 type Frontend struct {
 	window      *glfw.Window
@@ -24,6 +24,7 @@ type Frontend struct {
 	context     frontend.Context
 	msgChan     chan frontend.Message
 	inputMan    *InputManager
+	resMan      *ResourceManager
 }
 
 func (f *Frontend) Init() {
@@ -78,7 +79,7 @@ func (f *Frontend) Run() {
 		//
 		//time.Sleep(SleepTimeMs)
 
-		glfw.WaitEventsTimeout(SleepTimeMs)
+		glfw.WaitEventsTimeout(SleepTimeS)
 	}
 
 	glfw.Terminate()
@@ -170,17 +171,24 @@ func (f *Frontend) CommencePanic(reason, msg string) {
 }
 
 func (f *Frontend) ReceiveMessage(message frontend.Message) {
-	f.msgChan<-message
+	f.msgChan <- message
+}
+
+func (f *Frontend) GetResourceManager() frontend.ResourceManager {
+	return f.resMan
 }
 
 func NewFrontend() *Frontend {
-	return &Frontend{
+	f := &Frontend{
 		wSize: a.NewIntVector3(500, 500, 0),
-		renderer: &OpenGLRenderer{
-			primitives: make(map[int64]*glContainer),
-			fonts:      make(map[string]*glFont),
-		},
 		inputMan: &InputManager{},
-		msgChan: make(chan frontend.Message, 10),
+		msgChan:  make(chan frontend.Message, 10),
+		resMan:   newResourceManager(),
 	}
+	f.renderer = &OpenGLRenderer{
+		primitives: make(map[int64]*glContainer),
+		fonts:      make(map[string]*glFont),
+		front:      f,
+	}
+	return f
 }

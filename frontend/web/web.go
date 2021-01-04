@@ -11,11 +11,12 @@ import (
 )
 
 type Frontend struct {
-	renderer *P5Renderer
-	handler  frontend.CallbackHandler
-	input    *InputManager
-	context  frontend.Context
-	msgChan  chan frontend.Message
+	renderer   *P5Renderer
+	handler    frontend.CallbackHandler
+	input      *InputManager
+	context    frontend.Context
+	msgChan    chan frontend.Message
+	resManager *ResourceManager
 }
 
 func (f *Frontend) Init() {
@@ -91,12 +92,18 @@ func (f *Frontend) ReceiveMessage(message frontend.Message) {
 	f.msgChan <- message
 }
 
+func (f *Frontend) GetResourceManager() frontend.ResourceManager {
+	return f.resManager
+}
+
 func NewFrontend() *Frontend {
-	return &Frontend{
-		renderer: newP5Renderer(),
-		input:    &InputManager{},
-		msgChan:  make(chan frontend.Message, 10),
+	f := &Frontend{
+		input:      &InputManager{},
+		msgChan:    make(chan frontend.Message, 10),
+		resManager: newResourceManager(),
 	}
+	f.renderer = newP5Renderer(f)
+	return f
 }
 
 func getWindowSize() a.IntVector2 {

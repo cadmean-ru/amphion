@@ -2,7 +2,6 @@ package engine
 
 import (
 	"fmt"
-	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
 	"testing"
@@ -21,13 +20,13 @@ func (m *testComponent) OnStop() {
 	m.Logger.Info(m, "Stop")
 }
 
-func (m *testComponent) GetInstanceState() common.SiMap {
+func (m *testComponent) GetInstanceState() a.SiMap {
 	return map[string]interface{}{
 		"num": m.num,
 	}
 }
 
-func (m *testComponent) SetInstanceState(state common.SiMap) {
+func (m *testComponent) SetInstanceState(state a.SiMap) {
 	m.num = require.Int(state["num"])
 }
 

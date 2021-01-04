@@ -14,6 +14,7 @@ func main() {
 	e := engine.Initialize(front)
 
 	registerComponents(e)
+	registerResources(e)
 
 	scene := scene1(e)
 

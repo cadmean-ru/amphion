@@ -1,4 +1,4 @@
-// +build !js,!pc,!linux
+// +build !js,!windows,!linux,!darwin
 
 package rendering
 
