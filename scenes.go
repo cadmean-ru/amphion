@@ -27,14 +27,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	circleRenderer.FillColor = a.GreenColor()
 	circle.AddComponent(circleRenderer)
 	circle.AddComponent(builtin.NewCircleBoundary())
-	circle.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
-		var mousePos = event.Data.(a.IntVector3)
-		e.GetLogger().Info(nil, fmt.Sprintf("BIG CLICK ON CIRCLE. Mouse pos: %d %d", mousePos.X, mousePos.Y))
-		//e.CloseScene(func() {
-		//	_ = e.ShowScene(createCyberpunkScene(e))
-		//})
-		return false
-	}))
+	circle.AddComponent(builtin.NewOnClickListener(handleCircleClick(e)))
 
 	rect.AddChild(circle)
 
@@ -142,6 +135,8 @@ func registerComponents(e *engine.AmphionEngine) {
 	cm.RegisterComponentType(&builtin.InputView{})
 	cm.RegisterComponentType(&builtin.MouseMover{})
 	cm.RegisterComponentType(&builtin.BuilderComponent{})
+
+	cm.RegisterEventHandler(handleCircleClick(e))
 }
 
 func scene2(e *engine.AmphionEngine) *engine.SceneObject {
@@ -250,4 +245,12 @@ func (c *TestController) OnStop() {
 
 func (c *TestController) GetName() string {
 	return "TestController"
+}
+
+func handleCircleClick(e *engine.AmphionEngine) engine.EventHandler {
+	return func(event engine.AmphionEvent) bool {
+		var mousePos = event.Data.(a.IntVector3)
+		e.GetLogger().Info(nil, fmt.Sprintf("BIG CLICK ON CIRCLE. Mouse pos: %d %d", mousePos.X, mousePos.Y))
+		return false
+	}
 }

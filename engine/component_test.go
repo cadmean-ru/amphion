@@ -9,10 +9,11 @@ import (
 
 type testStatefulWithTags struct {
 	ComponentImpl
-	Bruh  string  "state"
-	Bruh2 float64 `state:"breh"`
-	Color a.Color `state:"color"`
-	Arr   []int   `state:"arr"`
+	Bruh  string       "state"
+	Bruh2 float64      `state:"breh"`
+	Color a.Color      `state:"color"`
+	Arr   []int        `state:"arr"`
+	Hand  EventHandler `state:"hand"`
 }
 
 func (t testStatefulWithTags) GetName() string {
@@ -36,9 +37,10 @@ func TestGetComponentState(t *testing.T) {
 	comp.Bruh = "abc"
 	comp.Bruh2 = 6.9
 	comp.Color = a.PinkColor()
-	comp.Arr = []int {1, 3, 4}
+	comp.Arr = []int{1, 3, 4}
+	comp.Hand = handleTest
 
-	state := GetComponentState(comp)
+	state := (&ComponentsManager{}).GetComponentState(comp)
 
 	fmt.Println(state)
 
@@ -56,15 +58,26 @@ func TestSetComponentState(t *testing.T) {
 		"Bruh":  "abc",
 		"breh":  6.9,
 		"color": a.SiMap{"r": 255, "g": 192, "b": 203, "a": 255},
-		"arr":   []interface{} {1, 3, 4},
+		"arr":   []interface{}{1, 3, 4},
+		"hand":  "github.com/cadmean-ru/amphion/engine.handleTest",
 	}
 
 	comp := &testStatefulWithTags{}
 
-	SetComponentState(comp, state)
+	cm := newComponentsManager()
+	cm.RegisterEventHandler(handleTest)
+
+	cm.SetComponentState(comp, state)
 
 	fmt.Printf("%+v\n", comp)
 
+	comp.Hand(AmphionEvent{})
+
 	assertions.Equal("abc", comp.Bruh)
 	assertions.Equal(6.9, comp.Bruh2)
+}
+
+func handleTest(_ AmphionEvent) bool {
+	fmt.Println("Handled")
+	return false
 }

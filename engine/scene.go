@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
 	"gopkg.in/yaml.v2"
@@ -302,7 +303,8 @@ func (o *SceneObject) ToMap() a.SiMap {
 		var state map[string]interface{}
 
 		if IsStatefulComponent(c.component) {
-			state = GetComponentState(c.component)
+			state = instance.GetComponentsManager().GetComponentState(c.component)
+			fmt.Println(state)
 		}
 
 		cMap := map[string]interface{} {
@@ -342,7 +344,7 @@ func (o *SceneObject) FromMap(siMap a.SiMap) {
 			continue
 		}
 		if IsStatefulComponent(component) {
-			SetComponentState(component, cState)
+			instance.GetComponentsManager().SetComponentState(component, cState)
 		}
 		o.AddComponent(component)
 	}

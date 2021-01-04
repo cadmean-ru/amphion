@@ -1,3 +1,5 @@
+//+build windows linux darwin
+
 package engine
 
 import (
@@ -48,6 +50,10 @@ func createTestScene() *SceneObject {
 	test2.Bruh2 = 2
 	test2.Color = a.GreenColor()
 	test2.Arr = []int {42, 69}
+	test2.Hand = func(_ AmphionEvent) bool {
+		fmt.Println("Handle breh")
+		return false
+	}
 	rect.AddComponent(test)
 	rect.AddComponent(test2)
 
