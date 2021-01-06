@@ -5,7 +5,7 @@ import (
 )
 
 type OnClickListener struct {
-	OnClick engine.EventHandler
+	OnClick engine.EventHandler `state:"onClick"`
 	object  *engine.SceneObject
 }
 

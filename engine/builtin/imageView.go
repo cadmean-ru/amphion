@@ -8,11 +8,11 @@ import (
 // Displays an image given it's resource index
 type ImageView struct {
 	ViewImpl
-	resIndex int
+	ResIndex int `state:"resIndex"`
 }
 
 func (v *ImageView) OnDraw(ctx engine.DrawingContext) {
-	pr := rendering.NewImagePrimitive(v.resIndex)
+	pr := rendering.NewImagePrimitive(v.ResIndex)
 	pr.Transform = transformToRenderingTransform(v.obj.Transform)
 	ctx.GetRenderer().SetPrimitive(v.pId, pr, v.ShouldRedraw())
 	v.redraw = false
@@ -24,6 +24,6 @@ func (v *ImageView) GetName() string {
 
 func NewImageView(index int) *ImageView {
 	return &ImageView{
-		resIndex: index,
+		ResIndex: index,
 	}
 }
