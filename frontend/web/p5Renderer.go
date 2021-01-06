@@ -4,6 +4,7 @@ package web
 
 import (
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 	"sort"
 )
@@ -135,7 +136,9 @@ func (r *P5Renderer) drawP5(p5 *p5) {
 					p5.image(img, pos.X, pos.Y, size.X, size.Y)
 				}
 			} else {
-				r.images[ip.ResIndex] = p5.loadImage("res/" + r.front.resManager.PathOf(ip.ResIndex))
+				r.images[ip.ResIndex] = p5.loadImage("res/" + r.front.resManager.PathOf(ip.ResIndex), func() {
+					engine.GetInstance().RequestRendering()
+				})
 			}
 		case rendering.PrimitiveBezier:
 

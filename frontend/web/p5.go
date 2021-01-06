@@ -104,10 +104,11 @@ func (p *p5) resizeCanvas(x, y int) {
 	p.resizeCanvasJs.Invoke(x, y)
 }
 
-func (p *p5) loadImage(path string) *p5image {
+func (p *p5) loadImage(path string, callback func()) *p5image {
 	img := &p5image{}
 	imgJs := p.loadImageJs.Invoke(path, js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		img.ready = true
+		callback()
 		return nil
 	}))
 	img.value = imgJs
