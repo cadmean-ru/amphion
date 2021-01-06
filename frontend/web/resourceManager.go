@@ -4,6 +4,7 @@ package web
 
 import (
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/engine"
 	"io/ioutil"
 	"net/http"
 )
@@ -32,7 +33,7 @@ func (r *ResourceManager) PathOf(id int) string {
 }
 
 func (r *ResourceManager) ReadFile(id int) ([]byte, error) {
-	resp, err := http.Get("http://localhost:8080/res/" + r.resources[id])
+	resp, err := http.Get("http://" + engine.GetInstance().GetCurrentApp().PublicUrl + "/res/" + r.resources[id])
 	if err != nil {
 		return nil, err
 	}
