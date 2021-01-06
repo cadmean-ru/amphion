@@ -7,6 +7,7 @@ const (
 	primitiveStatusDeleting = 3
 )
 
+// Deprecated: no longer needed
 type primitiveContainer struct {
 	id        int64
 	status    int

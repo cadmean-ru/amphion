@@ -1,7 +1,6 @@
 package builtin
 
 import (
-	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 )
@@ -9,7 +8,7 @@ import (
 // Displays an image given it's resource index
 type ImageView struct {
 	ViewImpl
-	resIndex a.Int
+	resIndex int
 }
 
 func (v *ImageView) OnDraw(ctx engine.DrawingContext) {
@@ -23,7 +22,7 @@ func (v *ImageView) GetName() string {
 	return engine.NameOfComponent(v)
 }
 
-func NewImageView(index a.Int) *ImageView {
+func NewImageView(index int) *ImageView {
 	return &ImageView{
 		resIndex: index,
 	}

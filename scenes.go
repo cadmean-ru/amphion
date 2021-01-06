@@ -38,7 +38,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	text.Transform.Position = a.NewVector3(engine.CenterInParent, engine.CenterInParent, engine.CenterInParent)
 	text.Transform.Pivot = a.NewVector3(0.5, 0.5, 0.5)
 	text.Transform.Size = a.NewVector3(300, 50, 0)
-	textComponent := builtin.NewTextView("Hello Amphion!")
+	textComponent := builtin.NewTextView("Hello Amphion! 2")
 	textComponent.FontSize = 30
 	textComponent.TextColor = a.BlackColor()
 	text.AddComponent(textComponent)
@@ -116,6 +116,7 @@ func registerResources(e *engine.AmphionEngine) {
 	rm.RegisterResource("images/cyberpunk.jpg")
 	rm.RegisterResource("images/gun.png")
 	rm.RegisterResource("test.yaml")
+	rm.RegisterResource("scenes/main.scene")
 }
 
 func registerComponents(e *engine.AmphionEngine) {

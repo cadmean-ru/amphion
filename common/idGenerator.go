@@ -1,10 +1,10 @@
 package common
 
 type IdGenerator struct {
-	nextId int64
+	nextId int
 }
 
-func (g *IdGenerator) NextId() int64 {
+func (g *IdGenerator) NextId() int {
 	id := g.nextId
 	g.nextId++
 	return id

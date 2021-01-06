@@ -11,9 +11,9 @@ type TextView struct {
 	ViewImpl
 	TextColor  a.Color  `state:"textColor"`
 	Font       string   `state:"font"`
-	FontSize   a.Byte   `state:"fontSize"`
-	FontWeight a.Byte   `state:"fontWeight"`
-	Text       a.String `state:"text"`
+	FontSize   byte     `state:"fontSize"`
+	FontWeight byte     `state:"fontWeight"`
+	Text       string   `state:"text"`
 }
 
 func (t *TextView) GetName() string {
@@ -36,12 +36,12 @@ func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 }
 
 func (t *TextView) SetText(text string) {
-	t.Text = a.String(text)
+	t.Text = text
 	t.redraw = true
 }
 
 func (t *TextView) GetText() string {
-	return string(t.Text)
+	return t.Text
 }
 
 func NewTextView(text string) *TextView {
@@ -49,6 +49,6 @@ func NewTextView(text string) *TextView {
 		TextColor:  a.BlackColor(),
 		FontSize:   16,
 		FontWeight: 0,
-		Text:       a.String(text),
+		Text:       text,
 	}
 }

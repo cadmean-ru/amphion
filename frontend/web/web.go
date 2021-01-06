@@ -7,6 +7,9 @@ import (
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"net/http"
 	"syscall/js"
 )
 
@@ -94,6 +97,31 @@ func (f *Frontend) ReceiveMessage(message frontend.Message) {
 
 func (f *Frontend) GetResourceManager() frontend.ResourceManager {
 	return f.resManager
+}
+
+func (f *Frontend) GetApp() *frontend.App {
+	resp, err := http.Get("app.yaml")
+	if err != nil {
+		return nil
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 200 {
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil
+		}
+
+		app := frontend.App{}
+		err = yaml.Unmarshal(data, &app)
+		if err != nil {
+			return nil
+		}
+
+		return &app
+	}
+
+	return nil
 }
 
 func NewFrontend() *Frontend {

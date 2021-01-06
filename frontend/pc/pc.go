@@ -10,6 +10,8 @@ import (
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/glfw/v3.3/glfw"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"math"
 )
 
@@ -178,6 +180,21 @@ func (f *Frontend) GetResourceManager() frontend.ResourceManager {
 	return f.resMan
 }
 
+func (f *Frontend) GetApp() *frontend.App {
+	data, err := ioutil.ReadFile("app.yaml")
+	if err != nil {
+		return nil
+	}
+
+	app := frontend.App{}
+	err = yaml.Unmarshal(data, &app)
+	if err != nil {
+		return nil
+	}
+
+	return &app
+}
+
 func NewFrontend() *Frontend {
 	f := &Frontend{
 		wSize: a.NewIntVector3(500, 500, 0),
@@ -186,7 +203,7 @@ func NewFrontend() *Frontend {
 		resMan:   newResourceManager(),
 	}
 	f.renderer = &OpenGLRenderer{
-		primitives: make(map[int64]*glContainer),
+		primitives: make(map[int]*glContainer),
 		fonts:      make(map[string]*glFont),
 		front:      f,
 	}

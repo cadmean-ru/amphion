@@ -14,7 +14,7 @@ type DropdownView struct {
 	ViewImpl
 	//arrow1Id         int64
 	//arrow2Id         int64
-	arrowId          int64
+	arrowId          int
 	items            []string
 	selectedItem     string
 	textView         *TextView

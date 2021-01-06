@@ -10,8 +10,8 @@ const textAppearanceBytesSize = 1
 type Appearance struct {
 	FillColor    a.Color
 	StrokeColor  a.Color
-	StrokeWeight a.Byte
-	CornerRadius a.Byte
+	StrokeWeight byte
+	CornerRadius byte
 }
 
 func (ap Appearance) ToMap() map[string]interface{} {
@@ -22,13 +22,13 @@ func (ap Appearance) ToMap() map[string]interface{} {
 	}
 }
 
-func (ap Appearance) EncodeToByteArray() []byte {
-	arr := make([]byte, appearanceBytesSize)
-	_ = a.CopyByteArray(ap.FillColor.EncodeToByteArray(), arr, 0, 4)
-	_ = a.CopyByteArray(ap.StrokeColor.EncodeToByteArray(), arr, 4, 4)
-	_ = a.CopyByteArray(ap.StrokeWeight.EncodeToByteArray(), arr, 8, 1)
-	return arr
-}
+//func (ap Appearance) EncodeToByteArray() []byte {
+//	arr := make([]byte, appearanceBytesSize)
+//	_ = a.CopyByteArray(ap.FillColor.EncodeToByteArray(), arr, 0, 4)
+//	_ = a.CopyByteArray(ap.StrokeColor.EncodeToByteArray(), arr, 4, 4)
+//	_ = a.CopyByteArray(ap.StrokeWeight.EncodeToByteArray(), arr, 8, 1)
+//	return arr
+//}
 
 func DefaultAppearance() Appearance {
 	return Appearance{
@@ -41,7 +41,7 @@ func DefaultAppearance() Appearance {
 
 type TextAppearance struct {
 	Font     string
-	FontSize a.Byte
+	FontSize byte
 }
 
 func (a TextAppearance) ToMap() map[string]interface{} {
@@ -58,8 +58,8 @@ func DefaultTextAppearance() TextAppearance {
 	}
 }
 
-func (a TextAppearance) EncodeToByteArray() []byte {
-	arr := make([]byte, textAppearanceBytesSize)
-	arr[0] = byte(a.FontSize)
-	return arr
-}
+//func (a TextAppearance) EncodeToByteArray() []byte {
+//	arr := make([]byte, textAppearanceBytesSize)
+//	arr[0] = byte(a.FontSize)
+//	return arr
+//}

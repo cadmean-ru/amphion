@@ -11,6 +11,7 @@ const (
 	CommandEndOfCommands = 255
 )
 
+// Deprecated
 type Command struct {
 	code     byte
 	dataSize int

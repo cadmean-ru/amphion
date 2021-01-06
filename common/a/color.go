@@ -1,9 +1,5 @@
 package a
 
-import (
-	"github.com/cadmean-ru/amphion/common/require"
-)
-
 type Color struct {
 	R, G, B, A byte
 }
@@ -27,10 +23,10 @@ func (c Color) ToMap() SiMap {
 }
 
 func (c *Color) FromMap(siMap SiMap) {
-	c.R = require.Byte(siMap["r"])
-	c.G = require.Byte(siMap["g"])
-	c.B = require.Byte(siMap["b"])
-	c.A = require.Byte(siMap["a"])
+	c.R = requireByte(siMap["r"])
+	c.G = requireByte(siMap["g"])
+	c.B = requireByte(siMap["b"])
+	c.A = requireByte(siMap["a"])
 }
 
 func (c Color) EncodeToByteArray() []byte {
@@ -76,4 +72,23 @@ func TransparentColor() Color {
 
 func PinkColor() Color {
 	return NewColor(255,192,203, 255)
+}
+
+func requireByte(num interface{}) byte {
+	switch num.(type) {
+	case byte:
+		return num.(byte)
+	case int:
+		return byte(num.(int))
+	case int32:
+		return byte(num.(int32))
+	case int64:
+		return byte(num.(int64))
+	case float32:
+		return byte(num.(float32))
+	case float64:
+		return byte(num.(float64))
+	default:
+		return 0
+	}
 }

@@ -22,10 +22,6 @@ import (
 
 //go:generate ../../build/darwin/test --generate shaders -i ./shaders -o ./shaders.gen.go --package pc
 
-type OpenGLPrimitive interface {
-	GetType() a.Byte
-	GetTransform() rendering.Transform
-}
 
 type OpenGLRenderer struct {
 	defaultProgram uint32
@@ -35,7 +31,7 @@ type OpenGLRenderer struct {
 	shapeProgram   uint32
 	window         *glfw.Window
 	idgen          *common.IdGenerator
-	primitives     map[int64]*glContainer
+	primitives     map[int]*glContainer
 	shouldDelete   bool
 	wSize          a.IntVector3
 	fonts          map[string]*glFont
@@ -95,19 +91,19 @@ func (r *OpenGLRenderer) Prepare() {
 	r.idgen = common.NewIdGenerator()
 }
 
-func (r *OpenGLRenderer) AddPrimitive() int64 {
+func (r *OpenGLRenderer) AddPrimitive() int {
 	id := r.idgen.NextId()
 	r.primitives[id] = newGlContainer()
 	return id
 }
 
-func (r *OpenGLRenderer) SetPrimitive(id int64, primitive rendering.IPrimitive, shouldRedraw bool) {
+func (r *OpenGLRenderer) SetPrimitive(id int, primitive rendering.IPrimitive, shouldRedraw bool) {
 	if !shouldRedraw {
 		return
 	}
 
 	if _, ok := r.primitives[id]; ok {
-		r.primitives[id].primitive = primitive.(OpenGLPrimitive)
+		r.primitives[id].primitive = primitive
 		r.primitives[id].redraw = true
 	} else {
 		//panic(fmt.Sprintf("Primitive with id %d was not found.\nAdded primitives:\n%+v", id, r.primitives))
@@ -115,7 +111,7 @@ func (r *OpenGLRenderer) SetPrimitive(id int64, primitive rendering.IPrimitive, 
 	}
 }
 
-func (r *OpenGLRenderer) RemovePrimitive(id int64) {
+func (r *OpenGLRenderer) RemovePrimitive(id int) {
 	//r.primitives[id].free()
 	delete(r.primitives, id)
 }
@@ -179,7 +175,7 @@ func (r *OpenGLRenderer) PerformRendering() {
 }
 
 func (r *OpenGLRenderer) Clear() {
-	r.primitives = make(map[int64]*glContainer)
+	r.primitives = make(map[int]*glContainer)
 	r.idgen = common.NewIdGenerator()
 }
 

@@ -18,6 +18,7 @@ type Frontend interface {
 	CommencePanic(reason, msg string)
 	ReceiveMessage(message Message)
 	GetResourceManager() ResourceManager
+	GetApp() *App
 }
 
 const (
@@ -49,7 +50,7 @@ type InputManager interface {
 
 type ResourceManager interface {
 	RegisterResource(path string)
-	IdOf(path string) a.Int
-	PathOf(id a.Int) string
-	ReadFile(id a.Int) ([]byte, error)
+	IdOf(path string) int
+	PathOf(id int) string
+	ReadFile(id int) ([]byte, error)
 }

@@ -10,7 +10,7 @@ type ClickHandler func(vector3 a.IntVector3) bool
 type ViewImpl struct {
 	redraw  bool
 	ctx     engine.InitContext
-	pId     int64
+	pId     int
 	eng     *engine.AmphionEngine
 	obj     *engine.SceneObject
 	onClick ClickHandler

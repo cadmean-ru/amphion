@@ -1,5 +1,6 @@
 package a
 
+// Deprecated: use corresponding go type instead
 type Byte byte
 
 func (b Byte) EncodeToByteArray() []byte {
@@ -12,6 +13,7 @@ func (b Byte) GetName() string {
 	return "Byte"
 }
 
+// Deprecated: use corresponding go type instead
 type Int int32
 
 func (i Int) EncodeToByteArray() []byte {
@@ -22,6 +24,7 @@ func (i Int) GetName() string {
 	return "Int"
 }
 
+// Deprecated: use corresponding go type instead
 type Long int64
 
 func (l Long) EncodeToByteArray() []byte {
@@ -32,6 +35,7 @@ func (l Long) GetName() string {
 	return "Long"
 }
 
+// Deprecated: use corresponding go type instead
 type Float float32
 
 func (f Float) EncodeToByteArray() []byte {
@@ -42,6 +46,7 @@ func (f Float) GetName() string {
 	return "Float"
 }
 
+// Deprecated: use corresponding go type instead
 type Double float32
 
 func (d Double) EncodeToByteArray() []byte {
@@ -52,6 +57,7 @@ func (d Double) GetName() string {
 	return "Double"
 }
 
+// Deprecated: use corresponding go type instead
 type String string
 
 func (s String) EncodeToByteArray() []byte {

@@ -1,18 +1,14 @@
 package rendering
 
-import (
-	"github.com/cadmean-ru/amphion/common/a"
-)
-
 const primitiveBytesSize = 1 + transformBytesSize + appearanceBytesSize
 
 type GeometryPrimitive struct {
 	Transform     Transform
 	Appearance    Appearance
-	primitiveType a.Byte
+	primitiveType byte
 }
 
-func (p *GeometryPrimitive) GetType() a.Byte {
+func (p *GeometryPrimitive) GetType() byte {
 	return p.primitiveType
 }
 
@@ -20,19 +16,7 @@ func (p *GeometryPrimitive) GetTransform() Transform {
 	return p.Transform
 }
 
-func (p *GeometryPrimitive) BuildPrimitive() *Primitive {
-	pr := NewPrimitive(p.primitiveType)
-	pr.AddAttribute(NewAttribute(AttributeTransform, p.Transform))
-	pr.AddAttribute(NewAttribute(AttributeFillColor, p.Appearance.FillColor))
-	pr.AddAttribute(NewAttribute(AttributeStrokeColor, p.Appearance.StrokeColor))
-	pr.AddAttribute(NewAttribute(AttributeStrokeWeight, p.Appearance.StrokeWeight))
-	if p.Appearance.CornerRadius > 0 {
-		pr.AddAttribute(NewAttribute(AttributeCornerRadius, p.Appearance.CornerRadius))
-	}
-	return pr
-}
-
-func NewGeometryPrimitive(pType a.Byte) *GeometryPrimitive {
+func NewGeometryPrimitive(pType byte) *GeometryPrimitive {
 	if pType < 0 || pType > 5 {
 		pType = 0
 	}

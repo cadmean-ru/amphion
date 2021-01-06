@@ -3,10 +3,13 @@
 
 package pc
 
-import "github.com/go-gl/gl/all-core/gl"
+import (
+	"github.com/cadmean-ru/amphion/rendering"
+	"github.com/go-gl/gl/all-core/gl"
+)
 
 type glContainer struct {
-	primitive OpenGLPrimitive
+	primitive rendering.IPrimitive
 	vbo       uint32
 	vao       uint32
 	ebo       uint32

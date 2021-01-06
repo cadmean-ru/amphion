@@ -16,6 +16,7 @@ const (
 	AttributePoint        = 8
 )
 
+// Deprecated: no longer needed
 type Attribute struct {
 	Code  byte
 	Value []byte

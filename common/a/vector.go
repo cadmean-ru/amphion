@@ -2,7 +2,6 @@ package a
 
 import (
 	"fmt"
-	"github.com/cadmean-ru/amphion/common/require"
 	"math"
 )
 
@@ -34,9 +33,9 @@ func (v Vector3) ToMap() SiMap {
 }
 
 func (v *Vector3) FromMap(siMap SiMap) {
-	v.X = require.Float32(siMap["x"])
-	v.Y = require.Float32(siMap["y"])
-	v.Z = require.Float32(siMap["z"])
+	v.X = requireFloat32(siMap["x"])
+	v.Y = requireFloat32(siMap["y"])
+	v.Z = requireFloat32(siMap["z"])
 }
 
 func (v Vector3) ToString() string {
@@ -128,4 +127,23 @@ func NewVector3FromMap(siMap SiMap) Vector3 {
 	var v Vector3
 	v.FromMap(siMap)
 	return v
+}
+
+func requireFloat32(num interface{}) float32 {
+	switch num.(type) {
+	case byte:
+		return float32(num.(byte))
+	case int:
+		return float32(num.(int))
+	case int32:
+		return float32(num.(int32))
+	case int64:
+		return float32(num.(int64))
+	case float32:
+		return num.(float32)
+	case float64:
+		return float32(num.(float64))
+	default:
+		return 0
+	}
 }

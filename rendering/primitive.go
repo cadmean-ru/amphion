@@ -16,6 +16,7 @@ const (
 	PrimitiveBezier    = 8
 )
 
+// Deprecated: no longer needed
 type Primitive struct {
 	Type       a.Byte
 	Attributes []Attribute
@@ -47,6 +48,7 @@ func NewPrimitive(pType a.Byte) *Primitive {
 	}
 }
 
+// Deprecated: no longer needed
 type PrimitiveBuilder interface {
 	BuildPrimitive() *Primitive
 }

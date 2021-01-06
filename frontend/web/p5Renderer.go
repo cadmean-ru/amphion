@@ -4,7 +4,6 @@ package web
 
 import (
 	"github.com/cadmean-ru/amphion/common"
-	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/rendering"
 	"sort"
 )
@@ -12,9 +11,9 @@ import (
 type P5Renderer struct {
 	p5           *p5
 	idgen        *common.IdGenerator
-	primitives   map[int64]*p5Container
-	prevFontSize a.Byte
-	images       map[a.Int]*p5image
+	primitives   map[int]*p5Container
+	prevFontSize byte
+	images       map[int]*p5image
 	front        *Frontend
 }
 
@@ -24,13 +23,13 @@ func (r *P5Renderer) Prepare() {
 	r.p5.onDraw = r.drawP5
 }
 
-func (r *P5Renderer) AddPrimitive() int64 {
+func (r *P5Renderer) AddPrimitive() int {
 	id := r.idgen.NextId()
 	r.primitives[id] = newP5Container()
 	return id
 }
 
-func (r *P5Renderer) SetPrimitive(id int64, primitive rendering.IPrimitive, shouldRerender bool) {
+func (r *P5Renderer) SetPrimitive(id int, primitive rendering.IPrimitive, shouldRerender bool) {
 	if !shouldRerender {
 		return
 	}
@@ -41,7 +40,7 @@ func (r *P5Renderer) SetPrimitive(id int64, primitive rendering.IPrimitive, shou
 	}
 }
 
-func (r *P5Renderer) RemovePrimitive(id int64) {
+func (r *P5Renderer) RemovePrimitive(id int) {
 	delete(r.primitives, id)
 }
 
@@ -128,7 +127,7 @@ func (r *P5Renderer) drawP5(p5 *p5) {
 				r.prevFontSize = tp.TextAppearance.FontSize
 				p5.textSize(int(tp.TextAppearance.FontSize))
 			}
-			p5.text(string(tp.Text), pos.X, pos.Y, size.X, size.Y)
+			p5.text(tp.Text, pos.X, pos.Y, size.X, size.Y)
 		case rendering.PrimitiveImage:
 			ip := p.primitive.(*rendering.ImagePrimitive)
 			if img, ok := r.images[ip.ResIndex]; ok {
@@ -147,7 +146,7 @@ func (r *P5Renderer) drawP5(p5 *p5) {
 }
 
 func (r *P5Renderer) Clear() {
-	r.primitives = make(map[int64]*p5Container)
+	r.primitives = make(map[int]*p5Container)
 	r.idgen = common.NewIdGenerator()
 	r.p5.redraw()
 }
@@ -159,9 +158,9 @@ func (r *P5Renderer) Stop() {
 func newP5Renderer(front *Frontend) *P5Renderer {
 	return &P5Renderer{
 		p5:         &p5{},
-		primitives: make(map[int64]*p5Container),
+		primitives: make(map[int]*p5Container),
 		idgen:      common.NewIdGenerator(),
-		images:     make(map[a.Int]*p5image),
+		images:     make(map[int]*p5image),
 		front:      front,
 	}
 }

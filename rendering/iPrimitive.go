@@ -1,8 +1,6 @@
 package rendering
 
-import "github.com/cadmean-ru/amphion/common/a"
-
 type IPrimitive interface {
-	GetType() a.Byte
+	GetType() byte
 	GetTransform() Transform
 }

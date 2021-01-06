@@ -15,14 +15,12 @@ func main() {
 
 	registerComponents(e)
 	registerResources(e)
-
-	scene := scene1(e)
+	//
+	//scene := scene1(e)
 
 	go func() {
 		e.Start()
-
-		_ = e.ShowScene(scene)
-
+		e.LoadApp()
 		e.WaitForStop()
 	}()
 

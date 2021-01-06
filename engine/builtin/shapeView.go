@@ -11,9 +11,9 @@ type ShapeView struct {
 	ViewImpl
 	FillColor    a.Color `state:"fillColor"`
 	StrokeColor  a.Color `state:"strokeColor"`
-	StrokeWeight a.Byte  `state:"strokeWeight"`
-	CornerRadius a.Byte  `state:"cornerRadius"`
-	pType        a.Byte  `state:"pType"`
+	StrokeWeight byte    `state:"strokeWeight"`
+	CornerRadius byte    `state:"cornerRadius"`
+	pType        byte    `state:"pType"`
 }
 
 func (c *ShapeView) OnDraw(ctx engine.DrawingContext) {
@@ -33,7 +33,7 @@ func (c *ShapeView) GetName() string {
 	return engine.NameOfComponent(c)
 }
 
-func NewShapeView(pType a.Byte) *ShapeView {
+func NewShapeView(pType byte) *ShapeView {
 	if pType < 0 || pType > 5 {
 		panic("Invalid primitive type")
 	}

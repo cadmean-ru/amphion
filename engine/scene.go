@@ -10,7 +10,7 @@ import (
 
 // An object in the scene. The scene itself is also a SceneObject.
 type SceneObject struct {
-	id                  int64
+	id                  int
 	name                string
 	children            []*SceneObject
 	components          []*ComponentContainer
@@ -29,7 +29,7 @@ func (o *SceneObject) GetName() string {
 	return o.name
 }
 
-func (o *SceneObject) GetId() int64 {
+func (o *SceneObject) GetId() int {
 	return o.id
 }
 
@@ -326,7 +326,7 @@ func (o *SceneObject) ToMap() a.SiMap {
 
 func (o *SceneObject) FromMap(siMap a.SiMap) {
 	o.name = siMap["name"].(string)
-	o.id = require.Int64(siMap["id"])
+	o.id = require.Int(siMap["id"])
 	o.Transform = NewTransformFromMap(a.RequireSiMap(siMap["transform"]))
 
 	// Decode components
@@ -335,6 +335,7 @@ func (o *SceneObject) FromMap(siMap a.SiMap) {
 	o.renderingComponents = make([]*ComponentContainer, 0, 1)
 	o.updatingComponents = make([]*ComponentContainer, 0, 1)
 	o.boundaryComponents = make([]*ComponentContainer, 0, 1)
+	o.enabled = true
 	for _, c := range iComponents {
 		cMap := a.RequireSiMap(c)
 		cName := cMap["name"].(string)
