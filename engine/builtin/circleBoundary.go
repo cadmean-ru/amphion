@@ -1,7 +1,7 @@
 package builtin
 
 import (
-	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 )
 
@@ -10,7 +10,7 @@ type CircleBoundary struct {
 }
 
 func (r *CircleBoundary) GetName() string {
-	return "CircleBoundary"
+	return engine.NameOfComponent(r)
 }
 
 func (r *CircleBoundary) OnInit(ctx engine.InitContext) {
@@ -25,11 +25,11 @@ func (r *CircleBoundary) OnStop() {
 
 }
 
-func (r *CircleBoundary) IsPointInside(_ common.Vector3) bool {
+func (r *CircleBoundary) IsPointInside(_ a.Vector3) bool {
 	return false
 }
 
-func (r *CircleBoundary) IsPointInside2D(point common.Vector3) bool {
+func (r *CircleBoundary) IsPointInside2D(point a.Vector3) bool {
 	rect := r.obj.Transform.GetGlobalRect()
 	pos := r.obj.Transform.GetGlobalTopLeftPosition()
 	a := rect.X.GetLength() / 2

@@ -1,6 +1,9 @@
 package engine
 
-import "time"
+import (
+	"github.com/cadmean-ru/amphion/frontend"
+	"time"
+)
 
 type updateRoutine struct {
 	running            bool
@@ -121,13 +124,20 @@ func (r *updateRoutine) loop() {
 			r.stopSceneObjects = make([]*SceneObject, 0)
 		}
 
+		if instance.suspend {
+			instance.state = StateStarted
+			r.updateRequested = false
+			r.renderingRequested = false
+			continue
+		}
+
 		if r.updateRequested {
 			//engine.logger.Info("Update loop", "Updating components")
 
 			r.updateRequested = false
 			instance.state = StateUpdating
 
-			ctx := newUpdateContext(elapsed.Seconds())
+			ctx := newUpdateContext(float32(elapsed.Seconds()))
 
 			// Calling OnUpdate for all objects in scene
 			r.loopUpdate(instance.currentScene, ctx)
@@ -143,7 +153,7 @@ func (r *updateRoutine) loop() {
 
 			// Render objects
 			r.loopRender(instance.currentScene, ctx)
-			instance.renderer.PerformRendering()
+			instance.front.ReceiveMessage(frontend.NewFrontendMessage(frontend.MessageRender))
 
 			instance.forceRedraw = false
 		}

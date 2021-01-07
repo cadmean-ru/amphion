@@ -1,7 +1,7 @@
 package rendering
 
 import (
-	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 )
 
 const (
@@ -11,6 +11,7 @@ const (
 	CommandEndOfCommands = 255
 )
 
+// Deprecated
 type Command struct {
 	code     byte
 	dataSize int
@@ -24,9 +25,9 @@ func (c Command) GetLength() int {
 func (c Command) EncodeToByteArray() []byte {
 	arr := make([]byte, 5 + c.dataSize)
 	arr[0] = c.code
-	dataSizeBytes := common.IntToByteArray(c.dataSize)
-	_ = common.CopyByteArray(dataSizeBytes, arr, 1, 4)
-	_ = common.CopyByteArray(c.data, arr, 5, c.dataSize)
+	dataSizeBytes := a.IntToByteArray(int32(c.dataSize))
+	_ = a.CopyByteArray(dataSizeBytes, arr, 1, 4)
+	_ = a.CopyByteArray(c.data, arr, 5, c.dataSize)
 	return arr
 }
 
@@ -38,25 +39,25 @@ func newCommand(code byte, data []byte) Command {
 	}
 }
 
-func newAddCommand(id int64, primitive common.ByteArrayEncodable) Command {
+func newAddCommand(id int64, primitive a.ByteArrayEncodable) Command {
 	pBytes := primitive.EncodeToByteArray()
-	idBytes := common.Int64ToByteArray(id)
+	idBytes := a.Int64ToByteArray(id)
 	data := make([]byte, len(idBytes) + len(pBytes))
-	_ = common.CopyByteArray(idBytes, data, 0, len(idBytes))
-	_ = common.CopyByteArray(pBytes, data, len(idBytes), len(pBytes))
+	_ = a.CopyByteArray(idBytes, data, 0, len(idBytes))
+	_ = a.CopyByteArray(pBytes, data, len(idBytes), len(pBytes))
 	return newCommand(CommandAddPrimitive, data)
 }
 
-func newRedrawCommand(id int64, primitive common.ByteArrayEncodable) Command {
+func newRedrawCommand(id int64, primitive a.ByteArrayEncodable) Command {
 	pBytes := primitive.EncodeToByteArray()
-	idBytes := common.Int64ToByteArray(id)
+	idBytes := a.Int64ToByteArray(id)
 	data := make([]byte, len(idBytes) + len(pBytes))
-	_ = common.CopyByteArray(idBytes, data, 0, len(idBytes))
-	_ = common.CopyByteArray(pBytes, data, len(idBytes), len(pBytes))
+	_ = a.CopyByteArray(idBytes, data, 0, len(idBytes))
+	_ = a.CopyByteArray(pBytes, data, len(idBytes), len(pBytes))
 	return newCommand(CommandRedrawPrimitive, data)
 }
 
 func newRemoveCommand(id int64) Command {
-	idBytes := common.Int64ToByteArray(id)
+	idBytes := a.Int64ToByteArray(id)
 	return newCommand(CommandRemovePrimitive, idBytes)
 }

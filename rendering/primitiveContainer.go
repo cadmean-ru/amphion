@@ -1,7 +1,5 @@
 package rendering
 
-import "github.com/cadmean-ru/amphion/common"
-
 const (
 	primitiveStatusNew = 0
 	primitiveStatusIdle = 1
@@ -9,10 +7,11 @@ const (
 	primitiveStatusDeleting = 3
 )
 
+// Deprecated: no longer needed
 type primitiveContainer struct {
 	id        int64
 	status    int
-	primitive common.ByteArrayEncodable
+	primitive *Primitive
 }
 
 func (c *primitiveContainer) GetId() int64 {

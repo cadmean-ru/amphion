@@ -1,7 +1,7 @@
 package rendering
 
 import (
-	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 )
 
 const (
@@ -16,8 +16,9 @@ const (
 	PrimitiveBezier    = 8
 )
 
+// Deprecated: no longer needed
 type Primitive struct {
-	Type       common.AByte
+	Type       a.Byte
 	Attributes []Attribute
 }
 
@@ -34,19 +35,20 @@ func (p *Primitive) EncodeToByteArray() []byte {
 	data[0] = byte(p.Type)
 	counter := 1
 	for _, attr := range p.Attributes {
-		_ = common.CopyByteArray(attr.EncodeToByteArray(), data, counter, attr.GetLength())
+		_ = a.CopyByteArray(attr.EncodeToByteArray(), data, counter, attr.GetLength())
 		counter += attr.GetLength()
 	}
 	return data
 }
 
-func NewPrimitive(pType common.AByte) *Primitive {
+func NewPrimitive(pType a.Byte) *Primitive {
 	return &Primitive{
 		Type:       pType,
 		Attributes: make([]Attribute, 0, 1),
 	}
 }
 
+// Deprecated: no longer needed
 type PrimitiveBuilder interface {
 	BuildPrimitive() *Primitive
 }

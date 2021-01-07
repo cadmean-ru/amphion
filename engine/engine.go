@@ -4,7 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -22,19 +25,21 @@ type AmphionEngine struct {
 
 	loadedScene        *SceneObject
 	currentScene       *SceneObject
-	currentApp         *App
+	currentApp         *frontend.App
 	stopChan           chan bool
 	eventChan          chan AmphionEvent
 	updateRoutine      *updateRoutine
 	eventBinder        *EventBinder
-	globalContext      *GlobalContext
+	globalContext      frontend.Context
 	forceRedraw        bool
 	messageDispatcher  *MessageDispatcher
+	componentsManager  *ComponentsManager
 	currentComponent   Component
 	closeSceneCallback func()
 	tasksRoutine       *TasksRoutine
-	resourceManager    *ResourceManager
 	focusedObject      *SceneObject
+	front              frontend.Frontend
+	suspend            bool
 }
 
 const (
@@ -48,80 +53,126 @@ const (
 	StateRendering = 3
 )
 
-func Initialize(platform common.Platform) *AmphionEngine {
+// Initializes a new instance of Amphion Engine and configures it to run with the specified frontend.
+// Returns pointer to the created engine instance.
+// The engine is a singleton, so calling Initialize more than once will have no effect.
+func Initialize(front frontend.Frontend) *AmphionEngine {
 	if instance != nil {
 		return instance
 	}
 
 	instance = &AmphionEngine{
-		platform:        platform,
-		logger:          GetLoggerForPlatform(platform),
-		renderer:        rendering.NewRenderer(),
-		idgen:           common.NewIdGenerator(),
-		state:           StateStopped,
-		stopChan:        make(chan bool),
-		eventChan:       make(chan AmphionEvent, 100),
-		updateRoutine:   newUpdateRoutine(),
-		eventBinder:     newEventBinder(),
-		globalContext:   getGlobalContext(),
-		tasksRoutine:    newTasksRoutine(),
-		resourceManager: newResourceManager(),
+		platform:          front.GetPlatform(),
+		logger:            GetLoggerForPlatform(front.GetPlatform()),
+		idgen:             common.NewIdGenerator(),
+		state:             StateStopped,
+		stopChan:          make(chan bool),
+		eventChan:         make(chan AmphionEvent, 100),
+		updateRoutine:     newUpdateRoutine(),
+		eventBinder:       newEventBinder(),
+		tasksRoutine:      newTasksRoutine(),
+		componentsManager: newComponentsManager(),
+		front:             front,
 	}
+	instance.renderer = instance.front.GetRenderer()
+	instance.globalContext = instance.front.GetContext()
+	instance.front.SetCallback(instance.handleFrontEndCallback)
 	return instance
 }
 
+// Returns pointer to the engine instance.
 func GetInstance() *AmphionEngine {
 	return instance
 }
 
+// Starts the engine.
+// Must be called, before any interaction with the engine.
 func (engine *AmphionEngine) Start() {
 	engine.started = true
-	engine.renderer.Prepare()
-	prepareInterop()
 	engine.registerInternalEvenHandlers()
 	engine.logger.Info(engine, "Amphion started")
 	engine.state = StateStarted
 	go engine.eventLoop()
 	engine.tasksRoutine.start()
-	//if engine.tryLoadApp() {
-	//	engine.LoadScene(engine.currentApp.Scenes[0])
-	//}
 }
 
+// Closes the current scene if any, and stops the engine.
 func (engine *AmphionEngine) Stop() {
 	engine.eventChan<-NewAmphionEvent(engine, EventStop, nil)
 }
 
+// Blocks the calling goroutine until the engine is stopped.
 func (engine *AmphionEngine) WaitForStop() {
 	<-engine.stopChan
 }
 
+// Returns the renderer.
 func (engine *AmphionEngine) GetRenderer() rendering.Renderer {
 	return engine.renderer
 }
 
+// Returns the logger.
 func (engine *AmphionEngine) GetLogger() *Logger {
 	return engine.logger
 }
 
+// Returns the currently displaying scene object.
 func (engine *AmphionEngine) GetCurrentScene() *SceneObject {
 	return engine.currentScene
 }
 
-func (engine *AmphionEngine) GetGlobalContext() *GlobalContext {
+// Returns the current loaded app or nil if no app is loaded.
+func (engine *AmphionEngine) GetCurrentApp() *frontend.App {
+	return engine.currentApp
+}
+
+// Returns the global application context.
+// See frontend.Context.
+func (engine *AmphionEngine) GetGlobalContext() frontend.Context {
 	return engine.globalContext
 }
 
-func (engine *AmphionEngine) LoadScene(scene string) {
+// Loads scene from a resource file asynchronously.
+// If show is true, after loading also shows this scene.
+func (engine *AmphionEngine) LoadScene(scene int, show bool) {
 	engine.RunTask(NewTaskBuilder().Run(func() (interface{}, error) {
-		return loadScene(scene)
+		return engine.GetResourceManager().ReadFile(scene)
 	}).Than(func(res interface{}) {
-		engine.loadedScene = res.(*SceneObject)
+		data := res.([]byte)
+		so := &SceneObject{}
+		err := so.DecodeFromYaml(data)
+		if err != nil {
+			engine.logger.Info(engine, fmt.Sprintf("Failed to decode scene: %s", err.Error()))
+			return
+		}
+
+		engine.loadedScene = so
+
+		if show {
+			engine.SwapScenes()
+		}
 	}).Err(func(err error) {
-		engine.logger.Error(engine, fmt.Sprintf("Error loading scene: %e", err))
+		engine.logger.Error(engine, fmt.Sprintf("Error loading scene with id %d: %e", scene, err))
 	}).Build())
 }
 
+// Hides the current showing scene and shows the currently loaded scene (using LoadScene).
+// The previously showing scene will be properly stopped and the deleted.
+// So, calling SwapScenes again wont swap the two scenes back.
+// If no scene is loaded, wont do anything.
+func (engine *AmphionEngine) SwapScenes() {
+	if engine.loadedScene == nil {
+		return
+	}
+
+	engine.CloseScene(func() {
+		_ = engine.ShowScene(engine.loadedScene)
+		engine.loadedScene = nil
+	})
+}
+
+// Shows the specified scene object.
+// Returns an error, if the engine is not yet ready or if another scene is already showing.
 func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 	if !engine.started {
 		engine.logger.Error(engine, "Cannot show scene. Engine not started!")
@@ -150,15 +201,23 @@ func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 	return nil
 }
 
+// Closes the currently showing scene asynchronously.
+// It will call the provided callback function as soon as the scene was closed.
+// If no scene is showing calls the callback function immediately.
 func (engine *AmphionEngine) CloseScene(callback func()) {
+	if engine.currentScene == nil {
+		callback()
+		return
+	}
+
 	engine.closeSceneCallback = callback
 	engine.eventChan<-NewAmphionEvent(engine, EventCloseScene, nil)
 }
 
 func (engine *AmphionEngine) configureScene(scene *SceneObject) {
-	screenInfo := engine.globalContext.screenInfo
-	scene.Transform.Size.X = float64(screenInfo.GetWidth())
-	scene.Transform.Size.Y = float64(screenInfo.GetHeight())
+	screenInfo := engine.globalContext.ScreenInfo
+	scene.Transform.Size.X = float32(screenInfo.GetWidth())
+	scene.Transform.Size.Y = float32(screenInfo.GetHeight())
 }
 
 func (engine *AmphionEngine) eventLoop() {
@@ -182,10 +241,13 @@ func (engine *AmphionEngine) eventLoop() {
 	engine.handleStop()
 }
 
+// Tells the engine to schedule an update as soon as possible.
 func (engine *AmphionEngine) RequestUpdate() {
 	engine.updateRoutine.requestUpdate()
 }
 
+// Tells the engine to schedule rendering in the next update cycle.
+// It will also request an update, if it was not requested already.
 func (engine *AmphionEngine) RequestRendering() {
 	engine.updateRoutine.requestRendering()
 }
@@ -194,10 +256,10 @@ func (engine *AmphionEngine) IsForcedToRedraw() bool {
 	return engine.forceRedraw
 }
 
-func (engine *AmphionEngine) handleFrontEndCallback(callback frontEndCallback) {
-	switch callback.code {
-	case FrontCallbackMouseDown:
-		coords := strings.Split(callback.data, ";")
+func (engine *AmphionEngine) handleFrontEndCallback(callback frontend.Callback) {
+	switch callback.Code {
+	case frontend.CallbackMouseDown:
+		coords := strings.Split(callback.Data, ";")
 		if len(coords) != 2 {
 			panic("Invalid click callback Data")
 		}
@@ -209,10 +271,10 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontEndCallback) {
 		if err != nil {
 			panic("Invalid click callback Data")
 		}
-		event := NewAmphionEvent(engine, EventMouseDown, common.NewIntVector3(int(x), int(y), 0))
+		event := NewAmphionEvent(engine, EventMouseDown, a.NewIntVector3(int(x), int(y), 0))
 		engine.eventChan<-event
-	case FrontCallbackMouseUp:
-		coords := strings.Split(callback.data, ";")
+	case frontend.CallbackMouseUp:
+		coords := strings.Split(callback.Data, ";")
 		if len(coords) != 2 {
 			panic("Invalid click callback Data")
 		}
@@ -224,15 +286,15 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontEndCallback) {
 		if err != nil {
 			panic("Invalid click callback Data")
 		}
-		event := NewAmphionEvent(engine, EventMouseUp, common.NewIntVector3(int(x), int(y), 0))
+		event := NewAmphionEvent(engine, EventMouseUp, a.NewIntVector3(int(x), int(y), 0))
 		engine.eventChan<-event
-	case FrontCallbackContextChange:
-		engine.globalContext = getGlobalContext()
+	case frontend.CallbackContextChange:
+		engine.globalContext = engine.front.GetContext()
 		engine.configureScene(engine.currentScene)
 		engine.RequestRendering()
 		engine.forceRedraw = true
-	case FrontCallbackKeyDown:
-		tokens := strings.Split(callback.data, "\n")
+	case frontend.CallbackKeyDown:
+		tokens := strings.Split(callback.Data, "\n")
 		if len(tokens) != 2 {
 			panic("Invalid key down callback Data")
 		}
@@ -241,19 +303,28 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontEndCallback) {
 			Code: tokens[1],
 		})
 		engine.eventChan<-event
+	case frontend.CallbackAppHide:
+		engine.suspend = true
+	case frontend.CallbackAppShow:
+		engine.suspend = false
+		engine.RequestRendering()
 	}
 }
 
+// Binds an event handler for the specified event code.
+// The handler will be invoked in the event loop goroutine, when the event with the specified code is raised.
 func (engine *AmphionEngine) BindEventHandler(code int, handler EventHandler) {
 	engine.eventBinder.Bind(code, handler)
 }
 
+// Unbinds the event handler for the specified event code.
+// The handler will no longer be invoked, when the event with the specified code is raised.
 func (engine *AmphionEngine) UnbindEventHandler(code int, handler EventHandler) {
 	engine.eventBinder.Unbind(code, handler)
 }
 
 func (engine *AmphionEngine) handleFrontEndInterrupt(msg string) {
-	commencePanic("Kernel panic", msg)
+	engine.front.CommencePanic("Kernel panic", msg)
 	panic(msg)
 }
 
@@ -264,15 +335,17 @@ func (engine *AmphionEngine) recover() {
 		if engine.currentComponent != nil {
 			engine.logger.Error(engine, fmt.Sprintf("Error in component %s", engine.currentComponent.GetName()))
 		}
-		commencePanic("Kernel panic", fmt.Sprintf("%v", err))
+		engine.front.CommencePanic("Kernel panic", fmt.Sprintf("%v", err))
 		panic(err)
 	}
 }
 
+// Returns whether rendering is requested for the next update cycle.
 func (engine *AmphionEngine) IsRenderingRequested() bool {
 	return engine.updateRoutine.renderingRequested
 }
 
+// Returns whether an update is requested for the next frame.
 func (engine *AmphionEngine) IsUpdateRequested() bool {
 	return engine.updateRoutine.updateRequested
 }
@@ -330,7 +403,7 @@ func (engine *AmphionEngine) canStop() bool {
 }
 
 func (engine *AmphionEngine) handleClickEvent(event AmphionEvent) bool {
-	clickPos := event.Data.(common.IntVector3)
+	clickPos := event.Data.(a.IntVector3)
 	candidates := make([]*SceneObject, 0, 1)
 	engine.currentScene.ForEachObject(func(o *SceneObject) {
 		if o.IsRendering() && o.HasBoundary() && o.IsPointInsideBoundaries2D(clickPos.ToFloat()) {
@@ -354,7 +427,7 @@ func (engine *AmphionEngine) handleCloseSceneEvent(_ AmphionEvent) bool {
 	engine.logger.Info(engine, "Closing scene")
 	engine.updateRoutine.stop()
 	engine.updateRoutine.waitForStop()
-	frontEndCloseScene()
+	engine.front.Reset()
 	engine.currentScene = nil
 	engine.state = StateStarted
 	engine.logger.Info(engine, "Scene closed")
@@ -377,27 +450,40 @@ func (engine *AmphionEngine) RunTask(task Task) {
 	engine.tasksRoutine.RunTask(task)
 }
 
-func (engine *AmphionEngine) GetResourceManager() *ResourceManager {
-	return engine.resourceManager
+func (engine *AmphionEngine) GetResourceManager() frontend.ResourceManager {
+	return engine.front.GetResourceManager()
+}
+
+func (engine *AmphionEngine) GetFrontend() frontend.Frontend {
+	return engine.front
+}
+
+func (engine *AmphionEngine) GetInputManager() frontend.InputManager {
+	return engine.front.GetInputManager()
+}
+
+func (engine *AmphionEngine) GetComponentsManager() *ComponentsManager {
+	return engine.componentsManager
 }
 
 func (engine *AmphionEngine) GetName() string {
 	return "Amphion Engine"
 }
 
-func (engine *AmphionEngine) tryLoadApp() bool {
-	if data, err := loadAppData(); err == nil {
-		if app, err := DecodeApp(data); err == nil {
+// Loads app data from well-known source and shows the main scene.
+func (engine *AmphionEngine) LoadApp() {
+	engine.RunTask(NewTaskBuilder().Run(func() (interface{}, error) {
+		app := engine.front.GetApp()
+		return app, nil
+	}).Than(func(res interface{}) {
+		app := res.(*frontend.App)
+		if app != nil {
 			engine.currentApp = app
-			return true
+			engine.LoadScene(engine.GetResourceManager().IdOf("scenes/" + app.MainScene + ".scene"), true)
 		} else {
-			engine.logger.Warning(engine, "Failed to decode app")
+			engine.logger.Warning(engine, "No app info found in well-known location!")
 		}
-	} else {
-		engine.logger.Warning(engine, "Failed to load app")
-	}
-
-	return false
+	}).Build())
 }
 
 func (engine *AmphionEngine) rebuildMessageTree() {
@@ -405,4 +491,14 @@ func (engine *AmphionEngine) rebuildMessageTree() {
 		return
 	}
 	engine.messageDispatcher = newMessageDispatcherForScene(engine.currentScene)
+}
+
+func NameOfComponent(component interface{}) string {
+	t := reflect.TypeOf(component)
+
+	if t.Kind() == reflect.Ptr {
+		t = reflect.Indirect(reflect.ValueOf(component)).Type()
+	}
+
+	return t.PkgPath() + "." + t.Name()
 }

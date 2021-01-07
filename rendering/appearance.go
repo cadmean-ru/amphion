@@ -1,45 +1,47 @@
 package rendering
 
-import "github.com/cadmean-ru/amphion/common"
+import (
+	"github.com/cadmean-ru/amphion/common/a"
+)
 
 const appearanceBytesSize = 9
 const textAppearanceBytesSize = 1
 
 type Appearance struct {
-	FillColor    common.Color
-	StrokeColor  common.Color
-	StrokeWeight common.AByte
-	CornerRadius common.AByte
+	FillColor    a.Color
+	StrokeColor  a.Color
+	StrokeWeight byte
+	CornerRadius byte
 }
 
-func (a Appearance) ToMap() map[string]interface{} {
+func (ap Appearance) ToMap() map[string]interface{} {
 	return map[string]interface{}{
-		"fillColor":    a.FillColor.ToMap(),
-		"strokeColor":  a.StrokeColor.ToMap(),
-		"strokeWeight": a.StrokeWeight,
+		"fillColor":    ap.FillColor.ToMap(),
+		"strokeColor":  ap.StrokeColor.ToMap(),
+		"strokeWeight": ap.StrokeWeight,
 	}
 }
 
-func (a Appearance) EncodeToByteArray() []byte {
-	arr := make([]byte, appearanceBytesSize)
-	_ = common.CopyByteArray(a.FillColor.EncodeToByteArray(), arr, 0, 4)
-	_ = common.CopyByteArray(a.StrokeColor.EncodeToByteArray(), arr, 4, 4)
-	_ = common.CopyByteArray(a.StrokeWeight.EncodeToByteArray(), arr, 8, 1)
-	return arr
-}
+//func (ap Appearance) EncodeToByteArray() []byte {
+//	arr := make([]byte, appearanceBytesSize)
+//	_ = a.CopyByteArray(ap.FillColor.EncodeToByteArray(), arr, 0, 4)
+//	_ = a.CopyByteArray(ap.StrokeColor.EncodeToByteArray(), arr, 4, 4)
+//	_ = a.CopyByteArray(ap.StrokeWeight.EncodeToByteArray(), arr, 8, 1)
+//	return arr
+//}
 
 func DefaultAppearance() Appearance {
 	return Appearance{
-		FillColor:    common.WhiteColor(),
-		StrokeColor:  common.BlackColor(),
+		FillColor:    a.WhiteColor(),
+		StrokeColor:  a.BlackColor(),
 		StrokeWeight: 1,
 	}
 }
 
 
 type TextAppearance struct {
-	Font      string
-	FontSize  common.AByte
+	Font     string
+	FontSize byte
 }
 
 func (a TextAppearance) ToMap() map[string]interface{} {
@@ -56,8 +58,8 @@ func DefaultTextAppearance() TextAppearance {
 	}
 }
 
-func (a TextAppearance) EncodeToByteArray() []byte {
-	arr := make([]byte, textAppearanceBytesSize)
-	arr[0] = byte(a.FontSize)
-	return arr
-}
+//func (a TextAppearance) EncodeToByteArray() []byte {
+//	arr := make([]byte, textAppearanceBytesSize)
+//	arr[0] = byte(a.FontSize)
+//	return arr
+//}

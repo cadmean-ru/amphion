@@ -5,12 +5,12 @@ import (
 )
 
 type OnClickListener struct {
-	OnClick engine.EventHandler
+	OnClick engine.EventHandler `state:"onClick"`
 	object  *engine.SceneObject
 }
 
 func (l *OnClickListener) GetName() string {
-	return "OnClickListener"
+	return engine.NameOfComponent(l)
 }
 
 func (l *OnClickListener) OnInit(ctx engine.InitContext) {

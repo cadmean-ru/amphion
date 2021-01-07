@@ -2,13 +2,14 @@ package engine
 
 import (
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 )
 
 type Transform struct {
-	Position common.Vector3
-	Pivot    common.Vector3
-	Rotation common.Vector3
-	Size     common.Vector3
+	Position a.Vector3
+	Pivot    a.Vector3
+	Rotation a.Vector3
+	Size     a.Vector3
 
 	SceneObject *SceneObject
 	parent      *Transform
@@ -16,10 +17,10 @@ type Transform struct {
 
 func NewTransform(object *SceneObject) Transform {
 	return Transform{
-		Position:    common.ZeroVector(),
-		Pivot:       common.ZeroVector(),
-		Rotation:    common.ZeroVector(),
-		Size:        common.OneVector(),
+		Position:    a.ZeroVector(),
+		Pivot:       a.ZeroVector(),
+		Rotation:    a.ZeroVector(),
+		Size:        a.OneVector(),
 		SceneObject: object,
 	}
 }
@@ -33,12 +34,19 @@ func (t Transform) RenderingRepresentation() map[string]interface{} {
 	}
 }
 
-func (t Transform) ToMap() common.SiMap {
+func (t Transform) ToMap() a.SiMap {
 	return t.RenderingRepresentation()
 }
 
-func (t Transform) GetLocalPosition() common.Vector3 {
-	var x, y, z float64
+func (t *Transform) FromMap(siMap a.SiMap) {
+	t.Position = a.NewVector3FromMap(a.RequireSiMap(siMap["position"]))
+	t.Pivot = a.NewVector3FromMap(a.RequireSiMap(siMap["pivot"]))
+	t.Rotation = a.NewVector3FromMap(a.RequireSiMap(siMap["rotation"]))
+	t.Size = a.NewVector3FromMap(a.RequireSiMap(siMap["size"]))
+}
+
+func (t Transform) GetLocalPosition() a.Vector3 {
+	var x, y, z float32
 	if t.parent != nil && IsSpecialPosition(t.Position) {
 		pb := t.parent.GetRect()
 		if t.Position.X == CenterInParent {
@@ -62,10 +70,10 @@ func (t Transform) GetLocalPosition() common.Vector3 {
 		z = t.Position.Z
 	}
 
-	return common.NewVector3(x, y, z)
+	return a.NewVector3(x, y, z)
 }
 
-func (t Transform) GetGlobalPosition() common.Vector3 {
+func (t Transform) GetGlobalPosition() a.Vector3 {
 	if t.parent == nil {
 		return t.Position
 	}
@@ -77,23 +85,23 @@ func (t Transform) GetParent() *Transform {
 	return t.parent
 }
 
-func (t Transform) GetTopLeftPosition() common.Vector3 {
+func (t Transform) GetTopLeftPosition() a.Vector3 {
 	return t.Position.Sub(t.Size.Multiply(t.Pivot))
 }
 
-func (t Transform) GetGlobalTopLeftPosition() common.Vector3 {
+func (t Transform) GetGlobalTopLeftPosition() a.Vector3 {
 	return t.GetGlobalPosition().Sub(t.Size.Multiply(t.Pivot))
 }
 
 func (t Transform) GetRect() common.RectBoundary {
-	return t.calculateRect(common.ZeroVector())
+	return t.calculateRect(a.ZeroVector())
 }
 
 func (t Transform) GetGlobalRect() common.RectBoundary {
 	return t.calculateRect(t.GetGlobalTopLeftPosition())
 }
 
-func (t Transform) calculateRect(tlp common.Vector3) common.RectBoundary {
+func (t Transform) calculateRect(tlp a.Vector3) common.RectBoundary {
 	minX := tlp.X
 	maxX := tlp.X + t.Size.X
 	minY := tlp.Y
@@ -103,12 +111,18 @@ func (t Transform) calculateRect(tlp common.Vector3) common.RectBoundary {
 	return common.NewRectBoundary(minX, maxX, minY, maxY, minZ, maxZ)
 }
 
-func IsSpecialPosition(pos common.Vector3) bool {
+func IsSpecialPosition(pos a.Vector3) bool {
 	return IsSpecialPositionValue(pos.X) || IsSpecialPositionValue(pos.Y) || IsSpecialPositionValue(pos.Z)
 }
 
-func IsSpecialPositionValue(x float64) bool {
+func IsSpecialPositionValue(x float32) bool {
 	return x == CenterInParent
+}
+
+func NewTransformFromMap(siMap a.SiMap) Transform {
+	var t Transform
+	t.FromMap(siMap)
+	return t
 }
 
 const (

@@ -1,7 +1,7 @@
 package builtin
 
 import (
-	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 )
 
@@ -9,7 +9,7 @@ type MouseMover struct {
 	object   *engine.SceneObject
 	engine   *engine.AmphionEngine
 	dragging bool
-	mousePos common.IntVector3
+	mousePos a.IntVector2
 }
 
 func (m *MouseMover) OnInit(ctx engine.InitContext) {
@@ -21,7 +21,7 @@ func (m *MouseMover) OnStart() {
 	m.engine.BindEventHandler(engine.EventMouseUp, m.handleMouseUp)
 }
 
-func (m *MouseMover) handleMouseUp(event engine.AmphionEvent) bool {
+func (m *MouseMover) handleMouseUp(_ engine.AmphionEvent) bool {
 	m.dragging = false
 	return true
 }
@@ -37,22 +37,22 @@ func (m *MouseMover) OnMessage(msg engine.Message) bool {
 	}
 
 	m.dragging = true
-	m.mousePos = engine.GetMousePosition()
+	m.mousePos = m.engine.GetInputManager().GetMousePosition()
 	m.engine.RequestUpdate()
 
 	return true
 }
 
-func (m *MouseMover) OnUpdate(ctx engine.UpdateContext) {
+func (m *MouseMover) OnUpdate(_ engine.UpdateContext) {
 	if !m.dragging {
 		return
 	}
 
-	newMousePos := engine.GetMousePosition()
+	newMousePos := m.engine.GetInputManager().GetMousePosition()
 	dPos := newMousePos.Sub(m.mousePos)
 	m.mousePos = newMousePos
-	m.object.Transform.Position = m.object.Transform.Position.Add(dPos.ToFloat())
-	m.engine.GetMessageDispatcher().DispatchDown(m.object, engine.NewMessage(m, engine.MessageRedraw, nil))
+	m.object.Transform.Position = m.object.Transform.Position.Add(dPos.ToFloat3())
+	m.engine.GetMessageDispatcher().DispatchDown(m.object, engine.NewMessage(m, engine.MessageRedraw, nil), engine.MessageMaxDepth)
 	m.engine.RequestRendering()
 }
 
@@ -61,7 +61,7 @@ func (m *MouseMover) OnStop() {
 }
 
 func (m *MouseMover) GetName() string {
-	return "MouseMover"
+	return engine.NameOfComponent(m)
 }
 
 func NewMouseMover() *MouseMover {

@@ -1,14 +1,16 @@
 package engine
 
 import (
-	"github.com/cadmean-ru/amphion/common"
+	"fmt"
+	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/require"
 	"gopkg.in/yaml.v2"
 	"regexp"
 )
 
 // An object in the scene. The scene itself is also a SceneObject.
 type SceneObject struct {
-	id                  int64
+	id                  int
 	name                string
 	children            []*SceneObject
 	components          []*ComponentContainer
@@ -16,6 +18,7 @@ type SceneObject struct {
 	updatingComponents  []*ComponentContainer
 	renderingComponents []*ComponentContainer
 	boundaryComponents  []*ComponentContainer
+	layout              Layout
 	Transform           Transform
 	parent              *SceneObject
 	enabled             bool
@@ -27,7 +30,7 @@ func (o *SceneObject) GetName() string {
 	return o.name
 }
 
-func (o *SceneObject) GetId() int64 {
+func (o *SceneObject) GetId() int {
 	return o.id
 }
 
@@ -39,10 +42,14 @@ func (o *SceneObject) GetParent() *SceneObject {
 	return o.parent
 }
 
-func (o *SceneObject) AddChild(object *SceneObject) {
+func (o *SceneObject) appendChild(object *SceneObject) {
 	object.parent = o
 	object.Transform.parent = &o.Transform
 	o.children = append(o.children, object)
+}
+
+func (o *SceneObject) AddChild(object *SceneObject) {
+	o.appendChild(object)
 	if !object.initialized {
 		instance.updateRoutine.initSceneObject(object)
 	}
@@ -70,6 +77,15 @@ func (o *SceneObject) GetChildren() []*SceneObject {
 	return c
 }
 
+func (o *SceneObject) GetChildByName(name string) *SceneObject {
+	for _, c := range o.children {
+		if c != nil && c.name == name {
+			return c
+		}
+	}
+	return nil
+}
+
 func (o *SceneObject) AddComponent(component Component) {
 	container := NewComponentContainer(o, component)
 	o.components = append(o.components, container)
@@ -85,6 +101,9 @@ func (o *SceneObject) AddComponent(component Component) {
 	}
 	if _, ok := component.(BoundaryComponent); ok {
 		o.boundaryComponents = append(o.boundaryComponents, container)
+	}
+	if _, ok := component.(Layout); ok {
+		o.layout = component.(Layout)
 	}
 
 	instance.updateRoutine.initSceneObject(o)
@@ -160,9 +179,6 @@ func (o *SceneObject) OnMessage(message Message) bool {
 }
 
 func (o *SceneObject) init(ctx InitContext) {
-	//if o.initialized {
-	//	return
-	//}
 	for _, c := range o.components {
 		if c.initialized {
 			continue
@@ -178,7 +194,6 @@ func (o *SceneObject) init(ctx InitContext) {
 
 func (o *SceneObject) start() {
 	for _, c := range o.components {
-		//fmt.Printf("%s %s %+v\n", c.component.GetName(), o.GetName(), c)
 		if !c.enabled || !c.initialized || c.started {
 			continue
 		}
@@ -189,7 +204,6 @@ func (o *SceneObject) start() {
 
 	o.started = true
 	instance.currentComponent = nil
-	//fmt.Println()
 }
 
 func (o *SceneObject) update(ctx UpdateContext) {
@@ -201,6 +215,12 @@ func (o *SceneObject) update(ctx UpdateContext) {
 		instance.currentComponent = c.component
 		c.component.(UpdatingComponent).OnUpdate(ctx)
 	}
+
+	if o.layout != nil {
+		instance.currentComponent = o.layout
+		o.layout.LayoutChildren()
+	}
+
 	instance.currentComponent = nil
 }
 
@@ -237,7 +257,7 @@ func (o *SceneObject) HasBoundary() bool {
 	return len(o.boundaryComponents) > 0
 }
 
-func (o *SceneObject) IsPointInsideBoundaries(point common.Vector3) bool {
+func (o *SceneObject) IsPointInsideBoundaries(point a.Vector3) bool {
 	for _, b := range o.boundaryComponents {
 		if b.component.(BoundaryComponent).IsPointInside(point) {
 			return true
@@ -247,7 +267,7 @@ func (o *SceneObject) IsPointInsideBoundaries(point common.Vector3) bool {
 	return false
 }
 
-func (o *SceneObject) IsPointInsideBoundaries2D(point common.Vector3) bool {
+func (o *SceneObject) IsPointInsideBoundaries2D(point a.Vector3) bool {
 	for _, b := range o.boundaryComponents {
 		if b.component.(BoundaryComponent).IsPointInside2D(point) {
 			return true
@@ -282,16 +302,71 @@ func (o *SceneObject) ForEachComponent(action func(component Component)) {
 	}
 }
 
-func (o *SceneObject) ToMap() map[string]interface{} {
+func (o *SceneObject) ToMap() a.SiMap {
 	mChildren := make([]map[string]interface{}, len(o.children))
 	for i, c := range o.children {
 		mChildren[i] = c.ToMap()
 	}
 
+	mComponents := make([]map[string]interface{}, len(o.components))
+	for i, c := range o.components {
+		var state map[string]interface{}
+
+		if IsStatefulComponent(c.component) {
+			state = instance.GetComponentsManager().GetComponentState(c.component)
+			fmt.Println(state)
+		}
+
+		cMap := map[string]interface{} {
+			"name":  c.GetComponent().GetName(),
+			"state": state,
+		}
+
+		mComponents[i] = cMap
+	}
+
 	return map[string]interface{}{
 		"name": o.name,
+		"id": o.id,
 		"children": mChildren,
+		"components": mComponents,
 		"transform": o.Transform.ToMap(),
+	}
+}
+
+func (o *SceneObject) FromMap(siMap a.SiMap) {
+	o.name = siMap["name"].(string)
+	o.id = require.Int(siMap["id"])
+	o.Transform = NewTransformFromMap(a.RequireSiMap(siMap["transform"]))
+
+	// Decode components
+	iComponents := siMap["components"].([]interface{})
+	o.components = make([]*ComponentContainer, 0, len(iComponents))
+	o.renderingComponents = make([]*ComponentContainer, 0, 1)
+	o.updatingComponents = make([]*ComponentContainer, 0, 1)
+	o.boundaryComponents = make([]*ComponentContainer, 0, 1)
+	o.enabled = true
+	for _, c := range iComponents {
+		cMap := a.RequireSiMap(c)
+		cName := cMap["name"].(string)
+		cState := a.RequireSiMap(cMap["state"])
+		component := instance.GetComponentsManager().MakeComponent(cName)
+		if component == nil {
+			continue
+		}
+		if IsStatefulComponent(component) {
+			instance.GetComponentsManager().SetComponentState(component, cState)
+		}
+		o.AddComponent(component)
+	}
+
+	// Decode children
+	iChildren := siMap["children"].([]interface{})
+	o.children = make([]*SceneObject, 0, len(iChildren))
+	for _, c := range iChildren {
+		obj := &SceneObject{}
+		obj.FromMap(a.RequireSiMap(c))
+		o.appendChild(obj)
 	}
 }
 
@@ -300,7 +375,15 @@ func (o *SceneObject) EncodeToYaml() ([]byte, error) {
 }
 
 func (o *SceneObject) DecodeFromYaml(data []byte) error {
-	return yaml.Unmarshal(data, o)
+	oMap := make(a.SiMap)
+	err := yaml.Unmarshal(data, &oMap)
+	if err != nil {
+		return err
+	}
+
+	o.FromMap(oMap)
+
+	return nil
 }
 
 func NewSceneObject(name string) *SceneObject {

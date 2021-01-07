@@ -1,6 +1,8 @@
 package rendering
 
-import "github.com/cadmean-ru/amphion/common"
+import (
+	"github.com/cadmean-ru/amphion/common/a"
+)
 
 const (
 	AttributeTransform    = 0
@@ -14,23 +16,24 @@ const (
 	AttributePoint        = 8
 )
 
+// Deprecated: no longer needed
 type Attribute struct {
 	Code  byte
 	Value []byte
 }
 
-func (a Attribute) GetLength() int {
-	return len(a.Value) + 1
+func (at Attribute) GetLength() int {
+	return len(at.Value) + 1
 }
 
-func (a Attribute) EncodeToByteArray() []byte {
-	data := make([]byte, a.GetLength())
-	data[0] = a.Code
-	_ = common.CopyByteArray(a.Value, data, 1, len(a.Value))
+func (at Attribute) EncodeToByteArray() []byte {
+	data := make([]byte, at.GetLength())
+	data[0] = at.Code
+	_ = a.CopyByteArray(at.Value, data, 1, len(at.Value))
 	return data
 }
 
-func NewAttribute(code byte, value common.ByteArrayEncodable) Attribute {
+func NewAttribute(code byte, value a.ByteArrayEncodable) Attribute {
 	return Attribute{
 		Code:  code,
 		Value: value.EncodeToByteArray(),

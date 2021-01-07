@@ -7,6 +7,8 @@ const (
 	MessageBuiltinEvent = 1
 )
 
+const MessageMaxDepth = -1
+
 type Message struct {
 	Sender interface{}
 	Code   byte
@@ -57,10 +59,10 @@ func (c *messageListenerContainer) findListenerContainer(listener MessageListene
 	return nil
 }
 
-func (c *messageListenerContainer) sendMessageDown(message Message) {
-	if c.listener.OnMessage(message) {
+func (c *messageListenerContainer) sendMessageDown(message Message, counter int) {
+	if c.listener.OnMessage(message) && (counter == MessageMaxDepth || counter > 0) {
 		for _, c1 := range c.children {
-			c1.sendMessageDown(message)
+			c1.sendMessageDown(message, counter-1)
 		}
 	}
 }
@@ -117,16 +119,16 @@ func (d *MessageDispatcher) RemoveListener(listener MessageListener) {
 }
 
 // Sends message from the root down in the message tree
-func (d *MessageDispatcher) Dispatch(message Message) {
+func (d *MessageDispatcher) Dispatch(message Message, maxDepth int) {
 	if !d.shouldSendMessage(message) {
 		return
 	}
 
-	d.root.sendMessageDown(message)
+	d.root.sendMessageDown(message, maxDepth)
 }
 
 // Sends this message up in the message tree
-func (d *MessageDispatcher) DispatchDown(from MessageListener, message Message) {
+func (d *MessageDispatcher) DispatchDown(from MessageListener, message Message, maxDepth int) {
 	if !d.shouldSendMessage(message) {
 		return
 	}
@@ -135,7 +137,7 @@ func (d *MessageDispatcher) DispatchDown(from MessageListener, message Message) 
 	if c == nil {
 		return
 	}
-	c.sendMessageDown(message)
+	c.sendMessageDown(message, maxDepth)
 }
 
 // Sends specified message down in the message tree.
