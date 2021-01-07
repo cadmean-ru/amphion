@@ -20,7 +20,7 @@ func main() {
 
 	go func() {
 		e.Start()
-		e.LoadApp()
+		e.ShowScene(gridScene(e))
 		e.WaitForStop()
 	}()
 

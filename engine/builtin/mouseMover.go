@@ -52,7 +52,7 @@ func (m *MouseMover) OnUpdate(_ engine.UpdateContext) {
 	dPos := newMousePos.Sub(m.mousePos)
 	m.mousePos = newMousePos
 	m.object.Transform.Position = m.object.Transform.Position.Add(dPos.ToFloat3())
-	m.engine.GetMessageDispatcher().DispatchDown(m.object, engine.NewMessage(m, engine.MessageRedraw, nil))
+	m.engine.GetMessageDispatcher().DispatchDown(m.object, engine.NewMessage(m, engine.MessageRedraw, nil), engine.MessageMaxDepth)
 	m.engine.RequestRendering()
 }
 

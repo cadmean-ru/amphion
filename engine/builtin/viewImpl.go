@@ -48,7 +48,7 @@ func (v *ViewImpl) OnDraw(_ engine.DrawingContext) {
 
 func (v *ViewImpl) ForceRedraw() {
 	v.redraw = true
-	v.eng.GetMessageDispatcher().DispatchDown(v.obj, engine.NewMessage(v.obj, engine.MessageRedraw, nil))
+	v.eng.GetMessageDispatcher().DispatchDown(v.obj, engine.NewMessage(v.obj, engine.MessageRedraw, nil), engine.MessageMaxDepth)
 }
 
 func (v *ViewImpl) ShouldRedraw() bool {

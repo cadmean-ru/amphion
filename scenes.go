@@ -6,6 +6,7 @@ import (
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
 	"github.com/cadmean-ru/amphion/rendering"
+	"math/rand"
 )
 
 func scene1(e *engine.AmphionEngine) *engine.SceneObject {
@@ -254,4 +255,37 @@ func handleCircleClick(e *engine.AmphionEngine) engine.EventHandler {
 		e.GetLogger().Info(nil, fmt.Sprintf("BIG CLICK ON CIRCLE. Mouse pos: %d %d", mousePos.X, mousePos.Y))
 		return false
 	}
+}
+
+func makeRect(name string, x, y, sx, sy float32, fill a.Color) *engine.SceneObject {
+	rect := engine.NewSceneObject(name)
+	rect.Transform.Position = a.NewVector3(x, y, 0)
+	rect.Transform.Size = a.NewVector3(sx, sy, 0)
+
+	view := builtin.NewShapeView(rendering.PrimitiveRectangle)
+	view.FillColor = fill
+
+	rect.AddComponent(view)
+
+	return rect
+}
+
+func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
+	scene := engine.NewSceneObject("grid scene")
+
+	grid := builtin.NewGridLayout()
+	grid.Cols = 3
+	grid.RowPadding = 10
+	grid.ColPadding = 50
+	scene.AddComponent(grid)
+
+	for i := 0; i < 10; i++ {
+		color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
+
+		rect := makeRect(fmt.Sprintf("Rect %d", i), 0, 0, 100, float32(rand.Intn(300)), color)
+
+		scene.AddChild(rect)
+	}
+
+	return scene
 }
