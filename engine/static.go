@@ -31,3 +31,8 @@ func RequestUpdate() {
 func RequestRendering() {
 	instance.RequestRendering()
 }
+
+// Shortcut for (engine *AmphionEngine) LoadPrefab(resId int) (*SceneObject, error).
+func LoadPrefab(resId int) (*SceneObject, error) {
+	return instance.LoadPrefab(resId)
+}

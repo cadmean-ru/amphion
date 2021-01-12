@@ -325,6 +325,24 @@ func (engine *AmphionEngine) UnbindEventHandler(code int, handler EventHandler) 
 	engine.eventBinder.Unbind(code, handler)
 }
 
+// Synchronously loads prefab from file.
+func (engine *AmphionEngine) LoadPrefab(resId int) (*SceneObject, error) {
+	prefab := &SceneObject{}
+	data, err := engine.GetResourceManager().ReadFile(resId)
+	if err != nil {
+		return nil, err
+	}
+
+	err = prefab.DecodeFromYaml(data)
+	if err != nil {
+		return nil, err
+	}
+
+	prefab.id = engine.idgen.NextId()
+
+	return prefab, nil
+}
+
 func (engine *AmphionEngine) handleFrontEndInterrupt(msg string) {
 	engine.front.CommencePanic("Kernel panic", msg)
 	panic(msg)
