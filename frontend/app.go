@@ -6,6 +6,6 @@ type App struct {
 	CompanyDomain string `yaml:"companyDomain"`
 	PublicUrl     string `yaml:"publicUrl"`
 	Frontend      string `yaml:"frontend"`
-	Debug         string `yaml:"debug"`
+	Debug         bool   `yaml:"debug"`
 	MainScene     string `yaml:"mainScene"`
 }

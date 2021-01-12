@@ -279,13 +279,48 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	grid.ColPadding = 50
 	scene.AddComponent(grid)
 
-	for i := 0; i < 10; i++ {
+	//for i := 0; i < 10; i++ {
+	//	color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
+	//
+	//	rect := makeRect(fmt.Sprintf("Rect %d", i), 0, 0, 100, float32(rand.Intn(300)), color)
+	//
+	//	scene.AddChild(rect)
+	//}
+
+	addBtn := makeRect("add button", 0, 0, 100, 100, a.GreenColor())
+	addBtnText := engine.NewSceneObject("add text")
+	addBtnText.Transform.Position = a.NewVector3(10, 10, 1)
+	addBtnText.Transform.Size = a.NewVector3(100, 30, 0)
+	addBtnTextView := builtin.NewTextView("add")
+	addBtnText.AddComponent(addBtnTextView)
+	addBtn.AddChild(addBtnText)
+	addBtn.AddComponent(builtin.NewRectBoundary())
+	addBtn.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
 		color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
-
-		rect := makeRect(fmt.Sprintf("Rect %d", i), 0, 0, 100, float32(rand.Intn(300)), color)
-
+		rect := makeRect(fmt.Sprintf("Rect"), 0, 0, 100, float32(rand.Intn(300)), color)
 		scene.AddChild(rect)
-	}
+		e.RequestRendering()
+		return false
+	}))
+
+	rmvButton := makeRect("remove button", 0, 0, 100, 100, a.RedColor())
+	rmvButtonText := engine.NewSceneObject("remove text")
+	rmvButtonText.Transform.Position = a.NewVector3(10, 10, 1)
+	rmvButtonText.Transform.Size = a.NewVector3(100, 30, 0)
+	rmvButtonTextView := builtin.NewTextView("remove")
+	rmvButtonText.AddComponent(rmvButtonTextView)
+	rmvButton.AddChild(rmvButtonText)
+	rmvButton.AddComponent(builtin.NewRectBoundary())
+	rmvButton.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+		children := scene.GetChildren()
+		last := children[len(children)-1]
+		scene.RemoveChild(last)
+		e.RequestRendering()
+		return false
+	}))
+
+	scene.AddChild(addBtn)
+	scene.AddChild(rmvButton)
 
 	return scene
 }

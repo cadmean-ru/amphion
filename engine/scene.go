@@ -30,6 +30,7 @@ func (o *SceneObject) GetName() string {
 	return o.name
 }
 
+// Returns the id of the object in the scene
 func (o *SceneObject) GetId() int {
 	return o.id
 }
@@ -38,6 +39,7 @@ func (o *SceneObject) ToString() string {
 	return o.name
 }
 
+// Returns the parent object of this scene object. Returns nil if no parent object.
 func (o *SceneObject) GetParent() *SceneObject {
 	return o.parent
 }
@@ -48,6 +50,7 @@ func (o *SceneObject) appendChild(object *SceneObject) {
 	o.children = append(o.children, object)
 }
 
+// Adds a child object to this scene object.
 func (o *SceneObject) AddChild(object *SceneObject) {
 	o.appendChild(object)
 	if !object.initialized {
@@ -56,6 +59,7 @@ func (o *SceneObject) AddChild(object *SceneObject) {
 	instance.rebuildMessageTree()
 }
 
+// Removes a child from this scene object.
 func (o *SceneObject) RemoveChild(object *SceneObject) {
 	index := -1
 	for i, c := range o.children {
@@ -64,6 +68,8 @@ func (o *SceneObject) RemoveChild(object *SceneObject) {
 		}
 	}
 	if index != -1 {
+		object.SetEnabled(false)
+
 		o.children[index] = o.children[len(o.children)-1]
 		o.children = o.children[:len(o.children)-1]
 
@@ -71,12 +77,15 @@ func (o *SceneObject) RemoveChild(object *SceneObject) {
 	}
 }
 
+// Returns the list of children of this object.
 func (o *SceneObject) GetChildren() []*SceneObject {
 	c := make([]*SceneObject, len(o.children))
 	copy(c, o.children)
 	return c
 }
 
+// Finds scene object in the list of children of the current object.
+// Returns nil if no object with the specified name was not found.
 func (o *SceneObject) GetChildByName(name string) *SceneObject {
 	for _, c := range o.children {
 		if c != nil && c.name == name {
@@ -86,6 +95,7 @@ func (o *SceneObject) GetChildByName(name string) *SceneObject {
 	return nil
 }
 
+// Adds a component to this scene object.
 func (o *SceneObject) AddComponent(component Component) {
 	container := NewComponentContainer(o, component)
 	o.components = append(o.components, container)

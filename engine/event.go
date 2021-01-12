@@ -14,6 +14,8 @@ const (
 	EventStop        = -7
 	EventKeyDown     = -8
 	EventMouseUp     = -9
+	EventAppHide     = -10
+	EventAppShow     = -11
 )
 
 type AmphionEvent struct {

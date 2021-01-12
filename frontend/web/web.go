@@ -34,14 +34,13 @@ func (f *Frontend) Init() {
 		return nil
 	}))
 
-	js.Global().Get("addEventListener").Invoke("visibilitychange", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		var code int
-		if js.Global().Get("document").Get("visibilityState").String() == "visible" {
-			code = frontend.CallbackAppShow
-		} else {
-			code = frontend.CallbackAppHide
-		}
-		f.handler(frontend.NewCallback(code, ""))
+	js.Global().Get("addEventListener").Invoke("blur", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		f.handler(frontend.NewCallback(frontend.CallbackAppHide, ""))
+		return nil
+	}))
+
+	js.Global().Get("addEventListener").Invoke("focus", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		f.handler(frontend.NewCallback(frontend.CallbackAppShow, ""))
 		return nil
 	}))
 

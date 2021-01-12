@@ -1,7 +1,6 @@
 package builtin
 
 import (
-	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 )
@@ -15,7 +14,6 @@ type GridLayout struct {
 }
 
 func (l *GridLayout) LayoutChildren() {
-	fmt.Println("layouring")
 	i := 0
 	children := l.SceneObject.GetChildren()
 	colWidth := l.SceneObject.Transform.Size.X / float32(l.Cols)

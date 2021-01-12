@@ -291,8 +291,8 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontend.Callback) 
 	case frontend.CallbackContextChange:
 		engine.globalContext = engine.front.GetContext()
 		engine.configureScene(engine.currentScene)
-		engine.RequestRendering()
 		engine.forceRedraw = true
+		engine.RequestRendering()
 	case frontend.CallbackKeyDown:
 		tokens := strings.Split(callback.Data, "\n")
 		if len(tokens) != 2 {
@@ -304,9 +304,11 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontend.Callback) 
 		})
 		engine.eventChan<-event
 	case frontend.CallbackAppHide:
+		engine.eventChan<-NewAmphionEvent(engine, EventAppHide, nil)
 		engine.suspend = true
 	case frontend.CallbackAppShow:
 		engine.suspend = false
+		engine.eventChan<-NewAmphionEvent(engine, EventAppShow, nil)
 		engine.RequestRendering()
 	}
 }

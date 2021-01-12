@@ -36,8 +36,7 @@ func (v *ViewImpl) OnStart() {
 
 func (v *ViewImpl) OnStop() {
 	v.ctx.GetRenderer().RemovePrimitive(v.pId)
-	v.ForceRedraw()
-	v.eng.RequestRendering()
+	v.redraw = true
 	//fmt.Printf("Stop view: %d %s\n", v.pId, v.obj.GetName())
 	v.pId = -1
 }
