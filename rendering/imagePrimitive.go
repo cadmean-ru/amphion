@@ -4,7 +4,7 @@ const imagePrimitiveBytesSize = primitiveBytesSize + 4
 
 type ImagePrimitive struct {
 	Transform Transform
-	ResIndex  int
+	ImageUrl  string
 }
 
 func (p *ImagePrimitive) GetType() byte {
@@ -15,9 +15,9 @@ func (p *ImagePrimitive) GetTransform() Transform {
 	return p.Transform
 }
 
-func NewImagePrimitive(index int) *ImagePrimitive {
+func NewImagePrimitive(url string) *ImagePrimitive {
 	return &ImagePrimitive{
 		Transform: NewTransform(),
-		ResIndex:  index,
+		ImageUrl:  url,
 	}
 }

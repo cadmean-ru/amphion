@@ -15,12 +15,10 @@ func main() {
 
 	registerComponents(e)
 	registerResources(e)
-	//
-	//scene := scene1(e)
 
 	go func() {
 		e.Start()
-		e.ShowScene(gridScene(e))
+		e.ShowScene(dropScene(e))
 		e.WaitForStop()
 	}()
 

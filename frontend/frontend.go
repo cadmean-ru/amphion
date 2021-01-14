@@ -52,5 +52,6 @@ type ResourceManager interface {
 	RegisterResource(path string)
 	IdOf(path string) int
 	PathOf(id int) string
+	FullPathOf(id int) string
 	ReadFile(id int) ([]byte, error)
 }

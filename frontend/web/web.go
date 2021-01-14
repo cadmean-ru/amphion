@@ -3,6 +3,7 @@
 package web
 
 import (
+	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/frontend"
@@ -41,6 +42,21 @@ func (f *Frontend) Init() {
 
 	js.Global().Get("addEventListener").Invoke("focus", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		f.handler(frontend.NewCallback(frontend.CallbackAppShow, ""))
+		return nil
+	}))
+
+	js.Global().Get("document").Set("onpaste", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		e := args[0]
+		e.Call("preventDefault")
+
+		//item := e.Get("clipboardData").Get("items").Index(0)
+		//
+		//kind := item.Get("kind").String()
+		//mime := item.Get("type").String()
+		//data := engine.NewClipboardData()
+
+		fmt.Println("pasted")
+
 		return nil
 	}))
 

@@ -5,7 +5,6 @@ import (
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
-	"math"
 )
 
 type OnSelectHandler func(item string)
@@ -85,20 +84,20 @@ func (d *DropdownView) OnStart() {
 }
 
 func (d *DropdownView) OnDraw(ctx engine.DrawingContext) {
-	pos := d.obj.Transform.GetGlobalTopLeftPosition()
-	rect := d.obj.Transform.GetGlobalRect()
-	x1 := int(math.Round(float64(rect.X.Max))) - 25
-	x2 := int(math.Round(float64(rect.X.Max))) - 5
-	//x3 := x1 + int(math.Round(common.NewFloatRange(float64(x1), float64(x2)).GetLength() / 2))
-	y1 := int(math.Round(float64(rect.Y.Min))) + 12
-	y2 := int(math.Round(float64(rect.Y.Max))) - 12
-	z1 := int(math.Round(float64(pos.Z + 1)))
+	//pos := d.obj.Transform.GetGlobalTopLeftPosition()
+	//rect := d.obj.Transform.GetGlobalRect()
+	//x1 := int(math.Round(float64(rect.X.Max))) - 25
+	//x2 := int(math.Round(float64(rect.X.Max))) - 5
+	////x3 := x1 + int(math.Round(common.NewFloatRange(float64(x1), float64(x2)).GetLength() / 2))
+	//y1 := int(math.Round(float64(rect.Y.Min))) + 12
+	//y2 := int(math.Round(float64(rect.Y.Max))) - 12
+	//z1 := int(math.Round(float64(pos.Z + 1)))
 
-	pr := rendering.NewImagePrimitive(4)
-	pr.Transform.Position = a.NewIntVector3(x1, y1, z1)
-	pr.Transform.Size = a.NewIntVector3(x2 - x1, y2 - y1, 0)
-
-	ctx.GetRenderer().SetPrimitive(d.arrowId, pr, d.ShouldRedraw())
+	//pr := rendering.NewImagePrimitive(4)
+	//pr.Transform.Position = a.NewIntVector3(x1, y1, z1)
+	//pr.Transform.Size = a.NewIntVector3(x2 - x1, y2 - y1, 0)
+	//
+	//ctx.GetRenderer().SetPrimitive(d.arrowId, pr, d.ShouldRedraw())
 }
 
 func (d *DropdownView) HandleClick() {

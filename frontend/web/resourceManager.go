@@ -32,6 +32,10 @@ func (r *ResourceManager) PathOf(id int) string {
 	return r.resources[id]
 }
 
+func (r *ResourceManager) FullPathOf(id int) string {
+	return "res/" + r.resources[id]
+}
+
 func (r *ResourceManager) ReadFile(id int) ([]byte, error) {
 	resp, err := http.Get("http://" + engine.GetInstance().GetCurrentApp().PublicUrl + "/res/" + r.resources[id])
 	if err != nil {

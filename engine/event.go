@@ -16,6 +16,11 @@ const (
 	EventMouseUp     = -9
 	EventAppHide     = -10
 	EventAppShow     = -11
+	EventPaste       = -12
+	EventCopy        = -13
+	EventMouseIn     = -14
+	EventMouseOut    = -15
+	EventDropFile    = -16
 )
 
 type AmphionEvent struct {
@@ -90,4 +95,11 @@ func newEventBinder() *EventBinder {
 
 type KeyEvent struct {
 	Key, Code string
+}
+
+// Represents file data returned as a result of the user selecting file or dragging it.
+type InputFileData struct {
+	Name string
+	Data []byte
+	Mime string
 }

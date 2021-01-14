@@ -1,12 +1,14 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
 	"github.com/cadmean-ru/amphion/rendering"
 	"math/rand"
+	"strings"
 )
 
 func scene1(e *engine.AmphionEngine) *engine.SceneObject {
@@ -279,14 +281,6 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	grid.ColPadding = 50
 	scene.AddComponent(grid)
 
-	//for i := 0; i < 10; i++ {
-	//	color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
-	//
-	//	rect := makeRect(fmt.Sprintf("Rect %d", i), 0, 0, 100, float32(rand.Intn(300)), color)
-	//
-	//	scene.AddChild(rect)
-	//}
-
 	addBtn := makeRect("add button", 0, 0, 100, 100, a.GreenColor())
 	addBtnText := engine.NewSceneObject("add text")
 	addBtnText.Transform.Position = a.NewVector3(10, 10, 1)
@@ -321,6 +315,65 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 
 	scene.AddChild(addBtn)
 	scene.AddChild(rmvButton)
+
+	return scene
+}
+
+func dropScene(e *engine.AmphionEngine) *engine.SceneObject {
+	scene := engine.NewSceneObject("drop scene")
+
+	gridLayout := builtin.NewGridLayout()
+	gridLayout.RowPadding = 10
+
+	scene.AddComponent(gridLayout)
+
+	title := engine.NewSceneObject("title")
+	title.Transform.Size.Y = 30
+	title.AddComponent(builtin.NewTextView("Drop a file here:"))
+	scene.AddChild(title)
+
+	fileName := engine.NewSceneObject("file name")
+	fileName.Transform.Size.Y = 30
+	fileNameText := builtin.NewTextView("")
+	fileName.AddComponent(fileNameText)
+
+	fileContents := engine.NewSceneObject("file contents")
+	fileContents.Transform.Size.Y = 1000
+	fileContentsText := builtin.NewTextView("")
+	fileContents.AddComponent(fileContentsText)
+
+	preview := engine.NewSceneObject("preview")
+	preview.Transform.Size.Y = 100
+	previewImage := builtin.NewImageView(Res_images_babyyoda)
+	preview.AddComponent(previewImage)
+
+	dropZone := engine.NewSceneObject("drop zone")
+	dropZone.Transform.Size = a.NewVector3(0, 100, 0)
+	dropZone.Transform.Position = a.NewVector3(0, 0, 10)
+	dropZone.AddComponent(builtin.NewBoundaryView())
+	dropZone.AddComponent(builtin.NewFileDropZone(func(event engine.AmphionEvent) bool {
+		data := event.Data.(engine.InputFileData)
+
+		if strings.Contains(data.Mime, "image") {
+			fileNameText.SetText("")
+			fileContentsText.SetText("")
+			url := fmt.Sprintf("data:%s;base64,%s", data.Mime, base64.StdEncoding.EncodeToString(data.Data))
+			previewImage.ResIndex = -1
+			previewImage.ImageUrl = url
+			previewImage.ForceRedraw()
+		} else {
+			fileNameText.SetText(data.Name)
+			fileContentsText.SetText(string(data.Data))
+		}
+
+		e.RequestRendering()
+		return false
+	}))
+
+	scene.AddChild(dropZone)
+	scene.AddChild(preview)
+	scene.AddChild(fileName)
+	scene.AddChild(fileContents)
 
 	return scene
 }
