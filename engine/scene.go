@@ -30,7 +30,7 @@ func (o *SceneObject) GetName() string {
 	return o.name
 }
 
-// Returns the id of the object in the scene
+// Returns the id of the object in the scene.
 func (o *SceneObject) GetId() int {
 	return o.id
 }
@@ -57,6 +57,7 @@ func (o *SceneObject) AddChild(object *SceneObject) {
 		instance.updateRoutine.initSceneObject(object)
 	}
 	instance.rebuildMessageTree()
+	instance.RequestRendering()
 }
 
 // Removes a child from this scene object.
@@ -74,6 +75,7 @@ func (o *SceneObject) RemoveChild(object *SceneObject) {
 		o.children = o.children[:len(o.children)-1]
 
 		instance.rebuildMessageTree()
+		instance.RequestRendering()
 	}
 }
 
@@ -117,8 +119,13 @@ func (o *SceneObject) AddComponent(component Component) {
 	}
 
 	instance.updateRoutine.initSceneObject(o)
+	instance.RequestRendering()
 }
 
+// Searches for component with the specified name throughout the components attached to this object.
+// The parameter n can be a regex string.
+// If there are multiple components with the same name returns the first.
+// Returns nil if no component with the name n was found.
 func (o *SceneObject) GetComponentByName(n string) Component {
 	for _, c := range o.components {
 		comp := c.GetComponent()
@@ -130,6 +137,9 @@ func (o *SceneObject) GetComponentByName(n string) Component {
 	return nil
 }
 
+// Searches for all components with the specified name throughout the components attached to this object.
+// The parameter n can be a regex string.
+// Returns empty slice if no components with the name n was found.
 func (o *SceneObject) GetComponentsByName(n string) []Component {
 	arr := make([]Component, 0, 1)
 
@@ -143,6 +153,7 @@ func (o *SceneObject) GetComponentsByName(n string) []Component {
 	return arr
 }
 
+// Returns a slice of all components attached to the object.
 func (o *SceneObject) GetComponents() []Component {
 	arr := make([]Component, len(o.components))
 	for i, c := range o.components {
@@ -151,6 +162,7 @@ func (o *SceneObject) GetComponents() []Component {
 	return arr
 }
 
+// Set the enabled state of this object as specified.
 func (o *SceneObject) SetEnabled(enabled bool) {
 	if o.enabled == enabled {
 		return
@@ -169,8 +181,31 @@ func (o *SceneObject) SetEnabled(enabled bool) {
 	}
 }
 
+// Returns if this object is currently enabled or not.
 func (o *SceneObject) IsEnabled() bool {
 	return o.enabled
+}
+
+// Set the position of this object equal to the specified vector, requesting rendering.
+func (o *SceneObject) SetPosition(v a.Vector3) {
+	o.Transform.Position = v
+	instance.RequestRendering()
+}
+
+// Set the position of this object equal to a new vector with specified coordinates, requesting rendering.
+func (o *SceneObject) SetPositionXyz(x, y, z float32) {
+	o.SetPosition(a.NewVector3(x, y, z))
+}
+
+// Set the size of this object equal to the specified vector, requesting rendering.
+func (o *SceneObject) SetSize(v a.Vector3) {
+	o.Transform.Size = v
+	instance.RequestRendering()
+}
+
+// Set the size of this object equal to a new vector with specified coordinates, requesting rendering.
+func (o *SceneObject) SetSizeXyz(x, y, z float32) {
+	o.SetSize(a.NewVector3(x, y, z))
 }
 
 func (o *SceneObject) OnMessage(message Message) bool {

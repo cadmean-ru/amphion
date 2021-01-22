@@ -264,7 +264,7 @@ func makeRect(name string, x, y, sx, sy float32, fill a.Color) *engine.SceneObje
 	rect.Transform.Position = a.NewVector3(x, y, 0)
 	rect.Transform.Size = a.NewVector3(sx, sy, 0)
 
-	view := builtin.NewShapeView(rendering.PrimitiveRectangle)
+	view := builtin.NewShapeView(builtin.ShapeRectangle)
 	view.FillColor = fill
 
 	rect.AddComponent(view)
@@ -285,7 +285,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	addBtnText := engine.NewSceneObject("add text")
 	addBtnText.Transform.Position = a.NewVector3(10, 10, 1)
 	addBtnText.Transform.Size = a.NewVector3(100, 30, 0)
-	addBtnTextView := builtin.NewTextView("add")
+	addBtnTextView := builtin.NewTextView("addkj")
 	addBtnText.AddComponent(addBtnTextView)
 	addBtn.AddChild(addBtnText)
 	addBtn.AddComponent(builtin.NewRectBoundary())
@@ -293,7 +293,6 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 		color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
 		rect := makeRect(fmt.Sprintf("Rect"), 0, 0, 100, float32(rand.Intn(300)), color)
 		scene.AddChild(rect)
-		e.RequestRendering()
 		return false
 	}))
 
@@ -309,7 +308,6 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 		children := scene.GetChildren()
 		last := children[len(children)-1]
 		scene.RemoveChild(last)
-		e.RequestRendering()
 		return false
 	}))
 
@@ -358,15 +356,11 @@ func dropScene(e *engine.AmphionEngine) *engine.SceneObject {
 			fileNameText.SetText("")
 			fileContentsText.SetText("")
 			url := fmt.Sprintf("data:%s;base64,%s", data.Mime, base64.StdEncoding.EncodeToString(data.Data))
-			previewImage.ResIndex = -1
-			previewImage.ImageUrl = url
-			previewImage.ForceRedraw()
+			previewImage.SetImageUrl(url)
 		} else {
 			fileNameText.SetText(data.Name)
 			fileContentsText.SetText(string(data.Data))
 		}
-
-		e.RequestRendering()
 		return false
 	}))
 

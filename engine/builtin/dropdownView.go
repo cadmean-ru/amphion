@@ -10,7 +10,7 @@ import (
 type OnSelectHandler func(item string)
 
 type DropdownView struct {
-	ViewImpl
+	engine.ViewImpl
 	//arrow1Id         int64
 	//arrow2Id         int64
 	arrowId          int
@@ -23,17 +23,17 @@ type DropdownView struct {
 }
 
 func (d *DropdownView) OnStart() {
-	d.arrowId = d.eng.GetRenderer().AddPrimitive()
+	d.arrowId = d.Engine.GetRenderer().AddPrimitive()
 	//d.arrow2Id = d.eng.GetRenderer().AddPrimitive()
 
-	siz := d.obj.Transform.Size
+	siz := d.SceneObject.Transform.Size
 
 	bg := NewShapeView(rendering.PrimitiveRectangle)
 	bg.StrokeWeight = 2
 	bg.StrokeColor = a.BlackColor()
 	bg.FillColor = a.WhiteColor()
 	bg.CornerRadius = 10
-	d.obj.AddComponent(bg)
+	d.SceneObject.AddComponent(bg)
 
 	textObj := engine.NewSceneObject("selected item")
 	textObj.Transform.Position = a.NewVector3(5, 5, 1)
@@ -43,7 +43,7 @@ func (d *DropdownView) OnStart() {
 	d.textView.FontSize = 16
 
 	textObj.AddComponent(d.textView)
-	d.obj.AddChild(textObj)
+	d.SceneObject.AddChild(textObj)
 
 	d.optionsContainer = engine.NewSceneObject("OptionsContainer")
 	optionsBg := NewShapeView(rendering.PrimitiveRectangle)
@@ -73,13 +73,13 @@ func (d *DropdownView) OnStart() {
 			if d.OnSelect != nil {
 				d.OnSelect(newSelectedItem)
 			}
-			d.eng.RequestRendering()
+			d.Engine.RequestRendering()
 			return false
 		}))
 		d.optionsContainer.AddChild(item)
 	}
 
-	d.obj.AddChild(d.optionsContainer)
+	d.SceneObject.AddChild(d.optionsContainer)
 	d.optionsContainer.SetEnabled(false)
 }
 
@@ -127,20 +127,20 @@ func (d *DropdownView) GetSelectedItem() string {
 }
 
 func (d *DropdownView) showDropdown() {
-	siz := d.obj.Transform.Size
+	siz := d.SceneObject.Transform.Size
 	d.optionsContainer.Transform.Position = a.NewVector3(0, siz.Y, 0)
 	d.optionsContainer.Transform.Size = a.NewVector3(siz.X, float32(35*len(d.items)), 0)
 	d.optionsContainer.SetEnabled(true)
-	d.eng.RequestRendering()
+	d.Engine.RequestRendering()
 }
 
 func (d *DropdownView) hideDropdown() {
 	d.optionsContainer.SetEnabled(false)
-	d.eng.RequestRendering()
+	d.Engine.RequestRendering()
 }
 
 func (d *DropdownView) OnStop() {
-	d.eng.GetRenderer().RemovePrimitive(d.arrowId)
+	d.Engine.GetRenderer().RemovePrimitive(d.arrowId)
 }
 
 func (d *DropdownView) GetName() string {

@@ -7,7 +7,7 @@ import (
 
 // Displays an image given it's resource index
 type ImageView struct {
-	ViewImpl
+	engine.ViewImpl
 	ResIndex int    `state:"resIndex"`
 	ImageUrl string `state:"imageUrl"`
 }
@@ -16,15 +16,31 @@ func (v *ImageView) OnDraw(ctx engine.DrawingContext) {
 	var url string
 
 	if v.ResIndex > -1 {
-		url = v.eng.GetResourceManager().FullPathOf(v.ResIndex)
+		url = v.Engine.GetResourceManager().FullPathOf(v.ResIndex)
 	} else {
 		url = v.ImageUrl
 	}
 
 	pr := rendering.NewImagePrimitive(url)
-	pr.Transform = transformToRenderingTransform(v.obj.Transform)
-	ctx.GetRenderer().SetPrimitive(v.pId, pr, v.ShouldRedraw())
-	v.redraw = false
+	pr.Transform = transformToRenderingTransform(v.SceneObject.Transform)
+	ctx.GetRenderer().SetPrimitive(v.PrimitiveId, pr, v.ShouldRedraw())
+	v.Redraw = false
+}
+
+// Sets the resource index equal to the specified value, forcing the view to redraw and requesting rendering.
+func (v *ImageView) SetResIndex(i int) {
+	v.ResIndex = i
+	v.ImageUrl = ""
+	v.Redraw = true
+	engine.RequestRendering()
+}
+
+// Sets the image url equal to the specified value, forcing the view to redraw and requesting rendering.
+func (v *ImageView) SetImageUrl(url string) {
+	v.ResIndex = -1
+	v.ImageUrl = url
+	v.Redraw = true
+	engine.RequestRendering()
 }
 
 func (v *ImageView) GetName() string {

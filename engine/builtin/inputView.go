@@ -15,11 +15,11 @@ type InputView struct {
 func (v *InputView) OnStart() {
 	v.TextView.OnStart()
 	//v.cursorPrId = v.eng.GetRenderer().AddPrimitive()
-	v.eng.BindEventHandler(engine.EventKeyDown, v.handleKeyDown)
+	v.Engine.BindEventHandler(engine.EventKeyDown, v.handleKeyDown)
 }
 
 func (v *InputView) handleKeyDown(event engine.AmphionEvent) bool {
-	if !v.obj.IsFocused() {
+	if !v.SceneObject.IsFocused() {
 		return true
 	}
 
@@ -36,8 +36,8 @@ func (v *InputView) handleKeyDown(event engine.AmphionEvent) bool {
 		v.ForceRedraw()
 	}
 
-	if v.redraw {
-		v.eng.RequestRendering()
+	if v.Redraw {
+		v.Engine.RequestRendering()
 	}
 
 	v.cursorPos = len(v.Text)
@@ -69,7 +69,7 @@ func isPrintableKeyCode(code string) bool {
 
 func (v *InputView) OnStop() {
 	v.TextView.OnStop()
-	v.eng.UnbindEventHandler(engine.EventKeyDown, v.handleKeyDown)
+	v.Engine.UnbindEventHandler(engine.EventKeyDown, v.handleKeyDown)
 }
 
 func (v *InputView) GetName() string {

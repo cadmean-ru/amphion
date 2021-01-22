@@ -7,16 +7,16 @@ import (
 )
 
 type BezierView struct {
-	ViewImpl
+	engine.ViewImpl
 	rendering.Appearance
 	ControlPoint1, ControlPoint2 a.Vector3
 }
 
 func (b *BezierView) OnDraw(ctx engine.DrawingContext) {
 	bezier := rendering.NewBezierPrimitive(b.ControlPoint1.Round(), b.ControlPoint2.Round())
-	bezier.Transform = transformToRenderingTransform(b.obj.Transform)
+	bezier.Transform = transformToRenderingTransform(b.SceneObject.Transform)
 	bezier.Appearance = b.Appearance
-	ctx.GetRenderer().SetPrimitive(b.pId, bezier, b.ShouldRedraw())
+	ctx.GetRenderer().SetPrimitive(b.PrimitiveId, bezier, b.ShouldRedraw())
 }
 
 func (b *BezierView) GetName() string {

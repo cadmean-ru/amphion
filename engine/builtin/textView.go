@@ -8,7 +8,7 @@ import (
 
 // Component for displaying text
 type TextView struct {
-	ViewImpl
+	engine.ViewImpl
 	TextColor  a.Color  `state:"textColor"`
 	Font       string   `state:"font"`
 	FontSize   byte     `state:"fontSize"`
@@ -22,7 +22,7 @@ func (t *TextView) GetName() string {
 
 func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 	pr := rendering.NewTextPrimitive(t.Text)
-	pr.Transform = transformToRenderingTransform(t.obj.Transform)
+	pr.Transform = transformToRenderingTransform(t.SceneObject.Transform)
 	pr.Appearance = rendering.Appearance{
 		FillColor:    t.TextColor,
 		StrokeWeight: t.FontWeight,
@@ -31,15 +31,18 @@ func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 		Font:     t.Font,
 		FontSize: t.FontSize,
 	}
-	ctx.GetRenderer().SetPrimitive(t.pId, pr, t.ShouldRedraw())
-	t.redraw = false
+	ctx.GetRenderer().SetPrimitive(t.PrimitiveId, pr, t.ShouldRedraw())
+	t.Redraw = false
 }
 
+// Sets the text equal to the specified value, forcing the view to redraw and requesting rendering.
 func (t *TextView) SetText(text string) {
 	t.Text = text
-	t.redraw = true
+	t.Redraw = true
+	engine.RequestRendering()
 }
 
+// Returns the current text value.
 func (t *TextView) GetText() string {
 	return t.Text
 }

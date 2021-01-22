@@ -18,7 +18,7 @@ func main() {
 
 	go func() {
 		e.Start()
-		e.ShowScene(dropScene(e))
+		e.ShowScene(gridScene(e))
 		e.WaitForStop()
 	}()
 

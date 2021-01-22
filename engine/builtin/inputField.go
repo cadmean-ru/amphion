@@ -7,7 +7,7 @@ import (
 )
 
 type InputField struct {
-	ViewImpl
+	engine.ViewImpl
 	rendering.Appearance
 	Padding        float32
 	AllowMultiline bool
@@ -25,20 +25,20 @@ func (f *InputField) OnStart() {
 	f.inputView.AllowMultiline = f.AllowMultiline
 
 	input.Transform.Position = a.NewVector3(f.Padding, f.Padding, 1)
-	size := f.obj.Transform.Size
+	size := f.SceneObject.Transform.Size
 	input.Transform.Size = a.NewVector3(size.X - f.Padding, size.Y - f.Padding, 0)
 
 	input.AddComponent(f.inputView)
 	input.AddComponent(NewRectBoundary())
 
-	f.obj.AddChild(input)
+	f.SceneObject.AddChild(input)
 }
 
 func (f *InputField) OnDraw(ctx engine.DrawingContext) {
 	pr := rendering.NewGeometryPrimitive(rendering.PrimitiveRectangle)
-	pr.Transform = transformToRenderingTransform(f.obj.Transform)
+	pr.Transform = transformToRenderingTransform(f.SceneObject.Transform)
 	pr.Appearance = f.Appearance
-	ctx.GetRenderer().SetPrimitive(f.pId, pr, f.ShouldRedraw())
+	ctx.GetRenderer().SetPrimitive(f.PrimitiveId, pr, f.ShouldRedraw())
 }
 
 func (f *InputField) GetName() string {

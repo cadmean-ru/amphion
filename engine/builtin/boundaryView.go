@@ -7,7 +7,7 @@ import (
 )
 
 type BoundaryView struct {
-	ViewImpl
+	engine.ViewImpl
 }
 
 func (r *BoundaryView) GetName() string {
@@ -16,12 +16,12 @@ func (r *BoundaryView) GetName() string {
 
 func (r *BoundaryView) OnDraw(ctx engine.DrawingContext) {
 	pr := rendering.NewGeometryPrimitive(rendering.PrimitiveRectangle)
-	pr.Transform = transformToRenderingTransform(r.obj.Transform)
+	pr.Transform = transformToRenderingTransform(r.SceneObject.Transform)
 	pr.Transform.Position.Z = 100
 	pr.Appearance.FillColor = a.TransparentColor()
 	pr.Appearance.StrokeColor = a.PinkColor()
-	ctx.GetRenderer().SetPrimitive(r.pId, pr, r.ShouldRedraw())
-	r.redraw = false
+	ctx.GetRenderer().SetPrimitive(r.PrimitiveId, pr, r.ShouldRedraw())
+	r.Redraw = false
 }
 
 func NewBoundaryView() *BoundaryView {
