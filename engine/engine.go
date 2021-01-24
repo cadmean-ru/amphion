@@ -137,7 +137,7 @@ func (engine *AmphionEngine) GetGlobalContext() frontend.Context {
 func (engine *AmphionEngine) LoadScene(scene int, show bool) {
 	engine.RunTask(NewTaskBuilder().Run(func() (interface{}, error) {
 		return engine.GetResourceManager().ReadFile(scene)
-	}).Than(func(res interface{}) {
+	}).Then(func(res interface{}) {
 		data := res.([]byte)
 		so := &SceneObject{}
 		err := so.DecodeFromYaml(data)
@@ -495,7 +495,7 @@ func (engine *AmphionEngine) LoadApp() {
 	engine.RunTask(NewTaskBuilder().Run(func() (interface{}, error) {
 		app := engine.front.GetApp()
 		return app, nil
-	}).Than(func(res interface{}) {
+	}).Then(func(res interface{}) {
 		app := res.(*frontend.App)
 		if app != nil {
 			engine.currentApp = app

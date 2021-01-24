@@ -31,6 +31,10 @@ func (r *ResourceManager) PathOf(id int) string {
 	return r.resources[id]
 }
 
+func (r *ResourceManager) FullPathOf(id int) string {
+	return "res/" + r.resources[id]
+}
+
 func (r *ResourceManager) ReadFile(id int) ([]byte, error) {
 	return ioutil.ReadFile("res/" + r.resources[id])
 }

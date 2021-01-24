@@ -63,7 +63,7 @@ func (b *TaskBuilder) Run(runner TaskRunner) *TaskBuilder {
 	return b
 }
 
-func (b *TaskBuilder) Than(callback TaskCallback) *TaskBuilder {
+func (b *TaskBuilder) Then(callback TaskCallback) *TaskBuilder {
 	b.task.callback = callback
 	return b
 }

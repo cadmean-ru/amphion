@@ -500,7 +500,7 @@ func (r *OpenGLRenderer) drawImage(p *glContainer) {
 
 	var texId uint32
 	if _, ok := p.other["tex"]; !ok {
-		imagePath := "./res/" + r.front.resMan.PathOf(ip.ResIndex)
+		imagePath := ip.ImageUrl
 
 		imageFile, err := os.Open(imagePath)
 		if err != nil {

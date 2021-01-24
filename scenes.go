@@ -234,7 +234,7 @@ func (c *TestController) OnInit(ctx engine.InitContext) {
 func (c *TestController) OnStart() {
 	c.eng.RunTask(engine.NewTaskBuilder().Run(func() (interface{}, error) {
 		return c.eng.GetResourceManager().ReadFile(5)
-	}).Than(func(res interface{}) {
+	}).Then(func(res interface{}) {
 		bytes := res.([]byte)
 		str := string(bytes)
 		c.log.Info(c, str)
