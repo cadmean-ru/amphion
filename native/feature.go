@@ -10,3 +10,15 @@ type Feature interface {
 	// This method is called if the app is running on either of the following platforms: Windows, Linux, Darwin(macOS).
 	OnPc()
 }
+
+type FeatureImpl struct {
+
+}
+
+func (f *FeatureImpl) OnWeb() {
+
+}
+
+func (f *FeatureImpl) OnPc() {
+
+}

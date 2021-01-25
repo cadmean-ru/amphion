@@ -281,6 +281,8 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	grid.ColPadding = 50
 	scene.AddComponent(grid)
 
+	var counter int
+
 	addBtn := makeRect("add button", 0, 0, 100, 100, a.GreenColor())
 	addBtnText := engine.NewSceneObject("add text")
 	addBtnText.Transform.Position = a.NewVector3(10, 10, 1)
@@ -290,9 +292,21 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	addBtn.AddChild(addBtnText)
 	addBtn.AddComponent(builtin.NewRectBoundary())
 	addBtn.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
-		color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
-		rect := makeRect(fmt.Sprintf("Rect"), 0, 0, 100, float32(rand.Intn(300)), color)
-		scene.AddChild(rect)
+		//color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
+		//rect := makeRect(fmt.Sprintf("Rect"), 0, 0, 100, float32(rand.Intn(300)), color)
+		//scene.AddChild(rect)
+
+		counter++
+
+		inputObj := engine.NewSceneObject(fmt.Sprintf("input %d", counter))
+		inputObj.Transform.Size.Y = float32(rand.Intn(300))
+		input := builtin.NewNativeInputView()
+		input.SetOnTextChangeListener(func(text string) {
+			engine.LogDebug(fmt.Sprintf("Hello from %s! Text: %s\n", inputObj.GetName(), text))
+		})
+		inputObj.AddComponent(input)
+		scene.AddChild(inputObj)
+
 		return false
 	}))
 
