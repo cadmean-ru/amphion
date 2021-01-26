@@ -300,7 +300,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 
 		inputObj := engine.NewSceneObject(fmt.Sprintf("input %d", counter))
 		inputObj.Transform.Size.Y = float32(rand.Intn(300))
-		input := builtin.NewNativeInputView()
+		input := builtin.NewNativeInputView("", fmt.Sprintf("Enter some text %d", counter))
 		input.SetOnTextChangeListener(func(text string) {
 			engine.LogDebug(fmt.Sprintf("Hello from %s! Text: %s\n", inputObj.GetName(), text))
 		})
