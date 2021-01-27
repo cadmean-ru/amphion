@@ -221,6 +221,8 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	return scene2
 }
 
+//region TestController
+
 type TestController struct {
 	eng *engine.AmphionEngine
 	log *engine.Logger
@@ -250,6 +252,8 @@ func (c *TestController) OnStop() {
 func (c *TestController) GetName() string {
 	return "TestController"
 }
+
+//endregion
 
 func handleCircleClick(e *engine.AmphionEngine) engine.EventHandler {
 	return func(event engine.AmphionEvent) bool {
@@ -313,9 +317,10 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	rmvButton := makeRect("remove button", 0, 0, 100, 100, a.RedColor())
 	rmvButtonText := engine.NewSceneObject("remove text")
 	rmvButtonText.Transform.Position = a.NewVector3(10, 10, 1)
-	rmvButtonText.Transform.Size = a.NewVector3(100, 30, 0)
+	rmvButtonText.Transform.Size = a.NewVector3(engine.MatchParent, engine.MatchParent, 0)
 	rmvButtonTextView := builtin.NewTextView("remove")
 	rmvButtonText.AddComponent(rmvButtonTextView)
+	rmvButtonText.AddComponent(builtin.NewBoundaryView())
 	rmvButton.AddChild(rmvButtonText)
 	rmvButton.AddComponent(builtin.NewRectBoundary())
 	rmvButton.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {

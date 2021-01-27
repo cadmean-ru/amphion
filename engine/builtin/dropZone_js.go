@@ -66,7 +66,7 @@ func (z *FileDropZone) OnStart() {
 }
 
 func (z *FileDropZone) OnDraw(_ engine.DrawingContext) {
-	t := transformToRenderingTransform(z.SceneObject.Transform)
+	t := z.SceneObject.Transform.ToRenderingTransform()
 	z.style.Set("left", t.Position.X)
 	z.style.Set("top", t.Position.Y)
 	z.style.Set("width", t.Size.X)

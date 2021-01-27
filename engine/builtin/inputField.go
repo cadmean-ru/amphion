@@ -36,7 +36,7 @@ func (f *InputField) OnStart() {
 
 func (f *InputField) OnDraw(ctx engine.DrawingContext) {
 	pr := rendering.NewGeometryPrimitive(rendering.PrimitiveRectangle)
-	pr.Transform = transformToRenderingTransform(f.SceneObject.Transform)
+	pr.Transform = f.SceneObject.Transform.ToRenderingTransform()
 	pr.Appearance = f.Appearance
 	ctx.GetRenderer().SetPrimitive(f.PrimitiveId, pr, f.ShouldRedraw())
 }

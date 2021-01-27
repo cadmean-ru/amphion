@@ -14,7 +14,7 @@ type BezierView struct {
 
 func (b *BezierView) OnDraw(ctx engine.DrawingContext) {
 	bezier := rendering.NewBezierPrimitive(b.ControlPoint1.Round(), b.ControlPoint2.Round())
-	bezier.Transform = transformToRenderingTransform(b.SceneObject.Transform)
+	bezier.Transform = b.SceneObject.Transform.ToRenderingTransform()
 	bezier.Appearance = b.Appearance
 	ctx.GetRenderer().SetPrimitive(b.PrimitiveId, bezier, b.ShouldRedraw())
 }

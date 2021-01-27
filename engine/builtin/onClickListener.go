@@ -4,28 +4,19 @@ import (
 	"github.com/cadmean-ru/amphion/engine"
 )
 
+// OnClickListener detects clicks on the scene object and calls the specified engine.EventHandler.
+// For click detection to work remember to add a component that implements engine.BoundaryComponent to the scene object.
 type OnClickListener struct {
+	engine.ComponentImpl
 	OnClick engine.EventHandler `state:"onClick"`
-	object  *engine.SceneObject
 }
 
 func (l *OnClickListener) GetName() string {
 	return engine.NameOfComponent(l)
 }
 
-func (l *OnClickListener) OnInit(ctx engine.InitContext) {
-	l.object = ctx.GetSceneObject()
-}
-
-func (l *OnClickListener) OnStart() {
-}
-
-func (l *OnClickListener) OnStop() {
-
-}
-
 func (l *OnClickListener) OnMessage(m engine.Message) bool {
-	if m.Code != engine.MessageBuiltinEvent || l.OnClick == nil || m.Sender != l.object {
+	if m.Code != engine.MessageBuiltinEvent || l.OnClick == nil || m.Sender != l.SceneObject {
 		return true
 	}
 
@@ -34,9 +25,10 @@ func (l *OnClickListener) OnMessage(m engine.Message) bool {
 		return true
 	}
 
-	return l.OnClick(m.Data.(engine.AmphionEvent))
+	return l.OnClick(event)
 }
 
+// Creates a new OnClickListener component with the specified event handler.
 func NewOnClickListener(handler engine.EventHandler) *OnClickListener {
 	return &OnClickListener{
 		OnClick: handler,

@@ -22,7 +22,7 @@ func (v *ImageView) OnDraw(ctx engine.DrawingContext) {
 	}
 
 	pr := rendering.NewImagePrimitive(url)
-	pr.Transform = transformToRenderingTransform(v.SceneObject.Transform)
+	pr.Transform = v.SceneObject.Transform.ToRenderingTransform()
 	ctx.GetRenderer().SetPrimitive(v.PrimitiveId, pr, v.ShouldRedraw())
 	v.Redraw = false
 }

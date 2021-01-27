@@ -5,6 +5,7 @@ import (
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
+// Deprecated. Use engine.Transform's ToRenderingTransform() method.
 func transformToRenderingTransform(t engine.Transform) rendering.Transform {
 	rt := rendering.NewTransform()
 

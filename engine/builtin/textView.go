@@ -22,7 +22,7 @@ func (t *TextView) GetName() string {
 
 func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 	pr := rendering.NewTextPrimitive(t.Text)
-	pr.Transform = transformToRenderingTransform(t.SceneObject.Transform)
+	pr.Transform = t.SceneObject.Transform.ToRenderingTransform()
 	pr.Appearance = rendering.Appearance{
 		FillColor:    t.TextColor,
 		StrokeWeight: t.FontWeight,

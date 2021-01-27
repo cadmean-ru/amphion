@@ -28,7 +28,7 @@ type ShapeView struct {
 
 func (c *ShapeView) OnDraw(ctx engine.DrawingContext) {
 	pr := rendering.NewGeometryPrimitive(c.pType)
-	pr.Transform = transformToRenderingTransform(c.SceneObject.Transform)
+	pr.Transform = c.SceneObject.Transform.ToRenderingTransform()
 	pr.Appearance = rendering.Appearance{
 		FillColor:    c.FillColor,
 		StrokeColor:  c.StrokeColor,

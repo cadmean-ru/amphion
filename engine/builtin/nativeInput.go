@@ -82,6 +82,8 @@ func (n *NativeInputView) GetHint() string {
 	return n.hint
 }
 
+//region Init native feature
+
 // Init
 type nativeInputViewInit struct {
 	native.FeatureImpl
@@ -99,6 +101,10 @@ func (n *nativeInputViewInit) OnWeb() {
 	n.view.setHintNative = n.view.setHintWeb
 	n.view.getHintNative = n.view.getHintWeb
 }
+
+//endregion
+
+//region Web implementation
 
 func (n *NativeInputView) onInitWeb(_ engine.InitContext) {
 	n.html = web.CreateHtmlElement("input")
@@ -121,7 +127,7 @@ func (n *NativeInputView) onStopWeb() {
 }
 
 func (n *NativeInputView) onDrawWeb(_ engine.DrawingContext) {
-	t := transformToRenderingTransform(n.SceneObject.Transform)
+	t := n.SceneObject.Transform.ToRenderingTransform()
 	n.html.SetPosition(t.Position)
 	n.html.SetSize(a.NewIntVector2(t.Size.X, t.Size.Y))
 }
@@ -143,6 +149,8 @@ func (n *NativeInputView) setHintWeb(h string) {
 func (n *NativeInputView) getHintWeb() string {
 	return n.html.GetStringProperty("placeholder")
 }
+
+//endregion
 
 // Creates a new NativeInputView. Returns pointer to the instance.
 // This function takes a set of parameters to initialize the input view. All of them are optional.
