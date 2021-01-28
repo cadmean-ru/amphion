@@ -18,7 +18,8 @@ func (m *InputManager) init(f *Frontend) {
 		e := args[0]
 		x := e.Get("pageX").Int()
 		y := e.Get("pageY").Int()
-		m.mousePos = a.IntVector2{x, y}
+		m.mousePos = a.IntVector2{X: x, Y: y}
+		f.handler(frontend.NewCallback(frontend.CallbackMouseMove, ""))
 		return nil
 	}))
 

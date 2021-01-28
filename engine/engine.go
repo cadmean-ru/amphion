@@ -38,6 +38,7 @@ type AmphionEngine struct {
 	closeSceneCallback func()
 	tasksRoutine       *TasksRoutine
 	focusedObject      *SceneObject
+	hoveredObject      *SceneObject
 	front              frontend.Frontend
 	suspend            bool
 }
@@ -310,6 +311,9 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontend.Callback) 
 		engine.suspend = false
 		engine.eventChan<-NewAmphionEvent(engine, EventAppShow, nil)
 		engine.RequestRendering()
+	case frontend.CallbackMouseMove:
+		event := NewAmphionEvent(engine, EventMouseMove, nil)
+		engine.eventChan <- event
 	}
 }
 
@@ -424,12 +428,14 @@ func (engine *AmphionEngine) canStop() bool {
 
 func (engine *AmphionEngine) handleClickEvent(event AmphionEvent) bool {
 	clickPos := event.Data.(a.IntVector3)
+
 	candidates := make([]*SceneObject, 0, 1)
 	engine.currentScene.ForEachObject(func(o *SceneObject) {
 		if o.IsRendering() && o.HasBoundary() && o.IsPointInsideBoundaries2D(clickPos.ToFloat()) {
 			candidates = append(candidates, o)
 		}
 	})
+
 	if len(candidates) > 0 {
 		sort.Slice(candidates, func(i, j int) bool {
 			return candidates[i].Transform.GetGlobalPosition().Z > candidates[j].Transform.GetGlobalPosition().Z
@@ -440,6 +446,66 @@ func (engine *AmphionEngine) handleClickEvent(event AmphionEvent) bool {
 	} else {
 		engine.focusedObject = nil
 	}
+
+	return true
+}
+
+func (engine *AmphionEngine) handleMouseMove(event AmphionEvent) bool {
+	mousePos := engine.GetInputManager().GetMousePosition()
+
+	candidates := make([]*SceneObject, 0, 1)
+	engine.currentScene.ForEachObject(func(o *SceneObject) {
+		if o.IsRendering() && o.HasBoundary() && o.IsPointInsideBoundaries2D(a.NewVector3(float32(mousePos.X), float32(mousePos.Y), 0)) {
+			candidates = append(candidates, o)
+		}
+	})
+
+	if len(candidates) > 0 {
+		sort.Slice(candidates, func(i, j int) bool {
+			return candidates[i].Transform.GetGlobalPosition().Z > candidates[j].Transform.GetGlobalPosition().Z
+		})
+		o := candidates[0]
+
+		if o == engine.hoveredObject {
+			return true
+		}
+
+		if engine.hoveredObject != nil {
+			engine.messageDispatcher.DispatchDirectly(
+				engine.hoveredObject,
+				NewMessage(
+					engine.hoveredObject,
+					MessageBuiltinEvent,
+					NewAmphionEvent(engine.hoveredObject, EventMouseOut, nil),
+				),
+			)
+		}
+
+		engine.messageDispatcher.DispatchDirectly(
+			o,
+			NewMessage(
+				o,
+				MessageBuiltinEvent,
+				NewAmphionEvent(o, EventMouseIn, nil),
+			),
+		)
+
+		engine.hoveredObject = o
+	} else {
+		if engine.hoveredObject != nil {
+			engine.messageDispatcher.DispatchDirectly(
+				engine.hoveredObject,
+				NewMessage(
+					engine.hoveredObject,
+					MessageBuiltinEvent,
+					NewAmphionEvent(engine.hoveredObject, EventMouseOut, nil),
+				),
+			)
+
+			engine.hoveredObject = nil
+		}
+	}
+
 	return true
 }
 
@@ -460,6 +526,7 @@ func (engine *AmphionEngine) handleCloseSceneEvent(_ AmphionEvent) bool {
 func (engine *AmphionEngine) registerInternalEvenHandlers() {
 	engine.BindEventHandler(EventMouseDown, engine.handleClickEvent)
 	engine.BindEventHandler(EventCloseScene, engine.handleCloseSceneEvent)
+	engine.BindEventHandler(EventMouseMove, engine.handleMouseMove)
 }
 
 func (engine *AmphionEngine) GetTasksRoutine() *TasksRoutine {

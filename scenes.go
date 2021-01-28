@@ -313,6 +313,22 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 
 		return false
 	}))
+	addBtn.AddComponent(builtin.NewEventListener(engine.EventMouseIn, func(event engine.AmphionEvent) bool {
+		engine.LogInfo("Mouse in")
+		shape := addBtn.GetComponentByName(".+ShapeView").(*builtin.ShapeView)
+		shape.FillColor = a.PinkColor()
+		shape.ForceRedraw()
+		engine.RequestRendering()
+		return false
+	}))
+	addBtn.AddComponent(builtin.NewEventListener(engine.EventMouseOut, func(event engine.AmphionEvent) bool {
+		engine.LogInfo("Mouse out")
+		shape := addBtn.GetComponentByName(".+ShapeView").(*builtin.ShapeView)
+		shape.FillColor = a.GreenColor()
+		shape.ForceRedraw()
+		engine.RequestRendering()
+		return false
+	}))
 
 	rmvButton := makeRect("remove button", 0, 0, 100, 100, a.RedColor())
 	rmvButtonText := engine.NewSceneObject("remove text")

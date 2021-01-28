@@ -21,6 +21,7 @@ const (
 	EventMouseIn     = -14
 	EventMouseOut    = -15
 	EventDropFile    = -16
+	EventMouseMove   = -17
 )
 
 type AmphionEvent struct {
