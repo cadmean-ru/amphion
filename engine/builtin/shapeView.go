@@ -23,11 +23,11 @@ type ShapeView struct {
 	StrokeColor  a.Color `state:"strokeColor"`
 	StrokeWeight byte    `state:"strokeWeight"`
 	CornerRadius byte    `state:"cornerRadius"`
-	pType        byte    `state:"pType"`
+	PType        byte    `state:"pType"`
 }
 
 func (c *ShapeView) OnDraw(ctx engine.DrawingContext) {
-	pr := rendering.NewGeometryPrimitive(c.pType)
+	pr := rendering.NewGeometryPrimitive(c.PType)
 	pr.Transform = c.SceneObject.Transform.ToRenderingTransform()
 	pr.Appearance = rendering.Appearance{
 		FillColor:    c.FillColor,
@@ -49,7 +49,7 @@ func NewShapeView(pType ShapeType) *ShapeView {
 	}
 
 	return &ShapeView{
-		pType:        byte(pType),
+		PType:        byte(pType),
 		FillColor:    a.WhiteColor(),
 		StrokeColor:  a.BlackColor(),
 		StrokeWeight: 1,
