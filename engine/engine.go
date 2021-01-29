@@ -382,10 +382,12 @@ func (engine *AmphionEngine) GetMessageDispatcher() *MessageDispatcher {
 	return engine.messageDispatcher
 }
 
+// Returns the current engine state.
 func (engine *AmphionEngine) GetState() byte {
 	return engine.state
 }
 
+// Returns the current engine state as string.
 func (engine *AmphionEngine) GetStateString() string {
 	switch engine.state {
 	case StateStarted:
@@ -533,18 +535,22 @@ func (engine *AmphionEngine) GetTasksRoutine() *TasksRoutine {
 	return engine.tasksRoutine
 }
 
+// Runs the given task in the background goroutine.
 func (engine *AmphionEngine) RunTask(task Task) {
 	engine.tasksRoutine.RunTask(task)
 }
 
+// Returns the current resource manager.
 func (engine *AmphionEngine) GetResourceManager() frontend.ResourceManager {
 	return engine.front.GetResourceManager()
 }
 
+// Returns the current frontend.
 func (engine *AmphionEngine) GetFrontend() frontend.Frontend {
 	return engine.front
 }
 
+// Returns the current input manager.
 func (engine *AmphionEngine) GetInputManager() frontend.InputManager {
 	return engine.front.GetInputManager()
 }
@@ -580,6 +586,7 @@ func (engine *AmphionEngine) rebuildMessageTree() {
 	engine.messageDispatcher = newMessageDispatcherForScene(engine.currentScene)
 }
 
+// Return the name of the given component suitable for serialization.
 func NameOfComponent(component interface{}) string {
 	t := reflect.TypeOf(component)
 
