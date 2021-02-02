@@ -17,6 +17,8 @@ func init() {
 }
 
 func main() {
+
+	//region generator
 	var generator string
 	var inputPath string
 	var outputPath string
@@ -40,6 +42,8 @@ func main() {
 		break
 	}
 
+	//endregion
+
 	front := pc.NewFrontend()
 	front.Init()
 
@@ -59,7 +63,9 @@ func main() {
 		//	log.Println(err)
 		//}
 
-		e.LoadApp()
+		//e.LoadApp()
+
+		_ = e.ShowScene(scene1(e))
 
 		e.WaitForStop()
 	}()

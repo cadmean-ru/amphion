@@ -189,7 +189,7 @@ func (o *SceneObject) IsEnabled() bool {
 // Set the position of this object equal to the specified vector, requesting rendering.
 func (o *SceneObject) SetPosition(v a.Vector3) {
 	o.Transform.Position = v
-	instance.RequestRendering()
+	o.Redraw()
 }
 
 // Set the position of this object equal to a new vector with specified coordinates, requesting rendering.
@@ -197,15 +197,27 @@ func (o *SceneObject) SetPositionXyz(x, y, z float32) {
 	o.SetPosition(a.NewVector3(x, y, z))
 }
 
+func (o *SceneObject) SetPositionXy(x, y float32) {
+	o.SetPosition(a.NewVector3(x, y, o.Transform.Position.Z))
+}
+
 // Set the size of this object equal to the specified vector, requesting rendering.
 func (o *SceneObject) SetSize(v a.Vector3) {
 	o.Transform.Size = v
-	instance.RequestRendering()
+	o.Redraw()
 }
 
 // Set the size of this object equal to a new vector with specified coordinates, requesting rendering.
 func (o *SceneObject) SetSizeXyz(x, y, z float32) {
 	o.SetSize(a.NewVector3(x, y, z))
+}
+
+// Forces all views of this object to redraw and requests rendering.
+func (o *SceneObject) Redraw() {
+	for _, view := range o.renderingComponents {
+		view.component.(ViewComponent).ForceRedraw()
+	}
+	instance.RequestRendering()
 }
 
 func (o *SceneObject) OnMessage(message Message) bool {

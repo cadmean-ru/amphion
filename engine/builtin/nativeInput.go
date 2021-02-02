@@ -1,11 +1,8 @@
 package builtin
 
 import (
-	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/native"
-	"github.com/cadmean-ru/amphion/native/web"
-	"syscall/js"
 )
 
 // Component displays a native input widget for current platform.
@@ -21,9 +18,9 @@ type NativeInputView struct {
 	getTextNative func() string
 	setHintNative func(h string)
 	getHintNative func() string
-	html          *web.HtmlElement
 	text          string
 	hint          string
+	nativeView    interface{}
 }
 
 func (n *NativeInputView) OnInit(ctx engine.InitContext) {
@@ -87,7 +84,6 @@ func (n *NativeInputView) GetHint() string {
 // Init
 type nativeInputViewInit struct {
 	native.FeatureImpl
-	html *web.HtmlElement
 	view *NativeInputView
 }
 
@@ -100,54 +96,6 @@ func (n *nativeInputViewInit) OnWeb() {
 	n.view.getTextNative = n.view.getTextWeb
 	n.view.setHintNative = n.view.setHintWeb
 	n.view.getHintNative = n.view.getHintWeb
-}
-
-//endregion
-
-//region Web implementation
-
-func (n *NativeInputView) onInitWeb(_ engine.InitContext) {
-	n.html = web.CreateHtmlElement("input")
-	n.html.SetProperty("oninput", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		if n.onTextChange != nil {
-			n.onTextChange(n.getTextNative())
-		}
-		return nil
-	}))
-	n.setTextWeb(n.text)
-	n.setHintWeb(n.hint)
-}
-
-func (n *NativeInputView) onStartWeb() {
-	web.InstantiateHtml(n.html)
-}
-
-func (n *NativeInputView) onStopWeb() {
-	web.RemoveHtml(n.html)
-}
-
-func (n *NativeInputView) onDrawWeb(_ engine.DrawingContext) {
-	t := n.SceneObject.Transform.ToRenderingTransform()
-	n.html.SetPosition(t.Position)
-	n.html.SetSize(a.NewIntVector2(t.Size.X, t.Size.Y))
-}
-
-func (n *NativeInputView) setTextWeb(t string) {
-	n.text = t
-	n.html.SetProperty("value", n.text)
-}
-
-func (n *NativeInputView) getTextWeb() string {
-	n.text = n.html.GetStringProperty("value")
-	return n.text
-}
-
-func (n *NativeInputView) setHintWeb(h string) {
-	n.html.SetProperty("placeholder", h)
-}
-
-func (n *NativeInputView) getHintWeb() string {
-	return n.html.GetStringProperty("placeholder")
 }
 
 //endregion
