@@ -32,6 +32,15 @@ func (m *InputManager) init(f *Frontend) {
 		f.handler(frontend.NewCallback(frontend.CallbackMouseUp, fmt.Sprintf("%d;%d", m.mousePos.X, m.mousePos.Y)))
 		return nil
 	}))
+
+	js.Global().Get("document").Set("onkeydown", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		e := args[0]
+		key := e.Get("key").String()
+		code := e.Get("code").String()
+
+		f.handler(frontend.NewCallback(frontend.CallbackKeyDown, fmt.Sprintf("%s\n%s", key, code)))
+		return nil
+	}))
 }
 
 func (m *InputManager) GetMousePosition() a.IntVector2 {

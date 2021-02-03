@@ -347,6 +347,11 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene.AddChild(addBtn)
 	scene.AddChild(rmvButton)
 
+	e.BindEventHandler(engine.EventKeyDown, func(event engine.AmphionEvent) bool {
+		engine.LogDebug(fmt.Sprintf("%+v\n", event.Data))
+		return false
+	})
+
 	return scene
 }
 
