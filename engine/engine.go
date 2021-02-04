@@ -452,6 +452,11 @@ func (engine *AmphionEngine) handleClickEvent(clickPos a.IntVector2) {
 		engine.eventChan<-event
 	} else {
 		engine.focusedObject = nil
+		event := NewAmphionEvent(engine, EventMouseDown, MouseEventData{
+			MousePosition: clickPos,
+			SceneObject:   nil,
+		})
+		engine.eventChan<-event
 	}
 }
 

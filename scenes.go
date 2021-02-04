@@ -354,7 +354,13 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	})
 
 	e.BindEventHandler(engine.EventMouseDown, func(event engine.AmphionEvent) bool {
-		engine.LogDebug(fmt.Sprintf("Clicked on %+v\n", event.Data.(engine.MouseEventData).SceneObject.GetName()))
+		data := event.Data.(engine.MouseEventData)
+		if data.SceneObject == nil {
+			engine.LogDebug("Clicked on nothing")
+		} else {
+			engine.LogDebug("Clicked on %+v", event.Data.(engine.MouseEventData).SceneObject.GetName())
+		}
+
 		return true
 	})
 
