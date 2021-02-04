@@ -273,8 +273,7 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontend.Callback) 
 		if err != nil {
 			panic("Invalid click callback Data")
 		}
-		event := NewAmphionEvent(engine, EventMouseDown, a.NewIntVector3(int(x), int(y), 0))
-		engine.eventChan<-event
+		engine.handleClickEvent(a.IntVector2{X: int(x), Y: int(y)})
 	case frontend.CallbackMouseUp:
 		coords := strings.Split(callback.Data, ";")
 		if len(coords) != 2 {
@@ -429,12 +428,11 @@ func (engine *AmphionEngine) canStop() bool {
 	return engine.currentScene == nil
 }
 
-func (engine *AmphionEngine) handleClickEvent(event AmphionEvent) bool {
-	clickPos := event.Data.(a.IntVector3)
-
+func (engine *AmphionEngine) handleClickEvent(clickPos a.IntVector2) {
 	candidates := make([]*SceneObject, 0, 1)
+
 	engine.currentScene.ForEachObject(func(o *SceneObject) {
-		if o.IsRendering() && o.HasBoundary() && o.IsPointInsideBoundaries2D(clickPos.ToFloat()) {
+		if o.IsRendering() && o.HasBoundary() && o.IsPointInsideBoundaries2D(a.NewVector3(float32(clickPos.X), float32(clickPos.Y), 0)) {
 			candidates = append(candidates, o)
 		}
 	})
@@ -446,14 +444,18 @@ func (engine *AmphionEngine) handleClickEvent(event AmphionEvent) bool {
 		o := candidates[0]
 		engine.messageDispatcher.DispatchDirectly(o, NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, EventMouseDown, clickPos)))
 		engine.focusedObject = o
+
+		event := NewAmphionEvent(engine, EventMouseDown, MouseEventData{
+			MousePosition: clickPos,
+			SceneObject:   o,
+		})
+		engine.eventChan<-event
 	} else {
 		engine.focusedObject = nil
 	}
-
-	return true
 }
 
-func (engine *AmphionEngine) handleMouseMove(event AmphionEvent) bool {
+func (engine *AmphionEngine) handleMouseMove(_ AmphionEvent) bool {
 	mousePos := engine.GetInputManager().GetMousePosition()
 
 	candidates := make([]*SceneObject, 0, 1)
@@ -527,7 +529,6 @@ func (engine *AmphionEngine) handleCloseSceneEvent(_ AmphionEvent) bool {
 }
 
 func (engine *AmphionEngine) registerInternalEvenHandlers() {
-	engine.BindEventHandler(EventMouseDown, engine.handleClickEvent)
 	engine.BindEventHandler(EventCloseScene, engine.handleCloseSceneEvent)
 	engine.BindEventHandler(EventMouseMove, engine.handleMouseMove)
 }
