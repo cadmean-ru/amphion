@@ -29,7 +29,7 @@ func (l *GridLayout) LayoutChildren() {
 			}
 
 			child := children[i]
-			chSize := child.Transform.Size
+			chSize := child.Transform.GetSize()
 
 			x := float32(c) * colWidth + fColPadding
 

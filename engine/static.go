@@ -57,3 +57,9 @@ func BindEventHandler(eventCode int, handler EventHandler) {
 func UnbindEventHandler(eventCode int, handler EventHandler) {
 	instance.UnbindEventHandler(eventCode, handler)
 }
+
+// Shortcut for (engine *AmphionEngine) ExecuteOnFrontendThread(action func()).
+// Executes the specified action on frontend thread. 
+func ExecuteOnFrontendThread(action func()) {
+	instance.ExecuteOnFrontendThread(action)
+}

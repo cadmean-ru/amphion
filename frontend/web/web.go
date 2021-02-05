@@ -1,5 +1,6 @@
 //+build js
 
+// Package web provides implementation of web frontend.
 package web
 
 import (
@@ -73,6 +74,12 @@ func (f *Frontend) Run() {
 		switch msg.Code {
 		case frontend.MessageRender:
 			f.renderer.PerformRendering()
+		case frontend.MessageExec:
+			if msg.Data != nil {
+				if action, ok := msg.Data.(func()); ok {
+					action()
+				}
+			}
 		}
 	}
 	close(f.msgChan)
@@ -137,6 +144,10 @@ func (f *Frontend) GetApp() *frontend.App {
 	}
 
 	return nil
+}
+
+func (f *Frontend) SetWindowTitle(title string) {
+	js.Global().Get("document").Set("title", title)
 }
 
 func NewFrontend() *Frontend {

@@ -1,7 +1,5 @@
 package a
 
-type SiMap map[string]interface{}
-
 type Mappable interface {
 	ToMap() SiMap
 }

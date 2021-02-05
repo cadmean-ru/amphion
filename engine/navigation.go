@@ -1,58 +1,46 @@
 package engine
-//
-//import "errors"
-//
-//type NavGraph struct {
-//	nodes       map[string]NavNode
-//	transitions map[string]*NavTransition
-//
-//	currentNode NavNode
-//}
-//
-//func (g *NavGraph) Navigate(transition string) error {
-//	var t *NavTransition
-//	var ok bool
-//	if t, ok = g.transitions[transition]; !ok {
-//		return errors.New("transition not found")
-//	}
-//
-//	if t.from != g.currentNode {
-//		return errors.New("invalid navigation state")
-//	}
-//
-//	instance.eventChan<-NewAmphionEvent(g, EventNavigate, t)
-//
-//	return nil
-//}
-//
-//func (g *NavGraph) handleNavigateEvent(event AmphionEvent) bool {
-//	return false
-//}
-//
-//func newNavGraph() *NavGraph {
-//	var ng = &NavGraph{
-//		nodes:       make(map[string]NavNode),
-//		transitions: make(map[string]*NavTransition),
-//		currentNode: nil,
-//	}
-//	instance.BindEventHandler(EventNavigate, ng.handleNavigateEvent)
-//	return ng
-//}
-//
-//type NavTransition struct {
-//	name string
-//	from NavNode
-//	to   NavNode
-//}
-//
-//func (t *NavTransition) GetName() string {
-//	return t.name
-//}
-//
-//type NavNode struct {
-//	name string
-//}
-//
-//func (n *NavNode) GetName() string {
-//	return n.name
-//}
+
+import (
+	"errors"
+	"github.com/cadmean-ru/amphion/common/a"
+	"strings"
+)
+
+func Navigate(path string, args a.SiMap) (err error) {
+	pathTokens := strings.Split(path, "/")
+
+	if len(pathTokens) == 0 {
+		err = errors.New("invalid path")
+		return
+	}
+
+	if pathTokens[0] == "" {
+		pathTokens = pathTokens[1:]
+
+		if len(pathTokens) == 0 {
+			err = errors.New("invalid path")
+			return
+		}
+	}
+
+	for _, p := range pathTokens {
+		if p == "" {
+			err = errors.New("invalid path")
+			return
+		}
+	}
+
+	scenePath := "scenes/" + strings.Join(pathTokens, "/") + ".scene"
+
+	sceneId := instance.GetResourceManager().IdOf(scenePath)
+
+	if sceneId == -1 {
+		err = errors.New("scene not found")
+		return
+	}
+
+	instance.appContext.navigationArgs = args
+	instance.LoadScene(sceneId, true)
+
+	return
+}

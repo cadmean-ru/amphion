@@ -63,9 +63,9 @@ func main() {
 		//	log.Println(err)
 		//}
 
-		//e.LoadApp()
+		e.LoadApp()
 
-		_ = e.ShowScene(scene1(e))
+		//_ = e.ShowScene(scene1(e))
 
 		e.WaitForStop()
 	}()

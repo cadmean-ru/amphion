@@ -11,7 +11,10 @@ type ComponentContainer struct {
 
 func (c *ComponentContainer) SetEnabled(enabled bool) {
 	c.enabled = enabled
-	instance.RequestRendering()
+
+	if c.sceneObject.inCurrentScene {
+		instance.RequestRendering()
+	}
 }
 
 func (c *ComponentContainer) IsEnabled() bool {

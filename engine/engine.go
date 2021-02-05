@@ -27,6 +27,7 @@ type AmphionEngine struct {
 	loadedScene        *SceneObject
 	currentScene       *SceneObject
 	currentApp         *frontend.App
+	appContext         *AppContext
 	stopChan           chan bool
 	eventChan          chan AmphionEvent
 	updateRoutine      *updateRoutine
@@ -198,6 +199,11 @@ func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 	// Perform first update
 	engine.updateRoutine.requestRendering()
 
+	// Update frontend window title. As any UI action must be executed on frontend thread.
+	engine.ExecuteOnFrontendThread(func() {
+		engine.front.SetWindowTitle(scene.name)
+	})
+
 	engine.logger.Info(engine, "Scene showing")
 
 	return nil
@@ -329,6 +335,11 @@ func (engine *AmphionEngine) UnbindEventHandler(code int, handler EventHandler) 
 	engine.eventBinder.Unbind(code, handler)
 }
 
+// Raises a new event.
+func (engine *AmphionEngine) RaiseEvent(event AmphionEvent) {
+	engine.eventChan<-event
+}
+
 // Synchronously loads prefab from file.
 func (engine *AmphionEngine) LoadPrefab(resId int) (*SceneObject, error) {
 	prefab := &SceneObject{}
@@ -429,6 +440,10 @@ func (engine *AmphionEngine) canStop() bool {
 }
 
 func (engine *AmphionEngine) handleClickEvent(clickPos a.IntVector2) {
+	if engine.currentScene == nil {
+		return
+	}
+
 	candidates := make([]*SceneObject, 0, 1)
 
 	engine.currentScene.ForEachObject(func(o *SceneObject) {
@@ -461,6 +476,10 @@ func (engine *AmphionEngine) handleClickEvent(clickPos a.IntVector2) {
 }
 
 func (engine *AmphionEngine) handleMouseMove(_ AmphionEvent) bool {
+	if engine.currentScene == nil {
+		return false
+	}
+
 	mousePos := engine.GetInputManager().GetMousePosition()
 
 	candidates := make([]*SceneObject, 0, 1)
@@ -579,11 +598,24 @@ func (engine *AmphionEngine) LoadApp() {
 		app := res.(*frontend.App)
 		if app != nil {
 			engine.currentApp = app
-			engine.LoadScene(engine.GetResourceManager().IdOf("scenes/" + app.MainScene + ".scene"), true)
+			engine.appContext = makeAppContext(app)
+			engine.RaiseEvent(NewAmphionEvent(engine, EventAppLoaded, nil))
+			_ = Navigate(app.MainScene, nil)
 		} else {
 			engine.logger.Warning(engine, "No app info found in well-known location!")
 		}
 	}).Build())
+}
+
+// Returns the current app context.
+func (engine *AmphionEngine) GetAppContext() *AppContext {
+	return engine.appContext
+}
+
+// Executes the specified action on frontend thread.
+// Can be used to execute UI related functions from another goroutine.
+func (engine *AmphionEngine) ExecuteOnFrontendThread(action func()) {
+	engine.front.ReceiveMessage(frontend.NewFrontendMessageWithData(frontend.MessageExec, action))
 }
 
 func (engine *AmphionEngine) rebuildMessageTree() {

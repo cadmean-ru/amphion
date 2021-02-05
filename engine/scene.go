@@ -24,6 +24,7 @@ type SceneObject struct {
 	enabled             bool
 	initialized         bool
 	started             bool
+	inCurrentScene      bool
 }
 
 func (o *SceneObject) GetName() string {
@@ -47,17 +48,21 @@ func (o *SceneObject) GetParent() *SceneObject {
 func (o *SceneObject) appendChild(object *SceneObject) {
 	object.parent = o
 	object.Transform.parent = &o.Transform
+	object.inCurrentScene = o.inCurrentScene
 	o.children = append(o.children, object)
 }
 
 // Adds a child object to this scene object.
 func (o *SceneObject) AddChild(object *SceneObject) {
 	o.appendChild(object)
-	if !object.initialized {
-		instance.updateRoutine.initSceneObject(object)
+
+	if o.inCurrentScene {
+		if !object.initialized {
+			instance.updateRoutine.initSceneObject(object)
+		}
+		instance.rebuildMessageTree()
+		instance.RequestRendering()
 	}
-	instance.rebuildMessageTree()
-	instance.RequestRendering()
 }
 
 // Removes a child from this scene object.
@@ -74,8 +79,10 @@ func (o *SceneObject) RemoveChild(object *SceneObject) {
 		o.children[index] = o.children[len(o.children)-1]
 		o.children = o.children[:len(o.children)-1]
 
-		instance.rebuildMessageTree()
-		instance.RequestRendering()
+		if o.inCurrentScene {
+			instance.rebuildMessageTree()
+			instance.RequestRendering()
+		}
 	}
 }
 
@@ -118,8 +125,10 @@ func (o *SceneObject) AddComponent(component Component) {
 		o.layout = component.(Layout)
 	}
 
-	instance.updateRoutine.initSceneObject(o)
-	instance.RequestRendering()
+	if o.inCurrentScene {
+		instance.updateRoutine.initSceneObject(o)
+		instance.RequestRendering()
+	}
 }
 
 // Searches for component with the specified name throughout the components attached to this object.
@@ -167,15 +176,21 @@ func (o *SceneObject) SetEnabled(enabled bool) {
 	if o.enabled == enabled {
 		return
 	}
+
 	o.enabled = enabled
+
 	for _, c := range o.components {
 		c.SetEnabled(enabled)
 	}
-	if enabled {
-		instance.updateRoutine.startSceneObject(o)
-	} else {
-		instance.updateRoutine.stopSceneObject(o)
+
+	if o.inCurrentScene {
+		if enabled {
+			instance.updateRoutine.startSceneObject(o)
+		} else {
+			instance.updateRoutine.stopSceneObject(o)
+		}
 	}
+
 	for _, so := range o.children {
 		so.SetEnabled(enabled)
 	}
@@ -214,6 +229,10 @@ func (o *SceneObject) SetSizeXyz(x, y, z float32) {
 
 // Forces all views of this object to redraw and requests rendering.
 func (o *SceneObject) Redraw() {
+	if !o.inCurrentScene {
+		return
+	}
+
 	for _, view := range o.renderingComponents {
 		view.component.(ViewComponent).ForceRedraw()
 	}
@@ -304,6 +323,13 @@ func (o *SceneObject) stop() {
 	}
 	o.started = false
 	instance.currentComponent = nil
+}
+
+func (o *SceneObject) setInCurrentScene(b bool) {
+	o.inCurrentScene = b
+	for _, c := range o.children {
+		c.setInCurrentScene(b)
+	}
 }
 
 func (o *SceneObject) IsRendering() bool {

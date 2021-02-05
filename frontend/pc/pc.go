@@ -69,6 +69,12 @@ func (f *Frontend) Run() {
 				switch msg.Code {
 				case frontend.MessageRender:
 					f.renderer.PerformRendering()
+				case frontend.MessageExec:
+					if msg.Data != nil {
+						if action, ok := msg.Data.(func()); ok {
+							action()
+						}
+					}
 				}
 			} else {
 
@@ -193,6 +199,10 @@ func (f *Frontend) GetApp() *frontend.App {
 	}
 
 	return &app
+}
+
+func (f *Frontend) SetWindowTitle(title string) {
+	f.window.SetTitle(title)
 }
 
 func NewFrontend() *Frontend {

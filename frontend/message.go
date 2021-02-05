@@ -1,27 +1,24 @@
 package frontend
 
-import (
-	"github.com/cadmean-ru/amphion/common/a"
-)
-
 const (
 	MessageRender = 0
 	MessageExit   = 1
+	MessageExec   = 2
 )
 
 type Message struct {
-	Code a.Byte
+	Code byte
 	Data interface{}
 }
 
-func NewFrontendMessage(code a.Byte) Message {
+func NewFrontendMessage(code byte) Message {
 	return Message{
 		Code: code,
 		Data: nil,
 	}
 }
 
-func NewFrontendMessageWithData(code a.Byte, data interface{}) Message {
+func NewFrontendMessageWithData(code byte, data interface{}) Message {
 	return Message{
 		Code: code,
 		Data: data,

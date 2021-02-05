@@ -118,6 +118,7 @@ func registerResources(e *engine.AmphionEngine) {
 	rm.RegisterResource("images/gun.png")
 	rm.RegisterResource("test.yaml")
 	rm.RegisterResource("scenes/main.scene")
+	rm.RegisterResource("scenes/second.scene")
 }
 
 func registerComponents(e *engine.AmphionEngine) {
@@ -139,6 +140,8 @@ func registerComponents(e *engine.AmphionEngine) {
 	cm.RegisterComponentType(&builtin.BuilderComponent{})
 
 	cm.RegisterEventHandler(handleCircleClick(e))
+	cm.RegisterEventHandler(navigateOnClick)
+	cm.RegisterEventHandler(navigateOnClick2)
 }
 
 func scene2(e *engine.AmphionEngine) *engine.SceneObject {
@@ -222,33 +225,27 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 //region TestController
 
 type TestController struct {
-	eng *engine.AmphionEngine
-	log *engine.Logger
+	engine.ComponentImpl
 }
 
 func (c *TestController) OnInit(ctx engine.InitContext) {
-	c.eng = ctx.GetEngine()
-	c.log = ctx.GetLogger()
+	c.ComponentImpl.OnInit(ctx)
 }
 
 func (c *TestController) OnStart() {
-	c.eng.RunTask(engine.NewTaskBuilder().Run(func() (interface{}, error) {
-		return c.eng.GetResourceManager().ReadFile(5)
+	c.Engine.RunTask(engine.NewTaskBuilder().Run(func() (interface{}, error) {
+		return c.Engine.GetResourceManager().ReadFile(5)
 	}).Then(func(res interface{}) {
 		bytes := res.([]byte)
 		str := string(bytes)
-		c.log.Info(c, str)
+		c.Logger.Info(c, str)
 	}).Err(func(err error) {
-		c.log.Error(c, err.Error())
+		c.Logger.Error(c, err.Error())
 	}).Build())
 }
 
-func (c *TestController) OnStop() {
-
-}
-
 func (c *TestController) GetName() string {
-	return "TestController"
+	return engine.NameOfComponent(c)
 }
 
 //endregion
@@ -295,7 +292,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	addBtn.AddComponent(builtin.NewRectBoundary())
 	addBtn.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
 		color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
-		rect := makeRect(fmt.Sprintf("Rect"), 0, 0, 100, float32(rand.Intn(300)), color)
+		rect := makeRect(fmt.Sprintf("Rect"), 0, 0, 100, engine.MatchParent, color)
 		rect.AddComponent(builtin.NewRectBoundary())
 		scene.AddChild(rect)
 
@@ -365,6 +362,26 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	})
 
 	return scene
+}
+
+func navigateOnClick(_ engine.AmphionEvent) bool {
+	engine.LogDebug("Big click")
+
+	err := engine.Navigate("second", nil)
+	if err != nil {
+		engine.LogError("Error navigating: %e", err)
+	}
+	return true
+}
+
+func navigateOnClick2(_ engine.AmphionEvent) bool {
+	engine.LogDebug("Big click")
+
+	err := engine.Navigate("main", nil)
+	if err != nil {
+		engine.LogError("Error navigating: %e", err)
+	}
+	return true
 }
 
 //func dropScene(e *engine.AmphionEngine) *engine.SceneObject {

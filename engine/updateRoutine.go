@@ -12,7 +12,7 @@ type updateRoutine struct {
 	renderingRequested bool
 	newSceneObjects    []*SceneObject
 	startSceneObjects  []*SceneObject
-	stopSceneObjects    []*SceneObject
+	stopSceneObjects   []*SceneObject
 }
 
 func (r *updateRoutine) start() {
@@ -81,6 +81,7 @@ func (r *updateRoutine) loop() {
 	defer instance.recover()
 
 	// Initialize all components
+	instance.currentScene.setInCurrentScene(true)
 	r.loopInit(instance.currentScene)
 
 	// Calling OnStart for all objects in scene
@@ -166,11 +167,17 @@ func (r *updateRoutine) loop() {
 	}
 
 	r.loopStop(instance.currentScene)
+	instance.currentScene.setInCurrentScene(false)
 
-	instance.renderer.PerformRendering()
 	instance.renderer.Clear()
+	//instance.renderer.PerformRendering()
 
 	r.running = false
+	r.newSceneObjects = make([]*SceneObject, 0)
+	r.startSceneObjects = make([]*SceneObject, 0)
+	r.stopSceneObjects = make([]*SceneObject, 0)
+
+	instance.logger.Info(r, "Stopped")
 }
 
 func (r *updateRoutine) loopInit(obj *SceneObject) {
