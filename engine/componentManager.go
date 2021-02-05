@@ -76,7 +76,13 @@ func (m *ComponentsManager) GetComponentState(component Component) a.SiMap {
 			continue
 		}
 		value := vf.Interface()
-		if m1, ok := value.(a.Mappable); ok {
+		if s, ok := value.(a.Stringable); ok {
+			if s != nil {
+				value = s.ToString()
+			} else {
+				value = ""
+			}
+		} else if m1, ok := value.(a.Mappable); ok {
 			if m1 != nil {
 				value = m1.ToMap()
 			} else {
@@ -120,6 +126,7 @@ func (m *ComponentsManager) SetComponentState(component Component, state a.SiMap
 	}
 }
 
+// Sets the reflect.Value vf (field) of a struct equal to the specified value trying to convert it to the field's type.
 func (m *ComponentsManager) setReflectValue(vf reflect.Value, value interface{}) {
 	var newValue reflect.Value
 
@@ -130,9 +137,15 @@ func (m *ComponentsManager) setReflectValue(vf reflect.Value, value interface{})
 		newValue = reflect.ValueOf(require.String(value))
 	case reflect.Struct:
 		structValue := reflect.New(vf.Type())
+
+		if structValue.Type().Implements(reflect.TypeOf((*a.Unstringable)(nil)).Elem()) {
+			structValue.Interface().(a.Unstringable).FromString(require.String(value))
+		}
+
 		if structValue.Type().Implements(reflect.TypeOf((*a.Unmappable)(nil)).Elem()) {
 			structValue.Interface().(a.Unmappable).FromMap(a.RequireSiMap(value))
 		}
+
 		newValue = reflect.Indirect(structValue)
 	case reflect.Ptr:
 		m.setReflectValue(reflect.Indirect(vf), value)

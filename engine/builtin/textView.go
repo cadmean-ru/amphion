@@ -47,6 +47,18 @@ func (t *TextView) GetText() string {
 	return t.Text
 }
 
+func (t *TextView) SetTextColor(color interface{}) {
+	switch color.(type) {
+	case a.Color:
+	case string:
+	default:
+		t.TextColor = a.BlackColor()
+	}
+
+	t.Redraw = true
+	engine.RequestRendering()
+}
+
 func NewTextView(text string) *TextView {
 	return &TextView{
 		TextColor:  a.BlackColor(),
