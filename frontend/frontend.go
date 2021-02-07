@@ -52,8 +52,8 @@ type InputManager interface {
 
 type ResourceManager interface {
 	RegisterResource(path string)
-	IdOf(path string) int
-	PathOf(id int) string
-	FullPathOf(id int) string
-	ReadFile(id int) ([]byte, error)
+	IdOf(path string) a.ResId
+	PathOf(id a.ResId) string
+	FullPathOf(id a.ResId) string
+	ReadFile(id a.ResId) ([]byte, error)
 }

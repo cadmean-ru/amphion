@@ -364,6 +364,12 @@ func (o *SceneObject) IsFocused() bool {
 	return instance.focusedObject == o
 }
 
+func (o *SceneObject) IsVisibleInScene() bool {
+	sceneRect := instance.GetCurrentScene().Transform.GetGlobalRect()
+	rect := o.Transform.GetGlobalRect()
+	return rect.X.Max >= sceneRect.X.Min && rect.X.Min <= sceneRect.X.Max && rect.Y.Max >= sceneRect.Y.Min && rect.Y.Min <= sceneRect.Y.Max
+}
+
 func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
 	if !o.enabled {
 		return
