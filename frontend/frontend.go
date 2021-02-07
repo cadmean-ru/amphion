@@ -19,7 +19,7 @@ type Frontend interface {
 	ReceiveMessage(message Message)
 	GetResourceManager() ResourceManager
 	GetApp() *App
-	SetWindowTitle(title string)
+	GetLaunchArgs() a.SiMap
 }
 
 const (

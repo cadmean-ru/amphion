@@ -201,10 +201,10 @@ func (f *Frontend) GetApp() *frontend.App {
 	return &app
 }
 
-func (f *Frontend) SetWindowTitle(title string) {
-	f.window.SetTitle(title)
+func (f *Frontend) GetLaunchArgs() a.SiMap {
+	args := make(a.SiMap)
+	return args
 }
-
 func NewFrontend() *Frontend {
 	f := &Frontend{
 		wSize: a.NewIntVector3(500, 500, 0),

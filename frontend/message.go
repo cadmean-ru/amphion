@@ -1,9 +1,11 @@
 package frontend
 
 const (
-	MessageRender = 0
-	MessageExit   = 1
-	MessageExec   = 2
+	MessageRender   = 0
+	MessageExit     = 1
+	MessageExec     = 2
+	MessageNavigate = 3
+	MessageTitle    = 4
 )
 
 type Message struct {

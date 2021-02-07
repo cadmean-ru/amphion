@@ -5,7 +5,17 @@ import (
 	"reflect"
 )
 
-func String(i interface{}) string {
+// Returns the given interface{} as string.
+func String(i interface{}, defaultString ...string) string {
+	def := ""
+	if len(defaultString) > 0 {
+		def = defaultString[0]
+	}
+
+	if i == nil {
+		return def
+	}
+
 	switch i.(type) {
 	case string:
 		return i.(string)

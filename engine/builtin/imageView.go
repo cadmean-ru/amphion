@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 )
@@ -8,15 +9,15 @@ import (
 // Displays an image given it's resource index
 type ImageView struct {
 	engine.ViewImpl
-	ResIndex int    `state:"resIndex"`
-	ImageUrl string `state:"imageUrl"`
+	ResId    a.ResId `state:"resId"`
+	ImageUrl string  `state:"imageUrl"`
 }
 
 func (v *ImageView) OnDraw(ctx engine.DrawingContext) {
 	var url string
 
-	if v.ResIndex > -1 {
-		url = v.Engine.GetResourceManager().FullPathOf(v.ResIndex)
+	if v.ResId > -1 {
+		url = v.Engine.GetResourceManager().FullPathOf(v.ResId)
 	} else {
 		url = v.ImageUrl
 	}
@@ -28,8 +29,8 @@ func (v *ImageView) OnDraw(ctx engine.DrawingContext) {
 }
 
 // Sets the resource index equal to the specified value, forcing the view to redraw and requesting rendering.
-func (v *ImageView) SetResIndex(i int) {
-	v.ResIndex = i
+func (v *ImageView) SetResId(i a.ResId) {
+	v.ResId = i
 	v.ImageUrl = ""
 	v.Redraw = true
 	engine.RequestRendering()
@@ -37,7 +38,7 @@ func (v *ImageView) SetResIndex(i int) {
 
 // Sets the image url equal to the specified value, forcing the view to redraw and requesting rendering.
 func (v *ImageView) SetImageUrl(url string) {
-	v.ResIndex = -1
+	v.ResId = -1
 	v.ImageUrl = url
 	v.Redraw = true
 	engine.RequestRendering()
@@ -47,15 +48,15 @@ func (v *ImageView) GetName() string {
 	return engine.NameOfComponent(v)
 }
 
-func NewImageView(index int) *ImageView {
+func NewImageView(index a.ResId) *ImageView {
 	return &ImageView{
-		ResIndex: index,
+		ResId: index,
 	}
 }
 
 func NewImageViewWithUrl(url string) *ImageView {
 	return &ImageView{
-		ResIndex: -1,
+		ResId:    -1,
 		ImageUrl: url,
 	}
 }

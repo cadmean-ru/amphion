@@ -292,7 +292,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	addBtn.AddComponent(builtin.NewRectBoundary())
 	addBtn.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
 		color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
-		rect := makeRect(fmt.Sprintf("Rect"), 0, 0, 100, engine.MatchParent, color)
+		rect := makeRect(fmt.Sprintf("Rect"), 0, 0, 100, float32(rand.Intn(300)), color)
 		rect.AddComponent(builtin.NewRectBoundary())
 		scene.AddChild(rect)
 

@@ -1,6 +1,9 @@
 package engine
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/cadmean-ru/amphion/common/a"
+)
 
 // Prints a message to the log from the current component, formatting the msg using fmt.Sprintf.
 func LogInfo(msg string, values ...interface{}) {
@@ -35,7 +38,7 @@ func RequestRendering() {
 }
 
 // Shortcut for (engine *AmphionEngine) LoadPrefab(resId int) (*SceneObject, error).
-func LoadPrefab(resId int) (*SceneObject, error) {
+func LoadPrefab(resId a.ResId) (*SceneObject, error) {
 	return instance.LoadPrefab(resId)
 }
 

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/require"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"gopkg.in/yaml.v2"
@@ -71,16 +72,7 @@ func (f *Frontend) Run() {
 			break
 		}
 
-		switch msg.Code {
-		case frontend.MessageRender:
-			f.renderer.PerformRendering()
-		case frontend.MessageExec:
-			if msg.Data != nil {
-				if action, ok := msg.Data.(func()); ok {
-					action()
-				}
-			}
-		}
+		f.handleMessage(msg)
 	}
 	close(f.msgChan)
 }
@@ -146,8 +138,40 @@ func (f *Frontend) GetApp() *frontend.App {
 	return nil
 }
 
-func (f *Frontend) SetWindowTitle(title string) {
-	js.Global().Get("document").Set("title", title)
+func (f *Frontend) GetLaunchArgs() a.SiMap {
+	args := make(a.SiMap)
+
+	launchArgsJs := js.Global().Get("launchArgs")
+	if launchArgsJs.IsUndefined() {
+		return args
+	}
+
+	pathJs := launchArgsJs.Get("path")
+	if !pathJs.IsUndefined() {
+		args["path"] = pathJs.String()
+	}
+
+	return args
+}
+
+func (f *Frontend) handleMessage(msg frontend.Message) {
+	switch msg.Code {
+	case frontend.MessageRender:
+		f.renderer.PerformRendering()
+	case frontend.MessageExec:
+		if msg.Data != nil {
+			if action, ok := msg.Data.(func()); ok {
+				action()
+			}
+		}
+	case frontend.MessageTitle:
+		setWindowTitle(require.String(msg.Data, "No title"))
+	case frontend.MessageNavigate:
+		path := require.String(msg.Data)
+		if path != "" {
+			setWindowLocation(path)
+		}
+	}
 }
 
 func NewFrontend() *Frontend {
@@ -165,4 +189,12 @@ func getWindowSize() a.IntVector2 {
 	h := js.Global().Get("innerHeight").Int()
 
 	return a.IntVector2{w, h}
+}
+
+func setWindowTitle(title string) {
+	js.Global().Get("document").Set("title", title)
+}
+
+func setWindowLocation(path string) {
+	js.Global().Get("history").Call("replaceState", js.Value{}, "Loading", path)
 }

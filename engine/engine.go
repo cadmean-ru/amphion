@@ -26,6 +26,7 @@ type AmphionEngine struct {
 
 	loadedScene        *SceneObject
 	currentScene       *SceneObject
+	sceneContext       *SceneContext
 	currentApp         *frontend.App
 	appContext         *AppContext
 	stopChan           chan bool
@@ -137,7 +138,7 @@ func (engine *AmphionEngine) GetGlobalContext() frontend.Context {
 
 // Loads scene from a resource file asynchronously.
 // If show is true, after loading also shows this scene.
-func (engine *AmphionEngine) LoadScene(scene int, show bool) {
+func (engine *AmphionEngine) LoadScene(scene a.ResId, show bool) {
 	engine.RunTask(NewTaskBuilder().Run(func() (interface{}, error) {
 		return engine.GetResourceManager().ReadFile(scene)
 	}).Then(func(res interface{}) {
@@ -189,6 +190,7 @@ func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 
 	engine.logger.Info(engine, fmt.Sprintf("Starting scene %s", scene.name))
 
+	engine.sceneContext = makeSceneContext()
 	engine.configureScene(scene)
 	engine.messageDispatcher = newMessageDispatcherForScene(scene)
 	engine.currentScene = scene
@@ -200,9 +202,7 @@ func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 	engine.updateRoutine.requestRendering()
 
 	// Update frontend window title. As any UI action must be executed on frontend thread.
-	engine.ExecuteOnFrontendThread(func() {
-		engine.front.SetWindowTitle(scene.name)
-	})
+	engine.SetWindowTitle(engine.currentScene.name)
 
 	engine.logger.Info(engine, "Scene showing")
 
@@ -341,7 +341,7 @@ func (engine *AmphionEngine) RaiseEvent(event AmphionEvent) {
 }
 
 // Synchronously loads prefab from file.
-func (engine *AmphionEngine) LoadPrefab(resId int) (*SceneObject, error) {
+func (engine *AmphionEngine) LoadPrefab(resId a.ResId) (*SceneObject, error) {
 	prefab := &SceneObject{}
 	data, err := engine.GetResourceManager().ReadFile(resId)
 	if err != nil {
@@ -600,22 +600,41 @@ func (engine *AmphionEngine) LoadApp() {
 			engine.currentApp = app
 			engine.appContext = makeAppContext(app)
 			engine.RaiseEvent(NewAmphionEvent(engine, EventAppLoaded, nil))
-			_ = Navigate(app.MainScene, nil)
+
+			args := engine.front.GetLaunchArgs()
+			path := args.GetString("path")
+
+			if path == "" {
+				path = "/"
+			}
+
+			_ = Navigate(path, nil)
 		} else {
 			engine.logger.Warning(engine, "No app info found in well-known location!")
 		}
 	}).Build())
 }
 
-// Returns the current app context.
+// Returns the current app's context.
 func (engine *AmphionEngine) GetAppContext() *AppContext {
 	return engine.appContext
+}
+
+// Returns the current scene's context.
+func (engine *AmphionEngine) GetSceneContext() *SceneContext {
+	return engine.sceneContext
 }
 
 // Executes the specified action on frontend thread.
 // Can be used to execute UI related functions from another goroutine.
 func (engine *AmphionEngine) ExecuteOnFrontendThread(action func()) {
 	engine.front.ReceiveMessage(frontend.NewFrontendMessageWithData(frontend.MessageExec, action))
+}
+
+// Updates app's window title.
+// On web sets the tab's title.
+func (engine *AmphionEngine) SetWindowTitle(title string) {
+	engine.front.ReceiveMessage(frontend.NewFrontendMessageWithData(frontend.MessageTitle, title))
 }
 
 func (engine *AmphionEngine) rebuildMessageTree() {
