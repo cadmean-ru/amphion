@@ -11,7 +11,7 @@ type BoundaryView struct {
 }
 
 func (r *BoundaryView) GetName() string {
-	return "BoundaryView"
+	return engine.NameOfComponent(r)
 }
 
 func (r *BoundaryView) OnDraw(ctx engine.DrawingContext) {

@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// Deprecated
 type InputView struct {
 	TextView
 	AllowMultiline bool
