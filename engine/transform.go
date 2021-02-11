@@ -51,19 +51,19 @@ func (t Transform) GetLocalPosition() a.Vector3 {
 	if t.parent != nil && IsSpecialVector(t.Position) {
 		pb := t.parent.GetRect()
 
-		if t.Position.X == CenterInParent {
+		if t.Position.X == a.CenterInParent {
 			x = pb.X.GetLength() / 2
 		} else {
 			x = t.Position.X
 		}
 
-		if t.Position.Y == CenterInParent {
+		if t.Position.Y == a.CenterInParent {
 			y = pb.Y.GetLength() / 2
 		} else {
 			y = t.Position.Y
 		}
 
-		if t.Position.Z == CenterInParent {
+		if t.Position.Z == a.CenterInParent {
 			z = pb.Z.GetLength() / 2
 		} else {
 			z = t.Position.Z
@@ -111,19 +111,19 @@ func (t Transform) GetSize() a.Vector3 {
 	var tlp = t.GetTopLeftPosition()
 
 	if IsSpecialVector(t.Size) {
-		if t.Size.X == MatchParent {
+		if t.Size.X == a.MatchParent {
 			x = common.ClampFloat32(parentSize.X, 0, parentSize.X - tlp.X)
 		} else {
 			x = t.Size.X
 		}
 
-		if t.Size.Y == MatchParent {
+		if t.Size.Y == a.MatchParent {
 			y = common.ClampFloat32(parentSize.Y, 0, parentSize.Y - tlp.Y)
 		} else {
 			y = t.Size.Y
 		}
 
-		if t.Size.Z == MatchParent {
+		if t.Size.Z == a.MatchParent {
 			z = common.ClampFloat32(parentSize.Z, 0, parentSize.Z - tlp.Z)
 		} else {
 			z = t.Size.Z
@@ -175,7 +175,7 @@ func IsSpecialVector(pos a.Vector3) bool {
 
 // Checks if the given float32 value is special(MatchParent, WrapContent or CenterInParent).
 func IsSpecialValue(x float32) bool {
-	return x == CenterInParent || x == MatchParent || x == WrapContent
+	return x == a.CenterInParent || x == a.MatchParent || x == a.WrapContent
 }
 
 func NewTransformFromMap(siMap a.SiMap) Transform {
@@ -184,6 +184,8 @@ func NewTransformFromMap(siMap a.SiMap) Transform {
 	return t
 }
 
+// Deprecated.
+// Use a.MatchParent, a.WrapContent and a.CenterInParent instead.
 const (
 	MatchParent    = -2147483648
 	WrapContent    = -2147483647

@@ -1,5 +1,7 @@
 package rendering
 
+import "github.com/cadmean-ru/amphion/common/a"
+
 const textPrimitiveMinBytesSize = 1 + transformBytesSize + appearanceBytesSize + textAppearanceBytesSize + 4
 
 type TextPrimitive struct {
@@ -7,6 +9,8 @@ type TextPrimitive struct {
 	Appearance     Appearance
 	TextAppearance TextAppearance
 	Text           string
+	HTextAlign     a.TextAlign
+	VTextAlign     a.TextAlign
 }
 
 func (p *TextPrimitive) GetType() byte {

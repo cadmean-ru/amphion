@@ -25,6 +25,7 @@ type p5 struct {
 	textSizeJs       js.Value
 	loadImageJs      js.Value
 	imageJs          js.Value
+	textAlignJs      js.Value
 	renderer         *P5Renderer
 	onDraw           func(p5 *p5)
 }
@@ -47,6 +48,7 @@ func (p *p5) prepare() {
 	p.textSizeJs = js.Global().Get("textSize")
 	p.loadImageJs = js.Global().Get("loadImage")
 	p.imageJs = js.Global().Get("image")
+	p.textAlignJs = js.Global().Get("textAlign")
 	js.Global().Set("goDraw", js.FuncOf(p.goDraw))
 }
 
@@ -98,6 +100,30 @@ func (p *p5) text(text string, x, y, sizeX, sizeY int) {
 
 func (p *p5) textSize(size int) {
 	p.textSizeJs.Invoke(size)
+}
+
+func (p *p5) textAlign(hAlign, vAlign a.TextAlign) {
+	var hAlignJs, vAlignJs js.Value
+
+	switch hAlign {
+	case a.TextAlignRight:
+		hAlignJs = js.Global().Get("RIGHT")
+	case a.TextAlignCenter:
+		hAlignJs = js.Global().Get("CENTER")
+	default:
+		hAlignJs = js.Global().Get("LEFT")
+	}
+
+	switch vAlign {
+	case a.TextAlignBottom:
+		vAlignJs = js.Global().Get("BOTTOM")
+	case a.TextAlignCenter:
+		vAlignJs = js.Global().Get("CENTER")
+	default:
+		vAlignJs = js.Global().Get("TOP")
+	}
+
+	p.textAlignJs.Invoke(hAlignJs, vAlignJs)
 }
 
 func (p *p5) resizeCanvas(x, y int) {

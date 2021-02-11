@@ -10,7 +10,12 @@ type SceneContext struct {
 }
 
 func makeSceneContext() *SceneContext {
+	var args a.SiMap
+	if instance.appContext != nil {
+		args = instance.appContext.navigationArgs
+	}
+
 	return &SceneContext{
-		Args: instance.appContext.navigationArgs,
+		Args: args,
 	}
 }

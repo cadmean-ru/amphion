@@ -9,11 +9,13 @@ import (
 // Component for displaying text
 type TextView struct {
 	engine.ViewImpl
-	TextColor  a.Color  `state:"textColor"`
-	Font       string   `state:"font"`
-	FontSize   byte     `state:"fontSize"`
-	FontWeight byte     `state:"fontWeight"`
-	Text       string   `state:"text"`
+	TextColor  a.Color     `state:"textColor"`
+	Font       string      `state:"font"`
+	FontSize   byte        `state:"fontSize"`
+	FontWeight byte        `state:"fontWeight"`
+	Text       string      `state:"text"`
+	HTextAlign a.TextAlign `state:"hTextAlign"`
+	VTextAlign a.TextAlign `state:"vTextAlign"`
 }
 
 func (t *TextView) GetName() string {
@@ -31,6 +33,8 @@ func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 		Font:     t.Font,
 		FontSize: t.FontSize,
 	}
+	pr.HTextAlign = t.HTextAlign
+	pr.VTextAlign = t.VTextAlign
 	ctx.GetRenderer().SetPrimitive(t.PrimitiveId, pr, t.ShouldRedraw())
 	t.Redraw = false
 }
@@ -47,14 +51,38 @@ func (t *TextView) GetText() string {
 	return t.Text
 }
 
+// Sets the current text color.
 func (t *TextView) SetTextColor(color interface{}) {
 	switch color.(type) {
 	case a.Color:
+		t.TextColor = color.(a.Color)
 	case string:
+		t.TextColor = a.ParseHexColor(color.(string))
 	default:
 		t.TextColor = a.BlackColor()
 	}
 
+	t.Redraw = true
+	engine.RequestRendering()
+}
+
+// Sets the current text size.
+func (t *TextView) SetFontSize(fontSize byte) {
+	t.FontSize = fontSize
+	t.Redraw = true
+	engine.RequestRendering()
+}
+
+// Sets the current horizontal text alignment.
+func (t *TextView) SetHTextAlign(align a.TextAlign) {
+	t.HTextAlign = align
+	t.Redraw = true
+	engine.RequestRendering()
+}
+
+// Sets the current horizontal text alignment.
+func (t *TextView) SetVTextAlign(align a.TextAlign) {
+	t.VTextAlign = align
 	t.Redraw = true
 	engine.RequestRendering()
 }

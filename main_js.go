@@ -18,8 +18,8 @@ func main() {
 
 	go func() {
 		e.Start()
-		//_ = e.ShowScene(gridScene(e))
-		e.LoadApp()
+		_ = e.ShowScene(gridScene(e))
+		//e.LoadApp()
 		e.WaitForStop()
 	}()
 

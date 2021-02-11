@@ -124,7 +124,6 @@ func registerResources(e *engine.AmphionEngine) {
 func registerComponents(e *engine.AmphionEngine) {
 	cm := e.GetComponentsManager()
 	cm.RegisterComponentType(&Mover{})
-	//cm.RegisterComponentType(&CyberpunkCountdown{})
 	cm.RegisterComponentType(&builtin.ShapeView{})
 	cm.RegisterComponentType(&builtin.CircleBoundary{})
 	cm.RegisterComponentType(&builtin.OnClickListener{})
@@ -135,7 +134,6 @@ func registerComponents(e *engine.AmphionEngine) {
 	cm.RegisterComponentType(&builtin.DropdownView{})
 	cm.RegisterComponentType(&builtin.ImageView{})
 	cm.RegisterComponentType(&builtin.InputField{})
-	cm.RegisterComponentType(&builtin.InputView{})
 	cm.RegisterComponentType(&builtin.MouseMover{})
 	cm.RegisterComponentType(&builtin.BuilderComponent{})
 
@@ -148,7 +146,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	//var counter = 0
 	scene2 := engine.NewSceneObject("scene 2")
 	textScene2 := engine.NewSceneObject("text")
-	textScene2.Transform.Position = a.NewVector3(engine.CenterInParent, engine.CenterInParent, 0)
+	textScene2.Transform.Position = a.NewVector3(a.CenterInParent, a.CenterInParent, 0)
 	textScene2.Transform.Pivot = a.NewVector3(0.5, 0.5, 0.5)
 	textScene2.Transform.Size = a.NewVector3(800, 200, 0)
 	textScene2Renderer := builtin.NewTextView("This is scene 2")
@@ -284,9 +282,11 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 
 	addBtn := makeRect("add button", 0, 0, 100, 100, a.GreenColor())
 	addBtnText := engine.NewSceneObject("add text")
-	addBtnText.Transform.Position = a.NewVector3(10, 10, 1)
-	addBtnText.Transform.Size = a.NewVector3(100, 30, 0)
-	addBtnTextView := builtin.NewTextView("addkj")
+	addBtnText.Transform.Position = a.NewVector3(0, 0, 1)
+	addBtnText.Transform.Size = a.NewVector3(a.MatchParent, a.MatchParent, 0)
+	addBtnTextView := builtin.NewTextView("add")
+	addBtnTextView.HTextAlign = a.TextAlignCenter
+	addBtnTextView.VTextAlign = a.TextAlignCenter
 	addBtnText.AddComponent(addBtnTextView)
 	addBtn.AddChild(addBtnText)
 	addBtn.AddComponent(builtin.NewRectBoundary())

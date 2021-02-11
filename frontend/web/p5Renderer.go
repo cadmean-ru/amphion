@@ -128,6 +128,7 @@ func (r *P5Renderer) drawP5(p5 *p5) {
 				r.prevFontSize = tp.TextAppearance.FontSize
 				p5.textSize(int(tp.TextAppearance.FontSize))
 			}
+			p5.textAlign(tp.HTextAlign, tp.VTextAlign)
 			p5.text(tp.Text, pos.X, pos.Y, size.X, size.Y)
 		case rendering.PrimitiveImage:
 			ip := p.primitive.(*rendering.ImagePrimitive)
