@@ -40,8 +40,6 @@ type AmphionEngine struct {
 	currentComponent   Component
 	closeSceneCallback func()
 	tasksRoutine       *TasksRoutine
-	focusedObject      *SceneObject
-	hoveredObject      *SceneObject
 	front              frontend.Frontend
 	suspend            bool
 }
@@ -458,7 +456,7 @@ func (engine *AmphionEngine) handleClickEvent(clickPos a.IntVector2) {
 		})
 		o := candidates[0]
 		engine.messageDispatcher.DispatchDirectly(o, NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, EventMouseDown, clickPos)))
-		engine.focusedObject = o
+		engine.sceneContext.focusedObject = o
 
 		event := NewAmphionEvent(engine, EventMouseDown, MouseEventData{
 			MousePosition: clickPos,
@@ -466,7 +464,7 @@ func (engine *AmphionEngine) handleClickEvent(clickPos a.IntVector2) {
 		})
 		engine.eventChan<-event
 	} else {
-		engine.focusedObject = nil
+		engine.sceneContext.focusedObject = nil
 		event := NewAmphionEvent(engine, EventMouseDown, MouseEventData{
 			MousePosition: clickPos,
 			SceneObject:   nil,
@@ -495,17 +493,17 @@ func (engine *AmphionEngine) handleMouseMove(_ AmphionEvent) bool {
 		})
 		o := candidates[0]
 
-		if o == engine.hoveredObject {
+		if o == engine.sceneContext.hoveredObject {
 			return true
 		}
 
-		if engine.hoveredObject != nil {
+		if engine.sceneContext.hoveredObject != nil {
 			engine.messageDispatcher.DispatchDirectly(
-				engine.hoveredObject,
+				engine.sceneContext.hoveredObject,
 				NewMessage(
-					engine.hoveredObject,
+					engine.sceneContext.hoveredObject,
 					MessageBuiltinEvent,
-					NewAmphionEvent(engine.hoveredObject, EventMouseOut, nil),
+					NewAmphionEvent(engine.sceneContext.hoveredObject, EventMouseOut, nil),
 				),
 			)
 		}
@@ -519,19 +517,19 @@ func (engine *AmphionEngine) handleMouseMove(_ AmphionEvent) bool {
 			),
 		)
 
-		engine.hoveredObject = o
+		engine.sceneContext.hoveredObject = o
 	} else {
-		if engine.hoveredObject != nil {
+		if engine.sceneContext.hoveredObject != nil {
 			engine.messageDispatcher.DispatchDirectly(
-				engine.hoveredObject,
+				engine.sceneContext.hoveredObject,
 				NewMessage(
-					engine.hoveredObject,
+					engine.sceneContext.hoveredObject,
 					MessageBuiltinEvent,
-					NewAmphionEvent(engine.hoveredObject, EventMouseOut, nil),
+					NewAmphionEvent(engine.sceneContext.hoveredObject, EventMouseOut, nil),
 				),
 			)
 
-			engine.hoveredObject = nil
+			engine.sceneContext.hoveredObject = nil
 		}
 	}
 

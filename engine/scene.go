@@ -361,7 +361,11 @@ func (o *SceneObject) IsPointInsideBoundaries2D(point a.Vector3) bool {
 }
 
 func (o *SceneObject) IsFocused() bool {
-	return instance.focusedObject == o
+	return instance.sceneContext.focusedObject == o
+}
+
+func (o *SceneObject) IsHovered() bool {
+	return instance.sceneContext.hoveredObject == o
 }
 
 func (o *SceneObject) IsVisibleInScene() bool {
