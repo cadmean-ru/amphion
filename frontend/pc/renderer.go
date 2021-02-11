@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/all-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -86,8 +87,6 @@ func (r *OpenGLRenderer) Prepare() {
 
 	r.calculateProjection()
 
-	r.window.SwapBuffers()
-
 	r.idgen = common.NewIdGenerator()
 }
 
@@ -116,6 +115,9 @@ func (r *OpenGLRenderer) RemovePrimitive(id int) {
 }
 
 func (r *OpenGLRenderer) PerformRendering() {
+	fmt.Println("Rendering")
+	fmt.Println(engine.GetInstance().GetCurrentScene().Transform.Size)
+
 	gl.ClearColor(1, 1, 1, 1)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
@@ -140,7 +142,6 @@ func (r *OpenGLRenderer) PerformRendering() {
 		i++
 	}
 
-	// TODO: replace this sort with something like binary search tree
 	sort.Slice(list, func(i, j int) bool {
 		z1 := list[i].primitive.GetTransform().Position.Z
 		z2 := list[j].primitive.GetTransform().Position.Z
@@ -182,8 +183,7 @@ func (r *OpenGLRenderer) Stop() {
 
 }
 
-func (r *OpenGLRenderer) handleWindowResize() {
-	gl.Viewport(0, 0, int32(r.wSize.X), int32(r.wSize.Y))
+func (r *OpenGLRenderer) handleWindowResize(w, h int) {
 	r.calculateProjection()
 }
 

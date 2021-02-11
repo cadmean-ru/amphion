@@ -60,13 +60,11 @@ func main() {
 	go func() {
 		e.Start()
 
-		if err := e.ShowScene(textScene(e)); err != nil {
+		if err := e.ShowScene(gridScene(e)); err != nil {
 			log.Println(err)
 		}
 
 		//e.LoadApp()
-
-		//_ = e.ShowScene(scene1(e))
 
 		e.WaitForStop()
 	}()

@@ -41,7 +41,7 @@ func (f *Frontend) Init() {
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 
-	if f.window, err = glfw.CreateWindow(int(f.wSize.X), int(f.wSize.Y), "Amphion", nil, nil); err != nil {
+	if f.window, err = glfw.CreateWindow(f.wSize.X, f.wSize.Y, "Amphion", nil, nil); err != nil {
 		panic(err)
 	}
 
@@ -49,8 +49,10 @@ func (f *Frontend) Init() {
 	f.window.SetKeyCallback(f.keyCallback)
 	f.window.SetFramebufferSizeCallback(f.frameBufferSizeCallback)
 	f.window.SetFocusCallback(f.focusCallback)
+	f.window.SetRefreshCallback(f.windowRefreshCallback)
+	f.window.SetCursorPosCallback(f.cursorPosCallback)
 
-	f.context.ScreenInfo = common.NewScreenInfo(int(f.wSize.X), int(f.wSize.Y))
+	f.context.ScreenInfo = common.NewScreenInfo(f.wSize.X, f.wSize.Y)
 
 	f.renderer.window = f.window
 	f.renderer.wSize = f.wSize
@@ -82,10 +84,6 @@ func (f *Frontend) Run() {
 		default:
 
 		}
-
-		//glfw.PollEvents()
-		//
-		//time.Sleep(SleepTimeMs)
 
 		glfw.WaitEventsTimeout(SleepTimeS)
 	}
@@ -129,8 +127,9 @@ func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, width int, height int
 	f.wSize = a.NewIntVector3(width, height, 0)
 	f.renderer.wSize = f.wSize
 	f.context.ScreenInfo = common.NewScreenInfo(width, height)
-	f.renderer.handleWindowResize()
+	f.renderer.handleWindowResize(width, height)
 	f.handler(frontend.NewCallback(frontend.CallbackContextChange, ""))
+	fmt.Printf("New window size: %d %d\n", width, height)
 }
 
 func (f *Frontend) focusCallback(_ *glfw.Window, focused bool) {
@@ -141,6 +140,14 @@ func (f *Frontend) focusCallback(_ *glfw.Window, focused bool) {
 		code = frontend.CallbackAppHide
 	}
 	f.handler(frontend.NewCallback(code, ""))
+}
+
+func (f *Frontend) windowRefreshCallback(_ *glfw.Window) {
+	f.handler(frontend.NewCallback(frontend.CallbackContextChange, ""))
+}
+
+func (f *Frontend) cursorPosCallback(_ *glfw.Window, _ float64, _ float64) {
+	f.handler(frontend.NewCallback(frontend.CallbackMouseMove, ""))
 }
 
 func (f *Frontend) Stop() {
