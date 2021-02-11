@@ -106,7 +106,6 @@ func (r *OpenGLRenderer) SetPrimitive(id int, primitive rendering.IPrimitive, sh
 		r.primitives[id].primitive = primitive
 		r.primitives[id].redraw = true
 	} else {
-		//panic(fmt.Sprintf("Primitive with id %d was not found.\nAdded primitives:\n%+v", id, r.primitives))
 		fmt.Printf("Warning! Primitive with id %d was not found.\n", id)
 	}
 }
@@ -415,7 +414,7 @@ func (r *OpenGLRenderer) drawText(p *glContainer) {
 
 	fontName := tp.TextAppearance.Font
 	if fontName == "" {
-		fontName = "Arial"
+		fontName = getDefaultFontName()
 	}
 
 	var font *glFont
@@ -456,7 +455,7 @@ func (r *OpenGLRenderer) drawText(p *glContainer) {
 		return
 	}
 
-	for i, c := range runes {
+	for _, c := range runes {
 		if c == ' ' {
 			x += 10
 			continue
@@ -475,8 +474,11 @@ func (r *OpenGLRenderer) drawText(p *glContainer) {
 		ch, ok1 := font.characters[c]
 
 		if !ok1 {
-			//fmt.Printf("Char not found %+v\n", c)
-			continue
+			fmt.Printf("Char not found %s\n", string(c))
+			ch, ok1 = font.characters['\u0000']
+			if !ok1 {
+				continue
+			}
 		}
 
 		if x + ch.advance > tp.Transform.Position.X + tp.Transform.Size.X {
@@ -506,11 +508,7 @@ func (r *OpenGLRenderer) drawText(p *glContainer) {
 			gl.Uniform3f(gl.GetUniformLocation(r.textProgram, gl.Str("textColor\x00")), color.X, color.Y, color.Z)
 		})
 
-		k := 0
-		if i < len(tp.Text) - 1 {
-			k = font.kern(c, runes[i + 1])
-		}
-		x += ch.advance + k
+		x += ch.advance
 	}
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)

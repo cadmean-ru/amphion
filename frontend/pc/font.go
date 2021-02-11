@@ -15,6 +15,8 @@ import (
 	"image"
 	"image/draw"
 	"io/ioutil"
+	"runtime"
+	"unicode"
 )
 
 type glCharacter struct {
@@ -78,7 +80,14 @@ func loadFont(name string, scale int) (*glFont, error) {
 		descent:    int(metrics.Descent) >> 6,
 	}
 
-	for _, r := range "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890\uE00A!@#$%^&**()-=_+{}[]|\\//?<>,.±§~`" {
+	runes := make([]rune, 0)
+	for i := '\u0000'; i < '\u052f'; i++ {
+		if unicode.IsPrint(i) {
+			runes = append(runes, i)
+		}
+	}
+
+	for _, r := range runes {
 		bounds, adv, ok := face.GlyphBounds(r)
 
 		if !ok {
@@ -115,6 +124,11 @@ func loadFont(name string, scale int) (*glFont, error) {
 		}
 
 		dr, mask, maskp, _, ok := face.Glyph(fixed.Point26_6{}, r)
+
+		if dr.Size().X == 0 || dr.Size().Y == 0 {
+			continue
+		}
+
 		img := image.NewGray(dr)
 		draw.Draw(img, dr, mask, maskp, draw.Src)
 
@@ -141,4 +155,11 @@ func loadFont(name string, scale int) (*glFont, error) {
 	}
 
 	return &glFont, nil
+}
+
+func getDefaultFontName() string {
+	switch runtime.GOOS {
+	default:
+		return "Arial"
+	}
 }
