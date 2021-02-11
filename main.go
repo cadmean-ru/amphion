@@ -7,6 +7,7 @@ import (
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend/pc"
 	"github.com/cadmean-ru/amphion/utils"
+	"log"
 	"runtime"
 )
 
@@ -59,11 +60,11 @@ func main() {
 	go func() {
 		e.Start()
 
-		//if err := e.ShowScene(scene1(e)); err != nil {
-		//	log.Println(err)
-		//}
+		if err := e.ShowScene(textScene(e)); err != nil {
+			log.Println(err)
+		}
 
-		e.LoadApp()
+		//e.LoadApp()
 
 		//_ = e.ShowScene(scene1(e))
 

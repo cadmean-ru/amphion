@@ -20,25 +20,32 @@ import (
 type glCharacter struct {
 	textureId uint32
 	char      rune
-	size      a.IntVector3
-	bearing   a.IntVector3
-	advance   a.IntVector3
+	size      a.IntVector2
+	bearing   a.IntVector2
+	advance   int
+	ascent    int
+	descent   int
 }
 
 type glFont struct {
 	name       string
 	characters map[rune]*glCharacter
-	maxHeight  int
 	ttf        *truetype.Font
+	scale      int
+	capHeight  int
+	lineHeight int
+	xHeight    int
+	ascent     int
+	descent    int
 }
 
 func (f *glFont) kern(a, b rune) int {
 	i1 := f.ttf.Index(a)
 	i2 := f.ttf.Index(b)
-	return f.ttf.Kern(fixed.Int26_6(f.maxHeight<<6), i1, i2).Round()
+	return f.ttf.Kern(fixed.Int26_6(f.scale<<6), i1, i2).Round()
 }
 
-func loadFont(name string) (*glFont, error) {
+func loadFont(name string, scale int) (*glFont, error) {
 	fontPath, err := findfont.Find(fmt.Sprintf("%s.ttf", name))
 	if err != nil {
 		return nil, err
@@ -51,51 +58,65 @@ func loadFont(name string) (*glFont, error) {
 		return nil, err
 	}
 
-	fupe := fixed.Int26_6(18<<6)
-
 	face := truetype.NewFace(f, &truetype.Options{
-		Size:              18,
+		Size:              float64(scale),
 		DPI:               72,
-		Hinting:           font.HintingNone,
+		Hinting:           font.HintingFull,
 	})
+
+	metrics := face.Metrics()
 
 	glFont := glFont{
 		name:       name,
 		characters: make(map[rune]*glCharacter),
 		ttf:        f,
+		scale:      scale,
+		capHeight:  int(metrics.CapHeight) >> 6,
+		lineHeight: int(metrics.Height) >> 6,
+		xHeight:    int(metrics.XHeight) >> 6,
+		ascent:     int(metrics.Ascent) >> 6,
+		descent:    int(metrics.Descent) >> 6,
 	}
 
-	maxH := 0
-
-	for _, r := range "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890\uE00A" {
-		face.Glyph(fixed.Point26_6{}, r)
-	}
-
-	for _, r := range "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890\uE00A" {
-		dr, mask, maskp, _, ok := face.Glyph(fixed.Point26_6{}, r)
+	for _, r := range "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890\uE00A!@#$%^&**()-=_+{}[]|\\//?<>,.±§~`" {
+		bounds, adv, ok := face.GlyphBounds(r)
 
 		if !ok {
 			return nil, errors.New("failed to get glyph")
 		}
 
-		i := f.Index(r)
-		hm := f.HMetric(fupe, i)
-		vm := f.VMetric(fupe, i)
+		width := int(bounds.Max.X - bounds.Min.X) >> 6
+		height := int(bounds.Max.Y - bounds.Min.Y) >> 6
 
-		bruh := image.NewGray(dr)
-		draw.Draw(bruh, dr, mask, maskp, draw.Src)
+		//if glyph has no dimensions set to a max value
+		if width == 0 || height == 0 {
+			bounds = f.Bounds(fixed.Int26_6(scale))
+			width = int((bounds.Max.X - bounds.Min.X) >> 6)
+			height = int((bounds.Max.Y - bounds.Min.Y) >> 6)
+
+			//above can sometimes yield 0 for font smaller than 48pt, 1 is minimum
+			if width == 0 || height == 0 {
+				width = 1
+				height = 1
+			}
+		}
+
+		ascent := int(-bounds.Min.Y) >> 6
+		descent := int(bounds.Max.Y) >> 6
 
 		c := glCharacter{
 			textureId: 0,
 			char:      r,
-			size:      a.NewIntVector3(dr.Size().X, dr.Size().Y, 0),
-			bearing:   a.NewIntVector3(hm.LeftSideBearing.Round(), vm.TopSideBearing.Round(), 0),
-			advance:   a.NewIntVector3(hm.AdvanceWidth.Round(), vm.AdvanceHeight.Round(), 0),
+			size:      a.NewIntVector2(width, height),
+			bearing:   a.NewIntVector2(int(bounds.Min.X) >> 6, descent),
+			advance:   int(adv) >> 6,
+			ascent:    ascent,
+			descent:   descent,
 		}
 
-		if dr.Size().Y > maxH {
-			maxH = dr.Size().Y
-		}
+		dr, mask, maskp, _, ok := face.Glyph(fixed.Point26_6{}, r)
+		img := image.NewGray(dr)
+		draw.Draw(img, dr, mask, maskp, draw.Src)
 
 		gl.GenTextures(1, &c.textureId)
 		gl.BindTexture(gl.TEXTURE_2D, c.textureId)
@@ -108,7 +129,7 @@ func loadFont(name string) (*glFont, error) {
 			0,
 			gl.RED,
 			gl.UNSIGNED_BYTE,
-			gl.Ptr(bruh.Pix),
+			gl.Ptr(img.Pix),
 		)
 
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
@@ -118,8 +139,6 @@ func loadFont(name string) (*glFont, error) {
 
 		glFont.characters[r] = &c
 	}
-
-	glFont.maxHeight = maxH
 
 	return &glFont, nil
 }

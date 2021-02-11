@@ -227,6 +227,11 @@ func (o *SceneObject) SetSizeXyz(x, y, z float32) {
 	o.SetSize(a.NewVector3(x, y, z))
 }
 
+// Set the size of this object equal to a new vector with specified coordinates, requesting rendering.
+func (o *SceneObject) SetSizeXy(x, y float32) {
+	o.SetSize(a.NewVector3(x, y, o.Transform.Size.Z))
+}
+
 // Forces all views of this object to redraw and requests rendering.
 func (o *SceneObject) Redraw() {
 	if !o.inCurrentScene {

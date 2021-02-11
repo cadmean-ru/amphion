@@ -422,7 +422,7 @@ func (r *OpenGLRenderer) drawText(p *glContainer) {
 	var ok bool
 	var err error
 	if font, ok = r.fonts[fontName]; !ok {
-		font, err = loadFont(fontName)
+		font, err = loadFont(fontName, int(tp.TextAppearance.FontSize))
 		if err != nil {
 			panic(err)
 		}
@@ -452,9 +452,23 @@ func (r *OpenGLRenderer) drawText(p *glContainer) {
 
 	runes := []rune(tp.Text)
 
+	if !canDrawNextLine(font, tp, y) {
+		return
+	}
+
 	for i, c := range runes {
 		if c == ' ' {
 			x += 10
+			continue
+		}
+
+		if c == '\n' {
+			if !canDrawNextLine(font, tp, y) {
+				break
+			}
+			
+			x = tp.Transform.Position.X
+			y += font.lineHeight
 			continue
 		}
 
@@ -465,10 +479,19 @@ func (r *OpenGLRenderer) drawText(p *glContainer) {
 			continue
 		}
 
+		if x + ch.advance > tp.Transform.Position.X + tp.Transform.Size.X {
+			if !canDrawNextLine(font, tp, y) {
+				break
+			}
+			
+			x = tp.Transform.Position.X
+			y += font.lineHeight
+		}
+
 		//fmt.Println(string(c))
 
 		xpos := x + ch.bearing.X
-		ypos := y
+		ypos := y + font.ascent - ch.ascent
 
 		pos := a.NewIntVector3(xpos, ypos, 0)
 		npos := pos.Ndc(r.wSize)
@@ -487,12 +510,16 @@ func (r *OpenGLRenderer) drawText(p *glContainer) {
 		if i < len(tp.Text) - 1 {
 			k = font.kern(c, runes[i + 1])
 		}
-		x += ch.advance.X + k
+		x += ch.advance + k
 	}
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 	gl.BindVertexArray(0)
 	gl.BindTexture(gl.TEXTURE_2D, 0)
+}
+
+func canDrawNextLine(font *glFont, tp *rendering.TextPrimitive, y int) bool {
+	return y + font.lineHeight <= tp.Transform.Position.Y + tp.Transform.Size.Y
 }
 
 func (r *OpenGLRenderer) drawImage(p *glContainer) {

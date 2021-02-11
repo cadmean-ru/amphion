@@ -18,7 +18,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	shape := builtin.NewShapeView(rendering.PrimitiveRectangle)
 	shape.FillColor = a.PinkColor()
 	rect.AddComponent(shape)
-	rect.AddComponent(&Mover{})
+	//rect.AddComponent(&Mover{})
 
 	circle := engine.NewSceneObject("circle")
 	circle.Transform.Size = a.NewVector3(50, 50, 0)
@@ -36,9 +36,9 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	scene.AddChild(rect)
 
 	text := engine.NewSceneObject("Close text")
-	text.Transform.Position = a.NewVector3(engine.CenterInParent, engine.CenterInParent, engine.CenterInParent)
+	text.Transform.Position = a.NewVector3(a.CenterInParent, a.CenterInParent, a.CenterInParent)
 	text.Transform.Pivot = a.NewVector3(0.5, 0.5, 0.5)
-	text.Transform.Size = a.NewVector3(300, 50, 0)
+	text.Transform.Size = a.NewVector3(100, 50, 0)
 	textComponent := builtin.NewTextView("Hello Amphion! 2")
 	textComponent.FontSize = 30
 	textComponent.TextColor = a.BlackColor()
@@ -438,3 +438,17 @@ func navigateOnClick2(_ engine.AmphionEvent) bool {
 //
 //	return scene
 //}
+
+func textScene(e *engine.AmphionEngine) *engine.SceneObject {
+	scene := engine.NewSceneObject("text scene")
+
+	text := engine.NewSceneObject("text")
+	text.SetSizeXy(a.MatchParent, a.MatchParent)
+	textView := builtin.NewTextView("Hello\nnext line\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+	textView.FontSize = 14
+	text.AddComponent(textView)
+
+	scene.AddChild(text)
+
+	return scene
+}
