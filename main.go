@@ -1,4 +1,6 @@
 //+build windows darwin linux
+//+build !android
+//+build !ios
 
 package main
 
