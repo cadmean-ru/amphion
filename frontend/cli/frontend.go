@@ -10,4 +10,5 @@ type FrontendCLI interface {
 	Reset()
 	GetAppData() []byte
 	CommencePanic(reason, msg string)
+	GetContext() *Context
 }

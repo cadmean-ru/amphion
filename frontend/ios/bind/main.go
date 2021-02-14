@@ -3,24 +3,23 @@ package bind
 import (
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
+	"github.com/cadmean-ru/amphion/frontend/cli"
 	"github.com/cadmean-ru/amphion/frontend/ios"
 )
 
-func AmphionInitIos(f IosFrontend, rm IosResourceManager) {
-	front := ios.NewFrontend(f, rm)
+func AmphionInitIos(f cli.FrontendCLI, rm cli.ResourceManagerCLI, r cli.RendererCLI) {
+	front := ios.NewFrontend(f, rm, r)
+	front.Init()
 
 	e := engine.Initialize(front)
 
 	registerComponents(e)
 	registerResources(e)
 
-	go func() {
-		e.Start()
-		e.LoadApp()
-		e.WaitForStop()
-	}()
+	e.Start()
+	e.LoadApp()
 
-	front.Run()
+	go front.Run()
 }
 
 func registerResources(e *engine.AmphionEngine) {
