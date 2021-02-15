@@ -41,13 +41,16 @@ func (m *MetalRenderer) SetPrimitive(id int, primitive rendering.IPrimitive, sho
 	fmt.Printf("%+v\n", tlPosN)
 	fmt.Printf("%+v\n", brPosN)
 
-
 	switch primitive.GetType() {
 	case rendering.PrimitiveRectangle, rendering.PrimitiveEllipse, rendering.PrimitiveTriangle:
 		gp := primitive.(*rendering.GeometryPrimitive)
 
 		fillColorN := gp.Appearance.FillColor.Normalize()
 		strokeColorN := gp.Appearance.StrokeColor.Normalize()
+
+		fmt.Printf("%+v\n", fillColorN)
+		fmt.Printf("%+v\n", gp.Appearance.FillColor)
+		fmt.Printf("%+v\n", strokeColorN)
 
 		data := cli.GeometryPrimitiveData{
 			GeometryType: int(primitive.GetType()),
