@@ -140,9 +140,7 @@ func (m *ComponentsManager) setReflectValue(vf reflect.Value, value interface{})
 
 		if structValue.Type().Implements(reflect.TypeOf((*a.Unstringable)(nil)).Elem()) {
 			structValue.Interface().(a.Unstringable).FromString(require.String(value))
-		}
-
-		if structValue.Type().Implements(reflect.TypeOf((*a.Unmappable)(nil)).Elem()) {
+		} else if structValue.Type().Implements(reflect.TypeOf((*a.Unmappable)(nil)).Elem()) {
 			structValue.Interface().(a.Unmappable).FromMap(a.RequireSiMap(value))
 		}
 
