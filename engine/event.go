@@ -23,6 +23,8 @@ const (
 	EventDropFile    = -16
 	EventMouseMove   = -17
 	EventAppLoaded   = -18
+	EventFocusGain   = -19
+	EventFocusLoose  = -20
 )
 
 type AmphionEvent struct {
