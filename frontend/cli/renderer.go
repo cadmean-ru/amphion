@@ -4,6 +4,7 @@ type RendererCLI interface {
 	Prepare()
 	AddPrimitive() int
 	SetGeometryPrimitive(id int, primitiveData *GeometryPrimitiveData)
+	SetImagePrimitive(id int, primitiveData *ImagePrimitiveData)
 	RemovePrimitive(id int)
 	PerformRendering()
 	Clear()
@@ -26,4 +27,10 @@ type GeometryPrimitiveData struct {
 	StrokeColorN *Vector4
 	StrokeWeight int
 	CornerRadius int
+}
+
+type ImagePrimitiveData struct {
+	TlPositionN  *Vector3
+	BrPositionN  *Vector3
+	ImageUrl     string
 }

@@ -82,6 +82,22 @@ func (m *MetalRenderer) SetPrimitive(id int, primitive rendering.IPrimitive, sho
 
 		fmt.Println("Setting primitive in go 2")
 		m.r.SetGeometryPrimitive(id, &data)
+	case rendering.PrimitiveImage:
+		ip := primitive.(*rendering.ImagePrimitive)
+		data := cli.ImagePrimitiveData{
+			TlPositionN:  &cli.Vector3{
+				X: tlPosN.X,
+				Y: tlPosN.Y,
+				Z: float32(t.Position.Z),
+			},
+			BrPositionN:  &cli.Vector3{
+				X: brPosN.X,
+				Y: brPosN.Y,
+				Z: brPosN.Z,
+			},
+			ImageUrl:    ip.ImageUrl,
+		}
+		m.r.SetImagePrimitive(id, &data)
 	}
 }
 
