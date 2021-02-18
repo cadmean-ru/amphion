@@ -91,7 +91,7 @@ func GetInstance() *AmphionEngine {
 // Must be called, before any interaction with the engine.
 func (engine *AmphionEngine) Start() {
 	engine.started = true
-	engine.registerInternalEvenHandlers()
+	engine.registerInternalEventHandlers()
 	engine.logger.Info(engine, "Amphion started")
 	engine.state = StateStarted
 	go engine.eventLoop()
@@ -455,8 +455,20 @@ func (engine *AmphionEngine) handleClickEvent(clickPos a.IntVector2) {
 			return candidates[i].Transform.GetGlobalPosition().Z > candidates[j].Transform.GetGlobalPosition().Z
 		})
 		o := candidates[0]
+
+		if engine.sceneContext.focusedObject != nil {
+			engine.messageDispatcher.DispatchDirectly(
+				engine.sceneContext.focusedObject,
+				NewMessage(
+					engine.sceneContext.focusedObject,
+					MessageBuiltinEvent,
+					NewAmphionEvent(engine.sceneContext.focusedObject, EventFocusLoose, nil),
+				),
+			)
+		}
 		engine.messageDispatcher.DispatchDirectly(o, NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, EventMouseDown, clickPos)))
 		engine.sceneContext.focusedObject = o
+		engine.messageDispatcher.DispatchDirectly(o, NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, EventFocusGain, nil)))
 
 		event := NewAmphionEvent(engine, EventMouseDown, MouseEventData{
 			MousePosition: clickPos,
@@ -464,6 +476,16 @@ func (engine *AmphionEngine) handleClickEvent(clickPos a.IntVector2) {
 		})
 		engine.eventChan<-event
 	} else {
+		if engine.sceneContext.focusedObject != nil {
+			engine.messageDispatcher.DispatchDirectly(
+				engine.sceneContext.focusedObject,
+				NewMessage(
+					engine.sceneContext.focusedObject,
+					MessageBuiltinEvent,
+					NewAmphionEvent(engine.sceneContext.focusedObject, EventFocusLoose, nil),
+				),
+			)
+		}
 		engine.sceneContext.focusedObject = nil
 		event := NewAmphionEvent(engine, EventMouseDown, MouseEventData{
 			MousePosition: clickPos,
@@ -550,7 +572,7 @@ func (engine *AmphionEngine) handleCloseSceneEvent(_ AmphionEvent) bool {
 	return false
 }
 
-func (engine *AmphionEngine) registerInternalEvenHandlers() {
+func (engine *AmphionEngine) registerInternalEventHandlers() {
 	engine.BindEventHandler(EventCloseScene, engine.handleCloseSceneEvent)
 	engine.BindEventHandler(EventMouseMove, engine.handleMouseMove)
 }

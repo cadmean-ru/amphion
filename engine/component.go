@@ -29,6 +29,7 @@ type UpdatingComponent interface {
 
 // Interface for views.
 type ViewComponent interface {
+	Component
 	OnDraw(ctx DrawingContext)
 	ForceRedraw()
 }

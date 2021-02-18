@@ -61,7 +61,7 @@ func (r *updateRoutine) waitForStop() {
 
 	for r.running {
 		instance.logger.Info(r, "Waiting for update loop to stop")
-		time.Sleep(100)
+		time.Sleep(100 * time.Millisecond)
 	}
 }
 

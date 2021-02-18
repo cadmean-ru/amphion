@@ -132,7 +132,11 @@ func (m *ComponentsManager) setReflectValue(vf reflect.Value, value interface{})
 
 	switch vf.Kind() {
 	case reflect.Int, reflect.Int32, reflect.Int64, reflect.Uint8, reflect.Float32, reflect.Float64:
-		newValue = reflect.ValueOf(require.Number(value, vf.Kind()))
+		if vf.Type().AssignableTo(reflect.TypeOf(a.ResId(0))) {
+			newValue = reflect.ValueOf(a.ResId(require.Int(value)))
+		} else {
+			newValue = reflect.ValueOf(require.Number(value, vf.Kind()))
+		}
 	case reflect.String:
 		newValue = reflect.ValueOf(require.String(value))
 	case reflect.Struct:
