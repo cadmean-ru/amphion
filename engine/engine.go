@@ -76,7 +76,7 @@ func Initialize(front frontend.Frontend) *AmphionEngine {
 		componentsManager: newComponentsManager(),
 		front:             front,
 	}
-	instance.renderer = rendering.NewRendererImpl(front.GetRendererDelegate())
+	instance.renderer = front.GetRenderer()
 	instance.globalContext = instance.front.GetContext()
 	instance.front.SetCallback(instance.handleFrontEndCallback)
 	return instance
@@ -95,7 +95,6 @@ func (engine *AmphionEngine) Start() {
 	engine.state = StateStarted
 	go engine.eventLoop()
 	engine.tasksRoutine.start()
-	engine.renderer.Prepare()
 	engine.logger.Info(engine, "Amphion started")
 }
 
@@ -430,7 +429,6 @@ func (engine *AmphionEngine) handleStop() {
 
 	close(engine.eventChan)
 	engine.updateRoutine.close()
-	engine.renderer.Stop()
 
 	engine.logger.Info(engine, "Amphion stopped")
 

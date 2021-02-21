@@ -14,9 +14,6 @@ type RendererImpl struct {
 }
 
 func (r *RendererImpl) Prepare() {
-	r.primitives = make(map[int]*PrimitiveContainer)
-	r.primitiveDelegates = make(map[byte]PrimitiveRendererDelegate)
-	r.idgen = common.NewIdGenerator()
 	r.delegate.OnPrepare()
 	for _, delegate := range r.primitiveDelegates {
 		delegate.OnStart()
@@ -75,11 +72,13 @@ func (r *RendererImpl) PerformRendering() {
 
 	list := make([]*PrimitiveContainer, count)
 
-	for i, p := range r.primitives {
+	var i = 0
+	for _, p := range r.primitives {
 		if p.primitive == nil {
 			continue
 		}
 		list[i] = p
+		i++
 	}
 
 	sort.Slice(list, func(i, j int) bool {
@@ -134,5 +133,8 @@ func (r *RendererImpl) RegisterPrimitiveRendererDelegate(primitiveKind byte, del
 func NewRendererImpl(delegate RendererDelegate) *RendererImpl {
 	return &RendererImpl{
 		delegate:           delegate,
+		idgen:              common.NewIdGenerator(),
+		primitives:         make(map[int]*PrimitiveContainer),
+		primitiveDelegates: make(map[byte]PrimitiveRendererDelegate),
 	}
 }

@@ -23,6 +23,7 @@ type Frontend struct {
 	wSize            a.IntVector3
 	handler          frontend.CallbackHandler
 	rendererDelegate *OpenGLRenderer
+	renderer         *rendering.RendererImpl
 	initialized      bool
 	context          frontend.Context
 	msgChan          chan frontend.Message
@@ -59,6 +60,8 @@ func (f *Frontend) Init() {
 	f.rendererDelegate.wSize = f.wSize
 
 	f.inputMan.window = f.window
+
+	f.renderer.Prepare()
 
 	f.initialized = true
 }
@@ -151,7 +154,7 @@ func (f *Frontend) cursorPosCallback(_ *glfw.Window, _ float64, _ float64) {
 }
 
 func (f *Frontend) Stop() {
-	glfw.Terminate()
+	f.renderer.Stop()
 }
 
 func (f *Frontend) Reset() {
@@ -166,11 +169,11 @@ func (f *Frontend) GetInputManager() frontend.InputManager {
 	return f.inputMan
 }
 
-func (f *Frontend) GetRendererDelegate() rendering.RendererDelegate {
+func (f *Frontend) GetRenderer() *rendering.RendererImpl {
 	if !f.initialized {
 		return nil
 	}
-	return f.rendererDelegate
+	return f.renderer
 }
 
 func (f *Frontend) GetPlatform() common.Platform {
@@ -222,5 +225,6 @@ func NewFrontend() *Frontend {
 	f.rendererDelegate = &OpenGLRenderer{
 		front:      f,
 	}
+	f.renderer = rendering.NewRendererImpl(f.rendererDelegate)
 	return f
 }

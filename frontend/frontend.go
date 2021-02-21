@@ -12,7 +12,7 @@ type Frontend interface {
 	Reset()
 	SetCallback(handler CallbackHandler)
 	GetInputManager() InputManager
-	GetRendererDelegate() rendering.RendererDelegate
+	GetRenderer() *rendering.RendererImpl
 	GetContext() Context
 	GetPlatform() common.Platform
 	CommencePanic(reason, msg string)

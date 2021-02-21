@@ -47,8 +47,12 @@ func (r *OpenGLRenderer) OnPrepare() {
 
 	//r.calculateProjection()
 
-	r1 := engine.GetInstance().GetRenderer()
-	r1.RegisterPrimitiveRendererDelegate(rendering.PrimitiveText, &TextRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
+	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveText, &TextRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
+	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveRectangle, &RectangleRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
+	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveEllipse, &EllipseRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
+	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveTriangle, &TriangleRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
+	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveLine, &LineRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
+	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveImage, &ImageRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
 }
 
 func (r *OpenGLRenderer) OnPerformRenderingStart() {
@@ -73,6 +77,7 @@ func (r *OpenGLRenderer) OnStop() {
 }
 
 func (r *OpenGLRenderer) handleWindowResize(w, h int) {
+	gl.Viewport(0, 0, int32(w), int32(h))
 	//r.calculateProjection()
 }
 
