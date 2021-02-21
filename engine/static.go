@@ -3,6 +3,7 @@ package engine
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/frontend"
 )
 
 // Prints a message to the log from the current component, formatting the msg using fmt.Sprintf.
@@ -65,4 +66,17 @@ func UnbindEventHandler(eventCode int, handler EventHandler) {
 // Executes the specified action on frontend thread. 
 func ExecuteOnFrontendThread(action func()) {
 	instance.ExecuteOnFrontendThread(action)
+}
+
+func GetFrontendContext() frontend.Context {
+	return instance.GetGlobalContext()
+}
+
+func GetScreenSize() a.IntVector2 {
+	return instance.GetGlobalContext().ScreenInfo.GetSize()
+}
+
+func GetScreenSize3() a.IntVector3 {
+	s := instance.GetGlobalContext().ScreenInfo.GetSize()
+	return a.NewIntVector3(s.X, s.Y, 0)
 }

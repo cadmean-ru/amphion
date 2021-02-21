@@ -19,7 +19,7 @@ var instance *AmphionEngine
 type AmphionEngine struct {
 	platform common.Platform
 	logger   *Logger
-	renderer rendering.Renderer
+	renderer *rendering.RendererImpl
 	idgen    *common.IdGenerator
 	started  bool
 	state    byte
@@ -76,7 +76,7 @@ func Initialize(front frontend.Frontend) *AmphionEngine {
 		componentsManager: newComponentsManager(),
 		front:             front,
 	}
-	instance.renderer = instance.front.GetRenderer()
+	instance.renderer = rendering.NewRendererImpl(front.GetRendererDelegate())
 	instance.globalContext = instance.front.GetContext()
 	instance.front.SetCallback(instance.handleFrontEndCallback)
 	return instance
@@ -92,10 +92,11 @@ func GetInstance() *AmphionEngine {
 func (engine *AmphionEngine) Start() {
 	engine.started = true
 	engine.registerInternalEventHandlers()
-	engine.logger.Info(engine, "Amphion started")
 	engine.state = StateStarted
 	go engine.eventLoop()
 	engine.tasksRoutine.start()
+	engine.renderer.Prepare()
+	engine.logger.Info(engine, "Amphion started")
 }
 
 // Closes the current scene if any, and stops the engine.
@@ -109,7 +110,7 @@ func (engine *AmphionEngine) WaitForStop() {
 }
 
 // Returns the renderer.
-func (engine *AmphionEngine) GetRenderer() rendering.Renderer {
+func (engine *AmphionEngine) GetRenderer() *rendering.RendererImpl {
 	return engine.renderer
 }
 
@@ -221,6 +222,9 @@ func (engine *AmphionEngine) CloseScene(callback func()) {
 }
 
 func (engine *AmphionEngine) configureScene(scene *SceneObject) {
+	if scene == nil {
+		return
+	}
 	screenInfo := engine.globalContext.ScreenInfo
 	scene.Transform.Size.X = float32(screenInfo.GetWidth())
 	scene.Transform.Size.Y = float32(screenInfo.GetHeight())
@@ -426,6 +430,7 @@ func (engine *AmphionEngine) handleStop() {
 
 	close(engine.eventChan)
 	engine.updateRoutine.close()
+	engine.renderer.Stop()
 
 	engine.logger.Info(engine, "Amphion stopped")
 

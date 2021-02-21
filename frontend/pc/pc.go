@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -18,15 +19,15 @@ import (
 const SleepTimeS = float64(1) / 120
 
 type Frontend struct {
-	window      *glfw.Window
-	wSize       a.IntVector3
-	handler     frontend.CallbackHandler
-	renderer    *OpenGLRenderer
-	initialized bool
-	context     frontend.Context
-	msgChan     chan frontend.Message
-	inputMan    *InputManager
-	resMan      *ResourceManager
+	window           *glfw.Window
+	wSize            a.IntVector3
+	handler          frontend.CallbackHandler
+	rendererDelegate *OpenGLRenderer
+	initialized      bool
+	context          frontend.Context
+	msgChan          chan frontend.Message
+	inputMan         *InputManager
+	resMan           *ResourceManager
 }
 
 func (f *Frontend) Init() {
@@ -54,9 +55,8 @@ func (f *Frontend) Init() {
 
 	f.context.ScreenInfo = common.NewScreenInfo(f.wSize.X, f.wSize.Y)
 
-	f.renderer.window = f.window
-	f.renderer.wSize = f.wSize
-	f.renderer.Prepare()
+	f.rendererDelegate.window = f.window
+	f.rendererDelegate.wSize = f.wSize
 
 	f.inputMan.window = f.window
 
@@ -70,7 +70,7 @@ func (f *Frontend) Run() {
 			if ok {
 				switch msg.Code {
 				case frontend.MessageRender:
-					f.renderer.PerformRendering()
+					engine.GetInstance().GetRenderer().PerformRendering()
 				case frontend.MessageExec:
 					if msg.Data != nil {
 						if action, ok := msg.Data.(func()); ok {
@@ -125,9 +125,9 @@ func (f *Frontend) keyCallback(_ *glfw.Window, key glfw.Key, scancode int, actio
 
 func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, width int, height int) {
 	f.wSize = a.NewIntVector3(width, height, 0)
-	f.renderer.wSize = f.wSize
+	f.rendererDelegate.wSize = f.wSize
 	f.context.ScreenInfo = common.NewScreenInfo(width, height)
-	f.renderer.handleWindowResize(width, height)
+	f.rendererDelegate.handleWindowResize(width, height)
 	f.handler(frontend.NewCallback(frontend.CallbackContextChange, ""))
 	fmt.Printf("New window size: %d %d\n", width, height)
 }
@@ -166,11 +166,11 @@ func (f *Frontend) GetInputManager() frontend.InputManager {
 	return f.inputMan
 }
 
-func (f *Frontend) GetRenderer() rendering.Renderer {
+func (f *Frontend) GetRendererDelegate() rendering.RendererDelegate {
 	if !f.initialized {
 		return nil
 	}
-	return f.renderer
+	return f.rendererDelegate
 }
 
 func (f *Frontend) GetPlatform() common.Platform {
@@ -219,8 +219,7 @@ func NewFrontend() *Frontend {
 		msgChan:  make(chan frontend.Message, 10),
 		resMan:   newResourceManager(),
 	}
-	f.renderer = &OpenGLRenderer{
-		primitives: make(map[int]*glContainer),
+	f.rendererDelegate = &OpenGLRenderer{
 		front:      f,
 	}
 	return f

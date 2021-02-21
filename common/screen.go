@@ -1,5 +1,7 @@
 package common
 
+import "github.com/cadmean-ru/amphion/common/a"
+
 type ScreenInfo struct {
 	width, height int
 }
@@ -10,6 +12,10 @@ func (s ScreenInfo) GetWidth() int {
 
 func (s ScreenInfo) GetHeight() int {
 	return s.height
+}
+
+func (s ScreenInfo) GetSize() a.IntVector2 {
+	return a.NewIntVector2(s.width, s.height)
 }
 
 func (s ScreenInfo) FromMap(m map[string]interface{}) {

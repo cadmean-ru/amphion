@@ -1,5 +1,6 @@
 package rendering
 
+//Deprecated
 type Renderer interface {
 	Prepare()
 	AddPrimitive() int

@@ -1,7 +1,5 @@
 package rendering
 
-const imagePrimitiveBytesSize = primitiveBytesSize + 4
-
 type ImagePrimitive struct {
 	Transform Transform
 	ImageUrl  string

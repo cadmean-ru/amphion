@@ -447,7 +447,7 @@ func textScene(e *engine.AmphionEngine) *engine.SceneObject {
 	textView := builtin.NewTextView("Hello\nnext line\naaaaaaaaaaaaaa aaaaaaaaaaaaaa aaaaaaaaa aaaaaaaaaaaa\nывлоарывлаолывтёоылдомыволадыаааа дылаоыа\n\"!@#$%^&*()_+-={}[]🤢🌮")
 	textView.FontSize = 69
 	textView.HTextAlign = a.TextAlignCenter
-	textView.VTextAlign = a.TextAlignBottom
+	textView.VTextAlign = a.TextAlignCenter
 	text.AddComponent(textView)
 
 	scene.AddChild(text)
