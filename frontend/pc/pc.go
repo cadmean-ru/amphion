@@ -221,7 +221,6 @@ func NewFrontend() *Frontend {
 	}
 	f.renderer = &OpenGLRenderer{
 		primitives: make(map[int]*glContainer),
-		fonts:      make(map[string]*glFont),
 		front:      f,
 	}
 	return f
