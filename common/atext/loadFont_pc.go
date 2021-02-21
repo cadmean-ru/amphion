@@ -7,10 +7,11 @@ package atext
 import (
 	"fmt"
 	"github.com/flopp/go-findfont"
-	"github.com/golang/freetype/truetype"
 	"io/ioutil"
 )
 
+//LoadFont tries to find font file with the specified name in well-known locations and parse it.
+//Supported only on PC.
 func LoadFont(name string) (*Font, error) {
 	fontPath, err := findfont.Find(fmt.Sprintf("%s.ttf", name))
 	if err != nil {
@@ -18,16 +19,11 @@ func LoadFont(name string) (*Font, error) {
 	}
 
 	fontData, err := ioutil.ReadFile(fontPath)
-
-	f, err := truetype.Parse(fontData)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Font{
-		name: name,
-		ttf:  f,
-	}, nil
+	return ParseFont(fontData)
 }
 
 func LoadDefaultFont() (*Font, error) {

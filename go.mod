@@ -1,6 +1,6 @@
 module github.com/cadmean-ru/amphion
 
-go 1.15
+go 1.16
 
 require (
 	github.com/4ydx/gltext v0.0.0-20181021030543-84bc6aa204bf

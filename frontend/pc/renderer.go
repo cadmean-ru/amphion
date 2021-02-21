@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/atext"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/all-core/gl"
@@ -35,9 +36,10 @@ type OpenGLRenderer struct {
 	primitives     map[int]*glContainer
 	shouldDelete   bool
 	wSize          a.IntVector3
-	fonts          map[string]*glFont
+	fonts          map[string]*atext.Font
 	projection     [16]float32
 	front          *Frontend
+	charsTextures  map[int]map[rune]uint32
 }
 
 func (r *OpenGLRenderer) Prepare() {
@@ -88,6 +90,8 @@ func (r *OpenGLRenderer) Prepare() {
 	r.calculateProjection()
 
 	r.idgen = common.NewIdGenerator()
+	r.fonts = make(map[string]*atext.Font)
+	r.charsTextures = make(map[int]map[rune]uint32)
 }
 
 func (r *OpenGLRenderer) AddPrimitive() int {
@@ -417,103 +421,87 @@ func (r *OpenGLRenderer) drawText(p *glContainer) {
 		fontName = getDefaultFontName()
 	}
 
-	var font *glFont
+	var font *atext.Font
 	var ok bool
 	var err error
 	if font, ok = r.fonts[fontName]; !ok {
-		font, err = loadFont(fontName, int(tp.TextAppearance.FontSize))
+		font, err = atext.LoadFont(fontName)
 		if err != nil {
 			panic(err)
 		}
 		r.fonts[fontName] = font
 	}
 
-	//p.gen()
-	//
-	//if p.redraw {
-	//	gl.BindVertexArray(p.vao)
-	//	gl.BindBuffer(gl.ARRAY_BUFFER, p.vbo)
-	//	gl.BufferData(gl.ARRAY_BUFFER, 4*6*4, nil, gl.DYNAMIC_DRAW)
-	//	gl.VertexAttribPointer(0, 4, gl.FLOAT, false, 4*4, nil)
-	//	gl.EnableVertexAttribArray(0)
-	//	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-	//	gl.BindVertexArray(0)
-	//}
+	face := font.NewFace(int(tp.TextAppearance.FontSize))
 
 	color := tp.Appearance.FillColor.Normalize()
 
-	//gl.UseProgram(r.textProgram)
-	//gl.ActiveTexture(gl.TEXTURE0)
-	//gl.BindVertexArray(p.vao)
-
-	x := tp.Transform.Position.X
-	y := tp.Transform.Position.Y
-
 	runes := []rune(tp.Text)
 
-	if !canDrawNextLine(font, tp, y) {
-		return
-	}
-
-	for _, c := range runes {
-		if c == ' ' {
-			x += 10
-			continue
+	atext.LayoutRunes(face, runes, tp.Transform.GetRect(), atext.LayoutOptions{
+		VTextAlign: tp.VTextAlign,
+		HTextAlign: tp.HTextAlign,
+	}).ForEachChar(func(c *atext.Char) {
+		if !c.IsVisible() {
+			return
 		}
 
-		if c == '\n' {
-			if !canDrawNextLine(font, tp, y) {
-				break
-			}
-			
-			x = tp.Transform.Position.X
-			y += font.lineHeight
-			continue
-		}
-
-		ch, ok1 := font.characters[c]
-
-		if !ok1 {
-			fmt.Printf("Char not found %s\n", string(c))
-			ch, ok1 = font.characters['\u0000']
-			if !ok1 {
-				continue
-			}
-		}
-
-		if x + ch.advance > tp.Transform.Position.X + tp.Transform.Size.X {
-			if !canDrawNextLine(font, tp, y) {
-				break
-			}
-			
-			x = tp.Transform.Position.X
-			y += font.lineHeight
-		}
-
-		//fmt.Println(string(c))
-
-		xpos := x + ch.bearing.X
-		ypos := y + font.ascent - ch.ascent
-
-		pos := a.NewIntVector3(xpos, ypos, 0)
+		pos2d := c.GetPosition()
+		pos := a.NewIntVector3(pos2d.X, pos2d.Y, 0)
 		npos := pos.Ndc(r.wSize)
 
-		w := ch.size.X
-		h := ch.size.Y
+		w := c.GetGlyph().GetSize().X
+		h := c.GetGlyph().GetSize().Y
 
 		brpos := pos.Add(a.NewIntVector3(w, h, 0))
 		nbrpos := brpos.Ndc(r.wSize)
 
-		r.drawTex(p, npos, nbrpos, ch.textureId, r.textProgram, func() {
+		var textId uint32
+		if m1, ok := r.charsTextures[int(tp.TextAppearance.FontSize)]; ok {
+			if tx, ok := m1[c.GetRune()]; ok {
+				textId = tx
+			} else {
+				textId = r.genGlyphTex(c.GetGlyph())
+				m1[c.GetRune()] = textId
+			}
+		} else {
+			textId = r.genGlyphTex(c.GetGlyph())
+			r.charsTextures[int(tp.TextAppearance.FontSize)] = make(map[rune]uint32)
+			r.charsTextures[int(tp.TextAppearance.FontSize)][c.GetRune()] = textId
+		}
+
+		r.drawTex(p, npos, nbrpos, textId, r.textProgram, func() {
 			gl.Uniform3f(gl.GetUniformLocation(r.textProgram, gl.Str("textColor\x00")), color.X, color.Y, color.Z)
 		})
-
-		x += ch.advance
-	}
+	})
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 	gl.BindVertexArray(0)
 	gl.BindTexture(gl.TEXTURE_2D, 0)
+}
+
+func (r *OpenGLRenderer) genGlyphTex(g *atext.Glyph) uint32 {
+	var textId uint32
+	gl.GenTextures(1, &textId)
+	gl.BindTexture(gl.TEXTURE_2D, textId)
+	gl.TexImage2D(
+		gl.TEXTURE_2D,
+		0,
+		gl.RED,
+		int32(g.GetSize().X),
+		int32(g.GetSize().Y),
+		0,
+		gl.RED,
+		gl.UNSIGNED_BYTE,
+		gl.Ptr(g.GetPixels()),
+	)
+
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+
+	return textId
 }
 
 func canDrawNextLine(font *glFont, tp *rendering.TextPrimitive, y int) bool {

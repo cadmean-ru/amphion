@@ -8,6 +8,7 @@ import (
 	"image/draw"
 )
 
+// Face represents a font face, i.e. a font variant of the specific size.
 type Face struct {
 	font       *Font
 	face       font.Face
@@ -17,37 +18,55 @@ type Face struct {
 	xHeight    int
 	ascent     int
 	descent    int
+	glyphs     map[rune]*Glyph
 }
 
+//GetFont returns the Font, that this face is associates with.
 func (f *Face) GetFont() *Font {
 	return f.font
 }
 
+//GetSize returns the size of this font face.
 func (f *Face) GetSize() int {
 	return f.size
 }
 
+//GetCapHeight returns the height of capital letter in this face.
 func (f *Face) GetCapHeight() int {
 	return f.capHeight
 }
 
+//GetLineHeight returns the line height of this face.
 func (f *Face) GetLineHeight() int {
 	return f.lineHeight
 }
 
+//GetXHeight returns the xHeight of this face.
 func (f *Face) GetXHeight() int {
 	return f.xHeight
 }
 
+//GetAscent returns the ascent of this face.
 func (f *Face) GetAscent() int {
 	return f.ascent
 }
 
+//GetDescent returns the descent of this face.
 func (f *Face) GetDescent() int {
 	return f.descent
 }
 
+//GetKerning returns the kerning between the two given runes.
+func (f *Face) GetKerning(r1, r2 rune) int {
+	return int(f.face.Kern(r1, r2)) >> 6
+}
+
+//GetGlyph creates a glyph i.e. a visual representation for the given rune.
 func (f *Face) GetGlyph(r rune) *Glyph {
+	if g, ok := f.glyphs[r]; ok {
+		return g
+	}
+
 	bounds, adv, ok := f.face.GlyphBounds(r)
 
 	if !ok {
@@ -92,6 +111,8 @@ func (f *Face) GetGlyph(r rune) *Glyph {
 		ascent:  ascent,
 		descent: descent,
 	}
+
+	f.glyphs[r] = &g
 
 	return &g
 }
