@@ -2,13 +2,11 @@ package builtin
 
 import (
 	"github.com/cadmean-ru/amphion/engine"
-	"github.com/cadmean-ru/amphion/native"
 )
 
 // Component displays a native input widget for current platform.
 type NativeInputView struct {
 	engine.ComponentImpl
-	initFeature   *nativeInputViewInit
 	onTextChange  func(text string)
 	onInitNative  func(ctx engine.InitContext)
 	onStartNative func()
@@ -25,8 +23,14 @@ type NativeInputView struct {
 
 func (n *NativeInputView) OnInit(ctx engine.InitContext) {
 	n.ComponentImpl.OnInit(ctx)
-	n.initFeature = &nativeInputViewInit{view: n}
-	native.Invoke(n.initFeature)
+	n.onInitNative = n.onInitWeb
+	n.onStartNative = n.onStartWeb
+	n.onStopNative = n.onStopWeb
+	n.onDrawNative = n.onDrawWeb
+	n.setTextNative = n.setTextWeb
+	n.getTextNative = n.getTextWeb
+	n.setHintNative = n.setHintWeb
+	n.getHintNative = n.getHintWeb
 	n.onInitNative(ctx)
 }
 
@@ -78,27 +82,6 @@ func (n *NativeInputView) GetHint() string {
 	n.hint = n.getHintNative()
 	return n.hint
 }
-
-//region Init native feature
-
-// Init
-type nativeInputViewInit struct {
-	native.FeatureImpl
-	view *NativeInputView
-}
-
-func (n *nativeInputViewInit) OnWeb() {
-	n.view.onInitNative = n.view.onInitWeb
-	n.view.onStartNative = n.view.onStartWeb
-	n.view.onStopNative = n.view.onStopWeb
-	n.view.onDrawNative = n.view.onDrawWeb
-	n.view.setTextNative = n.view.setTextWeb
-	n.view.getTextNative = n.view.getTextWeb
-	n.view.setHintNative = n.view.setHintWeb
-	n.view.getHintNative = n.view.getHintWeb
-}
-
-//endregion
 
 // Creates a new NativeInputView. Returns pointer to the instance.
 // This function takes a set of parameters to initialize the input view. All of them are optional.
