@@ -391,6 +391,16 @@ func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
 	}
 }
 
+func (o *SceneObject) ForEachChild(action func(object *SceneObject)) {
+	if !o.enabled {
+		return
+	}
+
+	for _, c := range o.children {
+		action(c)
+	}
+}
+
 func (o *SceneObject) ForEachComponent(action func(component Component)) {
 	for _, c := range o.components {
 		if !c.enabled || !c.initialized {

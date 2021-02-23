@@ -19,7 +19,7 @@ func (t Transform) ToMap() map[string]interface{} {
 	}
 }
 
-func (t Transform) GetRect() common.RectBoundary {
+func (t Transform) GetRect() *common.RectBoundary {
 	tlp := t.Position
 	minX := tlp.X
 	maxX := tlp.X + t.Size.X

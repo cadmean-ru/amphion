@@ -1,5 +1,5 @@
 
-// +build darwin
+// +build darwin linux windows
 
 package pc
 

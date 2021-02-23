@@ -6,7 +6,7 @@ import (
 )
 
 // LayoutRunes splits the given text into lines, aligns text and calculates the coordinates of each rune in the slice.
-func LayoutRunes(face *Face, runes []rune, bounds common.RectBoundary, options LayoutOptions) *Text {
+func LayoutRunes(face *Face, runes []rune, bounds *common.RectBoundary, options LayoutOptions) *Text {
 	text := &Text{lines: make([]*Line, 0, 10)}
 	allChars := make([]*Char, len(runes))
 

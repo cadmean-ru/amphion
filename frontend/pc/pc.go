@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
-	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -53,6 +52,7 @@ func (f *Frontend) Init() {
 	f.window.SetFocusCallback(f.focusCallback)
 	f.window.SetRefreshCallback(f.windowRefreshCallback)
 	f.window.SetCursorPosCallback(f.cursorPosCallback)
+	f.window.SetScrollCallback(f.scrollCallback)
 
 	f.context.ScreenInfo = common.NewScreenInfo(f.wSize.X, f.wSize.Y)
 
@@ -73,7 +73,7 @@ func (f *Frontend) Run() {
 			if ok {
 				switch msg.Code {
 				case frontend.MessageRender:
-					engine.GetInstance().GetRenderer().PerformRendering()
+					f.renderer.PerformRendering()
 				case frontend.MessageExec:
 					if msg.Data != nil {
 						if action, ok := msg.Data.(func()); ok {
@@ -132,6 +132,7 @@ func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, width int, height int
 	f.context.ScreenInfo = common.NewScreenInfo(width, height)
 	f.rendererDelegate.handleWindowResize(width, height)
 	f.handler(frontend.NewCallback(frontend.CallbackContextChange, ""))
+	f.renderer.PerformRendering()
 	fmt.Printf("New window size: %d %d\n", width, height)
 }
 
@@ -151,6 +152,10 @@ func (f *Frontend) windowRefreshCallback(_ *glfw.Window) {
 
 func (f *Frontend) cursorPosCallback(_ *glfw.Window, _ float64, _ float64) {
 	f.handler(frontend.NewCallback(frontend.CallbackMouseMove, ""))
+}
+
+func (f *Frontend) scrollCallback(_ *glfw.Window, xoff float64, yoff float64) {
+	f.handler(frontend.NewCallback(frontend.CallbackMouseScroll, fmt.Sprintf("%f:%f", xoff, yoff)))
 }
 
 func (f *Frontend) Stop() {

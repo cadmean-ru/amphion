@@ -58,6 +58,9 @@ func (r *ARenderer) RemovePrimitive(id int) {
 		if d, ok := r.primitiveDelegates[p.primitive.GetType()]; ok {
 			d.OnRemovePrimitive(r.makePrimitiveRenderingContext(p))
 		}
+		for _, l := range r.layers {
+			l.removePrimitiveId(id)
+		}
 		delete(r.primitives, id)
 	}
 }

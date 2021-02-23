@@ -261,6 +261,10 @@ func (engine *AmphionEngine) RequestRendering() {
 	engine.updateRoutine.requestRendering()
 }
 
+func (engine *AmphionEngine) ForceAllViewsRedraw() {
+	engine.forceRedraw = true
+}
+
 func (engine *AmphionEngine) IsForcedToRedraw() bool {
 	return engine.forceRedraw
 }
@@ -321,6 +325,13 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontend.Callback) 
 	case frontend.CallbackMouseMove:
 		event := NewAmphionEvent(engine, EventMouseMove, nil)
 		engine.eventChan <- event
+	case frontend.CallbackMouseScroll:
+		var x, y float32
+		n, err := fmt.Sscanf(callback.Data, "%f:%f", &x, &y)
+		if n != 2 || err != nil {
+			panic("Invalid scroll callback data")
+		}
+		engine.RaiseEvent(NewAmphionEvent(engine, EventMouseScroll, a.Vector2{X: x, Y: y}))
 	}
 }
 

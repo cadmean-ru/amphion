@@ -25,6 +25,7 @@ const (
 	EventAppLoaded   = -18
 	EventFocusGain   = -19
 	EventFocusLoose  = -20
+	EventMouseScroll = -21
 )
 
 type AmphionEvent struct {
