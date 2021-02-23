@@ -48,7 +48,7 @@ func (c InitContext) GetSceneObject() *SceneObject {
 	return c.sceneObject
 }
 
-func (c InitContext) GetRenderer() *rendering.RendererImpl {
+func (c InitContext) GetRenderer() *rendering.ARenderer {
 	return c.engine.renderer
 }
 
@@ -76,14 +76,14 @@ func newUpdateContext(dTime float32) UpdateContext {
 
 // Contains renderer
 type DrawingContext struct {
-	renderer *rendering.RendererImpl
+	renderer *rendering.ARenderer
 }
 
-func (c DrawingContext) GetRenderer() *rendering.RendererImpl {
+func (c DrawingContext) GetRenderer() *rendering.ARenderer {
 	return c.renderer
 }
 
-func newRenderingContext(renderer *rendering.RendererImpl) DrawingContext {
+func newRenderingContext(renderer *rendering.ARenderer) DrawingContext {
 	return DrawingContext{
 		renderer: renderer,
 	}

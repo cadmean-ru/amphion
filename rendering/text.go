@@ -19,6 +19,10 @@ func (p *TextPrimitive) GetTransform() Transform {
 	return p.Transform
 }
 
+func (p *TextPrimitive) SetTransform(t Transform) {
+	p.Transform = t
+}
+
 func NewTextPrimitive(text string) *TextPrimitive {
 	return &TextPrimitive{
 		Transform:      NewTransform(),

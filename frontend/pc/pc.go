@@ -23,7 +23,7 @@ type Frontend struct {
 	wSize            a.IntVector3
 	handler          frontend.CallbackHandler
 	rendererDelegate *OpenGLRenderer
-	renderer         *rendering.RendererImpl
+	renderer         *rendering.ARenderer
 	initialized      bool
 	context          frontend.Context
 	msgChan          chan frontend.Message
@@ -169,7 +169,7 @@ func (f *Frontend) GetInputManager() frontend.InputManager {
 	return f.inputMan
 }
 
-func (f *Frontend) GetRenderer() *rendering.RendererImpl {
+func (f *Frontend) GetRenderer() *rendering.ARenderer {
 	if !f.initialized {
 		return nil
 	}
@@ -225,6 +225,6 @@ func NewFrontend() *Frontend {
 	f.rendererDelegate = &OpenGLRenderer{
 		front:      f,
 	}
-	f.renderer = rendering.NewRendererImpl(f.rendererDelegate)
+	f.renderer = rendering.NewARenderer(f.rendererDelegate)
 	return f
 }

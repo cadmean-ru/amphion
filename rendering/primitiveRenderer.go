@@ -1,7 +1,7 @@
 package rendering
 
 type PrimitiveRenderingContext struct {
-	Renderer      *RendererImpl
+	Renderer      *ARenderer
 	Primitive     IPrimitive
 	PrimitiveKind byte
 	State         interface{}

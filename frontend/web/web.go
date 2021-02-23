@@ -89,7 +89,7 @@ func (f *Frontend) GetInputManager() frontend.InputManager {
 	return f.input
 }
 
-func (f *Frontend) GetRenderer() rendering.Renderer {
+func (f *Frontend) GetRenderer() rendering.ARenderer {
 	return f.renderer
 }
 

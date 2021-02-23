@@ -14,6 +14,10 @@ func (p *GeometryPrimitive) GetTransform() Transform {
 	return p.Transform
 }
 
+func (p *GeometryPrimitive) SetTransform(t Transform) {
+	p.Transform = t
+}
+
 func NewGeometryPrimitive(pType byte) *GeometryPrimitive {
 	if pType < 0 || pType > 5 {
 		pType = 0

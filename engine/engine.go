@@ -19,7 +19,7 @@ var instance *AmphionEngine
 type AmphionEngine struct {
 	platform common.Platform
 	logger   *Logger
-	renderer *rendering.RendererImpl
+	renderer *rendering.ARenderer
 	idgen    *common.IdGenerator
 	started  bool
 	state    byte
@@ -109,7 +109,7 @@ func (engine *AmphionEngine) WaitForStop() {
 }
 
 // Returns the renderer.
-func (engine *AmphionEngine) GetRenderer() *rendering.RendererImpl {
+func (engine *AmphionEngine) GetRenderer() *rendering.ARenderer {
 	return engine.renderer
 }
 
