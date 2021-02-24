@@ -138,12 +138,12 @@ func (t Transform) GetSize() a.Vector3 {
 }
 
 // Calculates local rect of this transform.
-func (t Transform) GetRect() common.RectBoundary {
+func (t Transform) GetRect() *common.RectBoundary {
 	return t.calculateRect(a.ZeroVector())
 }
 
 // Calculates global rect of this transform.
-func (t Transform) GetGlobalRect() common.RectBoundary {
+func (t Transform) GetGlobalRect() *common.RectBoundary {
 	return t.calculateRect(t.GetGlobalTopLeftPosition())
 }
 
@@ -158,7 +158,7 @@ func (t *Transform) ToRenderingTransform() rendering.Transform {
 }
 
 // Calculates the rect boundary of the transform given the top left point's position.
-func (t Transform) calculateRect(tlp a.Vector3) common.RectBoundary {
+func (t Transform) calculateRect(tlp a.Vector3) *common.RectBoundary {
 	minX := tlp.X
 	maxX := tlp.X + t.GetSize().X
 	minY := tlp.Y

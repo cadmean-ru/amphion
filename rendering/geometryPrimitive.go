@@ -1,7 +1,5 @@
 package rendering
 
-const primitiveBytesSize = 1 + transformBytesSize + appearanceBytesSize
-
 type GeometryPrimitive struct {
 	Transform     Transform
 	Appearance    Appearance
