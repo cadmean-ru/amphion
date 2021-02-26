@@ -280,7 +280,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	grid.ColPadding = 50
 	scene.AddComponent(grid)
 
-	//var counter int
+	var counter int
 
 	addBtn := makeRect("add button", 0, 0, 100, 100, a.GreenColor())
 	addBtnText := engine.NewSceneObject("add text")
@@ -293,21 +293,21 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	addBtn.AddChild(addBtnText)
 	addBtn.AddComponent(builtin.NewRectBoundary())
 	addBtn.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
-		color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
-		rect := makeRect(fmt.Sprintf("Rect"), 0, 0, 100, float32(rand.Intn(300)), color)
-		rect.AddComponent(builtin.NewRectBoundary())
-		scene.AddChild(rect)
+		//color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
+		//rect := makeRect(fmt.Sprintf("Rect"), 0, 0, 100, float32(rand.Intn(300)), color)
+		//rect.AddComponent(builtin.NewRectBoundary())
+		//scene.AddChild(rect)
 
-		//counter++
-		//
-		//inputObj := engine.NewSceneObject(fmt.Sprintf("input %d", counter))
-		//inputObj.Transform.Size.Y = float32(rand.Intn(300))
-		//input := builtin.NewNativeInputView("", fmt.Sprintf("Enter some text %d", counter))
-		//input.SetOnTextChangeListener(func(text string) {
-		//	engine.LogDebug(fmt.Sprintf("Hello from %s! Text: %s\n", inputObj.GetName(), text))
-		//})
-		//inputObj.AddComponent(input)
-		//scene.AddChild(inputObj)
+		counter++
+
+		inputObj := engine.NewSceneObject(fmt.Sprintf("input %d", counter))
+		inputObj.Transform.Size.Y = float32(rand.Intn(300))
+		input := builtin.NewNativeInputView("", fmt.Sprintf("Enter some text %d", counter))
+		input.SetOnTextChangeListener(func(text string) {
+			engine.LogDebug(fmt.Sprintf("Hello from %s! Text: %s\n", inputObj.GetName(), text))
+		})
+		inputObj.AddComponent(input)
+		scene.AddChild(inputObj)
 
 		return false
 	}))
@@ -544,12 +544,14 @@ func textScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("text scene")
 
 	text := engine.NewSceneObject("text")
-	text.SetSizeXy(a.MatchParent, a.MatchParent)
+	text.SetSizeXy(200, 200)
 	textView := builtin.NewTextView("Hello\nnext line\naaaaaaaaaaaaaa aaaaaaaaaaaaaa aaaaaaaaa aaaaaaaaaaaa\nывлоарывлаолывтёоылдомыволадыаааа дылаоыа\n\"!@#$%^&*()_+-={}[]🤢🌮")
-	textView.FontSize = 69
+	textView.FontSize = 16
 	textView.HTextAlign = a.TextAlignCenter
 	textView.VTextAlign = a.TextAlignCenter
 	text.AddComponent(textView)
+	text.AddComponent(builtin.NewRectBoundary())
+	text.AddComponent(builtin.NewMouseMover())
 
 	scene.AddChild(text)
 

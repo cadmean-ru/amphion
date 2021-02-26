@@ -6,31 +6,19 @@ import (
 )
 
 type RectBoundary struct {
-	obj *engine.SceneObject
+	engine.ComponentImpl
 }
 
 func (r *RectBoundary) GetName() string {
 	return engine.NameOfComponent(r)
 }
 
-func (r *RectBoundary) OnInit(ctx engine.InitContext) {
-	r.obj = ctx.GetSceneObject()
-}
-
-func (r *RectBoundary) OnStart() {
-
-}
-
-func (r *RectBoundary) OnStop() {
-
-}
-
 func (r *RectBoundary) IsPointInside(point a.Vector3) bool {
-	return r.obj.Transform.GetGlobalRect().IsPointInside(point)
+	return r.SceneObject.Transform.GetGlobalRect().IsPointInside(point)
 }
 
 func (r *RectBoundary) IsPointInside2D(point a.Vector3) bool {
-	return r.obj.Transform.GetGlobalRect().IsPointInside2D(point)
+	return r.SceneObject.Transform.GetGlobalRect().IsPointInside2D(point)
 }
 
 func NewRectBoundary() *RectBoundary {

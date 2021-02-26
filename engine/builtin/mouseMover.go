@@ -6,40 +6,31 @@ import (
 )
 
 type MouseMover struct {
-	object   *engine.SceneObject
-	engine   *engine.AmphionEngine
+	engine.ComponentImpl
 	dragging bool
 	mousePos a.IntVector2
 }
 
-func (m *MouseMover) OnInit(ctx engine.InitContext) {
-	m.object = ctx.GetSceneObject()
-	m.engine = ctx.GetEngine()
-}
-
 func (m *MouseMover) OnStart() {
-	m.engine.BindEventHandler(engine.EventMouseUp, m.handleMouseUp)
+	engine.BindEventHandler(engine.EventMouseDown, m.handleMouseDown)
+	engine.BindEventHandler(engine.EventMouseUp, m.handleMouseUp)
 }
 
-func (m *MouseMover) handleMouseUp(_ engine.AmphionEvent) bool {
-	m.dragging = false
-	return true
-}
-
-func (m *MouseMover) OnMessage(msg engine.Message) bool {
-	if msg.Code != engine.MessageBuiltinEvent || msg.Sender != m.object {
-		return true
-	}
-
-	event := msg.Data.(engine.AmphionEvent)
-	if event.Code != engine.EventMouseDown {
+func (m *MouseMover) handleMouseDown(e engine.AmphionEvent) bool {
+	eventData := e.Data.(engine.MouseEventData)
+	if eventData.SceneObject != m.SceneObject {
 		return true
 	}
 
 	m.dragging = true
-	m.mousePos = m.engine.GetInputManager().GetMousePosition()
-	m.engine.RequestUpdate()
+	m.mousePos = m.Engine.GetInputManager().GetMousePosition()
+	m.Engine.RequestUpdate()
+	return true
+}
 
+
+func (m *MouseMover) handleMouseUp(_ engine.AmphionEvent) bool {
+	m.dragging = false
 	return true
 }
 
@@ -48,16 +39,17 @@ func (m *MouseMover) OnUpdate(_ engine.UpdateContext) {
 		return
 	}
 
-	newMousePos := m.engine.GetInputManager().GetMousePosition()
+	newMousePos := m.Engine.GetInputManager().GetMousePosition()
 	dPos := newMousePos.Sub(m.mousePos)
 	m.mousePos = newMousePos
-	m.object.Transform.Position = m.object.Transform.Position.Add(dPos.ToFloat3())
-	m.engine.GetMessageDispatcher().DispatchDown(m.object, engine.NewMessage(m, engine.MessageRedraw, nil), engine.MessageMaxDepth)
-	m.engine.RequestRendering()
+	m.SceneObject.Transform.Position = m.SceneObject.Transform.Position.Add(dPos.ToFloat3())
+	m.Engine.GetMessageDispatcher().DispatchDown(m.SceneObject, engine.NewMessage(m, engine.MessageRedraw, nil), engine.MessageMaxDepth)
+	m.Engine.RequestRendering()
 }
 
 func (m *MouseMover) OnStop() {
-	m.engine.UnbindEventHandler(engine.EventMouseUp, m.handleMouseUp)
+	engine.UnbindEventHandler(engine.EventMouseUp, m.handleMouseUp)
+	engine.UnbindEventHandler(engine.EventMouseDown, m.handleMouseDown)
 }
 
 func (m *MouseMover) GetName() string {
