@@ -1,4 +1,4 @@
-#version 330 core
+#version 330
 //
 //in vec4 fPosition;
 //in vec4 fFillColor;

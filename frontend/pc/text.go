@@ -5,7 +5,7 @@ import (
 	"github.com/cadmean-ru/amphion/common/atext"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
-	"github.com/go-gl/gl/all-core/gl"
+	"github.com/go-gl/gl/v4.1-core/gl"
 )
 
 type TextRenderer struct {
@@ -28,7 +28,7 @@ func (r *TextRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 
 	fontName := tp.TextAppearance.Font
 	if fontName == "" {
-		fontName = getDefaultFontName()
+		fontName = "Arial"
 	}
 
 	var font *atext.Font

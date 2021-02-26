@@ -1,4 +1,4 @@
-#version 330 core
+#version 330
 
 flat in vec3 fTopLeft;
 flat in vec3 fBottomRight;

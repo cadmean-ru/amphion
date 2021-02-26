@@ -15,7 +15,7 @@ import (
 	"math"
 )
 
-const SleepTimeS = float64(1) / 120
+const SleepTimeS = 1.0 / 120.0
 
 type Frontend struct {
 	window           *glfw.Window
@@ -37,8 +37,8 @@ func (f *Frontend) Init() {
 		panic(err)
 	}
 
-	glfw.WindowHint(glfw.ContextVersionMajor, 3)
-	glfw.WindowHint(glfw.ContextVersionMinor, 3)
+	glfw.WindowHint(glfw.ContextVersionMajor, 4)
+	glfw.WindowHint(glfw.ContextVersionMinor, 1)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 

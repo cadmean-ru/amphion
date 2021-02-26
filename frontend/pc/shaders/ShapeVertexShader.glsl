@@ -1,4 +1,4 @@
-#version 330 core
+#version 330
 //layout (location = 0) in ivec3 vPosition;
 //layout (location = 1) in ivec4 vFillColor;
 //layout (location = 2) in ivec4 vStrokeColor;
@@ -53,5 +53,5 @@ void main() {
 //    vec4 test = uProjection * vec4(vTest.xyz, 1.0);
     fPosition = vec4(vPosition.xyz, 1.0);
     gl_Position = fPosition;
-    fFillColor = colorNormalizer * vFillCollor;
+    fFillColor = vFillCollor / 255;
 }
