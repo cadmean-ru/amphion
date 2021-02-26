@@ -4,7 +4,7 @@
 package pc
 
 import (
-	"github.com/go-gl/gl/all-core/gl"
+	"github.com/go-gl/gl/v3.3-core/gl"
 	"log"
 	"strings"
 )

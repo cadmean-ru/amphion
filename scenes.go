@@ -443,12 +443,14 @@ func textScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("text scene")
 
 	text := engine.NewSceneObject("text")
-	text.SetSizeXy(a.MatchParent, a.MatchParent)
+	text.SetSizeXy(200, 200)
 	textView := builtin.NewTextView("Hello\nnext line\naaaaaaaaaaaaaa aaaaaaaaaaaaaa aaaaaaaaa aaaaaaaaaaaa\nывлоарывлаолывтёоылдомыволадыаааа дылаоыа\n\"!@#$%^&*()_+-={}[]🤢🌮")
-	textView.FontSize = 69
+	textView.FontSize = 16
 	textView.HTextAlign = a.TextAlignCenter
-	textView.VTextAlign = a.TextAlignBottom
+	textView.VTextAlign = a.TextAlignCenter
 	text.AddComponent(textView)
+	text.AddComponent(builtin.NewRectBoundary())
+	text.AddComponent(builtin.NewMouseMover())
 
 	scene.AddChild(text)
 
