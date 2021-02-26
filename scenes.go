@@ -552,8 +552,15 @@ func textScene(e *engine.AmphionEngine) *engine.SceneObject {
 	text.AddComponent(textView)
 	text.AddComponent(builtin.NewRectBoundary())
 	text.AddComponent(builtin.NewMouseMover())
-
 	scene.AddChild(text)
+
+	grogu := engine.NewSceneObject("grogu")
+	grogu.SetSizeXy(69, 69)
+	grogu.SetPositionXyz(0, 0, 69)
+	grogu.AddComponent(builtin.NewImageView(Res_images_gun))
+	grogu.AddComponent(builtin.NewRectBoundary())
+	grogu.AddComponent(builtin.NewMouseMover())
+	scene.AddChild(grogu)
 
 	return scene
 }

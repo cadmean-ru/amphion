@@ -79,5 +79,5 @@ func (r *ImageRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 	nPos := ip.Transform.Position.Ndc(wSize)
 	brPos := ip.Transform.Position.Add(ip.Transform.Size).Ndc(wSize)
 
-	drawTex(ctx, nPos, brPos, texId, r.program, nil)
+	drawTex(ctx, nPos, brPos, texId, r.program, false, nil)
 }

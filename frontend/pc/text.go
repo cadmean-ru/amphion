@@ -81,7 +81,7 @@ func (r *TextRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 			r.charsTextures[int(tp.TextAppearance.FontSize)][c.GetRune()] = textId
 		}
 
-		drawTex(ctx, npos, nbrpos, textId, r.program, func() {
+		drawTex(ctx, npos, nbrpos, textId, r.program, true, func() {
 			gl.Uniform3f(gl.GetUniformLocation(r.program, gl.Str("textColor\x00")), color.X, color.Y, color.Z)
 		})
 	})
