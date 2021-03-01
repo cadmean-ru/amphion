@@ -12,8 +12,8 @@ type EllipseRenderer struct {
 
 func (r *EllipseRenderer) OnStart() {
 	r.program = createAndLinkProgramOrPanic(
-		createAndCompileShaderOrPanic(EllipseVertexShaderStr, gl.VERTEX_SHADER),
-		createAndCompileShaderOrPanic(EllipseFragShaderStr, gl.FRAGMENT_SHADER),
+		createAndCompileShaderOrPanic(zeroTerminated(EllipseVertexShaderStr), gl.VERTEX_SHADER),
+		createAndCompileShaderOrPanic(zeroTerminated(EllipseFragShaderStr), gl.FRAGMENT_SHADER),
 	)
 }
 

@@ -18,8 +18,8 @@ func (r *TextRenderer) OnStart() {
 	r.fonts = make(map[string]*atext.Font)
 	r.charsTextures = make(map[int]map[rune]uint32)
 	r.program = createAndLinkProgramOrPanic(
-		createAndCompileShaderOrPanic(TextVertexShaderStr, gl.VERTEX_SHADER),
-		createAndCompileShaderOrPanic(TextFragShaderStr, gl.FRAGMENT_SHADER),
+		createAndCompileShaderOrPanic(zeroTerminated(TextVertexShaderStr), gl.VERTEX_SHADER),
+		createAndCompileShaderOrPanic(zeroTerminated(TextFragShaderStr), gl.FRAGMENT_SHADER),
 	)
 }
 

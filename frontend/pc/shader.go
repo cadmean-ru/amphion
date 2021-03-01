@@ -4,6 +4,7 @@
 package pc
 
 import (
+	_ "embed"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"log"
 	"strings"
@@ -62,8 +63,45 @@ func createAndLinkProgramOrPanic(vertexShader, fragShader uint32) uint32 {
 }
 
 func createAndLinkDefaultProgramOrPanic() uint32 {
-	vertexShader := createAndCompileShaderOrPanic(DefaultVertexShaderStr, gl.VERTEX_SHADER)
-	fragShader := createAndCompileShaderOrPanic(DefaultFragShaderStr, gl.FRAGMENT_SHADER)
+	vertexShader := createAndCompileShaderOrPanic(zeroTerminated(DefaultVertexShaderStr), gl.VERTEX_SHADER)
+	fragShader := createAndCompileShaderOrPanic(zeroTerminated(DefaultFragShaderStr), gl.FRAGMENT_SHADER)
 
 	return createAndLinkProgramOrPanic(vertexShader, fragShader)
 }
+
+func zeroTerminated(s string) string {
+	return s + "\x00"
+}
+
+//go:embed shaders/DefaultFragShader.glsl
+var DefaultFragShaderStr string
+
+//go:embed shaders/DefaultVertexShader.glsl
+var DefaultVertexShaderStr string
+
+//go:embed shaders/EllipseFragShader.glsl
+var EllipseFragShaderStr string
+
+//go:embed shaders/EllipseVertexShader.glsl
+var EllipseVertexShaderStr string
+
+//go:embed shaders/ImageFragShader.glsl
+var ImageFragShaderStr string
+
+//go:embed shaders/ImageVertexShader.glsl
+var ImageVertexShaderStr string
+
+//go:embed shaders/RectFragShader.glsl
+var RectFragShaderStr string
+
+//go:embed shaders/ShapeFragShader.glsl
+var ShapeFragShaderStr string
+
+//go:embed shaders/ShapeVertexShader.glsl
+var ShapeVertexShaderStr string
+
+//go:embed shaders/TextFragShader.glsl
+var TextFragShaderStr string
+
+//go:embed shaders/TextVertexShader.glsl
+var TextVertexShaderStr string

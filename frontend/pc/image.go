@@ -19,8 +19,8 @@ type ImageRenderer struct {
 
 func (r *ImageRenderer) OnStart() {
 	r.program = createAndLinkProgramOrPanic(
-		createAndCompileShaderOrPanic(ImageVertexShaderStr, gl.VERTEX_SHADER),
-		createAndCompileShaderOrPanic(ImageFragShaderStr, gl.FRAGMENT_SHADER),
+		createAndCompileShaderOrPanic(zeroTerminated(ImageVertexShaderStr), gl.VERTEX_SHADER),
+		createAndCompileShaderOrPanic(zeroTerminated(ImageFragShaderStr), gl.FRAGMENT_SHADER),
 	)
 }
 

@@ -40,15 +40,6 @@ out vec4 fFillColor;
 
 uniform mat4 uProjection;
 
-const float c1 = float(1)/float(255);
-
-const mat4 colorNormalizer = mat4(
-    c1, 0, 0, 0,
-    0, c1, 0, 0,
-    0, 0, c1, 0,
-    0, 0, 0, c1
-);
-
 void main() {
 //    vec4 test = uProjection * vec4(vTest.xyz, 1.0);
     fPosition = vec4(vPosition.xyz, 1.0);

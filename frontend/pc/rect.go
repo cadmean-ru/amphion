@@ -12,8 +12,8 @@ type RectangleRenderer struct {
 
 func (r *RectangleRenderer) OnStart() {
 	r.program = createAndLinkProgramOrPanic(
-		createAndCompileShaderOrPanic(ShapeVertexShaderStr, gl.VERTEX_SHADER),
-		createAndCompileShaderOrPanic(ShapeFragShaderStr, gl.FRAGMENT_SHADER),
+		createAndCompileShaderOrPanic(zeroTerminated(ShapeVertexShaderStr), gl.VERTEX_SHADER),
+		createAndCompileShaderOrPanic(zeroTerminated(ShapeFragShaderStr), gl.FRAGMENT_SHADER),
 	)
 }
 

@@ -12,9 +12,6 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
-//go:generate ../../build/darwin/test --generate shaders -i ./shaders -o ./shaders.gen.go --package pc
-
-
 type OpenGLRenderer struct {
 	window         *glfw.Window
 	wSize          a.IntVector3

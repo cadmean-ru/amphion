@@ -12,8 +12,8 @@ type LineRenderer struct {
 
 func (r *LineRenderer) OnStart() {
 	r.program = createAndLinkProgramOrPanic(
-		createAndCompileShaderOrPanic(DefaultVertexShaderStr, gl.VERTEX_SHADER),
-		createAndCompileShaderOrPanic(DefaultFragShaderStr, gl.FRAGMENT_SHADER),
+		createAndCompileShaderOrPanic(zeroTerminated(DefaultVertexShaderStr), gl.VERTEX_SHADER),
+		createAndCompileShaderOrPanic(zeroTerminated(DefaultFragShaderStr), gl.FRAGMENT_SHADER),
 	)
 }
 
