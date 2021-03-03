@@ -18,6 +18,10 @@ func (r *RectangleRenderer) OnStart() {
 }
 
 func (r *RectangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
+	if BRUH {
+		//fmt.Println("bruh")
+	}
+
 	gp := ctx.Primitive.(*rendering.GeometryPrimitive)
 	state := ctx.State.(*glPrimitiveState)
 

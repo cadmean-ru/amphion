@@ -44,8 +44,6 @@ func (r *OpenGLRenderer) OnPrepare() {
 
 	//r.calculateProjection()
 
-	r.window.SwapBuffers()
-
 	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveText, &TextRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
 	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveRectangle, &RectangleRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
 	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveEllipse, &EllipseRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
@@ -57,8 +55,9 @@ func (r *OpenGLRenderer) OnPrepare() {
 func (r *OpenGLRenderer) OnPerformRenderingStart() {
 	fmt.Println("Rendering")
 	fmt.Println(engine.GetInstance().GetCurrentScene().Transform.Size)
+	fmt.Println(r.wSize)
 
-	gl.Viewport(0, 0, int32(r.wSize.X), int32(r.wSize.Y))
+	//gl.Viewport(0, 0, int32(r.wSize.X), int32(r.wSize.Y))
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 }
 
@@ -69,15 +68,16 @@ func (r *OpenGLRenderer) OnPerformRenderingEnd() {
 }
 
 func (r *OpenGLRenderer) OnClear() {
-
+	fmt.Println("OpenGL renderer clear")
 }
 
 func (r *OpenGLRenderer) OnStop() {
-
+	fmt.Println("OpenGL renderer stop")
 }
 
 func (r *OpenGLRenderer) handleWindowResize(w, h int) {
 	r.wSize = a.NewIntVector3(w, h, 0)
+	fmt.Printf("OpenGL renderer: handle resize: %d, %d\n", w, h)
 	gl.Viewport(0, 0, int32(w), int32(h))
 	//r.calculateProjection()
 }

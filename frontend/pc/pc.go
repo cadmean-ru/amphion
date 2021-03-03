@@ -15,6 +15,8 @@ import (
 	"math"
 )
 
+var BRUH = false
+
 const SleepTimeS = 1.0 / 120.0
 
 type Frontend struct {
@@ -127,13 +129,15 @@ func (f *Frontend) keyCallback(_ *glfw.Window, key glfw.Key, scancode int, actio
 }
 
 func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, width int, height int) {
-	f.wSize = a.NewIntVector3(width, height, 0)
+	w, h := f.window.GetSize()
+	f.wSize = a.NewIntVector3(w, h, 0)
 	f.rendererDelegate.wSize = f.wSize
-	f.context.ScreenInfo = common.NewScreenInfo(width, height)
-	f.rendererDelegate.handleWindowResize(width, height)
+	f.context.ScreenInfo = common.NewScreenInfo(w, h)
+	f.rendererDelegate.handleWindowResize(w, h)
 	f.handler(frontend.NewCallback(frontend.CallbackContextChange, ""))
-	f.renderer.PerformRendering()
-	fmt.Printf("New window size: %d %d\n", width, height)
+	//f.renderer.PerformRendering()
+	fmt.Printf("New window size: %d %d\n", w, h)
+	BRUH = true
 }
 
 func (f *Frontend) focusCallback(_ *glfw.Window, focused bool) {
@@ -150,7 +154,12 @@ func (f *Frontend) windowRefreshCallback(_ *glfw.Window) {
 	f.handler(frontend.NewCallback(frontend.CallbackContextChange, ""))
 }
 
-func (f *Frontend) cursorPosCallback(_ *glfw.Window, _ float64, _ float64) {
+func (f *Frontend) cursorPosCallback(_ *glfw.Window, x float64, y float64) {
+	//fmt.Printf("Mouse moved: %f %f\n", x, y)
+	//x2, y2 := f.window.GetCursorPos()
+	//fmt.Printf("Mouse moved bruh: %f %f\n", x2, y2)
+	//w, h := f.window.GetSize()
+	//fmt.Printf("Mouse moved size: %d %d\n", w, h)
 	f.handler(frontend.NewCallback(frontend.CallbackMouseMove, ""))
 }
 
