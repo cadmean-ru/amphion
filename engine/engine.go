@@ -363,6 +363,9 @@ func (engine *AmphionEngine) handleFrontEndInterrupt(msg string) {
 
 func (engine *AmphionEngine) recover() {
 	if err := recover(); err != nil {
+		engine.logger.Error(engine, "")
+		engine.logger.Error(engine, "--- BEGINNING OF CRASH ---")
+		engine.logger.Error(engine, "")
 		engine.logger.Error(engine, "Fatal error.")
 		engine.logger.Error(engine, fmt.Sprintf("Current state: %s", engine.GetStateString()))
 		if engine.currentComponent != nil {

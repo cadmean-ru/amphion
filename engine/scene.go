@@ -27,17 +27,26 @@ type SceneObject struct {
 	inCurrentScene      bool
 }
 
+//GetName returns the name of the scene object.
 func (o *SceneObject) GetName() string {
 	return o.name
 }
 
-// Returns the id of the object in the scene.
+// GetId returns the id of the object in the scene.
+// The id is not guaranteed to remain the same over time and serves for internal engine purposes.
+// For identification use object's name.
 func (o *SceneObject) GetId() int {
 	return o.id
 }
 
+// Returns the string representation of the scene object.
 func (o *SceneObject) ToString() string {
 	return o.name
+}
+
+// For GoLand debugging.
+func (o *SceneObject) DebugString() string {
+	return o.ToString()
 }
 
 // Returns the parent object of this scene object. Returns nil if no parent object.
@@ -47,6 +56,7 @@ func (o *SceneObject) GetParent() *SceneObject {
 
 func (o *SceneObject) appendChild(object *SceneObject) {
 	object.parent = o
+	object.Transform.SceneObject = object
 	object.Transform.parent = &o.Transform
 	object.inCurrentScene = o.inCurrentScene
 	o.children = append(o.children, object)
@@ -307,7 +317,7 @@ func (o *SceneObject) update(ctx UpdateContext) {
 
 func (o *SceneObject) draw(ctx DrawingContext) {
 	for _, c := range o.renderingComponents {
-		if !c.enabled {
+		if !c.enabled || !c.initialized {
 			continue
 		}
 
@@ -337,10 +347,12 @@ func (o *SceneObject) setInCurrentScene(b bool) {
 	}
 }
 
+//IsRendering checks if the scene object has any view components.
 func (o *SceneObject) IsRendering() bool {
 	return len(o.renderingComponents) > 0
 }
 
+//HasBoundary checks if the scene object has any boundary components.
 func (o *SceneObject) HasBoundary() bool {
 	return len(o.boundaryComponents) > 0
 }
@@ -365,10 +377,12 @@ func (o *SceneObject) IsPointInsideBoundaries2D(point a.Vector3) bool {
 	return false
 }
 
+//IsFocused checks if the scene object is currently focused.
 func (o *SceneObject) IsFocused() bool {
 	return instance.sceneContext.focusedObject == o
 }
 
+//IsHovered checks if the cursor is over the scene object.
 func (o *SceneObject) IsHovered() bool {
 	return instance.sceneContext.hoveredObject == o
 }
@@ -379,6 +393,9 @@ func (o *SceneObject) IsVisibleInScene() bool {
 	return rect.X.Max >= sceneRect.X.Min && rect.X.Min <= sceneRect.X.Max && rect.Y.Max >= sceneRect.Y.Min && rect.Y.Min <= sceneRect.Y.Max
 }
 
+// ForEachObject traverses the scene object tree, calling the action function for each of the objects.
+// The action is also called for the object on which the method was called.
+// The method skips uninitialized or disabled objects.
 func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
 	if !o.enabled {
 		return
@@ -391,6 +408,8 @@ func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
 	}
 }
 
+// ForEachComponent iterates over each component attached to the object, calling the action function for each of them.
+// The method skips uninitialized or disabled components.
 func (o *SceneObject) ForEachComponent(action func(component Component)) {
 	for _, c := range o.components {
 		if !c.enabled || !c.initialized {
@@ -484,6 +503,7 @@ func (o *SceneObject) DecodeFromYaml(data []byte) error {
 	return nil
 }
 
+// NewSceneObject creates a new instance of scene object.
 func NewSceneObject(name string) *SceneObject {
 	obj := &SceneObject{
 		id:                  instance.idgen.NextId(),

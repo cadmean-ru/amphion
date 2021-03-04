@@ -4,6 +4,7 @@ package engine
 
 import (
 	"fmt"
+	"github.com/cadmean-ru/amphion/atest"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
 	"testing"
@@ -68,7 +69,7 @@ func createTestScene() *SceneObject {
 }
 
 func TestSceneObject_EncodeToYaml(t *testing.T) {
-	runEngineTest(func(e *AmphionEngine) {
+	atest.RunEngineTest(t, func(e *AmphionEngine) {
 		scene := createTestScene()
 		data, err := scene.EncodeToYaml()
 		if err != nil {
@@ -160,7 +161,7 @@ transform:
     z: 1
 `
 
-	runEngineTest(func(e *AmphionEngine) {
+	atest.RunEngineTest(t, func(e *AmphionEngine) {
 		cm := e.GetComponentsManager()
 		cm.RegisterComponentType(&testComponent{})
 		cm.RegisterComponentType(&testStatefulWithTags{})
