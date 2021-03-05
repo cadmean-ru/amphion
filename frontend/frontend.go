@@ -1,3 +1,4 @@
+// Package frontend provides interface for platform-specific code.
 package frontend
 
 import (

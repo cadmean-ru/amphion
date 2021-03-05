@@ -10,4 +10,7 @@ const Res_images_babyyoda2 = 2 //./build/darwin/res/images/babyyoda2.png
 const Res_images_cyberpunk = 3 //./build/darwin/res/images/cyberpunk.jpg
 const Res_images_gun = 4 //./build/darwin/res/images/gun.png
 const Res_test = 5 //./build/darwin/res/test.yaml
+const Res_scenes_main = 6
+const Res_scenes_second = 7
+const Res_prefabs_test = 8
 

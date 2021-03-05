@@ -7,8 +7,8 @@ import (
 
 type GridLayout struct {
 	engine.ComponentImpl
-	Rows int `state:"rows"`
-	Cols int `state:"cols"`
+	Rows       int `state:"rows"`
+	Cols       int `state:"cols"`
 	RowPadding int `state:"rowPadding"`
 	ColPadding int `state:"colPadding"`
 }
@@ -16,7 +16,7 @@ type GridLayout struct {
 func (l *GridLayout) LayoutChildren() {
 	i := 0
 	children := l.SceneObject.GetChildren()
-	colWidth := l.SceneObject.Transform.Size.X / float32(l.Cols)
+	colWidth := l.SceneObject.Transform.GetSize().X / float32(l.Cols)
 	fRowPadding := float32(l.RowPadding)
 	fColPadding := float32(l.ColPadding)
 	var y = fRowPadding
@@ -31,7 +31,7 @@ func (l *GridLayout) LayoutChildren() {
 			child := children[i]
 			chSize := child.Transform.GetSize()
 
-			x := float32(c) * colWidth + fColPadding
+			x := float32(c)*colWidth + fColPadding
 
 			if chSize.Y > maxRowHeight {
 				maxRowHeight = chSize.Y
@@ -40,12 +40,12 @@ func (l *GridLayout) LayoutChildren() {
 			newPos := a.NewVector3(x, y, child.Transform.Position.Z)
 			child.Transform.Position = newPos
 
-			child.Transform.Size = a.NewVector3(colWidth - fColPadding * 2, chSize.Y, 0)
+			child.Transform.Size = a.NewVector3(colWidth-fColPadding*2, chSize.Y, 0)
 
 			i++
 		}
 
-		y += maxRowHeight + fRowPadding * 2
+		y += maxRowHeight + fRowPadding*2
 	}
 }
 

@@ -121,6 +121,7 @@ func registerResources(e *engine.AmphionEngine) {
 	rm.RegisterResource("test.yaml")
 	rm.RegisterResource("scenes/main.scene")
 	rm.RegisterResource("scenes/second.scene")
+	rm.RegisterResource("prefabs/test.yaml")
 }
 
 func registerComponents(e *engine.AmphionEngine) {
@@ -138,6 +139,8 @@ func registerComponents(e *engine.AmphionEngine) {
 	cm.RegisterComponentType(&builtin.InputField{})
 	cm.RegisterComponentType(&builtin.MouseMover{})
 	cm.RegisterComponentType(&builtin.BuilderComponent{})
+	cm.RegisterComponentType(&TestController{})
+	cm.RegisterComponentType(&PrefabController{})
 
 	cm.RegisterEventHandler(handleCircleClick(e))
 	cm.RegisterEventHandler(navigateOnClick)
@@ -230,6 +233,7 @@ type TestController struct {
 
 func (c *TestController) OnInit(ctx engine.InitContext) {
 	c.ComponentImpl.OnInit(ctx)
+	engine.LogDebug("Init")
 }
 
 func (c *TestController) OnStart() {
@@ -242,6 +246,7 @@ func (c *TestController) OnStart() {
 	}).Err(func(err error) {
 		c.Logger.Error(c, err.Error())
 	}).Build())
+	engine.LogDebug("Start")
 }
 
 func (c *TestController) GetName() string {

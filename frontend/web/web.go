@@ -8,6 +8,7 @@ import (
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
+	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"gopkg.in/yaml.v2"
@@ -196,5 +197,9 @@ func setWindowTitle(title string) {
 }
 
 func setWindowLocation(path string) {
+	app := engine.GetInstance().GetCurrentApp()
+	if app != nil && app.Debug {
+		path += "?connectDebugger=4200"
+	}
 	js.Global().Get("history").Call("replaceState", js.Value{}, "Loading", path)
 }
