@@ -645,7 +645,10 @@ func (engine *AmphionEngine) LoadApp() {
 				path = "/"
 			}
 
-			_ = Navigate(path, nil)
+			err := Navigate(path, nil)
+			if err != nil {
+				engine.logger.Warning(engine, fmt.Sprintf("Failed to navigate to main scene: %s", err.Error()))
+			}
 		} else {
 			engine.logger.Warning(engine, "No app info found in well-known location!")
 		}
