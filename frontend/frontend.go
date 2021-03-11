@@ -10,11 +10,14 @@ import (
 type Frontend interface {
 	Init()
 	Run()
+	//Deprecated
 	Reset()
 	SetCallback(handler CallbackHandler)
+	//Deprecated
 	GetInputManager() InputManager
 	GetRenderer() *rendering.ARenderer
 	GetContext() Context
+	//Deprecated
 	GetPlatform() common.Platform
 	CommencePanic(reason, msg string)
 	ReceiveMessage(message Message)

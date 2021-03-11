@@ -69,6 +69,8 @@ func (r *OpenGLRenderer) OnPerformRenderingEnd() {
 
 func (r *OpenGLRenderer) OnClear() {
 	fmt.Println("OpenGL renderer clear")
+
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 }
 
 func (r *OpenGLRenderer) OnStop() {
