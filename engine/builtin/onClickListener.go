@@ -21,7 +21,7 @@ func (l *OnClickListener) OnMessage(m engine.Message) bool {
 	}
 
 	event := m.Data.(engine.AmphionEvent)
-	if event.Code != engine.EventMouseDown {
+	if event.Code != engine.EventMouseDown && event.Code != engine.EventTouchDown {
 		return true
 	}
 

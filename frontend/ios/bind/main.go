@@ -1,14 +1,19 @@
+//+build ios
+
 package bind
 
 import (
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
+	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/frontend/cli"
 	"github.com/cadmean-ru/amphion/frontend/ios"
 )
 
-func AmphionInitIos(f cli.FrontendCLI, rm cli.ResourceManagerCLI, r cli.RendererCLI) {
-	front := ios.NewFrontend(f, rm, r)
+var front frontend.Frontend
+
+func AmphionInitIos(f cli.Frontend, rm cli.ResourceManagerCLI, rd cli.RendererDelegate) {
+	front = ios.NewFrontend(f, rm, rd)
 	front.Init()
 
 	e := engine.Initialize(front)
@@ -20,6 +25,10 @@ func AmphionInitIos(f cli.FrontendCLI, rm cli.ResourceManagerCLI, r cli.Renderer
 	e.LoadApp()
 
 	go front.Run()
+}
+
+func RegisterPrimitiveRendererDelegate(primitiveKind int, delegate cli.PrimitiveRendererDelegate) {
+	front.GetRenderer().RegisterPrimitiveRendererDelegate(byte(primitiveKind), cli.NewPrimitiveRendererDelegateWrap(delegate))
 }
 
 func registerResources(e *engine.AmphionEngine) {
@@ -48,4 +57,40 @@ func registerComponents(e *engine.AmphionEngine) {
 	cm.RegisterComponentType(&builtin.InputField{})
 	cm.RegisterComponentType(&builtin.MouseMover{})
 	cm.RegisterComponentType(&builtin.BuilderComponent{})
+	cm.RegisterComponentType(&IosTestController{})
+}
+
+type IosTestController struct {
+	engine.ComponentImpl
+}
+
+func (i *IosTestController) OnStart() {
+	engine.LogDebug("Breh")
+
+	engine.BindEventHandler(engine.EventTouchDown, func(event engine.AmphionEvent) bool {
+		data := event.Data.(engine.MouseEventData)
+		engine.LogDebug("iOS T O U C H   down  %d %d", data.MousePosition.X, data.MousePosition.Y)
+		return true
+	})
+
+	engine.BindEventHandler(engine.EventTouchMove, func(event engine.AmphionEvent) bool {
+		data := event.Data.(engine.MouseEventData)
+		engine.LogDebug("iOS T O U C H   move  %d %d", data.MousePosition.X, data.MousePosition.Y)
+		return true
+	})
+
+	engine.BindEventHandler(engine.EventTouchDown, func(event engine.AmphionEvent) bool {
+		data := event.Data.(engine.MouseEventData)
+		engine.LogDebug("iOS T O U C H   up %d %d", data.MousePosition.X, data.MousePosition.Y)
+		return true
+	})
+
+	i.SceneObject.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+		engine.LogDebug("Ios CLICK")
+		return true
+	}))
+}
+
+func (i *IosTestController) GetName() string {
+	return engine.NameOfComponent(i)
 }

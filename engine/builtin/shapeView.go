@@ -9,11 +9,11 @@ import (
 type ShapeType byte
 
 const (
-	ShapeRectangle ShapeType = rendering.PrimitiveRectangle
-	ShapeEllipse   ShapeType = rendering.PrimitiveEllipse
-	ShapeTriangle  ShapeType = rendering.PrimitiveTriangle
-	ShapeLine      ShapeType = rendering.PrimitiveLine
-	ShapePoint     ShapeType = rendering.PrimitivePoint
+	ShapeRectangle ShapeType = ShapeType(rendering.PrimitiveRectangle)
+	ShapeEllipse   ShapeType = ShapeType(rendering.PrimitiveEllipse)
+	ShapeTriangle  ShapeType = ShapeType(rendering.PrimitiveTriangle)
+	ShapeLine      ShapeType = ShapeType(rendering.PrimitiveLine)
+	ShapePoint     ShapeType = ShapeType(rendering.PrimitivePoint)
 )
 
 // Displays a basic shape: rectangle, ellipse, triangle, line, point.

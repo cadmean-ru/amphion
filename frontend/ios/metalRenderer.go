@@ -2,24 +2,12 @@ package ios
 
 import (
 	"fmt"
-	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend/cli"
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
 type MetalRenderer struct {
-	r cli.RendererCLI
-}
-
-func (m *MetalRenderer) Prepare() {
-	fmt.Println("Preparing in go")
-	m.r.Prepare()
-}
-
-func (m *MetalRenderer) AddPrimitive() int {
-	fmt.Println("Adding primitive in go")
-	return m.r.AddPrimitive()
 }
 
 func (m *MetalRenderer) SetPrimitive(id int, primitive rendering.IPrimitive, shouldRerender bool) {
@@ -31,7 +19,7 @@ func (m *MetalRenderer) SetPrimitive(id int, primitive rendering.IPrimitive, sho
 
 	fmt.Println("Setting primitive in go 1")
 
-	screenSize := a.NewIntVector3(engine.GetInstance().GetGlobalContext().ScreenInfo.GetWidth(), engine.GetInstance().GetGlobalContext().ScreenInfo.GetHeight(), 0)
+	screenSize := engine.GetScreenSize3()
 	t := primitive.GetTransform()
 	tlPosN := t.Position.Ndc(screenSize)
 	brPosN := t.Position.Add(t.Size).Ndc(screenSize)
@@ -81,7 +69,7 @@ func (m *MetalRenderer) SetPrimitive(id int, primitive rendering.IPrimitive, sho
 		}
 
 		fmt.Println("Setting primitive in go 2")
-		m.r.SetGeometryPrimitive(id, &data)
+		fmt.Println(data)
 	case rendering.PrimitiveImage:
 		ip := primitive.(*rendering.ImagePrimitive)
 		data := cli.ImagePrimitiveData{
@@ -97,24 +85,8 @@ func (m *MetalRenderer) SetPrimitive(id int, primitive rendering.IPrimitive, sho
 			},
 			ImageUrl:    ip.ImageUrl,
 		}
-		m.r.SetImagePrimitive(id, &data)
+		fmt.Println(data)
+
 	}
-}
-
-func (m *MetalRenderer) RemovePrimitive(id int) {
-	m.r.RemovePrimitive(id)
-}
-
-func (m *MetalRenderer) PerformRendering() {
-	fmt.Println("Performing rendering in go")
-	m.r.PerformRendering()
-}
-
-func (m *MetalRenderer) Clear() {
-	m.r.Clear()
-}
-
-func (m *MetalRenderer) Stop() {
-	m.r.Stop()
 }
 

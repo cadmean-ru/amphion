@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
-	"github.com/cadmean-ru/amphion/rendering"
 )
 
 type OnSelectHandler func(item string)
@@ -28,7 +27,7 @@ func (d *DropdownView) OnStart() {
 
 	siz := d.SceneObject.Transform.Size
 
-	bg := NewShapeView(rendering.PrimitiveRectangle)
+	bg := NewShapeView(ShapeRectangle)
 	bg.StrokeWeight = 2
 	bg.StrokeColor = a.BlackColor()
 	bg.FillColor = a.WhiteColor()
@@ -46,7 +45,7 @@ func (d *DropdownView) OnStart() {
 	d.SceneObject.AddChild(textObj)
 
 	d.optionsContainer = engine.NewSceneObject("OptionsContainer")
-	optionsBg := NewShapeView(rendering.PrimitiveRectangle)
+	optionsBg := NewShapeView(ShapeRectangle)
 	optionsBg.FillColor = a.WhiteColor()
 	optionsBg.CornerRadius = 10
 	d.optionsContainer.AddComponent(optionsBg)

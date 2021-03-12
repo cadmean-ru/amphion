@@ -11,10 +11,10 @@ import (
 )
 
 type Frontend struct {
-	f        cli.FrontendCLI
-	handler  frontend.CallbackHandler
+	f        cli.Frontend
+	handler  *cli.CallbackHandler
 	resMan   frontend.ResourceManager
-	renderer *MetalRenderer
+	renderer *rendering.ARenderer
 	msgChan  chan frontend.Message
 }
 
@@ -52,14 +52,15 @@ func (f *Frontend) Reset() {
 }
 
 func (f *Frontend) SetCallback(handler frontend.CallbackHandler) {
-	f.handler = handler
+	f.handler = cli.NewCallbackHandler(handler)
+	f.f.SetCallback(f.handler)
 }
 
 func (f *Frontend) GetInputManager() frontend.InputManager {
 	return &InputManager{}
 }
 
-func (f *Frontend) GetRenderer() rendering.Renderer {
+func (f *Frontend) GetRenderer() *rendering.ARenderer {
 	return f.renderer
 }
 
@@ -106,14 +107,14 @@ func (f *Frontend) GetLaunchArgs() a.SiMap {
 	return a.SiMap{}
 }
 
-func NewFrontend(f cli.FrontendCLI, rm cli.ResourceManagerCLI, r cli.RendererCLI) frontend.Frontend {
+func NewFrontend(f cli.Frontend, rm cli.ResourceManagerCLI, rd cli.RendererDelegate) frontend.Frontend {
 	return &Frontend{
 		f: f,
 		resMan: &ResourceManager{
 			ResourceManagerImpl: frontend.NewResourceManagerImpl(),
 			rm:                  rm,
 		},
-		renderer: &MetalRenderer{r: r},
+		renderer: rendering.NewARenderer(rd),
 		msgChan:  make(chan frontend.Message, 10),
 	}
 }

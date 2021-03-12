@@ -137,6 +137,7 @@ func (r *ARenderer) makePrimitiveRenderingContext(container *PrimitiveContainer)
 		Renderer:      r,
 		Primitive:     container.primitive,
 		PrimitiveKind: container.primitive.GetType(),
+		PrimitiveId:   container.id,
 		State:         container.state,
 		Redraw:        container.redraw,
 	}

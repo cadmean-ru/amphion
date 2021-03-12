@@ -1,14 +1,7 @@
 package cli
 
-type RendererCLI interface {
-	Prepare()
-	AddPrimitive() int
-	SetGeometryPrimitive(id int, primitiveData *GeometryPrimitiveData)
-	SetImagePrimitive(id int, primitiveData *ImagePrimitiveData)
-	RemovePrimitive(id int)
-	PerformRendering()
-	Clear()
-	Stop()
+type Vector2 struct {
+	X, Y float32
 }
 
 type Vector3 struct {

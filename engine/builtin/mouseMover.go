@@ -23,7 +23,7 @@ func (m *MouseMover) handleMouseDown(e engine.AmphionEvent) bool {
 	}
 
 	m.dragging = true
-	m.mousePos = m.Engine.GetInputManager().GetMousePosition()
+	m.mousePos = m.Engine.GetInputManager().GetCursorPosition()
 	m.Engine.RequestUpdate()
 	return true
 }
@@ -39,7 +39,7 @@ func (m *MouseMover) OnUpdate(_ engine.UpdateContext) {
 		return
 	}
 
-	newMousePos := m.Engine.GetInputManager().GetMousePosition()
+	newMousePos := m.Engine.GetInputManager().GetCursorPosition()
 	dPos := newMousePos.Sub(m.mousePos)
 	m.mousePos = newMousePos
 	m.SceneObject.Transform.Position = m.SceneObject.Transform.Position.Add(dPos.ToFloat3())

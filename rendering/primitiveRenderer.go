@@ -4,6 +4,7 @@ type PrimitiveRenderingContext struct {
 	Renderer      *ARenderer
 	Primitive     IPrimitive
 	PrimitiveKind byte
+	PrimitiveId   int
 	State         interface{}
 	Redraw        bool
 }

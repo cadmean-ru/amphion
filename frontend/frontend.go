@@ -35,6 +35,9 @@ const (
 	CallbackAppShow       = -105
 	CallbackMouseMove     = -106
 	CallbackMouseScroll   = -107
+	CallbackTouchDown     = -108
+	CallbackTouchUp       = -109
+	CallbackTouchMove     = -110
 )
 
 type Callback struct {
@@ -51,6 +54,7 @@ func NewCallback(code int, data string) Callback {
 
 type CallbackHandler func(callback Callback)
 
+// Deprecated
 type InputManager interface {
 	GetMousePosition() a.IntVector2
 }
