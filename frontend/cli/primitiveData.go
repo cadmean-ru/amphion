@@ -1,17 +1,5 @@
 package cli
 
-type Vector2 struct {
-	X, Y float32
-}
-
-type Vector3 struct {
-	X, Y, Z float32
-}
-
-type Vector4 struct {
-	X, Y, Z, W float32
-}
-
 type GeometryPrimitiveData struct {
 	GeometryType int
 	TlPositionN  *Vector3
@@ -26,4 +14,11 @@ type ImagePrimitiveData struct {
 	TlPositionN  *Vector3
 	BrPositionN  *Vector3
 	ImageUrl     string
+}
+
+type TextPrimitiveData struct {
+	Text string
+	TlPositionN  *Vector3
+	BrPositionN  *Vector3
+	TextColorN   *Vector4
 }

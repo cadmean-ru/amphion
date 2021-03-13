@@ -32,7 +32,6 @@ func (f *Frontend) Run() {
 	for msg := range f.msgChan {
 		switch msg.Code {
 		case frontend.MessageRender:
-			fmt.Println("Message render")
 			f.renderer.PerformRendering()
 		case frontend.MessageExec:
 			if msg.Data != nil {
@@ -57,7 +56,7 @@ func (f *Frontend) SetCallback(handler frontend.CallbackHandler) {
 }
 
 func (f *Frontend) GetInputManager() frontend.InputManager {
-	return &InputManager{}
+	return nil
 }
 
 func (f *Frontend) GetRenderer() *rendering.ARenderer {

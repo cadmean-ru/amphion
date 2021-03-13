@@ -1,3 +1,7 @@
+//+build windows linux darwin
+//+build !ios
+//+build !android
+
 package pc
 
 import (

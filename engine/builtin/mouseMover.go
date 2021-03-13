@@ -13,7 +13,9 @@ type MouseMover struct {
 
 func (m *MouseMover) OnStart() {
 	engine.BindEventHandler(engine.EventMouseDown, m.handleMouseDown)
+	engine.BindEventHandler(engine.EventTouchDown, m.handleMouseDown)
 	engine.BindEventHandler(engine.EventMouseUp, m.handleMouseUp)
+	engine.BindEventHandler(engine.EventTouchUp, m.handleMouseUp)
 }
 
 func (m *MouseMover) handleMouseDown(e engine.AmphionEvent) bool {
@@ -49,7 +51,9 @@ func (m *MouseMover) OnUpdate(_ engine.UpdateContext) {
 
 func (m *MouseMover) OnStop() {
 	engine.UnbindEventHandler(engine.EventMouseUp, m.handleMouseUp)
+	engine.UnbindEventHandler(engine.EventTouchUp, m.handleMouseUp)
 	engine.UnbindEventHandler(engine.EventMouseDown, m.handleMouseDown)
+	engine.UnbindEventHandler(engine.EventTouchDown, m.handleMouseDown)
 }
 
 func (m *MouseMover) GetName() string {

@@ -23,6 +23,54 @@ func (t *Text) ForEachChar(delegate func(c *Char)) {
 	}
 }
 
+//GetAllChars returns all characters in the text.
+func (t *Text) GetAllChars() []*Char {
+	count := t.GetCharCount()
+
+	allChars := make([]*Char, count)
+	count = 0
+
+	for _, l := range t.lines {
+		for _, c := range l.chars {
+			allChars[count] = c
+			count++
+		}
+	}
+
+	return allChars
+}
+
+//GetCharCount returns the total number of characters in the text.
+func (t *Text) GetCharCount() int {
+	count := 0
+	for _, l := range t.lines {
+		for _, _ = range l.chars {
+			count++
+		}
+	}
+	return count
+}
+
+//GetCharAt returns the character at the specified position in text.
+func (t *Text) GetCharAt(index int) *Char {
+	i := 0
+
+	if index < 0 || index > t.GetCharCount() {
+		return nil
+	}
+
+	for _, l := range t.lines {
+		for _, c := range l.chars {
+			if i == index {
+				return c
+			}
+			i++
+		}
+	}
+
+	return nil
+}
+
 // GetSize returns the calculated text size.
 func (t *Text) GetSize() a.IntVector2 {
 	return a.NewIntVector2(t.width, t.height)

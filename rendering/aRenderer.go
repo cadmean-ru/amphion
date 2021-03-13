@@ -27,7 +27,6 @@ func (r *ARenderer) AddPrimitive() int {
 	id := r.idgen.NextId()
 	r.primitives[id] = &PrimitiveContainer{}
 	r.layers[0].addPrimitiveId(id)
-	fmt.Printf("Adding primitive %d\n", id)
 	return id
 }
 
@@ -35,8 +34,6 @@ func (r *ARenderer) SetPrimitive(id int, primitive IPrimitive, shouldRerender bo
 	if !shouldRerender {
 		return
 	}
-
-	fmt.Printf("Setting primitive %d\n", id)
 
 	if _, ok := r.primitives[id]; ok {
 		if r.primitives[id].primitive != nil && primitive.GetType() != r.primitives[id].primitive.GetType() {

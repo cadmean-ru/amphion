@@ -67,23 +67,23 @@ type IosTestController struct {
 func (i *IosTestController) OnStart() {
 	engine.LogDebug("Breh")
 
-	engine.BindEventHandler(engine.EventTouchDown, func(event engine.AmphionEvent) bool {
-		data := event.Data.(engine.MouseEventData)
-		engine.LogDebug("iOS T O U C H   down  %d %d", data.MousePosition.X, data.MousePosition.Y)
-		return true
-	})
+	//engine.BindEventHandler(engine.EventTouchDown, func(event engine.AmphionEvent) bool {
+	//	data := event.Data.(engine.MouseEventData)
+	//	engine.LogDebug("iOS T O U C H   down  %d %d", data.MousePosition.X, data.MousePosition.Y)
+	//	return true
+	//})
 
-	engine.BindEventHandler(engine.EventTouchMove, func(event engine.AmphionEvent) bool {
-		data := event.Data.(engine.MouseEventData)
-		engine.LogDebug("iOS T O U C H   move  %d %d", data.MousePosition.X, data.MousePosition.Y)
-		return true
-	})
+	//engine.BindEventHandler(engine.EventTouchMove, func(event engine.AmphionEvent) bool {
+	//	data := event.Data.(engine.MouseEventData)
+	//	//engine.LogDebug("iOS T O U C H   move  %d %d", data.MousePosition.X, data.MousePosition.Y)
+	//	return true
+	//})
 
-	engine.BindEventHandler(engine.EventTouchDown, func(event engine.AmphionEvent) bool {
-		data := event.Data.(engine.MouseEventData)
-		engine.LogDebug("iOS T O U C H   up %d %d", data.MousePosition.X, data.MousePosition.Y)
-		return true
-	})
+	//engine.BindEventHandler(engine.EventTouchDown, func(event engine.AmphionEvent) bool {
+	//	//data := event.Data.(engine.MouseEventData)
+	//	//engine.LogDebug("iOS T O U C H   up %d %d", data.MousePosition.X, data.MousePosition.Y)
+	//	return true
+	//})
 
 	i.SceneObject.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
 		engine.LogDebug("Ios CLICK")

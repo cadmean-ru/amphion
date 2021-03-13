@@ -12,6 +12,7 @@ type RendererDelegate interface {
 type PrimitiveRenderingContext struct {
 	GeometryPrimitiveData *GeometryPrimitiveData
 	ImagePrimitiveData    *ImagePrimitiveData
+	TextPrimitiveData     *TextPrimitiveData
 	PrimitiveKind         int
 	State                 interface{}
 	Redraw                bool
@@ -38,28 +39,28 @@ func newCliPrimitiveRenderingContext(ctx *rendering.PrimitiveRenderingContext) *
 
 		cliCtx.GeometryPrimitiveData = &GeometryPrimitiveData{
 			GeometryType: int(ctx.PrimitiveKind),
-			TlPositionN:  &Vector3{
-				X: tlPosN.X,
-				Y: tlPosN.Y,
-				Z: float32(t.Position.Z),
-			},
-			BrPositionN:  &Vector3{
-				X: brPosN.X,
-				Y: brPosN.Y,
-				Z: brPosN.Z,
-			},
-			FillColorN:   &Vector4{
-				X: fillColorN.X,
-				Y: fillColorN.Y,
-				Z: fillColorN.Z,
-				W: fillColorN.W,
-			},
-			StrokeColorN: &Vector4{
-				X: strokeColorN.X,
-				Y: strokeColorN.Y,
-				Z: strokeColorN.Z,
-				W: strokeColorN.W,
-			},
+			TlPositionN:  NewVector3(
+				tlPosN.X,
+				tlPosN.Y,
+				float32(t.Position.Z),
+			),
+			BrPositionN:  NewVector3(
+				brPosN.X,
+				brPosN.Y,
+				brPosN.Z,
+			),
+			FillColorN:   NewVector4(
+				fillColorN.X,
+				fillColorN.Y,
+				fillColorN.Z,
+				fillColorN.W,
+			),
+			StrokeColorN: NewVector4(
+				strokeColorN.X,
+				strokeColorN.Y,
+				strokeColorN.Z,
+				strokeColorN.W,
+			),
 			StrokeWeight: int(gp.Appearance.StrokeWeight),
 			CornerRadius: int(gp.Appearance.CornerRadius),
 		}
@@ -67,17 +68,30 @@ func newCliPrimitiveRenderingContext(ctx *rendering.PrimitiveRenderingContext) *
 		ip := ctx.Primitive.(*rendering.ImagePrimitive)
 
 		cliCtx.ImagePrimitiveData = &ImagePrimitiveData{
-			TlPositionN:  &Vector3{
-				X: tlPosN.X,
-				Y: tlPosN.Y,
-				Z: float32(t.Position.Z),
-			},
-			BrPositionN:  &Vector3{
-				X: brPosN.X,
-				Y: brPosN.Y,
-				Z: brPosN.Z,
-			},
+			TlPositionN:  NewVector3(
+				tlPosN.X,
+				tlPosN.Y,
+				float32(t.Position.Z),
+			),
+			BrPositionN:  NewVector3(
+				brPosN.X,
+				brPosN.Y,
+				brPosN.Z,
+			),
 			ImageUrl:    ip.ImageUrl,
+		}
+	case rendering.PrimitiveText:
+		tp := ctx.Primitive.(*rendering.TextPrimitive)
+
+		cliCtx.TextPrimitiveData = &TextPrimitiveData{
+			Text:        tp.Text,
+			TlPositionN:  NewVector3(
+				tlPosN.X,
+				tlPosN.Y,
+				float32(t.Position.Z),
+			),
+			BrPositionN:  NewVector3FromAVector3(brPosN),
+			TextColorN:   NewVector4FromAVector4(tp.Appearance.FillColor.Normalize()),
 		}
 	}
 
