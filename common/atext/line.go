@@ -13,6 +13,14 @@ func (l *Line) append(c *Char) {
 	l.chars = append(l.chars, c)
 }
 
+func (l *Line) GetCharsCount() int {
+	return len(l.chars)
+}
+
+func (l *Line) GetCharAt(index int) *Char {
+	return l.chars[index]
+}
+
 // Returns the size of the line in pixels.
 func (l *Line) GetSize() a.IntVector2 {
 	return a.NewIntVector2(l.width, l.face.GetLineHeight())

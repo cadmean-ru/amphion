@@ -24,6 +24,14 @@ func (c *Char) GetPosition() a.IntVector2 {
 	return c.pos
 }
 
+func (c *Char) GetX() int {
+	return c.pos.X
+}
+
+func (c *Char) GetY() int {
+	return c.pos.Y
+}
+
 // IsVisible tells if the character has a visual representation.
 func (c *Char) IsVisible() bool {
 	return c.rune != ' ' && c.rune != '\n'

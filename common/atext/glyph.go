@@ -29,6 +29,14 @@ func (g *Glyph) GetSize() a.IntVector2 {
 	return g.size
 }
 
+func (g *Glyph) GetWidth() int {
+	return g.size.X
+}
+
+func (g *Glyph) GetHeight() int {
+	return g.size.Y
+}
+
 // GetBearing returns the x and y bearing of the glyph.
 func (g *Glyph) GetBearing() a.IntVector2 {
 	return g.bearing
