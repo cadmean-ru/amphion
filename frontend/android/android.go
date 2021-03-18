@@ -1,4 +1,6 @@
-package ios
+//+build android
+
+package android
 
 import (
 	"fmt"
@@ -7,34 +9,32 @@ import (
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/frontend/cli"
 	"github.com/cadmean-ru/amphion/rendering"
-	"gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v2"
 )
 
 type Frontend struct {
-	f        cli.FrontendDelegate
-	handler  *cli.CallbackHandler
-	resMan   frontend.ResourceManager
-	renderer *rendering.ARenderer
-	msgChan  chan frontend.Message
+	frontendDelegate cli.FrontendDelegate
+	handler          *cli.CallbackHandler
+	resMan           frontend.ResourceManager
+	renderer         *rendering.ARenderer
+	msgChan          chan frontend.Message
 }
 
 func (f *Frontend) Init() {
-	f.f.Init()
+	f.frontendDelegate.Init()
 
 	f.renderer.Prepare()
 }
 
 func (f *Frontend) Run() {
-	f.f.Run()
-
-	fmt.Println("Running")
+	f.frontendDelegate.Run()
 
 	for msg := range f.msgChan {
 		switch msg.Code {
 		case frontend.MessageRender:
 			f.renderer.PerformRendering()
 		case frontend.MessageExec:
-			//TODO: execute on ios main thread
+			//TODO: execute on android main thread
 		case frontend.MessageExit:
 			close(f.msgChan)
 			return
@@ -43,12 +43,12 @@ func (f *Frontend) Run() {
 }
 
 func (f *Frontend) Reset() {
-	f.f.Reset()
+	f.frontendDelegate.Reset()
 }
 
 func (f *Frontend) SetCallback(handler frontend.CallbackHandler) {
 	f.handler = cli.NewCallbackHandler(handler)
-	f.f.SetCallback(f.handler)
+	f.frontendDelegate.SetCallback(f.handler)
 }
 
 func (f *Frontend) GetInputManager() frontend.InputManager {
@@ -62,7 +62,7 @@ func (f *Frontend) GetRenderer() *rendering.ARenderer {
 func (f *Frontend) GetContext() frontend.Context {
 	ctx := frontend.Context{}
 
-	c := f.f.GetContext()
+	c := f.frontendDelegate.GetContext()
 
 	ctx.ScreenInfo = common.NewScreenInfo(int(c.ScreenSize.X), int(c.ScreenSize.Y))
 	fmt.Printf("Got context: %+v\n", ctx)
@@ -71,11 +71,11 @@ func (f *Frontend) GetContext() frontend.Context {
 }
 
 func (f *Frontend) GetPlatform() common.Platform {
-	return common.PlatformFromString("ios")
+	return common.PlatformFromString("android")
 }
 
 func (f *Frontend) CommencePanic(reason, msg string) {
-	f.f.CommencePanic(reason, msg)
+	f.frontendDelegate.CommencePanic(reason, msg)
 }
 
 func (f *Frontend) ReceiveMessage(message frontend.Message) {
@@ -89,9 +89,9 @@ func (f *Frontend) GetResourceManager() frontend.ResourceManager {
 func (f *Frontend) GetApp() *frontend.App {
 	app := &frontend.App{}
 
-	err := yaml.Unmarshal(f.f.GetAppData(), &app)
+	err := yaml.Unmarshal(f.frontendDelegate.GetAppData(), &app)
 	if err != nil {
-		f.f.CommencePanic("Load app failed", err.Error())
+		f.frontendDelegate.CommencePanic("Load app failed", err.Error())
 		return app
 	}
 
@@ -104,9 +104,9 @@ func (f *Frontend) GetLaunchArgs() a.SiMap {
 
 func NewFrontend(f cli.FrontendDelegate, rm cli.ResourceManagerDelegate, rd cli.RendererDelegate) frontend.Frontend {
 	return &Frontend{
-		f:        f,
-		resMan:   cli.NewResourceManagerImpl(rm),
-		renderer: rendering.NewARenderer(rd),
-		msgChan:  make(chan frontend.Message, 10),
+		frontendDelegate: f,
+		resMan:           cli.NewResourceManagerImpl(rm),
+		renderer:         rendering.NewARenderer(rd),
+		msgChan:          make(chan frontend.Message, 10),
 	}
 }

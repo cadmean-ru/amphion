@@ -1,6 +1,6 @@
 package cli
 
-type Frontend interface {
+type FrontendDelegate interface {
 	Init()
 	Run()
 	Reset()
