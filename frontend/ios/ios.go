@@ -32,7 +32,7 @@ func (f *Frontend) Run() {
 	for msg := range f.msgChan {
 		switch msg.Code {
 		case frontend.MessageRender:
-			f.renderer.PerformRendering()
+			f.f.ExecuteOnMainThread(cli.NewExecDelegate(f.renderer.PerformRendering))
 		case frontend.MessageExec:
 			//TODO: execute on ios main thread
 		case frontend.MessageExit:

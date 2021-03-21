@@ -1,4 +1,4 @@
-// +build windows, linux, darwin, android
+// +build windows, linux, darwin, android, ios
 
 package builtin
 

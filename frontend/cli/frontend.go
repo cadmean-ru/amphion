@@ -8,4 +8,5 @@ type FrontendDelegate interface {
 	CommencePanic(reason, msg string)
 	GetContext() *Context
 	SetCallback(handler *CallbackHandler)
+	ExecuteOnMainThread(delegate *ExecDelegate)
 }

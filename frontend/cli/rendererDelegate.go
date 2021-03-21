@@ -85,12 +85,16 @@ func newCliPrimitiveRenderingContext(ctx *rendering.PrimitiveRenderingContext) *
 
 		cliCtx.TextPrimitiveData = &TextPrimitiveData{
 			Text:        tp.Text,
-			TlPositionN:  NewVector3(
-				tlPosN.X,
-				tlPosN.Y,
+			TlPosition:  NewVector3(
+				float32(t.Position.X),
+				float32(t.Position.Y),
 				float32(t.Position.Z),
 			),
-			BrPositionN:  NewVector3FromAVector3(brPosN),
+			Size:  NewVector3(
+				float32(t.Size.X),
+				float32(t.Size.Y),
+				float32(t.Size.Z),
+			),
 			TextColorN:   NewVector4FromAVector4(tp.Appearance.FillColor.Normalize()),
 		}
 	}

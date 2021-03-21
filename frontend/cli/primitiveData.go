@@ -11,14 +11,14 @@ type GeometryPrimitiveData struct {
 }
 
 type ImagePrimitiveData struct {
-	TlPositionN  *Vector3
-	BrPositionN  *Vector3
-	ImageUrl     string
+	TlPositionN *Vector3
+	BrPositionN *Vector3
+	ImageUrl    string
 }
 
 type TextPrimitiveData struct {
-	Text string
-	TlPositionN  *Vector3
-	BrPositionN  *Vector3
-	TextColorN   *Vector4
+	Text       string
+	TlPosition *Vector3
+	Size       *Vector3
+	TextColorN *Vector4
 }
