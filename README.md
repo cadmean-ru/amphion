@@ -87,8 +87,8 @@ TODO
 |Windows |development    |
 |Linux   |development    |
 |macOS   |development*   |
-|Android |planned        |
-|iOS     |planned        |
+|Android |development    |
+|iOS     |development    |
 
 *Currently, supported through OpenGL, Metal support planned.
 
