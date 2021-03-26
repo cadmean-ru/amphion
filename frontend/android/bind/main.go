@@ -6,14 +6,14 @@ import (
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
 	"github.com/cadmean-ru/amphion/frontend"
+	"github.com/cadmean-ru/amphion/frontend/android"
 	"github.com/cadmean-ru/amphion/frontend/cli"
-	"github.com/cadmean-ru/amphion/frontend/ios"
 )
 
 var front frontend.Frontend
 
 func AmphionInitAndroid(f cli.FrontendDelegate, rm cli.ResourceManagerDelegate, rd cli.RendererDelegate) {
-	front = ios.NewFrontend(f, rm, rd)
+	front = android.NewFrontend(f, rm, rd)
 	front.Init()
 
 	e := engine.Initialize(front)

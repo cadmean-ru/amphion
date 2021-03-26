@@ -1,4 +1,4 @@
-// +build windows, linux, darwin, android, ios
+// +build !js
 
 package builtin
 
