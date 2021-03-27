@@ -23,7 +23,7 @@ type Frontend struct {
 func (f *Frontend) Init() {
 	f.frontendDelegate.Init()
 
-	f.renderer.Prepare()
+	f.renderer.SetManagementMode(rendering.FrontendManaged)
 }
 
 func (f *Frontend) Run() {
@@ -32,9 +32,13 @@ func (f *Frontend) Run() {
 	for msg := range f.msgChan {
 		switch msg.Code {
 		case frontend.MessageRender:
-			f.frontendDelegate.ExecuteOnMainThread(cli.NewExecDelegate(f.renderer.PerformRendering))
+			f.frontendDelegate.ExecuteOnRenderingThread(cli.NewExecDelegate(f.renderer.PerformRendering))
 		case frontend.MessageExec:
-			//TODO: execute on android main thread
+			if msg.Data != nil {
+				if action, ok := msg.Data.(func()); ok {
+					f.frontendDelegate.ExecuteOnMainThread(cli.NewExecDelegate(action))
+				}
+			}
 		case frontend.MessageExit:
 			close(f.msgChan)
 			return

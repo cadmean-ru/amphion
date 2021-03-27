@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 var instance *AmphionEngine
@@ -43,6 +44,7 @@ type AmphionEngine struct {
 	front              frontend.Frontend
 	suspend            bool
 	inputManager       *InputManager
+	startingWg         *sync.WaitGroup
 }
 
 const (
@@ -77,7 +79,9 @@ func Initialize(front frontend.Frontend) *AmphionEngine {
 		componentsManager: newComponentsManager(),
 		front:             front,
 		inputManager:      newInputManager(),
+		startingWg:        &sync.WaitGroup{},
 	}
+	instance.startingWg.Add(1)
 	instance.renderer = front.GetRenderer()
 	instance.globalContext = instance.front.GetContext()
 	instance.front.SetCallback(instance.handleFrontEndCallback)
@@ -92,6 +96,7 @@ func GetInstance() *AmphionEngine {
 // Starts the engine.
 // Must be called, before any interaction with the engine.
 func (engine *AmphionEngine) Start() {
+	engine.startingWg.Wait()
 	engine.started = true
 	engine.registerInternalEventHandlers()
 	engine.state = StateStarted
@@ -139,6 +144,10 @@ func (engine *AmphionEngine) GetGlobalContext() frontend.Context {
 // Loads scene from a resource file asynchronously.
 // If show is true, after loading also shows this scene.
 func (engine *AmphionEngine) LoadScene(scene a.ResId, show bool) {
+	if engine.state != StateStarted {
+		panic("Invalid engine state")
+	}
+
 	engine.RunTask(NewTaskBuilder().Run(func() (interface{}, error) {
 		return engine.GetResourceManager().ReadFile(scene)
 	}).Then(func(res interface{}) {
@@ -341,6 +350,9 @@ func (engine *AmphionEngine) handleFrontEndCallback(callback frontend.Callback) 
 			panic("Invalid scroll callback data")
 		}
 		engine.RaiseEvent(NewAmphionEvent(engine, EventMouseScroll, a.Vector2{X: x, Y: y}))
+	case frontend.CallbackReady:
+		engine.logger.Info(engine, "Frontend ready")
+		engine.startingWg.Done()
 	}
 }
 
@@ -647,6 +659,10 @@ func (engine *AmphionEngine) GetName() string {
 
 // Loads app data from well-known source and shows the main scene.
 func (engine *AmphionEngine) LoadApp() {
+	if engine.state != StateStarted {
+		panic("Invalid engine state")
+	}
+
 	engine.RunTask(NewTaskBuilder().Run(func() (interface{}, error) {
 		app := engine.front.GetApp()
 		return app, nil

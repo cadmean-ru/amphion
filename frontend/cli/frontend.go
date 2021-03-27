@@ -9,4 +9,5 @@ type FrontendDelegate interface {
 	GetContext() *Context
 	SetCallback(handler *CallbackHandler)
 	ExecuteOnMainThread(delegate *ExecDelegate)
+	ExecuteOnRenderingThread(delegate *ExecDelegate)
 }

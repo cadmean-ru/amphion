@@ -38,6 +38,7 @@ const (
 	CallbackTouchDown     = -108
 	CallbackTouchUp       = -109
 	CallbackTouchMove     = -110
+	CallbackReady         = -111
 )
 
 type Callback struct {

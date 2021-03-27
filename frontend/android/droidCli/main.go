@@ -1,6 +1,6 @@
 //+build android
 
-package bind
+package droidCli
 
 import (
 	"github.com/cadmean-ru/amphion/engine"
@@ -21,14 +21,24 @@ func AmphionInitAndroid(f cli.FrontendDelegate, rm cli.ResourceManagerDelegate, 
 	registerComponents(e)
 	registerResources(e)
 
-	e.Start()
-	e.LoadApp()
+	go func() {
+		e.Start()
+		e.LoadApp()
+	}()
 
 	go front.Run()
 }
 
 func RegisterPrimitiveRendererDelegate(primitiveKind int, delegate cli.PrimitiveRendererDelegate) {
 	front.GetRenderer().RegisterPrimitiveRendererDelegate(byte(primitiveKind), cli.NewPrimitiveRendererDelegateWrap(delegate))
+}
+
+func GetRenderingPerformer() *cli.ExecDelegate {
+	return cli.NewExecDelegate(front.GetRenderer().GetRenderingPerformer())
+}
+
+func GetRendererPrepareDelegate() *cli.ExecDelegate {
+	return cli.NewExecDelegate(front.GetRenderer().Prepare)
 }
 
 func registerResources(e *engine.AmphionEngine) {
