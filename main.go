@@ -54,10 +54,6 @@ func main() {
 	registerComponents(e)
 	registerResources(e)
 
-	//if data, err := scene.EncodeToYaml(); err == nil {
-	//	fmt.Println(string(data))
-	//}
-
 	go func() {
 		e.Start()
 
@@ -67,7 +63,7 @@ func main() {
 
 		e.LoadApp()
 
-		e.WaitForStop()
+		//e.WaitForStop()
 	}()
 
 	front.Run()

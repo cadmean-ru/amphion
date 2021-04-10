@@ -12,6 +12,7 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
+// Realization of RendererDelegate for pc
 type OpenGLRenderer struct {
 	window         *glfw.Window
 	wSize          a.IntVector3
@@ -32,7 +33,7 @@ func (r *OpenGLRenderer) OnPrepare() {
 	fmt.Println(gl.GoStr(gl.GetString(gl.VENDOR)))
 	fmt.Println(gl.GoStr(gl.GetString(gl.RENDERER)))
 
-	gl.Viewport(0, 0, int32(r.wSize.X), int32(r.wSize.Y))
+	//gl.Viewport(0, 0, int32(r.wSize.X), int32(r.wSize.Y))
 
 	gl.Enable(gl.BLEND)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
@@ -43,6 +44,8 @@ func (r *OpenGLRenderer) OnPrepare() {
 	//gl.Clear(gl.COLOR_BUFFER_BIT)
 
 	//r.calculateProjection()
+
+	//gl.Viewport(0, 0, 500, 500)
 
 	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveText, &TextRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
 	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveRectangle, &RectangleRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
@@ -78,9 +81,9 @@ func (r *OpenGLRenderer) OnStop() {
 }
 
 func (r *OpenGLRenderer) handleWindowResize(w, h int) {
-	r.wSize = a.NewIntVector3(w, h, 0)
-	fmt.Printf("OpenGL renderer: handle resize: %d, %d\n", w, h)
-	gl.Viewport(0, 0, int32(w), int32(h))
+	//r.wSize = a.NewIntVector3(w, h, 0)
+	//fmt.Printf("OpenGL renderer: handle resize: %d, %d\n", w, h)
+	//gl.Viewport(0, 0, int32(w), int32(h))
 	//r.calculateProjection()
 }
 

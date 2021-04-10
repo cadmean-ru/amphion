@@ -69,6 +69,8 @@ func (f *Frontend) Init() {
 }
 
 func (f *Frontend) Run() {
+	f.handler(frontend.NewCallback(frontend.CallbackReady, ""))
+
 	for !f.window.ShouldClose() {
 		select {
 		case msg, ok := <-f.msgChan:
@@ -160,7 +162,7 @@ func (f *Frontend) cursorPosCallback(_ *glfw.Window, x float64, y float64) {
 	//fmt.Printf("Mouse moved bruh: %f %f\n", x2, y2)
 	//w, h := f.window.GetSize()
 	//fmt.Printf("Mouse moved size: %d %d\n", w, h)
-	f.handler(frontend.NewCallback(frontend.CallbackMouseMove, ""))
+	f.handler(frontend.NewCallback(frontend.CallbackMouseMove, fmt.Sprintf("%d;%d", int(x), int(y))))
 }
 
 func (f *Frontend) scrollCallback(_ *glfw.Window, xoff float64, yoff float64) {

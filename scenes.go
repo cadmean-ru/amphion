@@ -6,7 +6,6 @@ import (
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
-	"github.com/cadmean-ru/amphion/rendering"
 	"math"
 	"math/rand"
 )
@@ -17,7 +16,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	rect := engine.NewSceneObject("rect")
 	rect.Transform.Size = a.NewVector3(100, 100, 100)
 	rect.Transform.Position = a.NewVector3(100, 100, -2)
-	shape := builtin.NewShapeView(rendering.PrimitiveRectangle)
+	shape := builtin.NewShapeView(builtin.ShapeRectangle)
 	shape.FillColor = a.PinkColor()
 	rect.AddComponent(shape)
 	//rect.AddComponent(&Mover{})
@@ -25,7 +24,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	circle := engine.NewSceneObject("circle")
 	circle.Transform.Size = a.NewVector3(50, 50, 0)
 	circle.Transform.Position = a.NewVector3(10, 10 , 1)
-	circleRenderer := builtin.NewShapeView(rendering.PrimitiveEllipse)
+	circleRenderer := builtin.NewShapeView(builtin.ShapeEllipse)
 	circleRenderer.StrokeWeight = 0
 	circleRenderer.FillColor = a.GreenColor()
 	circle.AddComponent(circleRenderer)
@@ -79,7 +78,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	line := engine.NewSceneObject("line")
 	line.Transform.Position = a.NewVector3(400, 400, 0)
 	line.Transform.Size = a.NewVector3(100, 10, 0)
-	lineView := builtin.NewShapeView(rendering.PrimitiveLine)
+	lineView := builtin.NewShapeView(builtin.ShapeLine)
 	lineView.StrokeColor = a.NewColor(0x2c, 0x68, 0xa8, 0xff)
 	lineView.StrokeWeight = 5
 	line.AddComponent(lineView)
@@ -88,7 +87,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	triangle := engine.NewSceneObject("triangle")
 	triangle.Transform.Position = a.NewVector3(100, 100, 0)
 	triangle.Transform.Size = a.NewVector3(100, 300, 0)
-	triangleView := builtin.NewShapeView(rendering.PrimitiveTriangle)
+	triangleView := builtin.NewShapeView(builtin.ShapeTriangle)
 	triangleView.FillColor = a.BlueColor()
 	triangle.AddComponent(triangleView)
 	triangle.AddComponent(builtin.NewTriangleBoundary())
@@ -205,7 +204,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	box := engine.NewSceneObject("Moving box")
 	box.Transform.Position = a.NewVector3(10, 100, 10)
 	box.Transform.Size = a.NewVector3(500, 500, 0)
-	boxBg := builtin.NewShapeView(rendering.PrimitiveRectangle)
+	boxBg := builtin.NewShapeView(builtin.ShapeRectangle)
 	boxBg.StrokeWeight = 0
 	boxBg.FillColor = a.NewColor(0xc4, 0xc4, 0xc4, 0xff)
 	boxBg.CornerRadius = 10

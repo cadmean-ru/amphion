@@ -1,6 +1,7 @@
 package pc
 
 import (
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -12,7 +13,7 @@ type EllipseRenderer struct {
 
 func (r *EllipseRenderer) OnStart() {
 	r.program = createAndLinkProgramOrPanic(
-		createAndCompileShaderOrPanic(zeroTerminated(EllipseVertexShaderStr), gl.VERTEX_SHADER),
+		createAndCompileShaderOrPanic(zeroTerminated(ShapeVertexShaderStr), gl.VERTEX_SHADER),
 		createAndCompileShaderOrPanic(zeroTerminated(EllipseFragShaderStr), gl.FRAGMENT_SHADER),
 	)
 }
@@ -29,8 +30,8 @@ func (r *EllipseRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		gl.BindVertexArray(state.vao)
 
 		wSize := engine.GetScreenSize3()
-		tlPos := gp.Transform.Position.Ndc(wSize)
-		brPos := gp.Transform.Position.Add(gp.Transform.Size).Ndc(wSize)
+		ntlPos := gp.Transform.Position.Ndc(wSize)
+		nbrPos := gp.Transform.Position.Add(gp.Transform.Size).Ndc(wSize)
 
 		color := gp.Appearance.FillColor
 		r1 := float32(color.R)
@@ -38,11 +39,20 @@ func (r *EllipseRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		b1 := float32(color.B)
 		a1 := float32(color.A)
 
-		vertices := []float32 {
-			tlPos.X, tlPos.Y, 0, r1, g1, b1, a1, tlPos.X, tlPos.Y, 0, brPos.X, brPos.Y, 0,
-			tlPos.X, brPos.Y, 0, r1, g1, b1, a1, tlPos.X, tlPos.Y, 0, brPos.X, brPos.Y, 0,
-			brPos.X, brPos.Y, 0, r1, g1, b1, a1, tlPos.X, tlPos.Y, 0, brPos.X, brPos.Y, 0,
-			brPos.X, tlPos.Y, 0, r1, g1, b1, a1, tlPos.X, tlPos.Y, 0, brPos.X, brPos.Y, 0,
+		strokeColor := gp.Appearance.StrokeColor
+		r2 := float32(strokeColor.R)
+		g2 := float32(strokeColor.G)
+		b2 := float32(strokeColor.B)
+		a2 := float32(strokeColor.A)
+
+		var stroke = a.NewIntVector3(int(gp.Appearance.StrokeWeight), int(gp.Appearance.StrokeWeight), int(gp.Appearance.StrokeWeight))
+		var nStroke = stroke.Ndc(wSize).Add(a.OneVector())
+
+		vertices := []float32{
+			ntlPos.X, ntlPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2,
+			ntlPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2,
+			nbrPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2,
+			nbrPos.X, ntlPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2,
 		}
 
 		indices := []uint32 {
@@ -50,7 +60,7 @@ func (r *EllipseRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 			0, 3, 2,
 		}
 
-		const stride int32 = 52
+		const stride int32 = 72
 
 		gl.BindBuffer(gl.ARRAY_BUFFER, state.vbo)
 		gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
@@ -61,14 +71,20 @@ func (r *EllipseRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		gl.VertexAttribPointer(0, 3, gl.FLOAT, false, stride, nil)
 		gl.EnableVertexAttribArray(0)
 
-		gl.VertexAttribPointer(1, 4, gl.FLOAT, false, stride, gl.PtrOffset(12))
+		gl.VertexAttribPointer(1, 3, gl.FLOAT, false, stride, gl.PtrOffset(12))
 		gl.EnableVertexAttribArray(1)
 
-		gl.VertexAttribPointer(2, 3, gl.FLOAT, false, stride, gl.PtrOffset(28))
+		gl.VertexAttribPointer(2, 3, gl.FLOAT, false, stride, gl.PtrOffset(24))
 		gl.EnableVertexAttribArray(2)
 
-		gl.VertexAttribPointer(3, 3, gl.FLOAT, false, stride, gl.PtrOffset(40))
+		gl.VertexAttribPointer(3, 4, gl.FLOAT, false, stride, gl.PtrOffset(36))
 		gl.EnableVertexAttribArray(3)
+
+		gl.VertexAttribPointer(4, 1, gl.FLOAT, false, stride, gl.PtrOffset(52))
+		gl.EnableVertexAttribArray(4)
+
+		gl.VertexAttribPointer(5, 4, gl.FLOAT, false, stride, gl.PtrOffset(56))
+		gl.EnableVertexAttribArray(5)
 
 		gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 		gl.BindVertexArray(0)
