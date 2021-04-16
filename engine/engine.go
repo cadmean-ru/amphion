@@ -1,4 +1,4 @@
-// This package provides functionality for the app engine.
+// Package engine provides functionality for the app engine.
 package engine
 
 import (
@@ -45,6 +45,8 @@ type AmphionEngine struct {
 	suspend            bool
 	inputManager       *InputManager
 	startingWg         *sync.WaitGroup
+
+	*FeaturesManager
 }
 
 const (
@@ -58,7 +60,7 @@ const (
 	StateRendering = 3
 )
 
-// Initializes a new instance of Amphion Engine and configures it to run with the specified frontend.
+// Initialize initializes a new instance of Amphion Engine and configures it to run with the specified frontend.
 // Returns pointer to the created engine instance.
 // The engine is a singleton, so calling Initialize more than once will have no effect.
 func Initialize(front frontend.Frontend) *AmphionEngine {
@@ -80,6 +82,7 @@ func Initialize(front frontend.Frontend) *AmphionEngine {
 		front:             front,
 		inputManager:      newInputManager(),
 		startingWg:        &sync.WaitGroup{},
+		FeaturesManager:   newFeaturesManager(),
 	}
 	instance.startingWg.Add(1)
 	instance.renderer = front.GetRenderer()
@@ -88,7 +91,7 @@ func Initialize(front frontend.Frontend) *AmphionEngine {
 	return instance
 }
 
-// Returns pointer to the engine instance.
+// GetInstance returns pointer to the engine instance.
 func GetInstance() *AmphionEngine {
 	return instance
 }
@@ -690,26 +693,31 @@ func (engine *AmphionEngine) LoadApp() {
 	}).Build())
 }
 
-// Returns the current app's context.
+// GetAppContext returns the current app's context.
 func (engine *AmphionEngine) GetAppContext() *AppContext {
 	return engine.appContext
 }
 
-// Returns the current scene's context.
+// GetSceneContext returns the current scene's context.
 func (engine *AmphionEngine) GetSceneContext() *SceneContext {
 	return engine.sceneContext
 }
 
-// Executes the specified action on frontend thread.
+// ExecuteOnFrontendThread executes the specified action on frontend thread.
 // Can be used to execute UI related functions from another goroutine.
 func (engine *AmphionEngine) ExecuteOnFrontendThread(action func()) {
 	engine.front.ReceiveMessage(frontend.NewFrontendMessageWithData(frontend.MessageExec, action))
 }
 
-// Updates app's window title.
+// SetWindowTitle updates app's window title.
 // On web sets the tab's title.
 func (engine *AmphionEngine) SetWindowTitle(title string) {
 	engine.front.ReceiveMessage(frontend.NewFrontendMessageWithData(frontend.MessageTitle, title))
+}
+
+//GetFeaturesManager returns the current FeaturesManager.
+func (engine *AmphionEngine) GetFeaturesManager() *FeaturesManager {
+	return engine.FeaturesManager
 }
 
 func (engine *AmphionEngine) rebuildMessageTree() {
@@ -719,7 +727,7 @@ func (engine *AmphionEngine) rebuildMessageTree() {
 	engine.messageDispatcher = newMessageDispatcherForScene(engine.currentScene)
 }
 
-// Return the name of the given component suitable for serialization.
+// NameOfComponent return the name of the given component suitable for serialization.
 func NameOfComponent(component interface{}) string {
 	t := reflect.TypeOf(component)
 

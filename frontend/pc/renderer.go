@@ -6,13 +6,12 @@ package pc
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
-	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
-// Realization of RendererDelegate for pc
+// OpenGLRenderer implements the RendererDelegate interface for pc
 type OpenGLRenderer struct {
 	window         *glfw.Window
 	wSize          a.IntVector3
@@ -56,9 +55,9 @@ func (r *OpenGLRenderer) OnPrepare() {
 }
 
 func (r *OpenGLRenderer) OnPerformRenderingStart() {
-	fmt.Println("Rendering")
-	fmt.Println(engine.GetInstance().GetCurrentScene().Transform.Size)
-	fmt.Println(r.wSize)
+	//fmt.Println("Start Rendering")
+	//fmt.Println(engine.GetInstance().GetCurrentScene().Transform.Size)
+	//fmt.Println(r.wSize)
 
 	//gl.Viewport(0, 0, int32(r.wSize.X), int32(r.wSize.Y))
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -67,7 +66,7 @@ func (r *OpenGLRenderer) OnPerformRenderingStart() {
 func (r *OpenGLRenderer) OnPerformRenderingEnd() {
 	r.window.SwapBuffers()
 
-	fmt.Println("End rendering")
+	//fmt.Println("End rendering")
 }
 
 func (r *OpenGLRenderer) OnClear() {

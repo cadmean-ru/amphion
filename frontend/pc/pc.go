@@ -13,11 +13,10 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"math"
+	"time"
 )
 
-var BRUH = false
-
-const SleepTimeS = 1.0 / 120.0
+const SleepTimeS = 1.0 / 60.0
 
 type Frontend struct {
 	window           *glfw.Window
@@ -27,9 +26,10 @@ type Frontend struct {
 	renderer         *rendering.ARenderer
 	initialized      bool
 	context          frontend.Context
-	msgChan          chan frontend.Message
+	msgChan          *frontend.MessageQueue
 	inputMan         *InputManager
 	resMan           *ResourceManager
+	app              *frontend.App
 }
 
 func (f *Frontend) Init() {
@@ -70,32 +70,65 @@ func (f *Frontend) Init() {
 
 func (f *Frontend) Run() {
 	f.handler(frontend.NewCallback(frontend.CallbackReady, ""))
+	fmt.Printf("Frontend target frame time: %fms\n", SleepTimeS*1000)
+
+	//defer profile.Start(profile.ProfilePath(".")).Stop()
 
 	for !f.window.ShouldClose() {
-		select {
-		case msg, ok := <-f.msgChan:
-			if ok {
-				switch msg.Code {
-				case frontend.MessageRender:
-					f.renderer.PerformRendering()
-				case frontend.MessageExec:
-					if msg.Data != nil {
-						if action, ok := msg.Data.(func()); ok {
-							action()
-						}
-					}
-				}
-			} else {
+		msgTime := f.processMessages()
 
-			}
-		default:
-
+		timeToWait := 0.0
+		if SleepTimeS - msgTime.Seconds() > 0 {
+			timeToWait = SleepTimeS - msgTime.Seconds()
 		}
 
-		glfw.WaitEventsTimeout(SleepTimeS)
+		//if timeToWait == 0 && f.app != nil && f.app.Debug {
+		//	fmt.Println("Warning! The frontend is skipping frames!")
+		//	fmt.Printf("Message processing took: %dms\n", msgTime.Milliseconds())
+		//}
+
+		glfw.WaitEventsTimeout(timeToWait)
 	}
 
+	// TODO: notify the engine to stop correctly
+
 	glfw.Terminate()
+}
+
+func (f *Frontend) processMessages() time.Duration {
+	f.msgChan.LockMainChannel()
+
+	var total time.Duration = 0
+
+	for !f.msgChan.IsEmpty() {
+		total += f.processMessage(f.msgChan.Dequeue())
+	}
+
+	f.msgChan.UnlockMainChannel()
+
+	return total
+}
+
+func (f *Frontend) processMessage(msg frontend.Message) time.Duration {
+	processingStart := time.Now()
+
+	switch msg.Code {
+	case frontend.MessageRender:
+		f.renderer.PerformRendering()
+	case frontend.MessageExec:
+		if msg.Data != nil {
+			if action, ok := msg.Data.(func()); ok {
+				action()
+			}
+		}
+	}
+
+	processingTime := time.Since(processingStart)
+	//if processingTime.Seconds() > SleepTimeS && f.app != nil && f.app.Debug {
+	//	fmt.Printf("Warning! message processing took too long: %dms code: %d\n", processingTime.Milliseconds(), msg.Code)
+	//}
+
+	return processingTime
 }
 
 func (f *Frontend) mouseButtonCallback(w *glfw.Window, button glfw.MouseButton, action glfw.Action, _ glfw.ModifierKey) {
@@ -137,9 +170,6 @@ func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, width int, height int
 	f.context.ScreenInfo = common.NewScreenInfo(w, h)
 	f.rendererDelegate.handleWindowResize(w, h)
 	f.handler(frontend.NewCallback(frontend.CallbackContextChange, ""))
-	//f.renderer.PerformRendering()
-	fmt.Printf("New window size: %d %d\n", w, h)
-	BRUH = true
 }
 
 func (f *Frontend) focusCallback(_ *glfw.Window, focused bool) {
@@ -157,11 +187,6 @@ func (f *Frontend) windowRefreshCallback(_ *glfw.Window) {
 }
 
 func (f *Frontend) cursorPosCallback(_ *glfw.Window, x float64, y float64) {
-	//fmt.Printf("Mouse moved: %f %f\n", x, y)
-	//x2, y2 := f.window.GetCursorPos()
-	//fmt.Printf("Mouse moved bruh: %f %f\n", x2, y2)
-	//w, h := f.window.GetSize()
-	//fmt.Printf("Mouse moved size: %d %d\n", w, h)
 	f.handler(frontend.NewCallback(frontend.CallbackMouseMove, fmt.Sprintf("%d;%d", int(x), int(y))))
 }
 
@@ -205,7 +230,7 @@ func (f *Frontend) CommencePanic(reason, msg string) {
 }
 
 func (f *Frontend) ReceiveMessage(message frontend.Message) {
-	f.msgChan <- message
+	f.msgChan.Enqueue(message)
 }
 
 func (f *Frontend) GetResourceManager() frontend.ResourceManager {
@@ -224,7 +249,8 @@ func (f *Frontend) GetApp() *frontend.App {
 		return nil
 	}
 
-	return &app
+	f.app = &app
+	return f.app
 }
 
 func (f *Frontend) GetLaunchArgs() a.SiMap {
@@ -235,7 +261,7 @@ func NewFrontend() *Frontend {
 	f := &Frontend{
 		wSize: a.NewIntVector3(500, 500, 0),
 		inputMan: &InputManager{},
-		msgChan:  make(chan frontend.Message, 10),
+		msgChan:  frontend.NewMessageQueue(100),
 		resMan:   newResourceManager(),
 	}
 	f.rendererDelegate = &OpenGLRenderer{

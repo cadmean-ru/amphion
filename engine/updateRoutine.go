@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"github.com/cadmean-ru/amphion/frontend"
 	"time"
 )
@@ -91,8 +92,6 @@ func (r *updateRoutine) loop() {
 
 	// Updating every frame or wait for update chan
 	for b := range r.updateChan {
-		//engine.logger.Info("Update loop", "Here")
-
 		if !b {
 			instance.logger.Info(r, "Stopping")
 			break
@@ -132,6 +131,8 @@ func (r *updateRoutine) loop() {
 			continue
 		}
 
+		updateStart := time.Now()
+
 		if r.updateRequested {
 			//engine.logger.Info("Update loop", "Updating components")
 
@@ -144,8 +145,11 @@ func (r *updateRoutine) loop() {
 			r.loopUpdate(instance.currentScene, ctx)
 		}
 
+		updateTime := time.Since(updateStart)
+		renderingStart := time.Now()
+
 		if r.renderingRequested {
-			//engine.logger.Info("Update loop", "Rendering components")
+			//instance.logger.Warning(r, "Rendering components")
 
 			r.renderingRequested = false
 			instance.state = StateRendering
@@ -159,10 +163,20 @@ func (r *updateRoutine) loop() {
 			instance.forceRedraw = false
 		}
 
+		renderingTime := time.Since(renderingStart)
+
 		instance.state = StateStarted
 
 		// Wait until next frame
-		timeToSleep := TargetFrameTime - elapsed.Milliseconds()
+		timeToSleep := TargetFrameTime - time.Since(lastFrameTime).Milliseconds()
+
+		if timeToSleep == 0 {
+			instance.logger.Warning(r,
+				fmt.Sprintf("The application is skipping frames! Update time: %d, Rendering time: %d",
+					updateTime.Milliseconds(),
+					renderingTime.Milliseconds()))
+		}
+
 		time.Sleep(time.Duration(timeToSleep) * time.Millisecond)
 	}
 

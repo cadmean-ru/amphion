@@ -62,8 +62,6 @@ func main() {
 		//}
 
 		e.LoadApp()
-
-		//e.WaitForStop()
 	}()
 
 	front.Run()
