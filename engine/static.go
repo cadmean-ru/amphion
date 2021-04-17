@@ -62,12 +62,19 @@ func UnbindEventHandler(eventCode int, handler EventHandler) {
 	instance.UnbindEventHandler(eventCode, handler)
 }
 
+//RaiseEvent raises a new event to be processed in the event goroutine.
+func RaiseEvent(event AmphionEvent) {
+	instance.RaiseEvent(event)
+}
+
 // ExecuteOnFrontendThread - shortcut for (engine *AmphionEngine) ExecuteOnFrontendThread(action func()).
 // Executes the specified action on frontend thread. 
 func ExecuteOnFrontendThread(action func()) {
 	instance.ExecuteOnFrontendThread(action)
 }
 
+//GetFrontendContext returns the global application context.
+//See frontend.Context.
 func GetFrontendContext() frontend.Context {
 	return instance.GetGlobalContext()
 }
@@ -88,4 +95,58 @@ func GetScreenSize3() a.IntVector3 {
 //GetFeaturesManager returns the current FeaturesManager.
 func GetFeaturesManager() *FeaturesManager {
 	return instance.GetFeaturesManager()
+}
+
+//GetResourceManager returns the current resource manager.
+func GetResourceManager() frontend.ResourceManager {
+	return instance.GetResourceManager()
+}
+
+//GerCurrentScene returns the currently displaying scene object.
+func GerCurrentScene() *SceneObject {
+	return instance.GetCurrentScene()
+}
+
+//GetSceneContext returns the current scene's context.
+func GetSceneContext() *SceneContext {
+	return instance.GetSceneContext()
+}
+
+//GetCurrentApp returns the current loaded app or nil if no app is loaded.
+func GetCurrentApp() *frontend.App {
+	return instance.GetCurrentApp()
+}
+
+//GetAppContext returns the current app's context.
+func GetAppContext() *AppContext {
+	return instance.GetAppContext()
+}
+
+//GetInputManager returns the current input manager.
+func GetInputManager() *InputManager {
+	return instance.GetInputManager()
+}
+
+// SetWindowTitle updates app's window title.
+// On web sets the tab's title.
+func SetWindowTitle(title string) {
+	instance.SetWindowTitle(title)
+}
+
+//FindObjectByName searches for an object with the specified name through all the current scene object tree.
+//See SceneObject.FindObjectByName.
+func FindObjectByName(name string) *SceneObject {
+	if instance.currentScene == nil {
+		return nil
+	}
+	return instance.currentScene.FindObjectByName(name)
+}
+
+//FindComponentByName searches for a component with the specified name through all the current scene object tree.
+//See SceneObject.FindComponentByName.
+func FindComponentByName(name string) Component {
+	if instance.currentScene == nil {
+		return nil
+	}
+	return instance.currentScene.FindComponentByName(name)
 }
