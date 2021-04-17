@@ -53,11 +53,11 @@ func testSetupMessageListeners() {
 
 func TestMessageDispatcher_Dispatch(t *testing.T) {
 	testSetupMessageListeners()
-	dispatcher.Dispatch(NewMessage("test", 123, "test Data"))
+	dispatcher.Dispatch(NewMessage("test", 123, "test Data"), MessageMaxDepth)
 }
 
 func TestMessageDispatcher_DispatchDown(t *testing.T) {
 	testSetupMessageListeners()
-	dispatcher.DispatchDown(l2, NewMessage("test", 123, "Message from 3"))
-	dispatcher.DispatchDown(l4, NewMessage("test", 123, "Message from hello"))
+	dispatcher.DispatchDown(l2, NewMessage("test", 123, "Message from 3"), MessageMaxDepth)
+	dispatcher.DispatchDown(l4, NewMessage("test", 123, "Message from hello"), MessageMaxDepth)
 }

@@ -7,20 +7,21 @@ import (
 	"runtime"
 )
 
-// Manages types of components that are present in the application.
+//ComponentsManager keeps track  of types of components and event handlers. that are present in the application.
+//It also allows getting and setting the state of a component.
 type ComponentsManager struct {
 	typesMap map[string]reflect.Type
 	handlers map[string]EventHandler
 }
 
-// Register component, so an instance of it can be later created using MakeComponent.
+//RegisterComponentType registers component, so an instance of it can be later created using MakeComponent.
 func (m *ComponentsManager) RegisterComponentType(component Component) {
 	cName := component.GetName()
 	cType := reflect.TypeOf(component)
 	m.typesMap[cName] = cType
 }
 
-// Registers an event handler, so that it can be serialized and deserialized as a part of component's state.
+//RegisterEventHandler registers an event handler, so that it can be serialized and deserialized as a part of component's state.
 func (m *ComponentsManager) RegisterEventHandler(handler EventHandler) {
 	for _, h := range m.handlers {
 		if reflect.ValueOf(handler).Pointer() == reflect.ValueOf(h).Pointer() {
@@ -31,13 +32,13 @@ func (m *ComponentsManager) RegisterEventHandler(handler EventHandler) {
 	m.handlers[getFunctionName(handler)] = handler
 }
 
-// Retrieves the previously registered event handler by it's name.
+//GetEventHandler retrieves the previously registered event handler by it's name.
 func (m *ComponentsManager) GetEventHandler(name string) EventHandler {
 	return m.handlers[name]
 }
 
-// Creates an instance of a component with the specified name.
-// Returns the new instance of component ot nil if component with the name was not registered.
+// MakeComponent creates an instance of a component with the specified name.
+// Returns the new instance of component or nil if component with that name was not registered.
 func (m *ComponentsManager) MakeComponent(name string) Component {
 	var t reflect.Type
 	var ok bool
@@ -53,7 +54,7 @@ func (m *ComponentsManager) MakeComponent(name string) Component {
 	return c.Interface().(Component)
 }
 
-// Retrieves component's state and returns it as string-interface map.
+// GetComponentState retrieves component's state and returns it as string-interface map.
 func (m *ComponentsManager) GetComponentState(component Component) a.SiMap {
 	if sc, ok := component.(StatefulComponent); ok {
 		return sc.GetInstanceState()
@@ -101,7 +102,7 @@ func (m *ComponentsManager) GetComponentState(component Component) a.SiMap {
 	return state
 }
 
-// Sets the component's state to the given state map.
+// SetComponentState sets the component's state from the given state map.
 func (m *ComponentsManager) SetComponentState(component Component, state a.SiMap) {
 	if sc, ok := component.(StatefulComponent); ok {
 		sc.SetInstanceState(state)
@@ -132,50 +133,94 @@ func (m *ComponentsManager) setReflectValue(vf reflect.Value, value interface{})
 
 	switch vf.Kind() {
 	case reflect.Int, reflect.Int32, reflect.Int64, reflect.Uint8, reflect.Float32, reflect.Float64:
-		if vf.Type().AssignableTo(reflect.TypeOf(a.ResId(0))) {
-			newValue = reflect.ValueOf(a.ResId(require.Int(value)))
-		} else {
-			newValue = reflect.ValueOf(require.Number(value, vf.Kind()))
-		}
+		newValue = m.setReflectNumberValue(vf, value)
 	case reflect.String:
-		newValue = reflect.ValueOf(require.String(value))
+		newValue = m.setReflectStringValue(vf, value)
 	case reflect.Struct:
-		structValue := reflect.New(vf.Type())
-
-		if structValue.Type().Implements(reflect.TypeOf((*a.Unstringable)(nil)).Elem()) {
-			structValue.Interface().(a.Unstringable).FromString(require.String(value))
-		} else if structValue.Type().Implements(reflect.TypeOf((*a.Unmappable)(nil)).Elem()) {
-			structValue.Interface().(a.Unmappable).FromMap(a.RequireSiMap(value))
-		}
-
-		newValue = reflect.Indirect(structValue)
+		newValue = m.setReflectStructValue(vf, value)
 	case reflect.Ptr:
-		m.setReflectValue(reflect.Indirect(vf), value)
+		newValue = m.setReflectPtrValue(vf, value)
 	case reflect.Slice:
-		if arr, ok := value.([]interface{}); ok {
-			arrValue := reflect.MakeSlice(vf.Type(), len(arr), len(arr))
-
-			for i, v := range arr {
-				elemValue := reflect.New(vf.Type().Elem())
-				m.setReflectValue(elemValue, v)
-				arrValue.Index(i).Set(reflect.Indirect(elemValue))
-			}
-
-			newValue = arrValue
-		} else {
-			newValue = reflect.MakeSlice(vf.Type(), 0, 0)
-		}
+		newValue = m.setReflectSliceValue(vf, value)
 	case reflect.Func:
-		if hName, ok := value.(string); ok && hName != "" {
-			if h := m.GetEventHandler(hName); h != nil {
-				newValue = reflect.ValueOf(h)
-			}
-		}
+		newValue = m.setReflectFuncValue(vf, value)
 	}
 
 	if vf.CanSet() {
 		vf.Set(newValue)
 	}
+}
+
+func (m *ComponentsManager) setReflectNumberValue(vf reflect.Value, value interface{}) reflect.Value {
+	var newValue reflect.Value
+
+	if vf.Type().AssignableTo(reflect.TypeOf(a.ResId(0))) {
+		newValue = reflect.ValueOf(a.ResId(require.Int(value)))
+	} else if vf.Type().AssignableTo(reflect.TypeOf(a.TextAlign(0))) {
+		if IsSpecialValueString(value) {
+			newValue = reflect.ValueOf(GetSpecialValueFromString(value))
+		} else {
+			newValue = reflect.ValueOf(a.TextAlign(require.Int(value)))
+		}
+	} else {
+		if IsSpecialValueString(value) {
+			newValue = reflect.ValueOf(require.Number(GetSpecialValueFromString(value), vf.Kind()))
+		} else {
+			newValue = reflect.ValueOf(require.Number(value, vf.Kind()))
+		}
+	}
+
+	return newValue
+}
+
+func (m *ComponentsManager) setReflectStringValue(_ reflect.Value, value interface{}) reflect.Value {
+	return reflect.ValueOf(require.String(value))
+}
+
+func (m *ComponentsManager) setReflectStructValue(vf reflect.Value, value interface{}) reflect.Value {
+	structValue := reflect.New(vf.Type())
+
+	if structValue.Type().Implements(reflect.TypeOf((*a.Unstringable)(nil)).Elem()) {
+		structValue.Interface().(a.Unstringable).FromString(require.String(value))
+	} else if structValue.Type().Implements(reflect.TypeOf((*a.Unmappable)(nil)).Elem()) {
+		structValue.Interface().(a.Unmappable).FromMap(a.RequireSiMap(value))
+	}
+
+	return reflect.Indirect(structValue)
+}
+
+func (m *ComponentsManager) setReflectPtrValue(vf reflect.Value, value interface{}) reflect.Value {
+	ptr := reflect.New(vf.Type().Elem())
+	m.setReflectValue(reflect.Indirect(ptr), value)
+	return ptr
+}
+
+func (m *ComponentsManager) setReflectSliceValue(vf reflect.Value, value interface{}) reflect.Value {
+	vv := reflect.ValueOf(value)
+
+	if vv.Kind() != reflect.Slice {
+		return reflect.MakeSlice(vf.Type(), 0, 0)
+	}
+
+	arrValue := reflect.MakeSlice(vf.Type(), vv.Len(), vv.Len())
+
+	for i := 0; i < vv.Len(); i++ {
+		elemValue := reflect.Indirect(reflect.New(vf.Type().Elem()))
+		m.setReflectValue(elemValue, vv.Index(i).Interface())
+		arrValue.Index(i).Set(elemValue)
+	}
+
+	return arrValue
+}
+
+func (m *ComponentsManager) setReflectFuncValue(vf reflect.Value, value interface{}) reflect.Value {
+	if hName, ok := value.(string); vf.Type().AssignableTo(reflect.TypeOf(eh)) && ok && hName != "" {
+		if h := m.GetEventHandler(hName); h != nil {
+			return reflect.ValueOf(h)
+		}
+	}
+
+	return reflect.Zero(vf.Type())
 }
 
 func (m *ComponentsManager) GetName() string {
@@ -189,6 +234,8 @@ func newComponentsManager() *ComponentsManager {
 	}
 }
 
+//getStructTypeAndValue retrieves the reflect.Type and reflect.Value of a struct.
+//If the given value is a pointer to struct, returns the type and value of struct it points to.
 func getStructTypeAndValue(i interface{}) (reflect.Type, reflect.Value) {
 	t := reflect.TypeOf(i)
 	v := reflect.ValueOf(i)
@@ -205,4 +252,8 @@ func getFunctionName(i interface{}) string {
 		panic("not a func")
 	}
 	return runtime.FuncForPC(v.Pointer()).Name()
+}
+
+func eh(event AmphionEvent) bool {
+	return true
 }
