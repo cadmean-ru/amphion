@@ -189,11 +189,3 @@ func NewTransformFromMap(siMap a.SiMap) Transform {
 	t.FromMap(siMap)
 	return t
 }
-
-// Deprecated.
-// Use a.MatchParent, a.WrapContent and a.CenterInParent instead.
-const (
-	MatchParent    = -2147483648
-	WrapContent    = -2147483647
-	CenterInParent = -2147483646
-)

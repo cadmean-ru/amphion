@@ -135,7 +135,6 @@ func registerComponents(e *engine.AmphionEngine) {
 	cm.RegisterComponentType(&builtin.BezierView{})
 	cm.RegisterComponentType(&builtin.DropdownView{})
 	cm.RegisterComponentType(&builtin.ImageView{})
-	cm.RegisterComponentType(&builtin.InputField{})
 	cm.RegisterComponentType(&builtin.MouseMover{})
 	cm.RegisterComponentType(&builtin.BuilderComponent{})
 	cm.RegisterComponentType(&TestController{})
@@ -173,9 +172,6 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	input := engine.NewSceneObject("input")
 	input.Transform.Position = a.NewVector3(0, 0, 0)
 	input.Transform.Size = a.NewVector3(500, 500 ,0)
-	inputView := builtin.NewInputField()
-	inputView.AllowMultiline = true
-	input.AddComponent(inputView)
 	scene2.AddChild(input)
 
 	dropdown := engine.NewSceneObject("dropdown")

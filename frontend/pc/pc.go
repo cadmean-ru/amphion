@@ -27,7 +27,6 @@ type Frontend struct {
 	initialized      bool
 	context          frontend.Context
 	msgChan          *frontend.MessageQueue
-	inputMan         *InputManager
 	resMan           *ResourceManager
 	app              *frontend.App
 }
@@ -60,8 +59,6 @@ func (f *Frontend) Init() {
 
 	f.rendererDelegate.window = f.window
 	f.rendererDelegate.wSize = f.wSize
-
-	f.inputMan.window = f.window
 
 	f.renderer.Prepare()
 
@@ -202,16 +199,8 @@ func (f *Frontend) Stop() {
 	f.renderer.Stop()
 }
 
-func (f *Frontend) Reset() {
-
-}
-
 func (f *Frontend) SetCallback(handler frontend.CallbackHandler) {
 	f.handler = handler
-}
-
-func (f *Frontend) GetInputManager() frontend.InputManager {
-	return f.inputMan
 }
 
 func (f *Frontend) GetRenderer() *rendering.ARenderer {
@@ -261,10 +250,10 @@ func (f *Frontend) GetLaunchArgs() a.SiMap {
 	args := make(a.SiMap)
 	return args
 }
+
 func NewFrontend() *Frontend {
 	f := &Frontend{
 		wSize: a.NewIntVector3(500, 500, 0),
-		inputMan: &InputManager{},
 		msgChan:  frontend.NewMessageQueue(100),
 		resMan:   newResourceManager(),
 	}
