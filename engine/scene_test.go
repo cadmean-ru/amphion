@@ -1,11 +1,10 @@
-//+build windows linux darwin
-
 package engine
 
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -33,7 +32,7 @@ func (m *testComponent) SetInstanceState(state a.SiMap) {
 }
 
 func (m *testComponent) GetName() string {
-	return m.NameOf(m)
+	return NameOfComponent(m)
 }
 
 
@@ -182,4 +181,65 @@ func TestSceneObject_DecodeFromYaml(t *testing.T) {
 //		fmt.Printf("%+v\n", comp2)
 //		fmt.Printf("%+v\n", circle)
 //	})
+}
+
+func TestSceneObject_GetComponentByName(t *testing.T) {
+	ass := assert.New(t)
+
+	o := NewSceneObjectForTesting("Testing object")
+	component := &testComponent{}
+	o.AddComponent(component)
+
+	res := o.GetComponentByName("testComponent")
+	ass.NotNil(res)
+
+	res = o.GetComponentByName(".+Component")
+	ass.NotNil(res)
+
+	res = o.GetComponentByName("github.com/cadmean-ru/amphion/engine.testComponent")
+	ass.NotNil(res)
+}
+
+func TestSceneObject_FindObjectByName(t *testing.T) {
+	o1 := NewSceneObjectForTesting("Testing object 1")
+	o2 := NewSceneObjectForTesting("Testing object 2")
+	o1.AddChild(o2)
+	o3 := NewSceneObjectForTesting("Testing object 3")
+	o1.AddChild(o3)
+	o4 := NewSceneObjectForTesting("Testing object 4")
+	o2.AddChild(o4)
+	o5 := NewSceneObjectForTesting("Testing object 5")
+	o2.AddChild(o5)
+
+	ass := assert.New(t)
+
+	target := o1
+	found := o1.FindObjectByName("Testing object 1")
+	ass.Equal(target, found)
+
+	target = o3
+	found = o1.FindObjectByName("Testing object 3")
+	ass.Equal(target, found)
+
+	target = o5
+	found = o1.FindObjectByName("Testing object 5")
+	ass.Equal(target, found)
+}
+
+func TestSceneObject_FindComponentByName(t *testing.T) {
+	o1 := NewSceneObjectForTesting("Testing object 1")
+	o2 := NewSceneObjectForTesting("Testing object 2")
+	o1.AddChild(o2)
+	o3 := NewSceneObjectForTesting("Testing object 3")
+	o1.AddChild(o3)
+	o4 := NewSceneObjectForTesting("Testing object 4")
+	o2.AddChild(o4)
+
+	target := &testComponent{}
+	o5 := NewSceneObjectForTesting("Testing object 5", target)
+	o2.AddChild(o5)
+
+	found := o1.FindComponentByName("testComponent")
+
+	assert.Equal(t, target, found)
 }

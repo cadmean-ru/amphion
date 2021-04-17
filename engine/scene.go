@@ -6,6 +6,7 @@ import (
 	"github.com/cadmean-ru/amphion/common/require"
 	"gopkg.in/yaml.v2"
 	"regexp"
+	"strings"
 )
 
 // An object in the scene. The scene itself is also a SceneObject.
@@ -141,14 +142,21 @@ func (o *SceneObject) AddComponent(component Component) {
 	}
 }
 
-// Searches for component with the specified name throughout the components attached to this object.
-// The parameter n can be a regex string.
+// GetComponentByName searches for component with the specified name throughout the components attached to this object.
+// The parameter n can be on of the following:
+//
+// - full component name, e.g. github.com/cadmean-ru/amphion/engine/builtin.TextView,
+//
+// - short component name, e.g. TextView,
+//
+// - regex string.
+//
 // If there are multiple components with the same name returns the first.
 // Returns nil if no component with the name n was found.
 func (o *SceneObject) GetComponentByName(n string) Component {
 	for _, c := range o.components {
 		comp := c.GetComponent()
-		if matched, err := regexp.MatchString(n, comp.GetName()); matched && err == nil {
+		if o.componentMatcher(c, n) {
 			return comp
 		}
 	}
@@ -156,20 +164,47 @@ func (o *SceneObject) GetComponentByName(n string) Component {
 	return nil
 }
 
-// Searches for all components with the specified name throughout the components attached to this object.
-// The parameter n can be a regex string.
+// GetComponentsByName searches for all components with the specified name throughout the components attached to this object.
+// The parameter n can be on of the following:
+//
+// - full component name, e.g. github.com/cadmean-ru/amphion/engine/builtin.TextView,
+//
+// - short component name, e.g. TextView,
+//
+// - regex string.
+//
 // Returns empty slice if no components with the name n was found.
 func (o *SceneObject) GetComponentsByName(n string) []Component {
 	arr := make([]Component, 0, 1)
 
 	for _, c := range o.components {
-		comp := c.GetComponent()
-		if matched, err := regexp.MatchString(n, comp.GetName()); matched && err == nil {
-			arr = append(arr, comp)
+		if o.componentMatcher(c, n) {
+			arr = append(arr, c.GetComponent())
 		}
 	}
 
 	return arr
+}
+
+func (o *SceneObject) componentNameMatcher(comp Component, n string) bool {
+	if n == comp.GetName() {
+		return true
+	}
+
+	shortName := strings.Split(comp.GetName(), ".")[1] //The name after .
+	if n == shortName {
+		return true
+	}
+
+	if matched, err := regexp.MatchString(n, comp.GetName()); matched && err == nil {
+		return true
+	}
+
+	return false
+}
+
+func (o *SceneObject) componentMatcher(container *ComponentContainer, name string) bool {
+	return container.initialized && container.enabled && o.componentNameMatcher(container.GetComponent(), name)
 }
 
 // Returns a slice of all components attached to the object.
@@ -393,21 +428,35 @@ func (o *SceneObject) IsVisibleInScene() bool {
 	return rect.X.Max >= sceneRect.X.Min && rect.X.Min <= sceneRect.X.Max && rect.Y.Max >= sceneRect.Y.Min && rect.Y.Min <= sceneRect.Y.Max
 }
 
-// ForEachObject traverses the scene object tree, calling the action function for each of the objects.
-// The action is also called for the object on which the method was called.
+// Traverse traverses the scene object tree, calling the action function for each of the objects.
+// If action returns false interrupts the process.
 // The method skips uninitialized or disabled objects.
-func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
+func (o *SceneObject) Traverse(action func(object *SceneObject) bool) {
 	if !o.enabled {
 		return
 	}
 
-	action(o)
+	if !action(o) {
+		return
+	}
 
 	for _, c := range o.children {
-		c.ForEachObject(action)
+		c.Traverse(action)
 	}
 }
 
+// ForEachObject traverses the scene object tree, calling the action function for each of the objects.
+// The action is also called for the object on which the method was called.
+// The method skips uninitialized or disabled objects.
+func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
+	o.Traverse(func(object *SceneObject) bool {
+		action(object)
+		return true
+	})
+}
+
+//ForEachChild cycles through all direct children of the scene object, calling the specified action for each of them.
+//The method skips uninitialized or disabled objects.
 func (o *SceneObject) ForEachChild(action func(object *SceneObject)) {
 	if !o.enabled {
 		return
@@ -416,6 +465,40 @@ func (o *SceneObject) ForEachChild(action func(object *SceneObject)) {
 	for _, c := range o.children {
 		action(c)
 	}
+}
+
+//FindObjectByName searches for an object with the specified name through all the scene object tree.
+//Returns the first suitable object.
+//Returns nil if no object with the name was found.
+func (o *SceneObject) FindObjectByName(name string) *SceneObject {
+	var found *SceneObject
+	o.Traverse(func(object *SceneObject) bool {
+		if object.name == name {
+			found = object
+			return false
+		}
+
+		return true
+	})
+	return found
+}
+
+//FindComponentByName searches for a component with the specified name through all the scene object tree.
+//Returns the first suitable component.
+//Returns nil if no component with the name was found.
+func (o *SceneObject) FindComponentByName(name string) Component {
+	var found Component
+	o.Traverse(func(object *SceneObject) bool {
+		for _, c := range object.components {
+			if o.componentMatcher(c, name) {
+				found = c.GetComponent()
+				return false
+			}
+		}
+
+		return true
+	})
+	return found
 }
 
 // ForEachComponent iterates over each component attached to the object, calling the action function for each of them.
@@ -514,6 +597,7 @@ func (o *SceneObject) DecodeFromYaml(data []byte) error {
 }
 
 // NewSceneObject creates a new instance of scene object.
+// Can be used only with engine running.
 func NewSceneObject(name string) *SceneObject {
 	obj := &SceneObject{
 		id:                  instance.idgen.NextId(),
@@ -527,5 +611,36 @@ func NewSceneObject(name string) *SceneObject {
 		enabled:             true,
 	}
 	obj.Transform = NewTransform(obj)
+	return obj
+}
+
+//NewSceneObjectForTesting creates a new instance of scene object without engine running.
+//Can be used for testing purposes.
+//Do not use in actual Amphion apps!
+func NewSceneObjectForTesting(name string, components ...Component) *SceneObject {
+	obj := &SceneObject{
+		id:                  0,
+		name:                name,
+		children:            make([]*SceneObject, 0, 10),
+		components:          make([]*ComponentContainer, 0, 10),
+		messageListeners:    make([]MessageListenerComponent, 0),
+		renderingComponents: make([]*ComponentContainer, 0, 1),
+		updatingComponents:  make([]*ComponentContainer, 0, 1),
+		boundaryComponents:  make([]*ComponentContainer, 0, 1),
+		enabled:             true,
+		initialized:         true,
+	}
+	obj.Transform = NewTransform(obj)
+
+	for _, c := range components {
+		obj.AddComponent(c)
+	}
+
+	ctx := newInitContext(&AmphionEngine{}, obj)
+	for _, component := range obj.components {
+		component.GetComponent().OnInit(ctx)
+		component.initialized = true
+	}
+
 	return obj
 }
