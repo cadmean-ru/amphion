@@ -17,7 +17,8 @@ out float fStrokeWeight;
 out vec4 fStrokeColor;
 out float fCornerRadius;
 
-uniform mat4 uProjection;
+//uniform mat4 uProjection;
+//uniform vec4 uClippingArea2d;
 
 void main() {
 //    vec4 test = uProjection * vec4(vTest.xyz, 1.0);

@@ -36,10 +36,13 @@ func createAndCompileShaderOrPanic(text string, shaderType uint32) uint32 {
 	return shader
 }
 
-func createAndLinkProgramOrPanic(vertexShader, fragShader uint32) uint32 {
+func createAndLinkProgramOrPanic(shaders ...uint32) uint32 {
 	shaderProgram := gl.CreateProgram()
-	gl.AttachShader(shaderProgram, vertexShader)
-	gl.AttachShader(shaderProgram, fragShader)
+
+	for _, shader := range shaders {
+		gl.AttachShader(shaderProgram, shader)
+	}
+
 	gl.LinkProgram(shaderProgram)
 
 	var success int32
@@ -56,8 +59,9 @@ func createAndLinkProgramOrPanic(vertexShader, fragShader uint32) uint32 {
 		panic("failed to link program")
 	}
 
-	gl.DeleteShader(vertexShader)
-	gl.DeleteShader(fragShader)
+	for _, shader := range shaders {
+		gl.DeleteShader(shader)
+	}
 
 	return shaderProgram
 }
@@ -105,3 +109,9 @@ var TextFragShaderStr string
 
 //go:embed shaders/TextVertexShader.glsl
 var TextVertexShaderStr string
+
+//go:embed shaders/CommonVertexShader.glsl
+var CommonVertexShaderStr string
+
+//go:embed shaders/CommonFragmentShader.glsl
+var CommonFragmentShaderStr string

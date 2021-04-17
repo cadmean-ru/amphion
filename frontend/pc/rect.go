@@ -15,6 +15,8 @@ func (r *RectangleRenderer) OnStart() {
 	r.program = createAndLinkProgramOrPanic(
 		createAndCompileShaderOrPanic(zeroTerminated(ShapeVertexShaderStr), gl.VERTEX_SHADER),
 		createAndCompileShaderOrPanic(zeroTerminated(ShapeFragShaderStr), gl.FRAGMENT_SHADER),
+		//createAndCompileShaderOrPanic(zeroTerminated(CommonVertexShaderStr), gl.VERTEX_SHADER),
+		//createAndCompileShaderOrPanic(zeroTerminated(CommonFragmentShaderStr), gl.FRAGMENT_SHADER),
 	)
 }
 

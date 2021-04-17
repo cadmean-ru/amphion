@@ -121,6 +121,10 @@ func (f *Frontend) processMessage(msg frontend.Message) time.Duration {
 				action()
 			}
 		}
+	case frontend.MessageTitle:
+		if title, ok := msg.Data.(string); ok {
+			f.window.SetTitle(title)
+		}
 	}
 
 	processingTime := time.Since(processingStart)

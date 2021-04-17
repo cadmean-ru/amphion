@@ -17,6 +17,7 @@ type OpenGLRenderer struct {
 	wSize          a.IntVector3
 	projection     [16]float32
 	front          *Frontend
+	renderers      []*glPrimitiveRenderer
 }
 
 func (r *OpenGLRenderer) OnPrepare() {
@@ -46,12 +47,28 @@ func (r *OpenGLRenderer) OnPrepare() {
 
 	//gl.Viewport(0, 0, 500, 500)
 
-	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveText, &TextRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
-	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveRectangle, &RectangleRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
-	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveEllipse, &EllipseRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
-	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveTriangle, &TriangleRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
-	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveLine, &LineRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
-	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveImage, &ImageRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}})
+	textRenderer := &TextRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
+	rectangleRenderer := &RectangleRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
+	ellipseRenderer :=  &EllipseRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
+	triangleRenderer := &TriangleRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
+	lineRenderer := &LineRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
+	imageRenderer := &ImageRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
+
+	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveText, textRenderer)
+	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveRectangle, rectangleRenderer)
+	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveEllipse, ellipseRenderer)
+	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveTriangle, triangleRenderer)
+	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveLine, lineRenderer)
+	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveImage, imageRenderer)
+
+	r.renderers = []*glPrimitiveRenderer {
+		textRenderer.glPrimitiveRenderer,
+		rectangleRenderer.glPrimitiveRenderer,
+		ellipseRenderer.glPrimitiveRenderer,
+		triangleRenderer.glPrimitiveRenderer,
+		lineRenderer.glPrimitiveRenderer,
+		imageRenderer.glPrimitiveRenderer,
+	}
 }
 
 func (r *OpenGLRenderer) OnPerformRenderingStart() {
@@ -82,17 +99,16 @@ func (r *OpenGLRenderer) OnStop() {
 func (r *OpenGLRenderer) handleWindowResize(w, h int) {
 	//r.wSize = a.NewIntVector3(w, h, 0)
 	//fmt.Printf("OpenGL renderer: handle resize: %d, %d\n", w, h)
-	//gl.Viewport(0, 0, int32(w), int32(h))
+	gl.Viewport(0, 0, int32(w), int32(h))
 	//r.calculateProjection()
 }
-
-
 
 //func (r *OpenGLRenderer) calculateProjection() {
 //	xs := float32(r.wSize.X)
 //	ys := float32(r.wSize.Y)
 //	c1 := 2 / xs
 //	c2 := 2 / ys
+//
 //	r.projection = [16]float32 {
 //		c1, 0,  0,  -1,
 //		0,  c2, 0,  -1,
@@ -100,13 +116,18 @@ func (r *OpenGLRenderer) handleWindowResize(w, h int) {
 //		0,  0,  0,  1,
 //	}
 //
-//	//fmt.Println(r.projection)
+//	fmt.Println(r.projection)
 //
-//	r.setProjectionUniform(r.shapeProgram)
+//	for _, renderer := range r.renderers {
+//		r.setProjectionUniform(renderer.program)
+//	}
 //}
 //
 //func (r *OpenGLRenderer) setProjectionUniform(program uint32) {
-//	gl.UseProgram(r.shapeProgram)
-//	gl.UniformMatrix4fv(gl.GetUniformLocation(program, gl.Str("uProjection\x00")), 1, false, &r.projection[0])
+//	gl.UseProgram(program)
+//	loc := gl.GetUniformLocation(program, gl.Str(zeroTerminated("uProjection")))
+//	if loc >= 0 {
+//		gl.UniformMatrix4fv(loc, 1, false, &r.projection[0])
+//	}
 //	gl.UseProgram(0)
 //}
