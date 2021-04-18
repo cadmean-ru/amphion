@@ -29,6 +29,8 @@ func (r *TasksRoutine) start() {
 }
 
 func (r *TasksRoutine) run() {
+	defer instance.recover()
+
 	for task := range r.taskChan {
 		if task.run == nil {
 			continue

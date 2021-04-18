@@ -96,6 +96,13 @@ func (f *Frontend) Init() {
 		return nil
 	}))
 
+	js.Global().Set("dumpCurrentScene", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		if json, err := engine.GetCurrentScene().DumpToJson(); err == nil {
+			return js.Global().Get("JSON").Call("parse", string(json))
+		}
+		return nil
+	}))
+
 	ws := getWindowSize()
 	f.context.ScreenInfo = common.NewScreenInfo(ws.X, ws.Y)
 }

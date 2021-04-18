@@ -25,6 +25,10 @@ func (c *ComponentContainer) GetComponent() Component {
 	return c.component
 }
 
+func (c *ComponentContainer) IsDirty() bool {
+	return !c.initialized || !c.enabled
+}
+
 func NewComponentContainer(sceneObject *SceneObject, component Component) *ComponentContainer {
 	return &ComponentContainer{
 		enabled:     true,

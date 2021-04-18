@@ -102,8 +102,8 @@ func GetResourceManager() frontend.ResourceManager {
 	return instance.GetResourceManager()
 }
 
-//GerCurrentScene returns the currently displaying scene object.
-func GerCurrentScene() *SceneObject {
+//GetCurrentScene returns the currently displaying scene object.
+func GetCurrentScene() *SceneObject {
 	return instance.GetCurrentScene()
 }
 

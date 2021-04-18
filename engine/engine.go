@@ -422,10 +422,12 @@ func (engine *AmphionEngine) recover() {
 		engine.logger.Error(engine, "")
 		engine.logger.Error(engine, "Fatal error.")
 		engine.logger.Error(engine, fmt.Sprintf("Current state: %s", engine.GetStateString()))
+		reason := "Kernel panic"
 		if engine.currentComponent != nil {
-			engine.logger.Error(engine, fmt.Sprintf("Error in component %s", engine.currentComponent.GetName()))
+			reason = fmt.Sprintf("Error in component %s", engine.currentComponent.GetName())
+			engine.logger.Error(engine, reason)
 		}
-		engine.front.CommencePanic("Kernel panic", fmt.Sprintf("%v", err))
+		engine.front.CommencePanic(reason, fmt.Sprintf("%v", err))
 		panic(err)
 	}
 }

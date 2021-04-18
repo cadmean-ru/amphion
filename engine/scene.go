@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
@@ -59,7 +60,7 @@ func (o *SceneObject) appendChild(object *SceneObject) {
 	object.parent = o
 	object.Transform.SceneObject = object
 	object.Transform.parent = &o.Transform
-	object.inCurrentScene = o.inCurrentScene
+	object.setInCurrentScene(o.inCurrentScene)
 	o.children = append(o.children, object)
 }
 
@@ -70,6 +71,10 @@ func (o *SceneObject) AddChild(object *SceneObject) {
 	if o.inCurrentScene {
 		if !object.initialized {
 			instance.updateRoutine.initSceneObject(object)
+			object.Traverse(func(child *SceneObject) bool {
+				instance.updateRoutine.initSceneObject(child)
+				return true
+			}, true)
 		}
 		instance.rebuildMessageTree()
 		instance.RequestRendering()
@@ -112,7 +117,8 @@ func (o *SceneObject) GetChildByName(name string) *SceneObject {
 			return c
 		}
 	}
-	return nil
+
+	panic(fmt.Sprintf("child scene object with name %s was not found (is it dirty?)", name))
 }
 
 // Adds a component to this scene object.
@@ -152,16 +158,17 @@ func (o *SceneObject) AddComponent(component Component) {
 // - regex string.
 //
 // If there are multiple components with the same name returns the first.
-// Returns nil if no component with the name n was found.
-func (o *SceneObject) GetComponentByName(n string) Component {
+// Returns nil if no component with the name n was found or it has not been initialized or is disabled.
+func (o *SceneObject) GetComponentByName(n string, includeDirty ...bool) Component {
+	dirty := getDirty(includeDirty...)
+
 	for _, c := range o.components {
-		comp := c.GetComponent()
-		if o.componentMatcher(c, n) {
-			return comp
+		if o.componentMatcher(c, n, dirty) {
+			return c.GetComponent()
 		}
 	}
 
-	return nil
+	panic(fmt.Sprintf("component with name %s was not found (is it dirty?)", n))
 }
 
 // GetComponentsByName searches for all components with the specified name throughout the components attached to this object.
@@ -174,11 +181,14 @@ func (o *SceneObject) GetComponentByName(n string) Component {
 // - regex string.
 //
 // Returns empty slice if no components with the name n was found.
-func (o *SceneObject) GetComponentsByName(n string) []Component {
+//Components that have not been initialized or are disabled wont be included.
+func (o *SceneObject) GetComponentsByName(n string, includeDirty ...bool) []Component {
 	arr := make([]Component, 0, 1)
 
+	dirty := getDirty(includeDirty...)
+
 	for _, c := range o.components {
-		if o.componentMatcher(c, n) {
+		if o.componentMatcher(c, n, dirty) {
 			arr = append(arr, c.GetComponent())
 		}
 	}
@@ -203,16 +213,26 @@ func (o *SceneObject) componentNameMatcher(comp Component, n string) bool {
 	return false
 }
 
-func (o *SceneObject) componentMatcher(container *ComponentContainer, name string) bool {
-	return container.initialized && container.enabled && o.componentNameMatcher(container.GetComponent(), name)
+func (o *SceneObject) componentMatcher(container *ComponentContainer, name string, dirty bool) bool {
+	return (dirty || !container.IsDirty()) && o.componentNameMatcher(container.GetComponent(), name)
 }
 
 // Returns a slice of all components attached to the object.
 func (o *SceneObject) GetComponents() []Component {
-	arr := make([]Component, len(o.components))
-	for i, c := range o.components {
-		arr[i] = c.component
+	arr := make([]Component, 0, len(o.components))
+	for _, c := range o.components {
+		if c.IsDirty() {
+			continue
+		}
+
+		arr = append(arr, c.component)
 	}
+	return arr
+}
+
+func (o *SceneObject) GetComponentContainers() []*ComponentContainer {
+	arr := make([]*ComponentContainer, len(o.components))
+	arr = append(arr, o.components...)
 	return arr
 }
 
@@ -279,11 +299,15 @@ func (o *SceneObject) SetSizeXy(x, y float32) {
 
 // Forces all views of this object to redraw and requests rendering.
 func (o *SceneObject) Redraw() {
-	if !o.inCurrentScene {
+	if o.IsDirty() || !o.inCurrentScene {
 		return
 	}
 
 	for _, view := range o.renderingComponents {
+		if view.IsDirty() {
+			continue
+		}
+
 		view.component.(ViewComponent).ForceRedraw()
 	}
 	instance.RequestRendering()
@@ -305,6 +329,10 @@ func (o *SceneObject) OnMessage(message Message) bool {
 }
 
 func (o *SceneObject) init(ctx InitContext) {
+	if o.initialized {
+		return
+	}
+
 	for _, c := range o.components {
 		if c.initialized {
 			continue
@@ -431,8 +459,10 @@ func (o *SceneObject) IsVisibleInScene() bool {
 // Traverse traverses the scene object tree, calling the action function for each of the objects.
 // If action returns false interrupts the process.
 // The method skips uninitialized or disabled objects.
-func (o *SceneObject) Traverse(action func(object *SceneObject) bool) {
-	if !o.enabled || !o.initialized {
+func (o *SceneObject) Traverse(action func(object *SceneObject) bool, includeDirty ...bool) {
+	dirty := getDirty(includeDirty...)
+
+	if !dirty && o.IsDirty() {
 		return
 	}
 
@@ -441,7 +471,7 @@ func (o *SceneObject) Traverse(action func(object *SceneObject) bool) {
 	}
 
 	for _, c := range o.children {
-		c.Traverse(action)
+		c.Traverse(action, dirty)
 	}
 }
 
@@ -458,7 +488,7 @@ func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
 //ForEachChild cycles through all direct children of the scene object, calling the specified action for each of them.
 //The method skips uninitialized or disabled objects.
 func (o *SceneObject) ForEachChild(action func(object *SceneObject)) {
-	if !o.enabled {
+	if o.IsDirty() {
 		return
 	}
 
@@ -470,8 +500,10 @@ func (o *SceneObject) ForEachChild(action func(object *SceneObject)) {
 //FindObjectByName searches for an object with the specified name through all the scene object tree.
 //Returns the first suitable object.
 //Returns nil if no object with the name was found.
-func (o *SceneObject) FindObjectByName(name string) *SceneObject {
+func (o *SceneObject) FindObjectByName(name string, includeDirty ...bool) *SceneObject {
 	var found *SceneObject
+	dirty := getDirty(includeDirty...)
+
 	o.Traverse(func(object *SceneObject) bool {
 		if object.name == name {
 			found = object
@@ -479,37 +511,53 @@ func (o *SceneObject) FindObjectByName(name string) *SceneObject {
 		}
 
 		return true
-	})
-	return found
+	}, dirty)
+
+	if found != nil {
+		return found
+	}
+
+	panic(fmt.Sprintf("scene object with name %s was not found (is it dirty?)", name))
 }
 
 //FindComponentByName searches for a component with the specified name through all the scene object tree.
 //Returns the first suitable component.
 //Returns nil if no component with the name was found.
-func (o *SceneObject) FindComponentByName(name string) Component {
+func (o *SceneObject) FindComponentByName(name string, includeDirty ...bool) Component {
 	var found Component
+	dirty := getDirty(includeDirty...)
+
 	o.Traverse(func(object *SceneObject) bool {
 		for _, c := range object.components {
-			if o.componentMatcher(c, name) {
+			if o.componentMatcher(c, name, dirty) {
 				found = c.GetComponent()
 				return false
 			}
 		}
 
 		return true
-	})
-	return found
+	}, dirty)
+
+	if found != nil {
+		return found
+	}
+
+	panic(fmt.Sprintf("component with name %s was not found (is it dirty?)", name))
 }
 
 // ForEachComponent iterates over each component attached to the object, calling the action function for each of them.
 // The method skips uninitialized or disabled components.
 func (o *SceneObject) ForEachComponent(action func(component Component)) {
 	for _, c := range o.components {
-		if !c.enabled || !c.initialized {
+		if c.IsDirty() {
 			continue
 		}
 		action(c.component)
 	}
+}
+
+func (o *SceneObject) IsDirty() bool {
+	return !o.initialized || !o.enabled
 }
 
 func (o *SceneObject) ToMap() a.SiMap {
@@ -524,7 +572,6 @@ func (o *SceneObject) ToMap() a.SiMap {
 
 		if IsStatefulComponent(c.component) {
 			state = instance.GetComponentsManager().GetComponentState(c.component)
-			fmt.Println(state)
 		}
 
 		cMap := map[string]interface{} {
@@ -541,6 +588,44 @@ func (o *SceneObject) ToMap() a.SiMap {
 		"children": mChildren,
 		"components": mComponents,
 		"transform": o.Transform.ToMap(),
+	}
+}
+
+func (o *SceneObject) DumpToMap() a.SiMap {
+	mChildren := make([]map[string]interface{}, len(o.children))
+	for i, c := range o.children {
+		mChildren[i] = c.DumpToMap()
+	}
+
+	mComponents := make([]map[string]interface{}, len(o.components))
+	for i, c := range o.components {
+		var state map[string]interface{}
+
+		if IsStatefulComponent(c.component) {
+			state = instance.GetComponentsManager().GetComponentState(c.component)
+		}
+
+		cMap := map[string]interface{} {
+			"name":  c.GetComponent().GetName(),
+			"state": state,
+			"initialized": c.initialized,
+			"started": c.started,
+			"enabled": c.enabled,
+		}
+
+		mComponents[i] = cMap
+	}
+
+	return map[string]interface{}{
+		"name": o.name,
+		"id": o.id,
+		"initialized": o.initialized,
+		"started": o.started,
+		"enabled": o.enabled,
+		"children": mChildren,
+		"components": mComponents,
+		"transform": o.Transform.ToMap(),
+		"renderingTransform": o.Transform.ToRenderingTransform().ToMap(),
 	}
 }
 
@@ -596,6 +681,14 @@ func (o *SceneObject) DecodeFromYaml(data []byte) error {
 	return nil
 }
 
+func (o *SceneObject) EncodeToJson() ([]byte, error) {
+	return json.Marshal(o.ToMap())
+}
+
+func (o *SceneObject) DumpToJson() ([]byte, error) {
+	return json.Marshal(o.DumpToMap())
+}
+
 // NewSceneObject creates a new instance of scene object.
 // Can be used only with engine running.
 func NewSceneObject(name string) *SceneObject {
@@ -610,7 +703,7 @@ func NewSceneObject(name string) *SceneObject {
 		boundaryComponents:  make([]*ComponentContainer, 0, 1),
 		enabled:             true,
 	}
-	obj.Transform = NewTransform(obj)
+	obj.Transform = NewTransform2D(obj)
 	return obj
 }
 
@@ -630,7 +723,7 @@ func NewSceneObjectForTesting(name string, components ...Component) *SceneObject
 		enabled:             true,
 		initialized:         true,
 	}
-	obj.Transform = NewTransform(obj)
+	obj.Transform = NewTransform2D(obj)
 
 	for _, c := range components {
 		obj.AddComponent(c)
@@ -643,4 +736,12 @@ func NewSceneObjectForTesting(name string, components ...Component) *SceneObject
 	}
 
 	return obj
+}
+
+func getDirty(dirties ...bool) bool {
+	if len(dirties) == 1 {
+		return dirties[0]
+	}
+
+	return false
 }

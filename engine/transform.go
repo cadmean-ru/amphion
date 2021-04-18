@@ -18,9 +18,9 @@ type Transform struct {
 }
 
 // Creates a new transform with default values.
-func NewTransform(object *SceneObject) Transform {
+func NewTransform2D(object *SceneObject) Transform {
 	return Transform{
-		Position:    a.ZeroVector(),
+		Position:    a.NewVector3(0, 0, 1),
 		Pivot:       a.ZeroVector(),
 		Rotation:    a.ZeroVector(),
 		Size:        a.OneVector(),
