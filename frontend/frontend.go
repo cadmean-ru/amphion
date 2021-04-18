@@ -7,19 +7,40 @@ import (
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
+//Frontend interface defines functions that should be implemented in an Amphion frontend natively.
+//It defines the way engine and frontend will communicate.
 type Frontend interface {
+	//Init is called when the frontend is created.
 	Init()
+
+	//Run is like the main function for the frontend.
 	Run()
-	Reset()
+
+	//SetCallback is called by the engine to pass a function to be called when frontend wants to pass data to the engine.
 	SetCallback(handler CallbackHandler)
-	GetInputManager() InputManager
-	GetRenderer() rendering.Renderer
+
+	//GetRenderer should return a fully configured ARenderer. Must be deterministic.
+	GetRenderer() *rendering.ARenderer
+
+	//GetContext should return the Context. It is called by the engine whenever the frontend sends CallbackContextChange.
 	GetContext() Context
+
+	//GetPlatform should return the current Platform.
 	GetPlatform() common.Platform
+
+	//CommencePanic should indicate in a native way, that an error has occurred in either the app or the engine.
 	CommencePanic(reason, msg string)
+
+	//ReceiveMessage is called by the engine whenever it wants to pass data to frontend.
 	ReceiveMessage(message Message)
+
+	//GetResourceManager should return an implementation of ResourceManager interface.
 	GetResourceManager() ResourceManager
+
+	//GetApp should returns the app data from app.yaml file.
 	GetApp() *App
+
+	//GetLaunchArgs should return arguments.
 	GetLaunchArgs() a.SiMap
 }
 
@@ -31,13 +52,20 @@ const (
 	CallbackAppHide       = -104
 	CallbackAppShow       = -105
 	CallbackMouseMove     = -106
+	CallbackMouseScroll   = -107
+	CallbackTouchDown     = -108
+	CallbackTouchUp       = -109
+	CallbackTouchMove     = -110
+	CallbackReady         = -111
 )
 
+//Callback contains a code and string data, that is accepted by the engine through the CallbackHandler passed with SetCallback.
 type Callback struct {
 	Code int
 	Data string
 }
 
+//NewCallback creates a new Callback instance with the specified code and string data.
 func NewCallback(code int, data string) Callback {
 	return Callback{
 		Code: code,
@@ -45,12 +73,12 @@ func NewCallback(code int, data string) Callback {
 	}
 }
 
+//CallbackHandler is a function that is provided by the engine through SetCallback and
+//called to pass data from frontend to the engine.
 type CallbackHandler func(callback Callback)
 
-type InputManager interface {
-	GetMousePosition() a.IntVector2
-}
-
+//ResourceManager defines interface, that should be implemented in the frontend to provide functionality of
+//working with files in res folder.
 type ResourceManager interface {
 	RegisterResource(path string)
 	IdOf(path string) a.ResId

@@ -32,3 +32,7 @@ func (m SiMap) GetFloat64(key string) float64 {
 func (m SiMap) GetBool(key string) bool {
 	return require.Bool(m[key])
 }
+func (m SiMap) ContainsKey(key string) bool {
+	_, ok := m[key]
+	return ok
+}

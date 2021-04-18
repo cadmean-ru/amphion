@@ -18,21 +18,54 @@ import (
 )
 
 type Frontend struct {
-	renderer   *P5Renderer
-	handler    frontend.CallbackHandler
-	input      *InputManager
-	context    frontend.Context
-	msgChan    chan frontend.Message
-	resManager *ResourceManager
+	renderer         *rendering.ARenderer
+	handler          frontend.CallbackHandler
+	context          frontend.Context
+	msgChan          chan frontend.Message
+	resManager       *ResourceManager
+	rendererDelegate *P5RendererDelegate
 }
 
 func (f *Frontend) Init() {
-	f.input.init(f)
+	f.renderer.SetManagementMode(rendering.FrontendManaged)
 	f.renderer.Prepare()
+
+	js.Global().Get("document").Set("onmousemove", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		e := args[0]
+		x := e.Get("pageX").Int()
+		y := e.Get("pageY").Int()
+		f.handler(frontend.NewCallback(frontend.CallbackMouseMove, fmt.Sprintf("%d;%d", x, y)))
+		return nil
+	}))
+
+	js.Global().Get("document").Set("onmousedown", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		e := args[0]
+		x := e.Get("pageX").Int()
+		y := e.Get("pageY").Int()
+		f.handler(frontend.NewCallback(frontend.CallbackMouseDown, fmt.Sprintf("%d;%d", x, y)))
+		return nil
+	}))
+
+	js.Global().Get("document").Set("onmouseup", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		e := args[0]
+		x := e.Get("pageX").Int()
+		y := e.Get("pageY").Int()
+		f.handler(frontend.NewCallback(frontend.CallbackMouseUp, fmt.Sprintf("%d;%d", x, y)))
+		return nil
+	}))
+
+	js.Global().Get("document").Set("onkeydown", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		e := args[0]
+		key := e.Get("key").String()
+		code := e.Get("code").String()
+
+		f.handler(frontend.NewCallback(frontend.CallbackKeyDown, fmt.Sprintf("%s\n%s", key, code)))
+		return nil
+	}))
 
 	js.Global().Get("addEventListener").Invoke("resize", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		ws := getWindowSize()
-		f.renderer.p5.resizeCanvas(ws.X, ws.Y)
+		f.rendererDelegate.p5.resizeCanvas(ws.X, ws.Y)
 		f.context.ScreenInfo = common.NewScreenInfo(ws.X, ws.Y)
 		f.handler(frontend.NewCallback(frontend.CallbackContextChange, ""))
 		return nil
@@ -68,6 +101,8 @@ func (f *Frontend) Init() {
 }
 
 func (f *Frontend) Run() {
+	f.handler(frontend.NewCallback(frontend.CallbackReady, ""))
+
 	for msg := range f.msgChan {
 		if msg.Code == frontend.MessageExit {
 			break
@@ -78,19 +113,11 @@ func (f *Frontend) Run() {
 	close(f.msgChan)
 }
 
-func (f *Frontend) Reset() {
-
-}
-
 func (f *Frontend) SetCallback(handler frontend.CallbackHandler) {
 	f.handler = handler
 }
 
-func (f *Frontend) GetInputManager() frontend.InputManager {
-	return f.input
-}
-
-func (f *Frontend) GetRenderer() rendering.Renderer {
+func (f *Frontend) GetRenderer() *rendering.ARenderer {
 	return f.renderer
 }
 
@@ -177,11 +204,12 @@ func (f *Frontend) handleMessage(msg frontend.Message) {
 
 func NewFrontend() *Frontend {
 	f := &Frontend{
-		input:      &InputManager{},
-		msgChan:    make(chan frontend.Message, 10),
-		resManager: newResourceManager(),
+		msgChan:          make(chan frontend.Message, 10),
+		resManager:       newResourceManager(),
+		rendererDelegate: newP5RendererDelegate(),
 	}
-	f.renderer = newP5Renderer(f)
+	f.renderer = rendering.NewARenderer(f.rendererDelegate)
+	f.rendererDelegate.aRenderer = f.renderer
 	return f
 }
 

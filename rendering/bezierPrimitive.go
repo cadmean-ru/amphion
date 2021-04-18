@@ -19,6 +19,10 @@ func (b *BezierPrimitive) GetTransform() Transform {
 	return b.Transform
 }
 
+func (b *BezierPrimitive) SetTransform(t Transform) {
+	b.Transform = t
+}
+
 func NewBezierPrimitive(cp1, cp2 a.IntVector3) *BezierPrimitive {
 	return &BezierPrimitive{
 		ControlPoint1: cp1,

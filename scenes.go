@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
-	"github.com/cadmean-ru/amphion/rendering"
+	"math"
 	"math/rand"
 )
 
@@ -15,7 +16,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	rect := engine.NewSceneObject("rect")
 	rect.Transform.Size = a.NewVector3(100, 100, 100)
 	rect.Transform.Position = a.NewVector3(100, 100, -2)
-	shape := builtin.NewShapeView(rendering.PrimitiveRectangle)
+	shape := builtin.NewShapeView(builtin.ShapeRectangle)
 	shape.FillColor = a.PinkColor()
 	rect.AddComponent(shape)
 	//rect.AddComponent(&Mover{})
@@ -23,7 +24,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	circle := engine.NewSceneObject("circle")
 	circle.Transform.Size = a.NewVector3(50, 50, 0)
 	circle.Transform.Position = a.NewVector3(10, 10 , 1)
-	circleRenderer := builtin.NewShapeView(rendering.PrimitiveEllipse)
+	circleRenderer := builtin.NewShapeView(builtin.ShapeEllipse)
 	circleRenderer.StrokeWeight = 0
 	circleRenderer.FillColor = a.GreenColor()
 	circle.AddComponent(circleRenderer)
@@ -77,7 +78,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	line := engine.NewSceneObject("line")
 	line.Transform.Position = a.NewVector3(400, 400, 0)
 	line.Transform.Size = a.NewVector3(100, 10, 0)
-	lineView := builtin.NewShapeView(rendering.PrimitiveLine)
+	lineView := builtin.NewShapeView(builtin.ShapeLine)
 	lineView.StrokeColor = a.NewColor(0x2c, 0x68, 0xa8, 0xff)
 	lineView.StrokeWeight = 5
 	line.AddComponent(lineView)
@@ -86,7 +87,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	triangle := engine.NewSceneObject("triangle")
 	triangle.Transform.Position = a.NewVector3(100, 100, 0)
 	triangle.Transform.Size = a.NewVector3(100, 300, 0)
-	triangleView := builtin.NewShapeView(rendering.PrimitiveTriangle)
+	triangleView := builtin.NewShapeView(builtin.ShapeTriangle)
 	triangleView.FillColor = a.BlueColor()
 	triangle.AddComponent(triangleView)
 	triangle.AddComponent(builtin.NewTriangleBoundary())
@@ -134,7 +135,6 @@ func registerComponents(e *engine.AmphionEngine) {
 	cm.RegisterComponentType(&builtin.BezierView{})
 	cm.RegisterComponentType(&builtin.DropdownView{})
 	cm.RegisterComponentType(&builtin.ImageView{})
-	cm.RegisterComponentType(&builtin.InputField{})
 	cm.RegisterComponentType(&builtin.MouseMover{})
 	cm.RegisterComponentType(&builtin.BuilderComponent{})
 	cm.RegisterComponentType(&TestController{})
@@ -172,9 +172,6 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	input := engine.NewSceneObject("input")
 	input.Transform.Position = a.NewVector3(0, 0, 0)
 	input.Transform.Size = a.NewVector3(500, 500 ,0)
-	inputView := builtin.NewInputField()
-	inputView.AllowMultiline = true
-	input.AddComponent(inputView)
 	scene2.AddChild(input)
 
 	dropdown := engine.NewSceneObject("dropdown")
@@ -203,7 +200,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	box := engine.NewSceneObject("Moving box")
 	box.Transform.Position = a.NewVector3(10, 100, 10)
 	box.Transform.Size = a.NewVector3(500, 500, 0)
-	boxBg := builtin.NewShapeView(rendering.PrimitiveRectangle)
+	boxBg := builtin.NewShapeView(builtin.ShapeRectangle)
 	boxBg.StrokeWeight = 0
 	boxBg.FillColor = a.NewColor(0xc4, 0xc4, 0xc4, 0xff)
 	boxBg.CornerRadius = 10
@@ -334,7 +331,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	rmvButton := makeRect("remove button", 0, 0, 100, 100, a.RedColor())
 	rmvButtonText := engine.NewSceneObject("remove text")
 	rmvButtonText.Transform.Position = a.NewVector3(10, 10, 1)
-	rmvButtonText.Transform.Size = a.NewVector3(engine.MatchParent, engine.MatchParent, 0)
+	rmvButtonText.Transform.Size = a.NewVector3(a.MatchParent, a.MatchParent, 0)
 	rmvButtonTextView := builtin.NewTextView("remove")
 	rmvButtonText.AddComponent(rmvButtonTextView)
 	rmvButtonText.AddComponent(builtin.NewBoundaryView())
@@ -363,6 +360,105 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 			engine.LogDebug("Clicked on %+v", event.Data.(engine.MouseEventData).SceneObject.GetName())
 		}
 
+		return true
+	})
+
+	var offset a.Vector3
+	engine.BindEventHandler(engine.EventMouseScroll, func(event engine.AmphionEvent) bool {
+		o := event.Data.(a.Vector2)
+		dOffset := a.NewVector3(o.X, o.Y, 0)
+
+		engine.LogDebug("Scroll: %f %f", dOffset.X, dOffset.Y)
+		//e.GetCurrentScene().ForEachObject(func(object *engine.SceneObject) {
+		//	object.Transform.Position = object.Transform.Position.Add(dOffset)
+		//})
+
+		s := e.GetCurrentScene()
+		ss := s.Transform.GetSize()
+		visibleArea := common.NewRectBoundary(-offset.X, -offset.X + ss.X, -offset.Y, -offset.Y + ss.Y, -999, 999)
+		realArea := common.NewRectBoundary(0, 0, 0, 0, -999, 999)
+		s.ForEachObject(func(object *engine.SceneObject) {
+			rect := object.Transform.GetGlobalRect()
+			if rect.X.Min < realArea.X.Min {
+				realArea.X.Min = rect.X.Min
+			}
+			if rect.X.Max > realArea.X.Max {
+				realArea.X.Max = rect.X.Max
+			}
+			if rect.Y.Min < realArea.Y.Min {
+				realArea.Y.Min = rect.Y.Min
+			}
+			if rect.Y.Max > realArea.Y.Max {
+				realArea.Y.Max = rect.Y.Max
+			}
+		})
+
+		var scrollingDown, scrollingUp = dOffset.Y < 0, dOffset.Y > 0
+		var canScrollDown, canScrollUp bool
+		var minOutY float32 = -1
+
+		s.ForEachObject(func(object *engine.SceneObject) {
+			rect := object.Transform.GetGlobalRect()
+			if !visibleArea.IsRectInside(rect) {
+				//if dOffset.Y > 0 { // if scrolling up
+				//	if rect.Y.Min < visibleArea.Y.Min {
+				//		// can scroll
+				//		//finalDY = common.ClampFloat32(dOffset.Y, -visibleArea.Y.Min + rect.Y.Min, 0)
+				//		dOutY := visibleArea.Y.Min - rect.Y.Min
+				//		if minOutY1 == -1 || dOutY < minOutY1 {
+				//			minOutY1 = dOutY
+				//		}
+				//	}
+				//} else if dOffset.Y < 0 { // scrolling down
+				//	if rect.Y.Max > visibleArea.Y.Max {
+				//		// can scroll
+				//		//finalDY = common.ClampFloat32(dOffset.Y, -visibleArea.Y.Min + rect.Y.Min, 0)
+				//		dOutY := rect.Y.Max - visibleArea.Y.Max
+				//		if minOutY2 == -1 || dOutY < minOutY2 {
+				//			minOutY2 = dOutY
+				//		}
+				//	}
+				//}
+
+				if scrollingDown && !canScrollDown { // down
+					canScrollDown = rect.Y.Min > visibleArea.Y.Max || rect.Y.Max > visibleArea.Y.Max
+					if canScrollDown {
+						m := float32(math.Min(math.Abs(float64(rect.Y.Min-visibleArea.Y.Max)), math.Abs(float64(rect.Y.Max-visibleArea.Y.Max))))
+						if minOutY == -1 || m < minOutY {
+							minOutY = m
+						}
+					}
+				} else if scrollingUp && !canScrollUp { // up
+					canScrollUp = rect.Y.Min < visibleArea.Y.Min || rect.Y.Max < visibleArea.Y.Min
+					if canScrollUp {
+						m := float32(math.Min(math.Abs(float64(visibleArea.Y.Min - rect.Y.Min)), math.Abs(float64(visibleArea.Y.Min - rect.Y.Max))))
+						if minOutY == -1 || m < minOutY {
+							minOutY = m
+						}
+					}
+				}
+			}
+		})
+
+		if scrollingDown {
+			if !canScrollDown{
+				dOffset.Y = 0
+			} else {
+				dOffset.Y = float32(math.Min(float64(dOffset.Y), float64(-minOutY)))
+			}
+		}
+		if scrollingUp {
+			if !canScrollUp{
+				dOffset.Y = 0
+			} else {
+				dOffset.Y = float32(math.Min(float64(dOffset.Y), float64(minOutY)))
+			}
+		}
+
+		s.Transform.Position = s.Transform.Position.Add(dOffset)
+		offset = offset.Add(dOffset)
+		e.ForceAllViewsRedraw()
+		e.RequestRendering()
 		return true
 	})
 
@@ -456,8 +552,15 @@ func textScene(e *engine.AmphionEngine) *engine.SceneObject {
 	text.AddComponent(textView)
 	text.AddComponent(builtin.NewRectBoundary())
 	text.AddComponent(builtin.NewMouseMover())
-
 	scene.AddChild(text)
+
+	grogu := engine.NewSceneObject("grogu")
+	grogu.SetSizeXy(69, 69)
+	grogu.SetPositionXyz(0, 0, 69)
+	grogu.AddComponent(builtin.NewImageView(Res_images_gun))
+	grogu.AddComponent(builtin.NewRectBoundary())
+	grogu.AddComponent(builtin.NewMouseMover())
+	scene.AddChild(grogu)
 
 	return scene
 }

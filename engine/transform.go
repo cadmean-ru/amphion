@@ -38,17 +38,33 @@ func (t Transform) ToMap() a.SiMap {
 }
 
 func (t *Transform) FromMap(siMap a.SiMap) {
-	t.Position = a.NewVector3FromMap(a.RequireSiMap(siMap["position"]))
+	t.Position = a.NewVector3FromMap(t.decodeSpecialValuesInVector(a.RequireSiMap(siMap["position"])))
 	t.Pivot = a.NewVector3FromMap(a.RequireSiMap(siMap["pivot"]))
 	t.Rotation = a.NewVector3FromMap(a.RequireSiMap(siMap["rotation"]))
-	t.Size = a.NewVector3FromMap(a.RequireSiMap(siMap["size"]))
+	t.Size = a.NewVector3FromMap(t.decodeSpecialValuesInVector(a.RequireSiMap(siMap["size"])))
+}
+
+func (t *Transform) decodeSpecialValuesInVector(siMap a.SiMap) a.SiMap {
+	if IsSpecialValueString(siMap["x"]) {
+		siMap["x"] = GetSpecialValueFromString(siMap["x"])
+	}
+
+	if IsSpecialValueString(siMap["y"]) {
+		siMap["y"] = GetSpecialValueFromString(siMap["y"])
+	}
+
+	if IsSpecialValueString(siMap["z"]) {
+		siMap["z"] = GetSpecialValueFromString(siMap["z"])
+	}
+
+	return siMap
 }
 
 // Calculates the actual local position related to this transform's parent.
 func (t Transform) GetLocalPosition() a.Vector3 {
 	var x, y, z float32
 
-	if t.parent != nil && IsSpecialVector(t.Position) {
+	if t.parent != nil && IsSpecialTransformVector3(t.Position) {
 		pb := t.parent.GetRect()
 
 		if t.Position.X == a.CenterInParent {
@@ -110,7 +126,7 @@ func (t Transform) GetSize() a.Vector3 {
 	}
 	var tlp = t.GetTopLeftPosition()
 
-	if IsSpecialVector(t.Size) {
+	if IsSpecialTransformVector3(t.Size) {
 		if t.Size.X == a.MatchParent {
 			x = common.ClampFloat32(parentSize.X, 0, parentSize.X - tlp.X)
 		} else {
@@ -168,26 +184,8 @@ func (t Transform) calculateRect(tlp a.Vector3) *common.RectBoundary {
 	return common.NewRectBoundary(minX, maxX, minY, maxY, minZ, maxZ)
 }
 
-// Checks if the given vector contains special values.
-func IsSpecialVector(pos a.Vector3) bool {
-	return IsSpecialValue(pos.X) || IsSpecialValue(pos.Y) || IsSpecialValue(pos.Z)
-}
-
-// Checks if the given float32 value is special(MatchParent, WrapContent or CenterInParent).
-func IsSpecialValue(x float32) bool {
-	return x == a.CenterInParent || x == a.MatchParent || x == a.WrapContent
-}
-
 func NewTransformFromMap(siMap a.SiMap) Transform {
 	var t Transform
 	t.FromMap(siMap)
 	return t
 }
-
-// Deprecated.
-// Use a.MatchParent, a.WrapContent and a.CenterInParent instead.
-const (
-	MatchParent    = -2147483648
-	WrapContent    = -2147483647
-	CenterInParent = -2147483646
-)

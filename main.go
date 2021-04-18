@@ -1,4 +1,6 @@
 //+build windows darwin linux
+//+build !android
+//+build !ios
 
 package main
 
@@ -7,7 +9,6 @@ import (
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend/pc"
 	"github.com/cadmean-ru/amphion/utils"
-	"log"
 	"runtime"
 )
 
@@ -53,20 +54,14 @@ func main() {
 	registerComponents(e)
 	registerResources(e)
 
-	//if data, err := scene.EncodeToYaml(); err == nil {
-	//	fmt.Println(string(data))
-	//}
-
 	go func() {
 		e.Start()
 
-		if err := e.ShowScene(prefabScene(e)); err != nil {
-			log.Println(err)
-		}
+		//if err := e.ShowScene(gridScene(e)); err != nil {
+		//	log.Println(err)
+		//}
 
-		//e.LoadApp()
-
-		e.WaitForStop()
+		e.LoadApp()
 	}()
 
 	front.Run()

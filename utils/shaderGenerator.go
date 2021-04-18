@@ -66,7 +66,7 @@ func GenerateShaders(shadersDirPath, targetFilePath, packageName string) {
 	}
 
 	_ = fileTmpl.Execute(outFile, shaderFileData{
-		BuildTags:   os.Getenv("GOOS"),
+		BuildTags:   "darwin linux windows",
 		PackageName: packageName,
 		Shaders:     sb.String(),
 	})

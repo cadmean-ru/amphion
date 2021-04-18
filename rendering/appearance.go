@@ -22,14 +22,6 @@ func (ap Appearance) ToMap() map[string]interface{} {
 	}
 }
 
-//func (ap Appearance) EncodeToByteArray() []byte {
-//	arr := make([]byte, appearanceBytesSize)
-//	_ = a.CopyByteArray(ap.FillColor.EncodeToByteArray(), arr, 0, 4)
-//	_ = a.CopyByteArray(ap.StrokeColor.EncodeToByteArray(), arr, 4, 4)
-//	_ = a.CopyByteArray(ap.StrokeWeight.EncodeToByteArray(), arr, 8, 1)
-//	return arr
-//}
-
 func DefaultAppearance() Appearance {
 	return Appearance{
 		FillColor:    a.WhiteColor(),
@@ -37,7 +29,6 @@ func DefaultAppearance() Appearance {
 		StrokeWeight: 1,
 	}
 }
-
 
 type TextAppearance struct {
 	Font     string

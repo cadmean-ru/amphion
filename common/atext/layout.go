@@ -1,6 +1,7 @@
 package atext
 
 import (
+	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 )
@@ -109,6 +110,17 @@ func LayoutRunes(face *Face, runes []rune, bounds *common.RectBoundary, options 
 	}
 
 	return text
+}
+
+func LayoutStringCompat(face *Face, text string, minX, maxX, minY, maxY, minZ, maxZ float32, vTextAlign, hTextAlign int) *Text {
+	fmt.Println(text)
+	runes := []rune(text)
+	fmt.Println(runes)
+	bounds := common.NewRectBoundary(minX, maxX, minY, maxY, minZ, maxZ)
+	return LayoutRunes(face, runes, bounds, LayoutOptions{
+		VTextAlign: a.TextAlign(vTextAlign),
+		HTextAlign: a.TextAlign(hTextAlign),
+	})
 }
 
 type LayoutOptions struct {

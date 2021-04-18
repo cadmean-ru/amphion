@@ -13,7 +13,9 @@ type MouseMover struct {
 
 func (m *MouseMover) OnStart() {
 	engine.BindEventHandler(engine.EventMouseDown, m.handleMouseDown)
+	engine.BindEventHandler(engine.EventTouchDown, m.handleMouseDown)
 	engine.BindEventHandler(engine.EventMouseUp, m.handleMouseUp)
+	engine.BindEventHandler(engine.EventTouchUp, m.handleMouseUp)
 }
 
 func (m *MouseMover) handleMouseDown(e engine.AmphionEvent) bool {
@@ -23,7 +25,7 @@ func (m *MouseMover) handleMouseDown(e engine.AmphionEvent) bool {
 	}
 
 	m.dragging = true
-	m.mousePos = m.Engine.GetInputManager().GetMousePosition()
+	m.mousePos = m.Engine.GetInputManager().GetCursorPosition()
 	m.Engine.RequestUpdate()
 	return true
 }
@@ -39,7 +41,7 @@ func (m *MouseMover) OnUpdate(_ engine.UpdateContext) {
 		return
 	}
 
-	newMousePos := m.Engine.GetInputManager().GetMousePosition()
+	newMousePos := m.Engine.GetInputManager().GetCursorPosition()
 	dPos := newMousePos.Sub(m.mousePos)
 	m.mousePos = newMousePos
 	m.SceneObject.Transform.Position = m.SceneObject.Transform.Position.Add(dPos.ToFloat3())
@@ -49,7 +51,9 @@ func (m *MouseMover) OnUpdate(_ engine.UpdateContext) {
 
 func (m *MouseMover) OnStop() {
 	engine.UnbindEventHandler(engine.EventMouseUp, m.handleMouseUp)
+	engine.UnbindEventHandler(engine.EventTouchUp, m.handleMouseUp)
 	engine.UnbindEventHandler(engine.EventMouseDown, m.handleMouseDown)
+	engine.UnbindEventHandler(engine.EventTouchDown, m.handleMouseDown)
 }
 
 func (m *MouseMover) GetName() string {
