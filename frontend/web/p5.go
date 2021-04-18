@@ -26,7 +26,6 @@ type p5 struct {
 	loadImageJs      js.Value
 	imageJs          js.Value
 	textAlignJs      js.Value
-	renderer         *P5Renderer
 	onDraw           func(p5 *p5)
 }
 

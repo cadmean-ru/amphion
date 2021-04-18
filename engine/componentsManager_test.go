@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -79,4 +80,10 @@ func TestComponentsManager_SetComponentState(t *testing.T) {
 	ass.Equal(float32(a.CenterInParent), comp.StateSpecialFloat)
 	ass.Equal(a.TextAlignTop, comp.StateTextAlign)
 	ass.Equal(byte(3), comp.StateSpecialShape)
+}
+
+func TestGetFunctionName(t *testing.T) {
+	fmt.Println(getFunctionName(eh))
+	c := testComponent{}
+	fmt.Println(getFunctionName(c.OnInit))
 }

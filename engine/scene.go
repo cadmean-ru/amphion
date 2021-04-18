@@ -432,7 +432,7 @@ func (o *SceneObject) IsVisibleInScene() bool {
 // If action returns false interrupts the process.
 // The method skips uninitialized or disabled objects.
 func (o *SceneObject) Traverse(action func(object *SceneObject) bool) {
-	if !o.enabled {
+	if !o.enabled || !o.initialized {
 		return
 	}
 
