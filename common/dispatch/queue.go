@@ -60,6 +60,8 @@ func (q *MessageQueue) Dequeue() *Message {
 	return msg
 }
 
+//DequeueBlocking Removes the first message from the queue.
+//Id the queue is empty waits for a message to come.
 func (q *MessageQueue) DequeueBlocking() *Message {
 	var msg = <-q.messageChan
 	q.size--

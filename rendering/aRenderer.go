@@ -22,7 +22,8 @@ type ARenderer struct {
 	layers             []*Layer
 	management         ManagementMode
 	renderDispatcher   dispatch.WorkDispatcher
-
+	preparedCallback   func()
+	prepared           bool
 }
 
 // PC - main, android - rendering thread
@@ -34,6 +35,11 @@ func (r *ARenderer) Prepare() {
 
 		for _, delegate := range r.primitiveDelegates {
 			delegate.OnStart()
+		}
+
+		r.prepared = true
+		if r.preparedCallback != nil {
+			r.preparedCallback()
 		}
 	}))
 }
@@ -198,6 +204,14 @@ func (r *ARenderer) GetRenderingPerformer() func() {
 	}
 
 	return r.renderingPerformer
+}
+
+func (r *ARenderer) SetPreparedCallback(f func()) {
+	if r.prepared {
+		f()
+		return
+	}
+	r.preparedCallback = f
 }
 
 func (r *ARenderer) renderingPerformer() {

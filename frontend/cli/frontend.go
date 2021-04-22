@@ -1,5 +1,7 @@
 package cli
 
+import "github.com/cadmean-ru/amphion/common/dispatch"
+
 type FrontendDelegate interface {
 	Init()
 	Run()
@@ -7,7 +9,7 @@ type FrontendDelegate interface {
 	GetAppData() []byte
 	CommencePanic(reason, msg string)
 	GetContext() *Context
-	SetCallback(handler *CallbackHandler)
-	ExecuteOnMainThread(delegate *ExecDelegate)
-	ExecuteOnRenderingThread(delegate *ExecDelegate)
+	SetCallbackDispatcher(dispatcher dispatch.MessageDispatcher)
+	GetMainThreadDispatcher() dispatch.WorkDispatcher
+	GetRenderingThreadDispatcher() dispatch.WorkDispatcher
 }

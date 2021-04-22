@@ -85,8 +85,12 @@ func Initialize(front frontend.Frontend) *AmphionEngine {
 		FeaturesManager:   newFeaturesManager(),
 		callbackHandler:   newFrontendCallbackHandler(),
 	}
-	instance.startingWg.Add(1)
+	instance.startingWg.Add(2)
 	instance.renderer = front.GetRenderer()
+	instance.renderer.SetPreparedCallback(func() {
+		instance.logger.Info(instance, "Rendering prepared")
+		instance.startingWg.Done()
+	})
 	instance.globalContext = instance.front.GetContext()
 	instance.front.SetEngineDispatcher(instance.callbackHandler)
 	return instance

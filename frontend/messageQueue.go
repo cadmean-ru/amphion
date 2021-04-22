@@ -2,6 +2,7 @@ package frontend
 
 import "fmt"
 
+//Deprecated: use dispatch.MessageQueue instead.
 //MessageQueue is a non blocking message buffer.
 //It is used to communicate between the engine and the frontend.
 //There are two channels under the hood - main and secondary.
