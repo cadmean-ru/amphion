@@ -3,6 +3,7 @@ package rendering
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"sort"
 )
 
@@ -20,17 +21,24 @@ type ARenderer struct {
 	primitiveDelegates map[byte]PrimitiveRendererDelegate
 	layers             []*Layer
 	management         ManagementMode
+	renderDispatcher   dispatch.WorkDispatcher
+
 }
 
+// PC - main, android - rendering thread
 func (r *ARenderer) Prepare() {
 	r.layers[0] = newLayer()
 
-	r.delegate.OnPrepare()
-	for _, delegate := range r.primitiveDelegates {
-		delegate.OnStart()
-	}
+	r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(func() {
+		r.delegate.OnPrepare()
+
+		for _, delegate := range r.primitiveDelegates {
+			delegate.OnStart()
+		}
+	}))
 }
 
+// Any thread, update goroutine
 func (r *ARenderer) AddPrimitive() int {
 	id := r.idgen.NextId()
 	r.primitives[id] = &PrimitiveContainer{}
@@ -38,6 +46,7 @@ func (r *ARenderer) AddPrimitive() int {
 	return id
 }
 
+// Any thread, update goroutine
 func (r *ARenderer) SetPrimitive(id int, primitive IPrimitive, shouldRerender bool) {
 	if !shouldRerender {
 		return
@@ -54,17 +63,23 @@ func (r *ARenderer) SetPrimitive(id int, primitive IPrimitive, shouldRerender bo
 		fmt.Printf("Warning! Primitive with id %d was not found.\n", id)
 	}
 
-	if delegate, ok := r.primitiveDelegates[primitive.GetType()]; ok {
-		ctx := r.makePrimitiveRenderingContext(r.primitives[id])
-		delegate.OnSetPrimitive(ctx)
-		r.primitives[id].state = ctx.State
-	}
+
+	r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(func() {
+		if delegate, ok := r.primitiveDelegates[primitive.GetType()]; ok {
+			ctx := r.makePrimitiveRenderingContext(r.primitives[id])
+			delegate.OnSetPrimitive(ctx)
+			r.primitives[id].state = ctx.State
+		}
+	}))
 }
 
+// Any thread, update goroutine
 func (r *ARenderer) RemovePrimitive(id int) {
 	if p, ok := r.primitives[id]; ok {
 		if d, ok := r.primitiveDelegates[p.primitive.GetType()]; ok {
-			d.OnRemovePrimitive(r.makePrimitiveRenderingContext(p))
+			r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(func() {
+				d.OnRemovePrimitive(r.makePrimitiveRenderingContext(p))
+			}))
 		}
 		for _, l := range r.layers {
 			l.removePrimitiveId(id)
@@ -73,18 +88,20 @@ func (r *ARenderer) RemovePrimitive(id int) {
 	}
 }
 
+// Main or rendering thread
 func (r *ARenderer) PerformRendering() {
-	r.delegate.OnPerformRenderingStart()
+	r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(r.delegate.OnPerformRenderingStart))
 
 	if r.management != EngineManaged {
 		return
 	}
 
-	r.renderingPerformer()
+	r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(r.renderingPerformer))
 
-	r.delegate.OnPerformRenderingEnd()
+	r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(r.delegate.OnPerformRenderingEnd))
 }
 
+// Update routine
 func (r *ARenderer) Clear() {
 	r.primitives = make(map[int]*PrimitiveContainer)
 	r.idgen = common.NewIdGenerator()
@@ -93,9 +110,9 @@ func (r *ARenderer) Clear() {
 
 func (r *ARenderer) Stop() {
 	for _, delegate := range r.primitiveDelegates {
-		delegate.OnStop()
+		r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(delegate.OnStop))
 	}
-	r.delegate.OnStop()
+	r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(r.delegate.OnStop))
 }
 
 func (r *ARenderer) makePrimitiveRenderingContext(container *PrimitiveContainer) *PrimitiveRenderingContext {
@@ -230,9 +247,10 @@ func (r *ARenderer) renderingPerformer() {
 	}
 }
 
-func NewARenderer(delegate RendererDelegate) *ARenderer {
+func NewARenderer(delegate RendererDelegate, renderDispatcher dispatch.WorkDispatcher) *ARenderer {
 	return &ARenderer{
 		delegate:           delegate,
+		renderDispatcher:   renderDispatcher,
 		idgen:              common.NewIdGenerator(),
 		primitives:         make(map[int]*PrimitiveContainer),
 		primitiveDelegates: make(map[byte]PrimitiveRendererDelegate),

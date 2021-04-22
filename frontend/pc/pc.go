@@ -1,5 +1,6 @@
 // +build windows linux darwin
 // +build !android
+// +build !ios
 
 package pc
 
@@ -7,6 +8,7 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -21,14 +23,14 @@ const SleepTimeS = 1.0 / 60.0
 type Frontend struct {
 	window           *glfw.Window
 	wSize            a.IntVector3
-	handler          frontend.CallbackHandler
 	rendererDelegate *OpenGLRenderer
 	renderer         *rendering.ARenderer
 	initialized      bool
 	context          frontend.Context
-	msgChan          *frontend.MessageQueue
+	msgChan          *dispatch.MessageQueue
 	resMan           *ResourceManager
 	app              *frontend.App
+	disp             dispatch.MessageDispatcher
 }
 
 func (f *Frontend) Init() {
@@ -66,7 +68,7 @@ func (f *Frontend) Init() {
 }
 
 func (f *Frontend) Run() {
-	f.handler(frontend.NewCallback(frontend.CallbackReady, ""))
+	f.disp.SendMessage(dispatch.NewMessage(frontend.CallbackReady))
 	fmt.Printf("Frontend target frame time: %fms\n", SleepTimeS*1000)
 
 	//defer profile.Start(profile.ProfilePath(".")).Stop()
@@ -106,22 +108,18 @@ func (f *Frontend) processMessages() time.Duration {
 	return total
 }
 
-func (f *Frontend) processMessage(msg frontend.Message) time.Duration {
+func (f *Frontend) processMessage(msg *dispatch.Message) time.Duration {
 	processingStart := time.Now()
 
-	switch msg.Code {
-	case frontend.MessageRender:
-		f.renderer.PerformRendering()
-	case frontend.MessageExec:
-		if msg.Data != nil {
-			if action, ok := msg.Data.(func()); ok {
-				action()
+	switch msg.What {
+	case frontend.MessageExec, dispatch.MessageWorkExec:
+		if msg.AnyData != nil {
+			if work, ok := msg.AnyData.(dispatch.WorkItem); ok {
+				work.Execute()
 			}
 		}
 	case frontend.MessageTitle:
-		if title, ok := msg.Data.(string); ok {
-			f.window.SetTitle(title)
-		}
+		f.window.SetTitle(msg.StrData)
 	}
 
 	processingTime := time.Since(processingStart)
@@ -133,7 +131,7 @@ func (f *Frontend) processMessage(msg frontend.Message) time.Duration {
 }
 
 func (f *Frontend) mouseButtonCallback(w *glfw.Window, button glfw.MouseButton, action glfw.Action, _ glfw.ModifierKey) {
-	var callback frontend.Callback
+	var callback *dispatch.Message
 
 	mouseX, mouseY := w.GetCursorPos()
 	data := fmt.Sprintf("%d;%d", int(math.Floor(mouseX)), int(math.Floor(mouseY)))
@@ -142,13 +140,13 @@ func (f *Frontend) mouseButtonCallback(w *glfw.Window, button glfw.MouseButton, 
 	case glfw.MouseButton1:
 		switch action {
 		case glfw.Press:
-			callback = frontend.NewCallback(frontend.CallbackMouseDown, data)
+			callback = dispatch.NewMessageWithStringData(frontend.CallbackMouseDown, data)
 		case glfw.Release:
-			callback = frontend.NewCallback(frontend.CallbackMouseUp, data)
+			callback = dispatch.NewMessageWithStringData(frontend.CallbackMouseUp, data)
 		}
 	}
 
-	f.handler(callback)
+	f.disp.SendMessage(callback)
 }
 
 func (f *Frontend) keyCallback(_ *glfw.Window, key glfw.Key, scancode int, action glfw.Action, _ glfw.ModifierKey) {
@@ -161,7 +159,7 @@ func (f *Frontend) keyCallback(_ *glfw.Window, key glfw.Key, scancode int, actio
 		code = frontend.CallbackKeyDown
 	}
 
-	f.handler(frontend.NewCallback(code, data))
+	f.disp.SendMessage(dispatch.NewMessageWithStringData(code, data))
 }
 
 func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, width int, height int) {
@@ -170,7 +168,7 @@ func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, width int, height int
 	f.rendererDelegate.wSize = f.wSize
 	f.context.ScreenInfo = common.NewScreenInfo(w, h)
 	f.rendererDelegate.handleWindowResize(w, h)
-	f.handler(frontend.NewCallback(frontend.CallbackContextChange, ""))
+	f.disp.SendMessage(dispatch.NewMessage(frontend.CallbackContextChange))
 }
 
 func (f *Frontend) focusCallback(_ *glfw.Window, focused bool) {
@@ -180,19 +178,19 @@ func (f *Frontend) focusCallback(_ *glfw.Window, focused bool) {
 	} else {
 		code = frontend.CallbackAppHide
 	}
-	f.handler(frontend.NewCallback(code, ""))
+	f.disp.SendMessage(dispatch.NewMessage(code))
 }
 
 func (f *Frontend) windowRefreshCallback(_ *glfw.Window) {
-	f.handler(frontend.NewCallback(frontend.CallbackContextChange, ""))
+	f.disp.SendMessage(dispatch.NewMessage(frontend.CallbackContextChange))
 }
 
 func (f *Frontend) cursorPosCallback(_ *glfw.Window, x float64, y float64) {
-	f.handler(frontend.NewCallback(frontend.CallbackMouseMove, fmt.Sprintf("%d;%d", int(x), int(y))))
+	f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackMouseMove, fmt.Sprintf("%d;%d", int(x), int(y))))
 }
 
 func (f *Frontend) scrollCallback(_ *glfw.Window, xoff float64, yoff float64) {
-	f.handler(frontend.NewCallback(frontend.CallbackMouseScroll, fmt.Sprintf("%f:%f", xoff, yoff)))
+	f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackMouseScroll, fmt.Sprintf("%f:%f", xoff, yoff)))
 }
 
 func (f *Frontend) Stop() {
@@ -200,7 +198,11 @@ func (f *Frontend) Stop() {
 }
 
 func (f *Frontend) SetCallback(handler frontend.CallbackHandler) {
-	f.handler = handler
+
+}
+
+func (f *Frontend) SetEngineDispatcher(disp dispatch.MessageDispatcher) {
+	f.disp = disp
 }
 
 func (f *Frontend) GetRenderer() *rendering.ARenderer {
@@ -223,7 +225,23 @@ func (f *Frontend) CommencePanic(reason, msg string) {
 }
 
 func (f *Frontend) ReceiveMessage(message frontend.Message) {
+
+}
+
+func (f *Frontend) Execute(item dispatch.WorkItem) {
+	f.msgChan.Enqueue(dispatch.NewMessageWithAnyData(dispatch.MessageWorkExec, item))
+}
+
+func (f *Frontend) SendMessage(message *dispatch.Message) {
 	f.msgChan.Enqueue(message)
+}
+
+func (f *Frontend) GetMessageDispatcher() dispatch.MessageDispatcher {
+	return f
+}
+
+func (f *Frontend) GetWorkDispatcher() dispatch.WorkDispatcher {
+	return f
 }
 
 func (f *Frontend) GetResourceManager() frontend.ResourceManager {
@@ -254,12 +272,12 @@ func (f *Frontend) GetLaunchArgs() a.SiMap {
 func NewFrontend() *Frontend {
 	f := &Frontend{
 		wSize: a.NewIntVector3(500, 500, 0),
-		msgChan:  frontend.NewMessageQueue(100),
+		msgChan:  dispatch.NewMessageQueue(1000),
 		resMan:   newResourceManager(),
 	}
 	f.rendererDelegate = &OpenGLRenderer{
 		front:      f,
 	}
-	f.renderer = rendering.NewARenderer(f.rendererDelegate)
+	f.renderer = rendering.NewARenderer(f.rendererDelegate, f)
 	return f
 }

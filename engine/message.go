@@ -3,8 +3,10 @@ package engine
 import "fmt"
 
 const (
-	MessageRedraw = 0
-	MessageBuiltinEvent = 1
+	MessageRedraw = iota
+	MessageBuiltinEvent
+	MessageUpdate
+	MessageUpdateStop
 )
 
 const MessageMaxDepth = -1

@@ -55,10 +55,6 @@ func (f *Frontend) SetCallback(handler frontend.CallbackHandler) {
 	f.frontendDelegate.SetCallback(f.handler)
 }
 
-func (f *Frontend) GetInputManager() frontend.InputManager {
-	return nil
-}
-
 func (f *Frontend) GetRenderer() *rendering.ARenderer {
 	return f.renderer
 }

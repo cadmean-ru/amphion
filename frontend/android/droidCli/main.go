@@ -64,7 +64,6 @@ func registerComponents(e *engine.AmphionEngine) {
 	cm.RegisterComponentType(&builtin.BezierView{})
 	cm.RegisterComponentType(&builtin.DropdownView{})
 	cm.RegisterComponentType(&builtin.ImageView{})
-	cm.RegisterComponentType(&builtin.InputField{})
 	cm.RegisterComponentType(&builtin.MouseMover{})
 	cm.RegisterComponentType(&builtin.BuilderComponent{})
 }

@@ -2,13 +2,13 @@ package engine
 
 import (
 	"fmt"
-	"github.com/cadmean-ru/amphion/frontend"
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"time"
 )
 
 type updateRoutine struct {
 	running            bool
-	updateChan         chan bool
+	updateChan         *dispatch.MessageQueue
 	updateRequested    bool
 	renderingRequested bool
 	newSceneObjects    []*SceneObject
@@ -21,7 +21,7 @@ func (r *updateRoutine) start() {
 		return
 	}
 
-	go r.loop()
+	go r.Loop()
 }
 
 func (r *updateRoutine) requestUpdate() {
@@ -30,7 +30,7 @@ func (r *updateRoutine) requestUpdate() {
 	}
 
 	r.updateRequested = true
-	r.updateChan<-true
+	r.updateChan.Enqueue(dispatch.NewMessage(MessageUpdate))
 }
 
 func (r *updateRoutine) requestRendering() {
@@ -39,7 +39,7 @@ func (r *updateRoutine) requestRendering() {
 }
 
 func (r *updateRoutine) stop() {
-	r.updateChan<-false
+	r.updateChan.Enqueue(dispatch.NewMessage(MessageUpdateStop))
 }
 
 func (r *updateRoutine) initSceneObject(object *SceneObject) {
@@ -61,20 +61,20 @@ func (r *updateRoutine) waitForStop() {
 	}
 
 	for r.running {
-		instance.logger.Info(r, "Waiting for update loop to stop")
+		instance.logger.Info(r, "Waiting for update Loop to stop")
 		time.Sleep(100 * time.Millisecond)
 	}
 }
 
 func (r *updateRoutine) close() {
 	if r.running {
-		instance.logger.Error(r, "Cannot close update loop before stopping")
-		panic("Cannot close update loop before stopping")
+		instance.logger.Error(r, "Cannot close update Loop before stopping")
+		panic("Cannot close update Loop before stopping")
 	}
-	close(r.updateChan)
+	r.updateChan.Close()
 }
 
-func (r *updateRoutine) loop() {
+func (r *updateRoutine) Loop() {
 	instance.logger.Info(r, "Starting")
 
 	r.running = true
@@ -91,8 +91,10 @@ func (r *updateRoutine) loop() {
 	lastFrameTime := time.Now()
 
 	// Updating every frame or wait for update chan
-	for b := range r.updateChan {
-		if !b {
+	for {
+		msg := r.updateChan.DequeueBlocking()
+
+		if msg.What == MessageUpdateStop {
 			instance.logger.Info(r, "Stopping")
 			break
 		}
@@ -134,7 +136,7 @@ func (r *updateRoutine) loop() {
 		updateStart := time.Now()
 
 		if r.updateRequested {
-			//engine.logger.Info("Update loop", "Updating components")
+			//engine.logger.Info("Update Loop", "Updating components")
 
 			r.updateRequested = false
 			instance.state = StateUpdating
@@ -158,7 +160,7 @@ func (r *updateRoutine) loop() {
 
 			// Render objects
 			r.loopRender(instance.currentScene, ctx)
-			instance.front.ReceiveMessage(frontend.NewFrontendMessage(frontend.MessageRender))
+			instance.renderer.PerformRendering()
 
 			instance.forceRedraw = false
 		}
@@ -184,7 +186,6 @@ func (r *updateRoutine) loop() {
 	instance.currentScene.setInCurrentScene(false)
 
 	instance.renderer.Clear()
-	//instance.renderer.PerformRendering()
 
 	r.running = false
 	r.newSceneObjects = make([]*SceneObject, 0)
@@ -246,6 +247,14 @@ func (r *updateRoutine) loopStop(obj *SceneObject) {
 	}
 }
 
+func (r *updateRoutine) GetMessageDispatcher() dispatch.MessageDispatcher {
+	return r
+}
+
+func (r *updateRoutine) SendMessage(message *dispatch.Message) {
+	r.updateChan.Enqueue(message)
+}
+
 func (r *updateRoutine) GetName() string {
 	return "Update routine"
 }
@@ -253,7 +262,7 @@ func (r *updateRoutine) GetName() string {
 func newUpdateRoutine() *updateRoutine {
 	return &updateRoutine{
 		running:           false,
-		updateChan:        make(chan bool, 10),
+		updateChan:        dispatch.NewMessageQueue(10),
 		newSceneObjects:   make([]*SceneObject, 0),
 		startSceneObjects: make([]*SceneObject, 0),
 		stopSceneObjects:  make([]*SceneObject, 0),

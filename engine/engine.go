@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"reflect"
 	"sort"
-	"strconv"
-	"strings"
 	"sync"
 )
 
@@ -45,6 +44,7 @@ type AmphionEngine struct {
 	suspend            bool
 	inputManager       *InputManager
 	startingWg         *sync.WaitGroup
+	callbackHandler    dispatch.MessageDispatcher
 
 	*FeaturesManager
 }
@@ -83,11 +83,12 @@ func Initialize(front frontend.Frontend) *AmphionEngine {
 		inputManager:      newInputManager(),
 		startingWg:        &sync.WaitGroup{},
 		FeaturesManager:   newFeaturesManager(),
+		callbackHandler:   newFrontendCallbackHandler(),
 	}
 	instance.startingWg.Add(1)
 	instance.renderer = front.GetRenderer()
 	instance.globalContext = instance.front.GetContext()
-	instance.front.SetCallback(instance.handleFrontEndCallback)
+	instance.front.SetEngineDispatcher(instance.callbackHandler)
 	return instance
 }
 
@@ -207,7 +208,7 @@ func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 	engine.messageDispatcher = newMessageDispatcherForScene(scene)
 	engine.currentScene = scene
 
-	engine.logger.Info(engine, "Starting loop")
+	engine.logger.Info(engine, "Starting Loop")
 	engine.updateRoutine.start()
 
 	// Perform first update
@@ -244,7 +245,7 @@ func (engine *AmphionEngine) configureScene(scene *SceneObject) {
 }
 
 func (engine *AmphionEngine) eventLoop() {
-	engine.logger.Info(engine, "Event loop starting")
+	engine.logger.Info(engine, "Event Loop starting")
 
 	defer engine.recover()
 
@@ -283,100 +284,9 @@ func (engine *AmphionEngine) IsForcedToRedraw() bool {
 	return engine.forceRedraw
 }
 
-func (engine *AmphionEngine) handleFrontEndCallback(callback frontend.Callback) {
-	switch callback.Code {
-	case frontend.CallbackMouseDown, frontend.CallbackTouchDown:
-		pos := parseCursorPositionData(callback.Data)
-		engine.inputManager.reportCursorPosition(pos)
-		var eventCode int
-		if callback.Code == frontend.CallbackMouseDown {
-			eventCode = EventMouseDown
-		} else {
-			eventCode = EventTouchDown
-		}
-		engine.handleClickEvent(pos, eventCode)
-	case frontend.CallbackMouseUp, frontend.CallbackTouchUp:
-		pos := parseCursorPositionData(callback.Data)
-		engine.inputManager.reportCursorPosition(pos)
-		var eventCode int
-		if callback.Code == frontend.CallbackMouseUp {
-			eventCode = EventMouseUp
-		} else {
-			eventCode = EventTouchUp
-		}
-		event := NewAmphionEvent(engine, eventCode, MouseEventData{
-			MousePosition: pos,
-			SceneObject:   nil,
-		})
-		engine.eventChan<-event
-	case frontend.CallbackMouseMove, frontend.CallbackTouchMove:
-		pos := parseCursorPositionData(callback.Data)
-		engine.inputManager.reportCursorPosition(pos)
-		var eventCode int
-		if callback.Code == frontend.CallbackMouseMove {
-			engine.handleMouseMove(pos)
-			eventCode = EventMouseMove
-		} else {
-			eventCode = EventTouchMove
-		}
-		event := NewAmphionEvent(engine, eventCode, MouseEventData{
-			MousePosition: pos,
-			SceneObject:   nil,
-		})
-		engine.eventChan <- event
-	case frontend.CallbackContextChange:
-		engine.globalContext = engine.front.GetContext()
-		engine.configureScene(engine.currentScene)
-		engine.forceRedraw = true
-		engine.RequestRendering()
-	case frontend.CallbackKeyDown:
-		tokens := strings.Split(callback.Data, "\n")
-		if len(tokens) != 2 {
-			panic("Invalid key down callback Data")
-		}
-		event := NewAmphionEvent(engine, EventKeyDown, KeyEvent{
-			Key:  tokens[0],
-			Code: tokens[1],
-		})
-		engine.eventChan<-event
-	case frontend.CallbackAppHide:
-		engine.eventChan<-NewAmphionEvent(engine, EventAppHide, nil)
-		engine.suspend = true
-	case frontend.CallbackAppShow:
-		engine.suspend = false
-		engine.eventChan<-NewAmphionEvent(engine, EventAppShow, nil)
-		engine.RequestRendering()
-	case frontend.CallbackMouseScroll:
-		var x, y float32
-		n, err := fmt.Sscanf(callback.Data, "%f:%f", &x, &y)
-		if n != 2 || err != nil {
-			panic("Invalid scroll callback data")
-		}
-		engine.RaiseEvent(NewAmphionEvent(engine, EventMouseScroll, a.Vector2{X: x, Y: y}))
-	case frontend.CallbackReady:
-		engine.logger.Info(engine, "Frontend ready")
-		engine.startingWg.Done()
-	}
-}
-
-func parseCursorPositionData(data string) a.IntVector2 {
-	coords := strings.Split(data, ";")
-	if len(coords) != 2 {
-		panic("Invalid click callback Data")
-	}
-	x, err := strconv.ParseInt(coords[0], 10, 32)
-	if err != nil {
-		panic("Invalid click callback Data")
-	}
-	y, err := strconv.ParseInt(coords[1], 10, 32)
-	if err != nil {
-		panic("Invalid click callback Data")
-	}
-	return a.NewIntVector2(int(x), int(y))
-}
 
 // Binds an event handler for the specified event code.
-// The handler will be invoked in the event loop goroutine, when the event with the specified code is raised.
+// The handler will be invoked in the event Loop goroutine, when the event with the specified code is raised.
 func (engine *AmphionEngine) BindEventHandler(code int, handler EventHandler) {
 	engine.eventBinder.Bind(code, handler)
 }
@@ -485,6 +395,8 @@ func (engine *AmphionEngine) handleStop() {
 
 	close(engine.eventChan)
 	engine.updateRoutine.close()
+
+	engine.renderer.Stop()
 
 	engine.logger.Info(engine, "Amphion stopped")
 
@@ -708,13 +620,13 @@ func (engine *AmphionEngine) GetSceneContext() *SceneContext {
 // ExecuteOnFrontendThread executes the specified action on frontend thread.
 // Can be used to execute UI related functions from another goroutine.
 func (engine *AmphionEngine) ExecuteOnFrontendThread(action func()) {
-	engine.front.ReceiveMessage(frontend.NewFrontendMessageWithData(frontend.MessageExec, action))
+	engine.front.GetWorkDispatcher().Execute(dispatch.NewWorkItemFunc(action))
 }
 
 // SetWindowTitle updates app's window title.
 // On web sets the tab's title.
 func (engine *AmphionEngine) SetWindowTitle(title string) {
-	engine.front.ReceiveMessage(frontend.NewFrontendMessageWithData(frontend.MessageTitle, title))
+	engine.front.GetMessageDispatcher().SendMessage(dispatch.NewMessageWithStringData(frontend.MessageTitle, title))
 }
 
 //GetFeaturesManager returns the current FeaturesManager.

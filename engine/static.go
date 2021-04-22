@@ -50,7 +50,7 @@ func RunTask(task Task) {
 
 // BindEventHandler - shortcut for (engine *AmphionEngine) BindEventHandler(code int, handler EventHandler).
 // Binds an event handler for the specified event code.
-// The handler will be invoked in the event loop goroutine, when the event with the specified code is raised.
+// The handler will be invoked in the event Loop goroutine, when the event with the specified code is raised.
 func BindEventHandler(eventCode int, handler EventHandler) {
 	instance.BindEventHandler(eventCode, handler)
 }

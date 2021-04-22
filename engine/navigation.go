@@ -3,6 +3,7 @@ package engine
 import (
 	"errors"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/frontend"
 	"strings"
 )
@@ -60,7 +61,7 @@ func Navigate(path string, args a.SiMap) (err error) {
 	instance.appContext.navigationArgs = args
 	instance.LoadScene(sceneId, true)
 
-	instance.front.ReceiveMessage(frontend.NewFrontendMessageWithData(frontend.MessageNavigate, path))
+	instance.front.GetMessageDispatcher().SendMessage(dispatch.NewMessageWithStringData(frontend.MessageNavigate, path))
 
 	return
 }

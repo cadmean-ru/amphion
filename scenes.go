@@ -120,6 +120,7 @@ func registerResources(e *engine.AmphionEngine) {
 	rm.RegisterResource("test.yaml")
 	rm.RegisterResource("scenes/main.scene")
 	rm.RegisterResource("scenes/second.scene")
+	rm.RegisterResource("scenes/text.scene")
 	rm.RegisterResource("prefabs/test.yaml")
 }
 

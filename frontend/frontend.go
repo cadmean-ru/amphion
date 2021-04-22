@@ -4,6 +4,7 @@ package frontend
 import (
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
@@ -16,8 +17,7 @@ type Frontend interface {
 	//Run is like the main function for the frontend.
 	Run()
 
-	//SetCallback is called by the engine to pass a function to be called when frontend wants to pass data to the engine.
-	SetCallback(handler CallbackHandler)
+	SetEngineDispatcher(disp dispatch.MessageDispatcher)
 
 	//GetRenderer should return a fully configured ARenderer. Must be deterministic.
 	GetRenderer() *rendering.ARenderer
@@ -31,8 +31,9 @@ type Frontend interface {
 	//CommencePanic should indicate in a native way, that an error has occurred in either the app or the engine.
 	CommencePanic(reason, msg string)
 
-	//ReceiveMessage is called by the engine whenever it wants to pass data to frontend.
-	ReceiveMessage(message Message)
+	GetMessageDispatcher() dispatch.MessageDispatcher
+
+	GetWorkDispatcher() dispatch.WorkDispatcher
 
 	//GetResourceManager should return an implementation of ResourceManager interface.
 	GetResourceManager() ResourceManager
@@ -59,12 +60,14 @@ const (
 	CallbackReady         = -111
 )
 
+//Deprecated: use dispatch.Message instead
 //Callback contains a code and string data, that is accepted by the engine through the CallbackHandler passed with SetCallback.
 type Callback struct {
 	Code int
 	Data string
 }
 
+//Deprecated: use dispatch.Message instead
 //NewCallback creates a new Callback instance with the specified code and string data.
 func NewCallback(code int, data string) Callback {
 	return Callback{
@@ -73,6 +76,7 @@ func NewCallback(code int, data string) Callback {
 	}
 }
 
+//Deprecated: use dispatch.MessageHandler instead
 //CallbackHandler is a function that is provided by the engine through SetCallback and
 //called to pass data from frontend to the engine.
 type CallbackHandler func(callback Callback)

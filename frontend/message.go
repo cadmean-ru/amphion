@@ -1,18 +1,22 @@
 package frontend
 
 const (
-	MessageRender   = 0
-	MessageExit     = 1
-	MessageExec     = 2
-	MessageNavigate = 3
-	MessageTitle    = 4
+	MessageRender   = iota
+	MessageExit
+	MessageExec
+	MessageNavigate
+	MessageTitle
 )
 
+//Deprecated
+//Use dispatch package instead
 type Message struct {
 	Code byte
 	Data interface{}
 }
 
+//Deprecated
+//Use dispatch package instead
 func NewFrontendMessage(code byte) Message {
 	return Message{
 		Code: code,
@@ -20,6 +24,8 @@ func NewFrontendMessage(code byte) Message {
 	}
 }
 
+//Deprecated
+//Use dispatch package instead
 func NewFrontendMessageWithData(code byte, data interface{}) Message {
 	return Message{
 		Code: code,
