@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
-	"github.com/cadmean-ru/amphion/common/require"
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
@@ -19,11 +19,11 @@ import (
 
 type Frontend struct {
 	renderer         *rendering.ARenderer
-	handler          frontend.CallbackHandler
 	context          frontend.Context
-	msgChan          chan frontend.Message
+	msgChan          *dispatch.MessageQueue
 	resManager       *ResourceManager
 	rendererDelegate *P5RendererDelegate
+	disp             dispatch.MessageDispatcher
 }
 
 func (f *Frontend) Init() {
@@ -34,7 +34,7 @@ func (f *Frontend) Init() {
 		e := args[0]
 		x := e.Get("pageX").Int()
 		y := e.Get("pageY").Int()
-		f.handler(frontend.NewCallback(frontend.CallbackMouseMove, fmt.Sprintf("%d;%d", x, y)))
+		f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackMouseMove, fmt.Sprintf("%d;%d", x, y)))
 		return nil
 	}))
 
@@ -42,7 +42,7 @@ func (f *Frontend) Init() {
 		e := args[0]
 		x := e.Get("pageX").Int()
 		y := e.Get("pageY").Int()
-		f.handler(frontend.NewCallback(frontend.CallbackMouseDown, fmt.Sprintf("%d;%d", x, y)))
+		f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackMouseDown, fmt.Sprintf("%d;%d", x, y)))
 		return nil
 	}))
 
@@ -50,7 +50,7 @@ func (f *Frontend) Init() {
 		e := args[0]
 		x := e.Get("pageX").Int()
 		y := e.Get("pageY").Int()
-		f.handler(frontend.NewCallback(frontend.CallbackMouseUp, fmt.Sprintf("%d;%d", x, y)))
+		f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackMouseUp, fmt.Sprintf("%d;%d", x, y)))
 		return nil
 	}))
 
@@ -59,7 +59,7 @@ func (f *Frontend) Init() {
 		key := e.Get("key").String()
 		code := e.Get("code").String()
 
-		f.handler(frontend.NewCallback(frontend.CallbackKeyDown, fmt.Sprintf("%s\n%s", key, code)))
+		f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackKeyDown, fmt.Sprintf("%s\n%s", key, code)))
 		return nil
 	}))
 
@@ -67,17 +67,17 @@ func (f *Frontend) Init() {
 		ws := getWindowSize()
 		f.rendererDelegate.p5.resizeCanvas(ws.X, ws.Y)
 		f.context.ScreenInfo = common.NewScreenInfo(ws.X, ws.Y)
-		f.handler(frontend.NewCallback(frontend.CallbackContextChange, ""))
+		f.disp.SendMessage(dispatch.NewMessage(frontend.CallbackContextChange))
 		return nil
 	}))
 
 	js.Global().Get("addEventListener").Invoke("blur", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		f.handler(frontend.NewCallback(frontend.CallbackAppHide, ""))
+		f.disp.SendMessage(dispatch.NewMessage(frontend.CallbackAppHide))
 		return nil
 	}))
 
 	js.Global().Get("addEventListener").Invoke("focus", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		f.handler(frontend.NewCallback(frontend.CallbackAppShow, ""))
+		f.disp.SendMessage(dispatch.NewMessage(frontend.CallbackAppShow))
 		return nil
 	}))
 
@@ -108,20 +108,22 @@ func (f *Frontend) Init() {
 }
 
 func (f *Frontend) Run() {
-	f.handler(frontend.NewCallback(frontend.CallbackReady, ""))
+	f.disp.SendMessage(dispatch.NewMessage(frontend.CallbackReady))
 
-	for msg := range f.msgChan {
-		if msg.Code == frontend.MessageExit {
+	for {
+		msg := f.msgChan.DequeueBlocking()
+		if msg.What == frontend.MessageExit {
 			break
 		}
 
 		f.handleMessage(msg)
 	}
-	close(f.msgChan)
+
+	f.msgChan.Close()
 }
 
-func (f *Frontend) SetCallback(handler frontend.CallbackHandler) {
-	f.handler = handler
+func (f *Frontend) SetEngineDispatcher(disp dispatch.MessageDispatcher) {
+	f.disp = disp
 }
 
 func (f *Frontend) GetRenderer() *rendering.ARenderer {
@@ -138,10 +140,6 @@ func (f *Frontend) GetPlatform() common.Platform {
 
 func (f *Frontend) CommencePanic(reason, msg string) {
 	js.Global().Get("commencePanic").Invoke(reason, msg)
-}
-
-func (f *Frontend) ReceiveMessage(message frontend.Message) {
-	f.msgChan <- message
 }
 
 func (f *Frontend) GetResourceManager() frontend.ResourceManager {
@@ -189,33 +187,46 @@ func (f *Frontend) GetLaunchArgs() a.SiMap {
 	return args
 }
 
-func (f *Frontend) handleMessage(msg frontend.Message) {
-	switch msg.Code {
-	case frontend.MessageRender:
-		f.renderer.PerformRendering()
-	case frontend.MessageExec:
-		if msg.Data != nil {
-			if action, ok := msg.Data.(func()); ok {
-				action()
+func (f *Frontend) Execute(item dispatch.WorkItem) {
+	f.msgChan.Enqueue(dispatch.NewMessageWithAnyData(dispatch.MessageWorkExec, item))
+}
+
+func (f *Frontend) SendMessage(message *dispatch.Message) {
+	f.msgChan.Enqueue(message)
+}
+
+func (f *Frontend) GetMessageDispatcher() dispatch.MessageDispatcher {
+	return f
+}
+
+func (f *Frontend) GetWorkDispatcher() dispatch.WorkDispatcher {
+	return f
+}
+
+func (f *Frontend) handleMessage(msg *dispatch.Message) {
+	switch msg.What {
+	case frontend.MessageExec, dispatch.MessageWorkExec:
+		if msg.AnyData != nil {
+			if action, ok := msg.AnyData.(dispatch.WorkItem); ok {
+				action.Execute()
 			}
 		}
 	case frontend.MessageTitle:
-		setWindowTitle(require.String(msg.Data, "No title"))
+		setWindowTitle(msg.StrData)
 	case frontend.MessageNavigate:
-		path := require.String(msg.Data)
-		if path != "" {
-			setWindowLocation(path)
+		if msg.StrData != "" {
+			setWindowLocation(msg.StrData)
 		}
 	}
 }
 
 func NewFrontend() *Frontend {
 	f := &Frontend{
-		msgChan:          make(chan frontend.Message, 10),
+		msgChan:          dispatch.NewMessageQueue(1000),
 		resManager:       newResourceManager(),
 		rendererDelegate: newP5RendererDelegate(),
 	}
-	f.renderer = rendering.NewARenderer(f.rendererDelegate)
+	f.renderer = rendering.NewARenderer(f.rendererDelegate, f)
 	f.rendererDelegate.aRenderer = f.renderer
 	return f
 }

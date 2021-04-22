@@ -1,3 +1,5 @@
+//+build js
+
 package web
 
 import "github.com/cadmean-ru/amphion/rendering"
