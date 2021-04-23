@@ -9,4 +9,5 @@ type App struct {
 	Debug         bool                   `yaml:"debug"`
 	MainScene     string                 `yaml:"mainScene"`
 	LaunchArgs    map[string]interface{} `yaml:"launchArgs"`
+	HostOS        string                 `yaml:"hostOS"`
 }
