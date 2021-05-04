@@ -456,9 +456,10 @@ func (o *SceneObject) IsVisibleInScene() bool {
 	return rect.X.Max >= sceneRect.X.Min && rect.X.Min <= sceneRect.X.Max && rect.Y.Max >= sceneRect.Y.Min && rect.Y.Min <= sceneRect.Y.Max
 }
 
-// Traverse traverses the scene object tree, calling the action function for each of the objects.
+// Traverse traverses the scene object tree (pre-order), calling the action function for each of the objects.
 // If action returns false interrupts the process.
-// The method skips uninitialized or disabled objects.
+// By default the method skips dirty objects.
+// To also include dirty objects pass true as the second argument.
 func (o *SceneObject) Traverse(action func(object *SceneObject) bool, includeDirty ...bool) {
 	dirty := getDirty(includeDirty...)
 
@@ -477,7 +478,7 @@ func (o *SceneObject) Traverse(action func(object *SceneObject) bool, includeDir
 
 // ForEachObject traverses the scene object tree, calling the action function for each of the objects.
 // The action is also called for the object on which the method was called.
-// The method skips uninitialized or disabled objects.
+// The method skips dirty objects.
 func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
 	o.Traverse(func(object *SceneObject) bool {
 		action(object)
@@ -486,7 +487,7 @@ func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
 }
 
 //ForEachChild cycles through all direct children of the scene object, calling the specified action for each of them.
-//The method skips uninitialized or disabled objects.
+//The method skips dirty objects.
 func (o *SceneObject) ForEachChild(action func(object *SceneObject)) {
 	if o.IsDirty() {
 		return
@@ -500,6 +501,8 @@ func (o *SceneObject) ForEachChild(action func(object *SceneObject)) {
 //FindObjectByName searches for an object with the specified name through all the scene object tree.
 //Returns the first suitable object.
 //Returns nil if no object with the name was found.
+//By default the search does not include dirty objects.
+//To also include dirty objects pass true as the second argument.
 func (o *SceneObject) FindObjectByName(name string, includeDirty ...bool) *SceneObject {
 	var found *SceneObject
 	dirty := getDirty(includeDirty...)
@@ -523,6 +526,8 @@ func (o *SceneObject) FindObjectByName(name string, includeDirty ...bool) *Scene
 //FindComponentByName searches for a component with the specified name through all the scene object tree.
 //Returns the first suitable component.
 //Returns nil if no component with the name was found.
+//By default the search does not include dirty components.
+//To also include dirty components pass true as the second argument.
 func (o *SceneObject) FindComponentByName(name string, includeDirty ...bool) Component {
 	var found Component
 	dirty := getDirty(includeDirty...)
@@ -546,7 +551,7 @@ func (o *SceneObject) FindComponentByName(name string, includeDirty ...bool) Com
 }
 
 // ForEachComponent iterates over each component attached to the object, calling the action function for each of them.
-// The method skips uninitialized or disabled components.
+// The method skips dirty components.
 func (o *SceneObject) ForEachComponent(action func(component Component)) {
 	for _, c := range o.components {
 		if c.IsDirty() {
@@ -556,6 +561,9 @@ func (o *SceneObject) ForEachComponent(action func(component Component)) {
 	}
 }
 
+//IsDirty checks if the scene object is dirty.
+//An object is considered dirty if it has not been initialized or if it is disabled.
+//It is not safe to work with a dirty object.
 func (o *SceneObject) IsDirty() bool {
 	return !o.initialized || !o.enabled
 }

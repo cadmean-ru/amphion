@@ -9,6 +9,7 @@ import (
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend/pc"
 	"github.com/cadmean-ru/amphion/utils"
+	"log"
 	"runtime"
 )
 
@@ -26,7 +27,7 @@ func main() {
 	var outputPath string
 	var packageName string
 
-	flag.StringVar(&generator, "generate", "", "Launches the specified code generator instead of starting engine. " +
+	flag.StringVar(&generator, "generate", "", "Launches the specified code generator instead of starting engine. "+
 		"Available generators are: shaders.")
 	flag.StringVar(&inputPath, "i", "", "Define input path")
 	flag.StringVar(&outputPath, "o", "", "Define output path")
@@ -57,11 +58,11 @@ func main() {
 	go func() {
 		e.Start()
 
-		//if err := e.ShowScene(gridScene(e)); err != nil {
-		//	log.Println(err)
-		//}
+		if err := e.ShowScene(gridScene(e)); err != nil {
+			log.Println(err)
+		}
 
-		e.LoadApp()
+		// e.LoadApp()
 	}()
 
 	front.Run()

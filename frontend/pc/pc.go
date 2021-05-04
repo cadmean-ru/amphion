@@ -224,10 +224,6 @@ func (f *Frontend) CommencePanic(reason, msg string) {
 	panic(fmt.Sprintf("%s: %s", reason, msg))
 }
 
-func (f *Frontend) ReceiveMessage(message frontend.Message) {
-
-}
-
 func (f *Frontend) Execute(item dispatch.WorkItem) {
 	f.msgChan.Enqueue(dispatch.NewMessageWithAnyData(dispatch.MessageWorkExec, item))
 }

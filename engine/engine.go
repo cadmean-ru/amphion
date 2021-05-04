@@ -578,7 +578,7 @@ func (engine *AmphionEngine) GetName() string {
 	return "Amphion Engine"
 }
 
-// Loads app data from well-known source and shows the main scene.
+// LoadApp loads app data from well-known source and shows the main scene.
 func (engine *AmphionEngine) LoadApp() {
 	if engine.state != StateStarted {
 		panic("Invalid engine state")

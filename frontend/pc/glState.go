@@ -4,7 +4,9 @@
 
 package pc
 
-import "github.com/go-gl/gl/v4.1-core/gl"
+import (
+	"github.com/go-gl/gl/v4.1-core/gl"
+)
 
 type glPrimitiveState struct {
 	vbo uint32
@@ -24,15 +26,19 @@ func (c *glPrimitiveState) gen() {
 }
 
 func (c *glPrimitiveState) free() {
-	//if c.vbo != 0 {
-	//	gl.DeleteBuffers(1, gl.ptr)
-	//}
-	//
-	//if c.ebo != 0 {
-	//	gl.DeleteBuffers(1, &c.ebo)
-	//}
-	//
-	//if c.vao != 0 {
-	//	gl.DeleteVertexArrays(1, &c.vao)
-	//}
+	if c.vbo != 0 {
+		gl.DeleteBuffers(1, &c.vbo)
+	}
+
+	if c.ebo != 0 {
+		gl.DeleteBuffers(1, &c.ebo)
+	}
+
+	if c.vao != 0 {
+		gl.DeleteVertexArrays(1, &c.vao)
+	}
+
+	if c.tex != 0 {
+		gl.DeleteTextures(1, &c.tex)
+	}
 }
