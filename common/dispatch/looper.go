@@ -7,7 +7,7 @@ type Looper interface {
 
 type LooperImpl struct {
 	queue    *MessageQueue
-	handlers map[int]MessageHandler
+	handlers map[int]MessageHandlerFunc
 }
 
 func (l *LooperImpl) SendMessage(message *Message) {
@@ -23,15 +23,15 @@ func (l *LooperImpl) Loop() {
 
 	for !l.queue.IsEmpty() {
 		msg := l.queue.Dequeue()
-		if handler, ok := l.handlers[msg.What]; ok {
-			handler.OnMessage(msg)
+		if handler, ok := l.handlers[msg.What]; ok && handler != nil {
+			handler(msg)
 		}
 	}
 
 	l.queue.UnlockMainChannel()
 }
 
-func (l *LooperImpl) SetMessageHandler(what int, handler MessageHandler) {
+func (l *LooperImpl) SetMessageHandler(what int, handler MessageHandlerFunc) {
 	l.handlers[what] = handler
 }
 

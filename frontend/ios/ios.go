@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/frontend/cli"
 	"github.com/cadmean-ru/amphion/rendering"
@@ -13,11 +14,13 @@ import (
 )
 
 type Frontend struct {
+	dispatch.LooperImpl
 	f        cli.FrontendDelegate
 	handler  *cli.CallbackHandler
 	resMan   frontend.ResourceManager
 	renderer *rendering.ARenderer
-	msgChan  chan frontend.Message
+	msgQueue *dispatch.MessageQueue
+	mainDisp dispatch.WorkDispatcher
 }
 
 func (f *Frontend) Init() {
@@ -31,30 +34,18 @@ func (f *Frontend) Run() {
 
 	fmt.Println("Running")
 
-	for msg := range f.msgChan {
-		switch msg.Code {
-		case frontend.MessageRender:
-			f.f.ExecuteOnMainThread(cli.NewExecDelegate(f.renderer.PerformRendering))
-		case frontend.MessageExec:
-			//TODO: execute on ios main thread
-		case frontend.MessageExit:
-			close(f.msgChan)
-			return
+	var execHandler = func(msg *dispatch.Message) {
+		if msg.AnyData != nil {
+			if action, ok := msg.AnyData.(dispatch.WorkItem); ok {
+				f.mainDisp.Execute(action)
+			}
 		}
 	}
-}
 
-func (f *Frontend) Reset() {
-	f.f.Reset()
-}
+	f.SetMessageHandler(frontend.MessageExec, execHandler)
+	f.SetMessageHandler(dispatch.MessageWorkExec, execHandler)
 
-func (f *Frontend) SetCallback(handler frontend.CallbackHandler) {
-	f.handler = cli.NewCallbackHandler(handler)
-	f.f.SetCallback(f.handler)
-}
-
-func (f *Frontend) GetInputManager() frontend.InputManager {
-	return nil
+	f.Loop()
 }
 
 func (f *Frontend) GetRenderer() *rendering.ARenderer {
@@ -72,16 +63,28 @@ func (f *Frontend) GetContext() frontend.Context {
 	return ctx
 }
 
+func (f *Frontend) SendMessage(message *dispatch.Message) {
+	f.msgQueue.Enqueue(message)
+}
+
+func (f *Frontend) SetEngineDispatcher(disp dispatch.MessageDispatcher) {
+	f.f.SetCallbackDispatcher(disp)
+}
+
+func (f *Frontend) GetMessageDispatcher() dispatch.MessageDispatcher {
+	return f
+}
+
+func (f *Frontend) GetWorkDispatcher() dispatch.WorkDispatcher {
+	return f.mainDisp
+}
+
 func (f *Frontend) GetPlatform() common.Platform {
 	return common.PlatformFromString("ios")
 }
 
 func (f *Frontend) CommencePanic(reason, msg string) {
 	f.f.CommencePanic(reason, msg)
-}
-
-func (f *Frontend) ReceiveMessage(message frontend.Message) {
-	f.msgChan <- message
 }
 
 func (f *Frontend) GetResourceManager() frontend.ResourceManager {
@@ -108,7 +111,8 @@ func NewFrontend(f cli.FrontendDelegate, rm cli.ResourceManagerDelegate, rd cli.
 	return &Frontend{
 		f:        f,
 		resMan:   cli.NewResourceManagerImpl(rm),
-		renderer: rendering.NewARenderer(rd),
-		msgChan:  make(chan frontend.Message, 10),
+		renderer: rendering.NewARenderer(rd, f.GetRenderingThreadDispatcher()),
+		msgQueue: dispatch.NewMessageQueue(1000),
+		mainDisp: f.GetMainThreadDispatcher(),
 	}
 }

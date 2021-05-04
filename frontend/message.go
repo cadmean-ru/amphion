@@ -1,8 +1,7 @@
 package frontend
 
 const (
-	MessageRender   = iota
-	MessageExit
+	MessageExit = iota
 	MessageExec
 	MessageNavigate
 	MessageTitle

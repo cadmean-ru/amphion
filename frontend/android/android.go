@@ -117,5 +117,6 @@ func NewFrontend(f cli.FrontendDelegate, rm cli.ResourceManagerDelegate, rd cli.
 		resMan:           cli.NewResourceManagerImpl(rm),
 		renderer:         rendering.NewARenderer(rd, f.GetRenderingThreadDispatcher()),
 		msgChan:          dispatch.NewMessageQueue(1000),
+		mainDispatcher:   f.GetMainThreadDispatcher(),
 	}
 }

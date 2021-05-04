@@ -3,6 +3,7 @@
 package bind
 
 import (
+	"fmt"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
 	"github.com/cadmean-ru/amphion/frontend"
@@ -18,11 +19,16 @@ func AmphionInitIos(f cli.FrontendDelegate, rm cli.ResourceManagerDelegate, rd c
 
 	e := engine.Initialize(front)
 
-	registerComponents(e)
-	registerResources(e)
+	go func() {
+		fmt.Println("Here")
+		e.Start()
+		fmt.Println("Here")
 
-	e.Start()
-	e.LoadApp()
+		registerComponents(e)
+		registerResources(e)
+
+		e.LoadApp()
+	}()
 
 	go front.Run()
 }
@@ -54,7 +60,6 @@ func registerComponents(e *engine.AmphionEngine) {
 	cm.RegisterComponentType(&builtin.BezierView{})
 	cm.RegisterComponentType(&builtin.DropdownView{})
 	cm.RegisterComponentType(&builtin.ImageView{})
-	cm.RegisterComponentType(&builtin.InputField{})
 	cm.RegisterComponentType(&builtin.MouseMover{})
 	cm.RegisterComponentType(&builtin.BuilderComponent{})
 	cm.RegisterComponentType(&IosTestController{})
