@@ -109,6 +109,11 @@ func (o *SceneObject) GetChildren() []*SceneObject {
 	return c
 }
 
+//GetChildrenCount returns the number of children of this object.
+func (o *SceneObject) GetChildrenCount() int {
+	return len(o.children)
+}
+
 // Finds scene object in the list of children of the current object.
 // Returns nil if no object with the specified name was not found.
 func (o *SceneObject) GetChildByName(name string) *SceneObject {

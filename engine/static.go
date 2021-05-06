@@ -150,3 +150,14 @@ func FindComponentByName(name string) Component {
 	}
 	return instance.currentScene.FindComponentByName(name)
 }
+
+//ForceAllViewsRedraw will request all view in the scene to redraw on the next rendering cycle.
+//It will not request rendering, you will need to call RequestRendering after that.
+func ForceAllViewsRedraw() {
+	instance.forceRedraw = true
+}
+
+//IsForcedToRedraw checks if all views redraw was requested in the next rendering cycle by calling ForceAllViewsRedraw.
+func IsForcedToRedraw() bool {
+	return instance.forceRedraw
+}

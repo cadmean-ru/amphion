@@ -280,14 +280,16 @@ func (engine *AmphionEngine) RequestRendering() {
 	engine.updateRoutine.requestRendering()
 }
 
+//ForceAllViewsRedraw will request all view in the scene to redraw on the next rendering cycle.
+//It will not request rendering, you will need to call RequestRendering after that.
 func (engine *AmphionEngine) ForceAllViewsRedraw() {
 	engine.forceRedraw = true
 }
 
+//IsForcedToRedraw checks if all views redraw was requested in the next rendering cycle by calling ForceAllViewsRedraw.
 func (engine *AmphionEngine) IsForcedToRedraw() bool {
 	return engine.forceRedraw
 }
-
 
 // Binds an event handler for the specified event code.
 // The handler will be invoked in the event Loop goroutine, when the event with the specified code is raised.
