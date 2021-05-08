@@ -9,12 +9,20 @@ import (
 type updateRoutine struct {
 	running            bool
 	updateChan         *dispatch.MessageQueue
+	eventQueue         *dispatch.MessageQueue
 	updateRequested    bool
 	renderingRequested bool
 	newSceneObjects    []*SceneObject
 	startSceneObjects  []*SceneObject
 	stopSceneObjects   []*SceneObject
+	eventBinder        *EventBinder
+	dt                 time.Duration
+	lastFrameTime      time.Time
+	updateTime         time.Duration
+	renderingTime      time.Duration
 }
+
+//region Internal API
 
 func (r *updateRoutine) start() {
 	if r.running {
@@ -66,13 +74,23 @@ func (r *updateRoutine) waitForStop() {
 	}
 }
 
+func (r *updateRoutine) enqueueEventAndRequestUpdate(event AmphionEvent) {
+	r.eventQueue.Enqueue(dispatch.NewMessageWithAnyData(0, event))
+	r.requestUpdate()
+}
+
 func (r *updateRoutine) close() {
 	if r.running {
 		instance.logger.Error(r, "Cannot close update Loop before stopping")
 		panic("Cannot close update Loop before stopping")
 	}
 	r.updateChan.Close()
+	r.eventQueue.Close()
 }
+
+//endregion
+
+//region Loop
 
 func (r *updateRoutine) Loop() {
 	instance.logger.Info(r, "Starting")
@@ -81,14 +99,7 @@ func (r *updateRoutine) Loop() {
 
 	defer instance.recover()
 
-	// Initialize all components
-	instance.currentScene.setInCurrentScene(true)
-	r.loopInit(instance.currentScene)
-
-	// Calling OnStart for all objects in scene
-	r.loopStart(instance.currentScene)
-
-	lastFrameTime := time.Now()
+	r.handleStart()
 
 	// Updating every frame or wait for update chan
 	for {
@@ -99,32 +110,10 @@ func (r *updateRoutine) Loop() {
 			break
 		}
 
-		elapsed := time.Since(lastFrameTime)
-		lastFrameTime = time.Now()
+		r.dt = time.Since(r.lastFrameTime)
+		r.lastFrameTime = time.Now()
 
-		if len(r.newSceneObjects) > 0 {
-			for _, o := range r.newSceneObjects {
-				//r.loopInit(o)
-				o.init(newInitContext(instance, o))
-			}
-			r.newSceneObjects = make([]*SceneObject, 0)
-		}
-
-		if len(r.startSceneObjects) > 0 {
-			for _, o := range r.startSceneObjects {
-				//r.loopStart(o)
-				o.start()
-			}
-			r.startSceneObjects = make([]*SceneObject, 0)
-		}
-
-		if len(r.stopSceneObjects) > 0 {
-			for _, o := range r.stopSceneObjects {
-				//r.loopStop(o)
-				o.stop()
-			}
-			r.stopSceneObjects = make([]*SceneObject, 0)
-		}
+		r.handleSceneObjectsLifecycle()
 
 		if instance.suspend {
 			instance.state = StateStarted
@@ -133,55 +122,136 @@ func (r *updateRoutine) Loop() {
 			continue
 		}
 
+		r.handleEvents()
+
 		updateStart := time.Now()
 
-		if r.updateRequested {
-			//engine.logger.Info("Update Loop", "Updating components")
+		r.performUpdateIfNeeded()
 
-			r.updateRequested = false
-			instance.state = StateUpdating
-
-			ctx := newUpdateContext(float32(elapsed.Seconds()))
-
-			// Calling OnUpdate for all objects in scene
-			r.loopUpdate(instance.currentScene, ctx)
-		}
-
-		updateTime := time.Since(updateStart)
+		r.updateTime = time.Since(updateStart)
 		renderingStart := time.Now()
 
-		if r.renderingRequested {
-			//instance.logger.Warning(r, "Rendering components")
+		r.performRenderingIdNeeded()
 
-			r.renderingRequested = false
-			instance.state = StateRendering
-
-			ctx := newRenderingContext(instance.renderer)
-
-			// Render objects
-			r.loopRender(instance.currentScene, ctx)
-			instance.renderer.PerformRendering()
-
-			instance.forceRedraw = false
-		}
-
-		renderingTime := time.Since(renderingStart)
+		r.renderingTime = time.Since(renderingStart)
 
 		instance.state = StateStarted
 
-		// Wait until next frame
-		timeToSleep := TargetFrameTime - time.Since(lastFrameTime).Milliseconds()
-
-		if timeToSleep == 0 {
-			instance.logger.Warning(r,
-				fmt.Sprintf("The application is skipping frames! Update time: %d, Rendering time: %d",
-					updateTime.Milliseconds(),
-					renderingTime.Milliseconds()))
-		}
-
-		time.Sleep(time.Duration(timeToSleep) * time.Millisecond)
+		r.waitForNextFrame()
 	}
 
+	r.handleStop()
+}
+
+func (r *updateRoutine) handleStart() {
+	// Initialize all components
+	instance.currentScene.setInCurrentScene(true)
+	r.loopInit(instance.currentScene)
+
+	// Calling OnStart for all objects in scene
+	r.loopStart(instance.currentScene)
+
+	r.lastFrameTime = time.Now()
+}
+
+func (r *updateRoutine) handleSceneObjectsLifecycle() {
+	if len(r.newSceneObjects) > 0 {
+		for _, o := range r.newSceneObjects {
+			//r.loopInit(o)
+			o.init(newInitContext(instance, o))
+		}
+		r.newSceneObjects = make([]*SceneObject, 0)
+	}
+
+	if len(r.startSceneObjects) > 0 {
+		for _, o := range r.startSceneObjects {
+			//r.loopStart(o)
+			o.start()
+		}
+		r.startSceneObjects = make([]*SceneObject, 0)
+	}
+
+	if len(r.stopSceneObjects) > 0 {
+		for _, o := range r.stopSceneObjects {
+			//r.loopStop(o)
+			o.stop()
+		}
+		r.stopSceneObjects = make([]*SceneObject, 0)
+	}
+}
+
+func (r *updateRoutine) handleEvents() {
+	r.eventQueue.LockMainChannel()
+
+	for !r.eventQueue.IsEmpty() {
+		msg := r.eventQueue.Dequeue()
+		event := msg.AnyData.(AmphionEvent)
+
+		if event.Code == EventStop {
+			if instance.canStop() {
+				instance.logger.Info(nil, "Stopping")
+				break
+			} else {
+				instance.handleStop()
+			}
+		}
+
+		r.eventBinder.InvokeHandlers(event)
+	}
+
+	r.eventQueue.UnlockMainChannel()
+}
+
+func (r *updateRoutine) performUpdateIfNeeded() {
+	if !r.updateRequested {
+		return
+	}
+
+	//engine.logger.Info("Update Loop", "Updating components")
+
+	r.updateRequested = false
+	instance.state = StateUpdating
+
+	ctx := newUpdateContext(float32(r.dt.Seconds()))
+
+	// Calling OnUpdate for all objects in scene
+	r.loopUpdate(instance.currentScene, ctx)
+}
+
+func (r *updateRoutine) performRenderingIdNeeded() {
+	if !r.renderingRequested {
+		return
+	}
+
+	//instance.logger.Warning(r, "Rendering components")
+
+	r.renderingRequested = false
+	instance.state = StateRendering
+
+	ctx := newRenderingContext(instance.renderer)
+
+	// Render objects
+	r.loopRender(instance.currentScene, ctx)
+	instance.renderer.PerformRendering()
+
+	instance.forceRedraw = false
+}
+
+func (r *updateRoutine) waitForNextFrame() {
+	// Wait until next frame
+	timeToSleep := TargetFrameTime - time.Since(r.lastFrameTime).Milliseconds()
+
+	if timeToSleep == 0 {
+		instance.logger.Warning(r,
+			fmt.Sprintf("The application is skipping frames! Update time: %d, Rendering time: %d",
+				r.updateTime.Milliseconds(),
+				r.renderingTime.Milliseconds()))
+	}
+
+	time.Sleep(time.Duration(timeToSleep) * time.Millisecond)
+}
+
+func (r *updateRoutine) handleStop() {
 	r.loopStop(instance.currentScene)
 	instance.currentScene.setInCurrentScene(false)
 
@@ -194,6 +264,8 @@ func (r *updateRoutine) Loop() {
 
 	instance.logger.Info(r, "Stopped")
 }
+
+//endregion
 
 func (r *updateRoutine) loopInit(obj *SceneObject) {
 	obj.init(newInitContext(instance, obj))
@@ -263,8 +335,10 @@ func newUpdateRoutine() *updateRoutine {
 	return &updateRoutine{
 		running:           false,
 		updateChan:        dispatch.NewMessageQueue(10),
+		eventQueue:        dispatch.NewMessageQueue(100),
 		newSceneObjects:   make([]*SceneObject, 0),
 		startSceneObjects: make([]*SceneObject, 0),
 		stopSceneObjects:  make([]*SceneObject, 0),
+		eventBinder:       newEventBinder(),
 	}
 }

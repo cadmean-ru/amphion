@@ -44,7 +44,7 @@ func handleMouseUp(callback *dispatch.Message) {
 		MousePosition: pos,
 		SceneObject:   nil,
 	})
-	instance.eventChan<-event
+	instance.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 
 func handleMouseMove(callback *dispatch.Message) {
@@ -61,7 +61,7 @@ func handleMouseMove(callback *dispatch.Message) {
 		MousePosition: pos,
 		SceneObject:   nil,
 	})
-	instance.eventChan <- event
+	instance.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 
 func parseCursorPositionData(data string) a.IntVector2 {
@@ -96,17 +96,17 @@ func handleKeyDown(callback *dispatch.Message) {
 		Key:  tokens[0],
 		Code: tokens[1],
 	})
-	instance.eventChan<-event
+	instance.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 
 func handleAppHide(_ *dispatch.Message) {
-	instance.eventChan<-NewAmphionEvent(instance, EventAppHide, nil)
+	instance.updateRoutine.enqueueEventAndRequestUpdate(NewAmphionEvent(instance, EventAppHide, nil))
 	instance.suspend = true
 }
 
 func handleAppShow(_ *dispatch.Message) {
 	instance.suspend = false
-	instance.eventChan<-NewAmphionEvent(instance, EventAppShow, nil)
+	instance.updateRoutine.enqueueEventAndRequestUpdate(NewAmphionEvent(instance, EventAppShow, nil))
 	instance.RequestRendering()
 }
 

@@ -30,9 +30,9 @@ type AmphionEngine struct {
 	currentApp         *frontend.App
 	appContext         *AppContext
 	stopChan           chan bool
-	eventChan          chan AmphionEvent
+
 	updateRoutine      *updateRoutine
-	eventBinder        *EventBinder
+
 	globalContext      frontend.Context
 	forceRedraw        bool
 	messageDispatcher  *MessageDispatcher
@@ -74,9 +74,7 @@ func Initialize(front frontend.Frontend) *AmphionEngine {
 		idgen:             common.NewIdGenerator(),
 		state:             StateStopped,
 		stopChan:          make(chan bool),
-		eventChan:         make(chan AmphionEvent, 100),
 		updateRoutine:     newUpdateRoutine(),
-		eventBinder:       newEventBinder(),
 		tasksRoutine:      newTasksRoutine(),
 		componentsManager: newComponentsManager(),
 		front:             front,
@@ -108,14 +106,13 @@ func (engine *AmphionEngine) Start() {
 	engine.started = true
 	engine.registerInternalEventHandlers()
 	engine.state = StateStarted
-	go engine.eventLoop()
 	engine.tasksRoutine.start()
 	engine.logger.Info(engine, "Amphion started")
 }
 
 // Closes the current scene if any, and stops the engine.
 func (engine *AmphionEngine) Stop() {
-	engine.eventChan<-NewAmphionEvent(engine, EventStop, nil)
+	engine.updateRoutine.enqueueEventAndRequestUpdate(NewAmphionEvent(engine, EventStop, nil))
 }
 
 // Blocks the calling goroutine until the engine is stopped.
@@ -236,7 +233,7 @@ func (engine *AmphionEngine) CloseScene(callback func()) {
 	}
 
 	engine.closeSceneCallback = callback
-	engine.eventChan<-NewAmphionEvent(engine, EventCloseScene, nil)
+	engine.updateRoutine.enqueueEventAndRequestUpdate(NewAmphionEvent(engine, EventCloseScene, nil))
 }
 
 func (engine *AmphionEngine) configureScene(scene *SceneObject) {
@@ -246,27 +243,6 @@ func (engine *AmphionEngine) configureScene(scene *SceneObject) {
 	screenInfo := engine.globalContext.ScreenInfo
 	scene.Transform.Size.X = float32(screenInfo.GetWidth())
 	scene.Transform.Size.Y = float32(screenInfo.GetHeight())
-}
-
-func (engine *AmphionEngine) eventLoop() {
-	engine.logger.Info(engine, "Event Loop starting")
-
-	defer engine.recover()
-
-	for event := range engine.eventChan {
-		if event.Code == EventStop {
-			if engine.canStop() {
-				engine.logger.Info(nil, "Stopping")
-				break
-			} else {
-				engine.handleStop()
-			}
-		}
-
-		engine.eventBinder.InvokeHandlers(event)
-	}
-
-	engine.handleStop()
 }
 
 // Tells the engine to schedule an update as soon as possible.
@@ -294,18 +270,18 @@ func (engine *AmphionEngine) IsForcedToRedraw() bool {
 // Binds an event handler for the specified event code.
 // The handler will be invoked in the event Loop goroutine, when the event with the specified code is raised.
 func (engine *AmphionEngine) BindEventHandler(code int, handler EventHandler) {
-	engine.eventBinder.Bind(code, handler)
+	engine.updateRoutine.eventBinder.Bind(code, handler)
 }
 
 // Unbinds the event handler for the specified event code.
 // The handler will no longer be invoked, when the event with the specified code is raised.
 func (engine *AmphionEngine) UnbindEventHandler(code int, handler EventHandler) {
-	engine.eventBinder.Unbind(code, handler)
+	engine.updateRoutine.eventBinder.Unbind(code, handler)
 }
 
 // Raises a new event.
 func (engine *AmphionEngine) RaiseEvent(event AmphionEvent) {
-	engine.eventChan<-event
+	engine.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 
 // Synchronously loads prefab from file.
@@ -399,7 +375,6 @@ func (engine *AmphionEngine) handleStop() {
 
 	engine.state = StateStopped
 
-	close(engine.eventChan)
 	engine.updateRoutine.close()
 
 	engine.renderer.Stop()
@@ -451,7 +426,7 @@ func (engine *AmphionEngine) handleClickEvent(clickPos a.IntVector2, code int) {
 			MousePosition: clickPos,
 			SceneObject:   o,
 		})
-		engine.eventChan<-event
+		engine.updateRoutine.enqueueEventAndRequestUpdate(event)
 	} else {
 		if engine.sceneContext.focusedObject != nil {
 			engine.messageDispatcher.DispatchDirectly(
@@ -468,7 +443,7 @@ func (engine *AmphionEngine) handleClickEvent(clickPos a.IntVector2, code int) {
 			MousePosition: clickPos,
 			SceneObject:   nil,
 		})
-		engine.eventChan<-event
+		engine.updateRoutine.enqueueEventAndRequestUpdate(event)
 	}
 }
 
