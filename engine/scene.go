@@ -50,7 +50,7 @@ func (o *SceneObject) DebugString() string {
 	return o.ToString()
 }
 
-// Returns the parent object of this scene object. Returns nil if no parent object.
+//GetParent returns the parent object of this scene object. Returns nil if no parent object.
 func (o *SceneObject) GetParent() *SceneObject {
 	return o.parent
 }
@@ -63,7 +63,7 @@ func (o *SceneObject) appendChild(object *SceneObject) {
 	o.children = append(o.children, object)
 }
 
-// Adds a child object to this scene object.
+//AddChild adds a child object to this scene object.
 func (o *SceneObject) AddChild(object *SceneObject) {
 	o.appendChild(object)
 
@@ -80,7 +80,7 @@ func (o *SceneObject) AddChild(object *SceneObject) {
 	}
 }
 
-// Removes a child from this scene object.
+//RemoveChild removes the specified child from this scene object.
 func (o *SceneObject) RemoveChild(object *SceneObject) {
 	index := -1
 	for i, c := range o.children {
@@ -101,7 +101,15 @@ func (o *SceneObject) RemoveChild(object *SceneObject) {
 	}
 }
 
-// Returns the list of children of this object.
+//RemoveAllChildren removes all children from the receiver scene object.
+func (o *SceneObject) RemoveAllChildren() {
+	for _, o1 := range o.children {
+		o.RemoveChild(o1)
+	}
+}
+
+//GetChildren returns the list of children of this scene object.
+//Modifying the returned list wont modify the actual list of children of this scene object.
 func (o *SceneObject) GetChildren() []*SceneObject {
 	c := make([]*SceneObject, len(o.children))
 	copy(c, o.children)
@@ -113,8 +121,8 @@ func (o *SceneObject) GetChildrenCount() int {
 	return len(o.children)
 }
 
-// Finds scene object in the list of children of the current object.
-// Returns nil if no object with the specified name was not found.
+//GetChildByName finds scene object in the list of children of the current object.
+//Returns nil if no object with the specified name was not found.
 func (o *SceneObject) GetChildByName(name string) *SceneObject {
 	for _, c := range o.children {
 		if c != nil && c.name == name {
@@ -125,7 +133,7 @@ func (o *SceneObject) GetChildByName(name string) *SceneObject {
 	panic(fmt.Sprintf("child scene object with name %s was not found (is it dirty?)", name))
 }
 
-// Adds a component to this scene object.
+//AddComponent adds a component to this scene object.
 func (o *SceneObject) AddComponent(component Component) {
 	container := NewComponentContainer(o, component)
 	o.components = append(o.components, container)
