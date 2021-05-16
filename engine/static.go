@@ -177,3 +177,8 @@ func ComponentNameMatches(componentName, namePattern string) bool {
 
 	return false
 }
+
+//IsInDebugMode checks if engine is currently in debug mode.
+func IsInDebugMode() bool {
+	return instance.currentApp != nil && instance.currentApp.Debug
+}
