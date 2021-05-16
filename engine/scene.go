@@ -6,6 +6,7 @@ import (
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
 	"gopkg.in/yaml.v2"
+	"reflect"
 	"regexp"
 	"strings"
 )
@@ -571,6 +572,39 @@ func (o *SceneObject) ForEachComponent(action func(component Component)) {
 //It is not safe to work with a dirty object.
 func (o *SceneObject) IsDirty() bool {
 	return !o.initialized || !o.enabled
+}
+
+//DeepCopy creates a new scene object with all components and children of the receiver.
+//The new object is dirty. It is enabled if the receiver is enabled.
+func (o *SceneObject) DeepCopy(copyName string) *SceneObject {
+	var newObject *SceneObject
+	if instance == nil {
+		newObject = NewSceneObjectForTesting(copyName)
+	} else {
+		newObject = NewSceneObject(copyName)
+	}
+
+	for _, comp := range o.components {
+		compType := reflect.TypeOf(comp.component)
+		var compCopy reflect.Value
+		if compType.Kind() == reflect.Ptr {
+			compCopy = reflect.New(compType.Elem())
+		} else {
+			compCopy = reflect.Indirect(reflect.New(compType))
+		}
+
+		newObject.AddComponent(compCopy.Interface().(Component))
+	}
+
+	newObject.Transform = o.Transform
+	newObject.enabled = o.enabled
+
+	for _, child := range o.children {
+		childCopy := child.DeepCopy(child.name)
+		newObject.AddChild(childCopy)
+	}
+
+	return newObject
 }
 
 func (o *SceneObject) ToMap() a.SiMap {

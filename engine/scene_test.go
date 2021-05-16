@@ -243,3 +243,13 @@ func TestSceneObject_FindComponentByName(t *testing.T) {
 
 	assert.Equal(t, target, found)
 }
+
+func TestSceneObject_DeepCopy(t *testing.T) {
+	o := NewSceneObjectForTesting("Test object")
+	o.Transform.Size = a.NewVector3(69, 69, 69)
+	o1 := NewSceneObjectForTesting("Test object 2", &testComponent{})
+	o.AddChild(o1)
+
+	c := o.DeepCopy("Copy of test object")
+	fmt.Println(c.DebugString())
+}
