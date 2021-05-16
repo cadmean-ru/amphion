@@ -23,6 +23,10 @@ type SetComponentStateTestComponent struct {
 	StateSpecialShape byte          `state:"stateSpecialShape"`
 }
 
+func (s *SetComponentStateTestComponent) GetName() string {
+	return NameOfComponent(s)
+}
+
 func TestComponentsManager_SetComponentState(t *testing.T) {
 	var comp = &SetComponentStateTestComponent{}
 	var cm = newComponentsManager()
@@ -86,4 +90,19 @@ func TestGetFunctionName(t *testing.T) {
 	fmt.Println(getFunctionName(eh))
 	c := testComponent{}
 	fmt.Println(getFunctionName(c.OnInit))
+}
+
+func TestComponentsManager_MakeComponent(t *testing.T) {
+	cm := newComponentsManager()
+	cm.RegisterComponentType(&SetComponentStateTestComponent{})
+
+	ass := assert.New(t)
+
+	name := "github.com/cadmean-ru/amphion/engine.SetComponentStateTestComponent"
+	actual := cm.MakeComponent(name)
+	ass.NotNil(actual)
+
+	name = "SetComponentStateTestComponent"
+	actual = cm.MakeComponent(name)
+	ass.NotNil(actual)
 }

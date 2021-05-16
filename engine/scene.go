@@ -7,8 +7,6 @@ import (
 	"github.com/cadmean-ru/amphion/common/require"
 	"gopkg.in/yaml.v2"
 	"reflect"
-	"regexp"
-	"strings"
 )
 
 // An object in the scene. The scene itself is also a SceneObject.
@@ -202,25 +200,8 @@ func (o *SceneObject) GetComponentsByName(n string, includeDirty ...bool) []Comp
 	return arr
 }
 
-func (o *SceneObject) componentNameMatcher(comp Component, n string) bool {
-	if n == comp.GetName() {
-		return true
-	}
-
-	shortName := strings.Split(comp.GetName(), ".")[1] //The name after .
-	if n == shortName {
-		return true
-	}
-
-	if matched, err := regexp.MatchString(n, comp.GetName()); matched && err == nil {
-		return true
-	}
-
-	return false
-}
-
 func (o *SceneObject) componentMatcher(container *ComponentContainer, name string, dirty bool) bool {
-	return (dirty || !container.IsDirty()) && o.componentNameMatcher(container.GetComponent(), name)
+	return (dirty || !container.IsDirty()) && ComponentNameMatches(container.GetComponent().GetName(), name)
 }
 
 // Returns a slice of all components attached to the object.

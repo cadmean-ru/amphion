@@ -2,7 +2,6 @@ package engine
 
 // Default component interface implementation
 type ComponentImpl struct {
-	__name__    string
 	Engine      *AmphionEngine
 	SceneObject *SceneObject
 	Logger      *Logger
@@ -23,14 +22,5 @@ func (c *ComponentImpl) OnStop() {
 }
 
 func (c *ComponentImpl) GetName() string {
-	return "DefaultName"
-}
-
-func (c ComponentImpl) NameOf(outer interface{}) string {
-	if c.__name__ != "" {
-		return c.__name__
-	}
-
-	c.__name__ = NameOfComponent(outer)
-	return c.__name__
+	panic("Get name not implemented")
 }

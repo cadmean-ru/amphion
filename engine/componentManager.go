@@ -40,17 +40,26 @@ func (m *ComponentsManager) GetEventHandler(name string) EventHandler {
 // MakeComponent creates an instance of a component with the specified name.
 // Returns the new instance of component or nil if component with that name was not registered.
 func (m *ComponentsManager) MakeComponent(name string) Component {
-	var t reflect.Type
-	var ok bool
-	if t, ok = m.typesMap[name]; !ok {
+	var compType reflect.Type
+	var found bool
+
+	for n, t := range m.typesMap {
+		if ComponentNameMatches(n, name) {
+			compType = t
+			found = true
+			break
+		}
+	}
+
+	if !found {
 		return nil
 	}
 
-	if t.Kind() == reflect.Ptr {
-		t = t.Elem()
+	if compType.Kind() == reflect.Ptr {
+		compType = compType.Elem()
 	}
 
-	c := reflect.New(t)
+	c := reflect.New(compType)
 	return c.Interface().(Component)
 }
 

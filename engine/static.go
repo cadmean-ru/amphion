@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/frontend"
+	"regexp"
+	"strings"
 )
 
 // LogInfo prints a message to the log from the current component, formatting the msg using fmt.Sprintf.
@@ -160,4 +162,18 @@ func ForceAllViewsRedraw() {
 //IsForcedToRedraw checks if all views redraw was requested in the next rendering cycle by calling ForceAllViewsRedraw.
 func IsForcedToRedraw() bool {
 	return instance.forceRedraw
+}
+
+//ComponentNameMatches checks if namePattern matches the given componentName.
+func ComponentNameMatches(componentName, namePattern string) bool {
+	shortName := strings.Split(componentName, ".")[1] //The name after .
+	if namePattern == shortName {
+		return true
+	}
+
+	if matched, err := regexp.MatchString(namePattern, componentName); matched && err == nil {
+		return true
+	}
+
+	return false
 }
