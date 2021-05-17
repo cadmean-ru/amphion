@@ -20,7 +20,7 @@ func (b *BezierView) OnDraw(ctx engine.DrawingContext) {
 }
 
 func (b *BezierView) GetName() string {
-	return "BezierView"
+	return engine.NameOfComponent(b)
 }
 
 func NewBezierView(cp1, cp2 a.Vector3) *BezierView {

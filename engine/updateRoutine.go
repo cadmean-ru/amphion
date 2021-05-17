@@ -15,6 +15,7 @@ type updateRoutine struct {
 	newSceneObjects    []*SceneObject
 	startSceneObjects  []*SceneObject
 	stopSceneObjects   []*SceneObject
+	componentsToStop   []*ComponentContainer
 	eventBinder        *EventBinder
 	dt                 time.Duration
 	lastFrameTime      time.Time
@@ -61,6 +62,10 @@ func (r *updateRoutine) startSceneObject(object *SceneObject) {
 
 func (r *updateRoutine) stopSceneObject(object *SceneObject) {
 	r.stopSceneObjects = append(r.stopSceneObjects, object)
+}
+
+func (r *updateRoutine) stopComponent(c *ComponentContainer) {
+	r.componentsToStop = append(r.componentsToStop, c)
 }
 
 func (r *updateRoutine) waitForStop() {
@@ -157,26 +162,30 @@ func (r *updateRoutine) handleStart() {
 func (r *updateRoutine) handleSceneObjectsLifecycle() {
 	if len(r.newSceneObjects) > 0 {
 		for _, o := range r.newSceneObjects {
-			//r.loopInit(o)
 			o.init(newInitContext(instance, o))
 		}
-		r.newSceneObjects = make([]*SceneObject, 0)
+		r.newSceneObjects = make([]*SceneObject, 0, 10)
 	}
 
 	if len(r.startSceneObjects) > 0 {
 		for _, o := range r.startSceneObjects {
-			//r.loopStart(o)
 			o.start()
 		}
-		r.startSceneObjects = make([]*SceneObject, 0)
+		r.startSceneObjects = make([]*SceneObject, 0, 10)
 	}
 
 	if len(r.stopSceneObjects) > 0 {
 		for _, o := range r.stopSceneObjects {
-			//r.loopStop(o)
 			o.stop()
 		}
-		r.stopSceneObjects = make([]*SceneObject, 0)
+		r.stopSceneObjects = make([]*SceneObject, 0, 10)
+	}
+
+	if len(r.componentsToStop) > 0 {
+		for _, c := range r.componentsToStop {
+			c.stop()
+		}
+		r.componentsToStop = make([]*ComponentContainer, 0, 10)
 	}
 }
 
@@ -336,9 +345,10 @@ func newUpdateRoutine() *updateRoutine {
 		running:           false,
 		updateChan:        dispatch.NewMessageQueue(10),
 		eventQueue:        dispatch.NewMessageQueue(100),
-		newSceneObjects:   make([]*SceneObject, 0),
-		startSceneObjects: make([]*SceneObject, 0),
-		stopSceneObjects:  make([]*SceneObject, 0),
+		newSceneObjects:   make([]*SceneObject, 0, 10),
+		startSceneObjects: make([]*SceneObject, 0, 10),
+		stopSceneObjects:  make([]*SceneObject, 0, 10),
+		componentsToStop:  make([]*ComponentContainer, 0, 10),
 		eventBinder:       newEventBinder(),
 	}
 }

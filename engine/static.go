@@ -166,7 +166,12 @@ func IsForcedToRedraw() bool {
 
 //ComponentNameMatches checks if namePattern matches the given componentName.
 func ComponentNameMatches(componentName, namePattern string) bool {
-	shortName := strings.Split(componentName, ".")[1] //The name after .
+	tokens := strings.Split(componentName, ".")
+	if len(tokens) < 2 {
+		return false
+	}
+
+	shortName := tokens[len(tokens)-1] //The name after .
 	if namePattern == shortName {
 		return true
 	}

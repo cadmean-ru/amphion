@@ -15,7 +15,7 @@ type SceneObject struct {
 	name                string
 	children            []*SceneObject
 	components          []*ComponentContainer
-	messageListeners    []MessageListenerComponent
+	messageListeners    []*ComponentContainer
 	updatingComponents  []*ComponentContainer
 	renderingComponents []*ComponentContainer
 	boundaryComponents  []*ComponentContainer
@@ -26,6 +26,7 @@ type SceneObject struct {
 	initialized         bool
 	started             bool
 	inCurrentScene      bool
+	willBeRemoved       bool
 }
 
 //GetName returns the name of the scene object.
@@ -82,23 +83,34 @@ func (o *SceneObject) AddChild(object *SceneObject) {
 
 //RemoveChild removes the specified child from this scene object.
 func (o *SceneObject) RemoveChild(object *SceneObject) {
+	if !o.removeChildFromList(object) {
+		return
+	}
+
+	object.SetEnabled(false)
+	object.markForRemoval()
+
+	if o.inCurrentScene {
+		instance.rebuildMessageTree()
+		instance.RequestRendering()
+	}
+}
+
+func (o *SceneObject) removeChildFromList(object *SceneObject) bool {
 	index := -1
 	for i, c := range o.children {
 		if c == object {
 			index = i
 		}
 	}
-	if index != -1 {
-		object.SetEnabled(false)
 
+	if index != -1 {
 		o.children[index] = o.children[len(o.children)-1]
 		o.children = o.children[:len(o.children)-1]
-
-		if o.inCurrentScene {
-			instance.rebuildMessageTree()
-			instance.RequestRendering()
-		}
+		return true
 	}
+
+	return false
 }
 
 //RemoveAllChildren removes all children from the receiver scene object.
@@ -145,7 +157,7 @@ func (o *SceneObject) AddComponent(component Component) {
 		o.renderingComponents = append(o.renderingComponents, container)
 	}
 	if _, ok := component.(MessageListenerComponent); ok {
-		o.messageListeners = append(o.messageListeners, component.(MessageListenerComponent))
+		o.messageListeners = append(o.messageListeners, container)
 	}
 	if _, ok := component.(BoundaryComponent); ok {
 		o.boundaryComponents = append(o.boundaryComponents, container)
@@ -212,11 +224,14 @@ func (o *SceneObject) componentMatcher(container *ComponentContainer, name strin
 	return (dirty || !container.IsDirty()) && ComponentNameMatches(container.GetComponent().GetName(), name)
 }
 
-// Returns a slice of all components attached to the object.
-func (o *SceneObject) GetComponents() []Component {
+//GetComponents returns a slice of all components attached to the object.
+//Modifying the returned list wont change the actual list of components of this scene object.
+func (o *SceneObject) GetComponents(includeDirty ...bool) []Component {
+	dirty := getDirty(includeDirty...)
+
 	arr := make([]Component, 0, len(o.components))
 	for _, c := range o.components {
-		if c.IsDirty() {
+		if !dirty && c.IsDirty() {
 			continue
 		}
 
@@ -225,15 +240,107 @@ func (o *SceneObject) GetComponents() []Component {
 	return arr
 }
 
+//RemoveComponent removes the given component from the scene object.
+func (o *SceneObject) RemoveComponent(comp Component) {
+	var container *ComponentContainer
+	for _, c := range o.components {
+		if c.component == comp {
+			container = c
+			break
+		}
+	}
+
+	o.removeComponentFromAllLists(container)
+}
+
+//RemoveComponentByName removes a component with the given name from the scene object&
+//If there are more than one component with the same name only the first encountered component will be removed.
+func (o *SceneObject) RemoveComponentByName(name string) {
+	var container *ComponentContainer
+	for _, c := range o.components {
+		if o.componentMatcher(c, name, true) {
+			container = c
+			break
+		}
+	}
+
+	o.removeComponentFromAllLists(container)
+}
+
+func (o *SceneObject) removeComponentFromAllLists(container *ComponentContainer) {
+	if container == nil {
+		return
+	}
+
+	component := container.component
+	name := component.GetName()
+
+	o.components = o.removeComponentFromList(o.components, name)
+
+	if _, ok := component.(UpdatingComponent); ok {
+		o.updatingComponents = o.removeComponentFromList(o.updatingComponents, name)
+	}
+	if _, ok := component.(ViewComponent); ok {
+		o.renderingComponents = o.removeComponentFromList(o.renderingComponents, name)
+	}
+	if _, ok := component.(MessageListenerComponent); ok {
+		o.messageListeners = o.removeComponentFromList(o.messageListeners, name)
+	}
+	if _, ok := component.(BoundaryComponent); ok {
+		o.boundaryComponents = o.removeComponentFromList(o.boundaryComponents, name)
+	}
+	if _, ok := component.(Layout); ok {
+		o.layout = nil
+	}
+
+	if o.inCurrentScene {
+		instance.updateRoutine.stopComponent(container)
+		instance.RequestRendering()
+	}
+}
+
+func (o *SceneObject) removeComponentFromList(arr []*ComponentContainer, name string) []*ComponentContainer {
+	index := -1
+	for i, c := range o.components {
+		if o.componentMatcher(c, name, true) {
+			index = i
+			break
+		}
+	}
+
+	if index == -1 {
+		return arr
+	}
+
+	arr[index] = arr[len(arr)-1]
+	return arr[:len(arr)-1]
+}
+
+//RemoveAllComponents removes all components of the scene object.
+func (o *SceneObject) RemoveAllComponents() {
+	for _, c := range o.components {
+		o.RemoveComponent(c.component)
+	}
+}
+
+func (o *SceneObject) markForRemoval() {
+	o.willBeRemoved = true
+
+	for _, c := range o.children {
+		c.markForRemoval()
+	}
+}
+
+//GetComponentContainers returns the list of containers, that makes possible to enable/disable specific components.
 func (o *SceneObject) GetComponentContainers() []*ComponentContainer {
-	arr := make([]*ComponentContainer, len(o.components))
+	arr := make([]*ComponentContainer, 0, len(o.components))
 	arr = append(arr, o.components...)
 	return arr
 }
 
-// Set the enabled state of this object as specified.
+//SetEnabled sets the enabled state of this object as specified.
 func (o *SceneObject) SetEnabled(enabled bool) {
-	if o.enabled == enabled {
+	if o.willBeRemoved || o.enabled == enabled {
 		return
 	}
 
@@ -256,7 +363,7 @@ func (o *SceneObject) SetEnabled(enabled bool) {
 	}
 }
 
-// Returns if this object is currently enabled or not.
+//IsEnabled returns if this object is currently enabled or not.
 func (o *SceneObject) IsEnabled() bool {
 	return o.enabled
 }
@@ -315,7 +422,7 @@ func (o *SceneObject) OnMessage(message Message) bool {
 
 	continuePropagation := true
 	for _, l := range o.messageListeners {
-		if !l.OnMessage(message) {
+		if !l.component.(MessageListenerComponent).OnMessage(message) {
 			continuePropagation = false
 		}
 	}
@@ -417,6 +524,10 @@ func (o *SceneObject) HasBoundary() bool {
 
 func (o *SceneObject) IsPointInsideBoundaries(point a.Vector3) bool {
 	for _, b := range o.boundaryComponents {
+		if b.IsDirty() {
+			continue
+		}
+
 		if b.component.(BoundaryComponent).IsPointInside(point) {
 			return true
 		}
@@ -427,6 +538,10 @@ func (o *SceneObject) IsPointInsideBoundaries(point a.Vector3) bool {
 
 func (o *SceneObject) IsPointInsideBoundaries2D(point a.Vector3) bool {
 	for _, b := range o.boundaryComponents {
+		if b.IsDirty() {
+			continue
+		}
+
 		if b.component.(BoundaryComponent).IsPointInside2D(point) {
 			return true
 		}
@@ -474,21 +589,29 @@ func (o *SceneObject) Traverse(action func(object *SceneObject) bool, includeDir
 // ForEachObject traverses the scene object tree, calling the action function for each of the objects.
 // The action is also called for the object on which the method was called.
 // The method skips dirty objects.
-func (o *SceneObject) ForEachObject(action func(object *SceneObject)) {
+func (o *SceneObject) ForEachObject(action func(object *SceneObject), includeDirty ...bool) {
+	dirty := getDirty(includeDirty...)
+
 	o.Traverse(func(object *SceneObject) bool {
 		action(object)
 		return true
-	})
+	}, dirty)
 }
 
 //ForEachChild cycles through all direct children of the scene object, calling the specified action for each of them.
 //The method skips dirty objects.
-func (o *SceneObject) ForEachChild(action func(object *SceneObject)) {
-	if o.IsDirty() {
+func (o *SceneObject) ForEachChild(action func(object *SceneObject), includeDirty ...bool) {
+	dirty := getDirty(includeDirty...)
+
+	if !dirty && o.IsDirty() {
 		return
 	}
 
 	for _, c := range o.children {
+		if !dirty && c.IsDirty() {
+			continue
+		}
+
 		action(c)
 	}
 }
@@ -557,10 +680,11 @@ func (o *SceneObject) ForEachComponent(action func(component Component)) {
 }
 
 //IsDirty checks if the scene object is dirty.
-//An object is considered dirty if it has not been initialized or if it is disabled.
+//An object is considered dirty if it has not been initialized or if it is disabled or
+//it will be deleted in the next update.
 //It is not safe to work with a dirty object.
 func (o *SceneObject) IsDirty() bool {
-	return !o.initialized || !o.enabled
+	return !o.initialized || !o.enabled || o.willBeRemoved
 }
 
 //DeepCopy creates a new scene object with all components and children of the receiver.
@@ -575,14 +699,23 @@ func (o *SceneObject) DeepCopy(copyName string) *SceneObject {
 
 	for _, comp := range o.components {
 		compType := reflect.TypeOf(comp.component)
-		var compCopy reflect.Value
+		var compCopyValue reflect.Value
 		if compType.Kind() == reflect.Ptr {
-			compCopy = reflect.New(compType.Elem())
+			compCopyValue = reflect.New(compType.Elem())
 		} else {
-			compCopy = reflect.Indirect(reflect.New(compType))
+			compCopyValue = reflect.Indirect(reflect.New(compType))
 		}
 
-		newObject.AddComponent(compCopy.Interface().(Component))
+		compCopy := compCopyValue.Interface().(Component)
+
+		if instance != nil {
+			cm := instance.GetComponentsManager()
+			state := cm.GetComponentState(comp.component)
+			fmt.Printf("%+v\n", state)
+			cm.SetComponentState(compCopy, state)
+		}
+
+		newObject.AddComponent(compCopy)
 	}
 
 	newObject.Transform = o.Transform
@@ -594,6 +727,26 @@ func (o *SceneObject) DeepCopy(copyName string) *SceneObject {
 	}
 
 	return newObject
+}
+
+//RemoveFromScene removes the scene object from the current scene.
+//After that the object is considered dirty.
+func (o *SceneObject) RemoveFromScene() {
+	if o.parent == nil || !o.inCurrentScene {
+		return
+	}
+
+	o.GetParent().RemoveChild(o)
+}
+
+//SetParent changes the parent of the scene object to the specified object.
+//Can be used to move a child from one object to another.
+func (o *SceneObject) SetParent(newParent *SceneObject) {
+	if o.parent != nil {
+		o.parent.removeChildFromList(o)
+	}
+
+	newParent.AddChild(o)
 }
 
 func (o *SceneObject) ToMap() a.SiMap {
@@ -658,6 +811,7 @@ func (o *SceneObject) DumpToMap() a.SiMap {
 		"initialized": o.initialized,
 		"started": o.started,
 		"enabled": o.enabled,
+		"willBeRemoved": o.willBeRemoved,
 		"children": mChildren,
 		"components": mComponents,
 		"transform": o.Transform.ToMap(),
@@ -733,7 +887,7 @@ func NewSceneObject(name string) *SceneObject {
 		name:                name,
 		children:            make([]*SceneObject, 0, 10),
 		components:          make([]*ComponentContainer, 0, 10),
-		messageListeners:    make([]MessageListenerComponent, 0),
+		messageListeners:    make([]*ComponentContainer, 0),
 		renderingComponents: make([]*ComponentContainer, 0, 1),
 		updatingComponents:  make([]*ComponentContainer, 0, 1),
 		boundaryComponents:  make([]*ComponentContainer, 0, 1),
@@ -752,7 +906,7 @@ func NewSceneObjectForTesting(name string, components ...Component) *SceneObject
 		name:                name,
 		children:            make([]*SceneObject, 0, 10),
 		components:          make([]*ComponentContainer, 0, 10),
-		messageListeners:    make([]MessageListenerComponent, 0),
+		messageListeners:    make([]*ComponentContainer, 0),
 		renderingComponents: make([]*ComponentContainer, 0, 1),
 		updatingComponents:  make([]*ComponentContainer, 0, 1),
 		boundaryComponents:  make([]*ComponentContainer, 0, 1),
