@@ -687,9 +687,9 @@ func (o *SceneObject) IsDirty() bool {
 	return !o.initialized || !o.enabled || o.willBeRemoved
 }
 
-//DeepCopy creates a new scene object with all components and children of the receiver.
+//Copy creates a new scene object with all components and children of the receiver.
 //The new object is dirty. It is enabled if the receiver is enabled.
-func (o *SceneObject) DeepCopy(copyName string) *SceneObject {
+func (o *SceneObject) Copy(copyName string) *SceneObject {
 	var newObject *SceneObject
 	if instance == nil {
 		newObject = NewSceneObjectForTesting(copyName)
@@ -722,7 +722,7 @@ func (o *SceneObject) DeepCopy(copyName string) *SceneObject {
 	newObject.enabled = o.enabled
 
 	for _, child := range o.children {
-		childCopy := child.DeepCopy(child.name)
+		childCopy := child.Copy(child.name)
 		newObject.AddChild(childCopy)
 	}
 

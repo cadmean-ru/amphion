@@ -250,6 +250,6 @@ func TestSceneObject_DeepCopy(t *testing.T) {
 	o1 := NewSceneObjectForTesting("Test object 2", &testComponent{})
 	o.AddChild(o1)
 
-	c := o.DeepCopy("Copy of test object")
+	c := o.Copy("Copy of test object")
 	fmt.Println(c.DebugString())
 }
