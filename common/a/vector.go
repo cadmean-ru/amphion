@@ -38,7 +38,7 @@ func (v *Vector3) FromMap(siMap SiMap) {
 	v.Z = requireFloat32(siMap["z"])
 }
 
-func (v Vector3) ToString() string {
+func (v Vector3) String() string {
 	return fmt.Sprintf("(%f, %f, %f)", v.X, v.Y, v.Z)
 }
 

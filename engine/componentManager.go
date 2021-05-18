@@ -87,18 +87,24 @@ func (m *ComponentsManager) GetComponentState(component Component) a.SiMap {
 			fmt.Println(sf.Tag)
 			continue
 		}
+
 		value := vf.Interface()
-		if s, ok := value.(a.Stringable); ok {
-			if s != nil {
-				value = s.ToString()
+
+		if implementsStringable, directly := m.checkIfImplements(vf, (*a.Stringable)(nil)); implementsStringable {
+			if directly {
+				value = value.(a.Stringable).ToString()
 			} else {
-				value = ""
+				temp := reflect.New(vf.Type())
+				temp.Elem().Set(vf)
+				value = temp.Interface().(a.Stringable).ToString()
 			}
-		} else if m1, ok := value.(a.Mappable); ok {
-			if m1 != nil {
-				value = m1.ToMap()
+		} else if implementsStringable, directly = m.checkIfImplements(vf, (*a.Mappable)(nil)); implementsStringable {
+			if directly {
+				value = value.(a.Mappable).ToMap()
 			} else {
-				value = a.SiMap{}
+				temp := reflect.New(vf.Type())
+				temp.Elem().Set(vf)
+				value = temp.Interface().(a.Mappable).ToMap()
 			}
 		} else if eh, ok := value.(EventHandler); ok {
 			if eh != nil {
@@ -112,6 +118,26 @@ func (m *ComponentsManager) GetComponentState(component Component) a.SiMap {
 	}
 
 	return state
+}
+
+func (m *ComponentsManager) checkIfImplements(value reflect.Value, i interface{}) (bool, bool) {
+	if value.Kind() == reflect.Ptr && value.IsNil() {
+		return false, false
+	}
+
+	t := value.Type()
+	stringableType := reflect.TypeOf(i).Elem()
+
+	if t.Implements(stringableType) {
+		return true, true
+	}
+
+	temp := reflect.New(t)
+	if temp.Type().Implements(stringableType) {
+		return true, false
+	}
+
+	return false, false
 }
 
 // SetComponentState sets the component's state from the given state map.

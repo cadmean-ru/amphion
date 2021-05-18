@@ -86,6 +86,21 @@ func TestComponentsManager_SetComponentState(t *testing.T) {
 	ass.Equal(byte(3), comp.StateSpecialShape)
 }
 
+func TestComponentsManager_GetComponentState(t *testing.T) {
+	var comp = &SetComponentStateTestComponent{
+		StateUnstringable: a.NewColor("#696969"),
+		StateUnmappable:   a.NewVector3(69, 69, 69),
+	}
+	var cm = newComponentsManager()
+
+	state := cm.GetComponentState(comp)
+
+	ass := assert.New(t)
+
+	ass.Equal("#696969", state.GetString("stateUnstringable"))
+	ass.Equal(float32(69), state["stateUnmappable"].(a.SiMap)["x"])
+}
+
 func TestGetFunctionName(t *testing.T) {
 	fmt.Println(getFunctionName(eh))
 	c := testComponent{}
