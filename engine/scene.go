@@ -711,7 +711,6 @@ func (o *SceneObject) Copy(copyName string) *SceneObject {
 		if instance != nil {
 			cm := instance.GetComponentsManager()
 			state := cm.GetComponentState(comp.component)
-			fmt.Printf("%+v\n", state)
 			cm.SetComponentState(compCopy, state)
 		}
 

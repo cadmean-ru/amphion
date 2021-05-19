@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
 	"reflect"
@@ -84,7 +83,6 @@ func (m *ComponentsManager) GetComponentState(component Component) a.SiMap {
 		} else if temp, ok := sf.Tag.Lookup("state"); ok {
 			key = temp
 		} else {
-			fmt.Println(sf.Tag)
 			continue
 		}
 
