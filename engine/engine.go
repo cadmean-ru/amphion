@@ -253,10 +253,6 @@ func (engine *AmphionEngine) RequestUpdate() {
 // Tells the engine to schedule rendering in the next update cycle.
 // It will also request an update, if it was not requested already.
 func (engine *AmphionEngine) RequestRendering() {
-	if engine.currentComponent != nil {
-		fmt.Println(engine.currentComponent.GetName())
-	}
-
 	engine.updateRoutine.requestRendering()
 }
 
