@@ -137,20 +137,20 @@ func SetWindowTitle(title string) {
 
 //FindObjectByName searches for an object with the specified name through all the current scene object tree.
 //See SceneObject.FindObjectByName.
-func FindObjectByName(name string) *SceneObject {
+func FindObjectByName(name string, includeDirty ...bool) *SceneObject {
 	if instance.currentScene == nil {
 		return nil
 	}
-	return instance.currentScene.FindObjectByName(name)
+	return instance.currentScene.FindObjectByName(name, includeDirty...)
 }
 
 //FindComponentByName searches for a component with the specified name through all the current scene object tree.
 //See SceneObject.FindComponentByName.
-func FindComponentByName(name string) Component {
+func FindComponentByName(name string, includeDirty ...bool) Component {
 	if instance.currentScene == nil {
 		return nil
 	}
-	return instance.currentScene.FindComponentByName(name)
+	return instance.currentScene.FindComponentByName(name, includeDirty...)
 }
 
 //ForceAllViewsRedraw will request all view in the scene to redraw on the next rendering cycle.

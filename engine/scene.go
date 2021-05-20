@@ -19,7 +19,7 @@ type SceneObject struct {
 	updatingComponents  []*ComponentContainer
 	renderingComponents []*ComponentContainer
 	boundaryComponents  []*ComponentContainer
-	layout              Layout
+	layout              *ComponentContainer
 	Transform           Transform
 	parent              *SceneObject
 	enabled             bool
@@ -163,7 +163,7 @@ func (o *SceneObject) AddComponent(component Component) {
 		o.boundaryComponents = append(o.boundaryComponents, container)
 	}
 	if _, ok := component.(Layout); ok {
-		o.layout = component.(Layout)
+		o.layout = container
 	}
 
 	if o.inCurrentScene {
@@ -472,9 +472,9 @@ func (o *SceneObject) update(ctx UpdateContext) {
 		c.component.(UpdatingComponent).OnUpdate(ctx)
 	}
 
-	if o.layout != nil {
-		instance.currentComponent = o.layout
-		o.layout.LayoutChildren()
+	if o.layout != nil && !o.layout.IsDirty() {
+		instance.currentComponent = o.layout.component
+		o.layout.component.(Layout).LayoutChildren()
 	}
 
 	instance.currentComponent = nil
