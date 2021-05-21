@@ -152,15 +152,17 @@ func (m *ComponentsManager) SetComponentState(component Component, state a.SiMap
 		for i := 0; i < fCount; i++ {
 			sf := t.Field(i)
 			vf := v.Field(i)
-			if sf.Tag == "state" && sf.Name == key {
+			if m.stateTagMatches(sf, key) {
 				m.setReflectValue(vf, value)
-			} else if sf.Tag.Get("state") == key {
-				m.setReflectValue(vf, value)
-			} else {
-				continue
+				break
 			}
 		}
 	}
+}
+
+//stateTagMatches checks if the given struct field name matches the given state map key
+func (m *ComponentsManager) stateTagMatches(sf reflect.StructField, key string) bool {
+	return sf.Tag == "state" && sf.Name == key || sf.Tag.Get("state") == key
 }
 
 // Sets the reflect.Value vf (field) of a struct equal to the specified value trying to convert it to the field's type.
@@ -191,10 +193,16 @@ func (m *ComponentsManager) setReflectNumberValue(vf reflect.Value, value interf
 	var newValue reflect.Value
 
 	if vf.Type().AssignableTo(reflect.TypeOf(a.ResId(0))) {
-		newValue = reflect.ValueOf(a.ResId(require.Int(value)))
+		if resId, isResId := value.(a.ResId); isResId {
+			newValue = reflect.ValueOf(resId)
+		} else {
+			newValue = reflect.ValueOf(a.ResId(require.Int(value)))
+		}
 	} else if vf.Type().AssignableTo(reflect.TypeOf(a.TextAlign(0))) {
 		if IsSpecialValueString(value) {
 			newValue = reflect.ValueOf(GetSpecialValueFromString(value))
+		} else if textAlign, isTextAlign := value.(a.TextAlign); isTextAlign {
+			newValue = reflect.ValueOf(textAlign)
 		} else {
 			newValue = reflect.ValueOf(a.TextAlign(require.Int(value)))
 		}

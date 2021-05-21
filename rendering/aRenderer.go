@@ -65,18 +65,17 @@ func (r *ARenderer) SetPrimitive(id int, primitive IPrimitive, shouldRerender bo
 		}
 		r.primitives[id].primitive = primitive
 		r.primitives[id].redraw = true
+
+		r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(func() {
+			if delegate, ok := r.primitiveDelegates[primitive.GetType()]; ok {
+				ctx := r.makePrimitiveRenderingContext(r.primitives[id])
+				delegate.OnSetPrimitive(ctx)
+				r.primitives[id].state = ctx.State
+			}
+		}))
 	} else {
 		fmt.Printf("Warning! Primitive with id %d was not found.\n", id)
 	}
-
-
-	r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(func() {
-		if delegate, ok := r.primitiveDelegates[primitive.GetType()]; ok {
-			ctx := r.makePrimitiveRenderingContext(r.primitives[id])
-			delegate.OnSetPrimitive(ctx)
-			r.primitives[id].state = ctx.State
-		}
-	}))
 }
 
 // Any thread, update goroutine
@@ -107,11 +106,12 @@ func (r *ARenderer) PerformRendering() {
 	r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(r.delegate.OnPerformRenderingEnd))
 }
 
-// Update routine
 func (r *ARenderer) Clear() {
 	r.primitives = make(map[int]*PrimitiveContainer)
+	r.layers = make([]*Layer, 1)
+	r.layers[0] = newLayer()
 	r.idgen = common.NewIdGenerator()
-	r.delegate.OnClear()
+	r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(r.delegate.OnClear))
 }
 
 func (r *ARenderer) Stop() {

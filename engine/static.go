@@ -187,3 +187,19 @@ func ComponentNameMatches(componentName, namePattern string) bool {
 func IsInDebugMode() bool {
 	return instance.currentApp != nil && instance.currentApp.Debug
 }
+
+func CloseScene(closeCallback func()) {
+	instance.CloseScene(closeCallback)
+}
+
+func ShowScene(scene *SceneObject) error {
+	return instance.ShowScene(scene)
+}
+
+func LoadScene(sceneId a.ResId, show bool) {
+	instance.LoadScene(sceneId, show)
+}
+
+func SwapScenes() {
+	instance.SwapScenes()
+}

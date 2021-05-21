@@ -70,7 +70,6 @@ func (o *SceneObject) AddChild(object *SceneObject) {
 
 	if o.inCurrentScene {
 		if !object.initialized {
-			instance.updateRoutine.initSceneObject(object)
 			object.Traverse(func(child *SceneObject) bool {
 				instance.updateRoutine.initSceneObject(child)
 				return true
@@ -431,10 +430,6 @@ func (o *SceneObject) OnMessage(message Message) bool {
 }
 
 func (o *SceneObject) init(ctx InitContext) {
-	if o.initialized {
-		return
-	}
-
 	for _, c := range o.components {
 		if c.initialized {
 			continue
@@ -746,6 +741,7 @@ func (o *SceneObject) SetParent(newParent *SceneObject) {
 	}
 
 	newParent.AddChild(o)
+	o.Redraw()
 }
 
 func (o *SceneObject) ToMap() a.SiMap {

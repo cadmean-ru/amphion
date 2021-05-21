@@ -143,6 +143,9 @@ func (f *Frontend) mouseButtonCallback(w *glfw.Window, button glfw.MouseButton, 
 			callback = dispatch.NewMessageWithStringData(frontend.CallbackMouseDown, data)
 		case glfw.Release:
 			callback = dispatch.NewMessageWithStringData(frontend.CallbackMouseUp, data)
+		default:
+			fmt.Printf("Wthat: %d", action)
+			return
 		}
 	}
 

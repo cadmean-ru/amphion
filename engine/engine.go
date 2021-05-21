@@ -205,9 +205,11 @@ func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 	engine.logger.Info(engine, fmt.Sprintf("Starting scene %s", scene.name))
 
 	engine.sceneContext = makeSceneContext()
-	engine.configureScene(scene)
-	engine.messageDispatcher = newMessageDispatcherForScene(scene)
-	engine.currentScene = scene
+
+	newScene := engine.prepareScene(scene)
+	engine.configureScene(newScene)
+	engine.messageDispatcher = newMessageDispatcherForScene(newScene)
+	engine.currentScene = newScene
 
 	engine.logger.Info(engine, "Starting Loop")
 	engine.updateRoutine.start()
@@ -233,13 +235,25 @@ func (engine *AmphionEngine) CloseScene(callback func()) {
 	}
 
 	engine.closeSceneCallback = callback
-	engine.updateRoutine.enqueueEventAndRequestUpdate(NewAmphionEvent(engine, EventCloseScene, nil))
+	engine.updateRoutine.stop()
+}
+
+func (engine *AmphionEngine) prepareScene(scene *SceneObject) *SceneObject {
+	var scene2 *SceneObject
+	if scene.initialized {
+		scene2 = scene.Copy(scene.name)
+	} else {
+		scene2 = scene
+	}
+
+	return scene2
 }
 
 func (engine *AmphionEngine) configureScene(scene *SceneObject) {
 	if scene == nil {
 		return
 	}
+
 	screenInfo := engine.globalContext.ScreenInfo
 	scene.Transform.Size.X = float32(screenInfo.GetWidth())
 	scene.Transform.Size.Y = float32(screenInfo.GetHeight())
@@ -506,21 +520,19 @@ func (engine *AmphionEngine) handleMouseMove(mousePos a.IntVector2) {
 	}
 }
 
-func (engine *AmphionEngine) handleCloseSceneEvent(_ AmphionEvent) bool {
-	engine.logger.Info(engine, "Closing scene")
-	engine.updateRoutine.stop()
-	engine.updateRoutine.waitForStop()
+func (engine *AmphionEngine) handleSceneClose() {
+	instance.renderer.Clear()
 	engine.currentScene = nil
+	engine.sceneContext = nil
 	engine.state = StateStarted
 	engine.logger.Info(engine, "Scene closed")
 	if engine.closeSceneCallback != nil {
 		engine.closeSceneCallback()
 	}
-	return false
 }
 
 func (engine *AmphionEngine) registerInternalEventHandlers() {
-	engine.BindEventHandler(EventCloseScene, engine.handleCloseSceneEvent)
+
 }
 
 func (engine *AmphionEngine) GetTasksRoutine() *TasksRoutine {
