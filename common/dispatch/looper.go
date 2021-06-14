@@ -49,12 +49,14 @@ func (l *LooperImpl) GetWorkDispatcher() WorkDispatcher {
 
 func NewLooperImpl(messageQueueBuffer uint) *LooperImpl {
 	return &LooperImpl{
-		queue: NewMessageQueue(messageQueueBuffer),
+		queue:    NewMessageQueue(messageQueueBuffer),
+		handlers: make(map[int]MessageHandlerFunc),
 	}
 }
 
 func NewLooperImplCompat(messageQueueBuffer int) *LooperImpl {
 	return &LooperImpl{
-		queue: NewMessageQueue(uint(messageQueueBuffer)),
+		queue:    NewMessageQueue(uint(messageQueueBuffer)),
+		handlers: make(map[int]MessageHandlerFunc),
 	}
 }

@@ -14,7 +14,7 @@ import (
 )
 
 type Frontend struct {
-	dispatch.LooperImpl
+	*dispatch.LooperImpl
 	f        cli.FrontendDelegate
 	handler  *cli.CallbackHandler
 	resMan   frontend.ResourceManager
@@ -108,11 +108,13 @@ func (f *Frontend) GetLaunchArgs() a.SiMap {
 }
 
 func NewFrontend(f cli.FrontendDelegate, rm cli.ResourceManagerDelegate, rd cli.RendererDelegate) frontend.Frontend {
+	fmt.Println("new frontend")
 	return &Frontend{
-		f:        f,
-		resMan:   cli.NewResourceManagerImpl(rm),
-		renderer: rendering.NewARenderer(rd, f.GetRenderingThreadDispatcher()),
-		msgQueue: dispatch.NewMessageQueue(1000),
-		mainDisp: f.GetMainThreadDispatcher(),
+		f:          f,
+		resMan:     cli.NewResourceManagerImpl(rm),
+		renderer:   rendering.NewARenderer(rd, f.GetRenderingThreadDispatcher()),
+		msgQueue:   dispatch.NewMessageQueue(1000),
+		mainDisp:   f.GetMainThreadDispatcher(),
+		LooperImpl: dispatch.NewLooperImpl(100),
 	}
 }

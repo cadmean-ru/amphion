@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
@@ -17,6 +18,7 @@ func (p *PrimitiveRendererDelegateWrap) OnSetPrimitive(ctx *rendering.PrimitiveR
 }
 
 func (p *PrimitiveRendererDelegateWrap) OnRender(ctx *rendering.PrimitiveRenderingContext) {
+	fmt.Printf("Go rendering wrap %d\n", ctx.PrimitiveId)
 	p.r.OnRender(newCliPrimitiveRenderingContext(ctx))
 }
 
