@@ -39,7 +39,7 @@ func (m *Mover) OnUpdate(ctx engine.UpdateContext) {
 	} else {
 		m.obj.Transform.Position.X -= dX
 	}
-	m.prc.ForceRedraw()
+	m.prc.Redraw()
 	m.eng.RequestRendering()
 }
 

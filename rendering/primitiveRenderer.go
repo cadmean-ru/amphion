@@ -2,7 +2,7 @@ package rendering
 
 type PrimitiveRenderingContext struct {
 	Renderer      *ARenderer
-	Primitive     IPrimitive
+	Primitive     Primitive
 	PrimitiveKind byte
 	PrimitiveId   int
 	State         interface{}

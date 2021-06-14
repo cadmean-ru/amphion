@@ -8,7 +8,7 @@ import (
 
 // Basic component interface. A component is a piece of functionality, that can be attached to scene objects.
 type Component interface {
-	NamedObject
+	a.NamedObject
 
 	// This method is called only once when the component is first created.
 	OnInit(ctx InitContext)
@@ -31,7 +31,12 @@ type UpdatingComponent interface {
 type ViewComponent interface {
 	Component
 	OnDraw(ctx DrawingContext)
-	ForceRedraw()
+	ShouldDraw() bool
+}
+
+type ViewComponentRedraw interface {
+	ViewComponent
+	Redraw()
 }
 
 // Contains necessary objects for component initialization
@@ -56,9 +61,31 @@ func (c InitContext) GetLogger() *Logger {
 	return c.engine.logger
 }
 
-func newInitContext(engine *AmphionEngine, object *SceneObject) InitContext {
+func (c InitContext) GetRenderingNode() *rendering.Node {
+	return c.sceneObject.renderingNode
+}
+
+func newInitContext(object *SceneObject) InitContext {
 	return InitContext{
-		engine:      engine,
+		engine:      instance,
+		sceneObject: object,
+	}
+}
+
+type DrawingContext struct {
+	sceneObject *SceneObject
+}
+
+func (c DrawingContext) GetRenderer() *rendering.ARenderer {
+	return instance.renderer
+}
+
+func (c DrawingContext) GetRenderingNode() *rendering.Node {
+	return c.sceneObject.renderingNode
+}
+
+func newDrawingContext(object *SceneObject) DrawingContext {
+	return DrawingContext{
 		sceneObject: object,
 	}
 }
@@ -71,21 +98,6 @@ type UpdateContext struct {
 func newUpdateContext(dTime float32) UpdateContext {
 	return UpdateContext{
 		DeltaTime: dTime,
-	}
-}
-
-// Contains renderer
-type DrawingContext struct {
-	renderer *rendering.ARenderer
-}
-
-func (c DrawingContext) GetRenderer() *rendering.ARenderer {
-	return c.renderer
-}
-
-func newRenderingContext(renderer *rendering.ARenderer) DrawingContext {
-	return DrawingContext{
-		renderer: renderer,
 	}
 }
 

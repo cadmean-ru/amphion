@@ -22,6 +22,8 @@ func (t *TriangleRenderer) OnStart() {
 }
 
 func (t *TriangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
+	t.glPrimitiveRenderer.OnRender(ctx)
+
 	gp := ctx.Primitive.(*rendering.GeometryPrimitive)
 	state := ctx.State.(*glPrimitiveState)
 	state.gen()

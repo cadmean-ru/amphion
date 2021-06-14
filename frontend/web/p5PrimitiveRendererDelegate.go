@@ -6,7 +6,7 @@ import (
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
-type p5drawDelegate func(p5 *p5, primitive rendering.IPrimitive)
+type p5drawDelegate func(p5 *p5, primitive rendering.Primitive)
 
 type P5PrimitiveRendererDelegate struct {
 	drawFunc p5drawDelegate

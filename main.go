@@ -58,7 +58,7 @@ func main() {
 	go func() {
 		e.Start()
 
-		if err := e.ShowScene(gridScene(e)); err != nil {
+		if err := e.ShowScene(treeScene(e)); err != nil {
 			log.Println(err)
 		}
 

@@ -25,6 +25,8 @@ func (r *RectangleRenderer) OnStart() {
 }
 
 func (r *RectangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
+	r.glPrimitiveRenderer.OnRender(ctx)
+
 	gp := ctx.Primitive.(*rendering.GeometryPrimitive)
 	state := ctx.State.(*glPrimitiveState)
 

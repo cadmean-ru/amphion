@@ -35,14 +35,14 @@ func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 	}
 	pr.HTextAlign = t.HTextAlign
 	pr.VTextAlign = t.VTextAlign
-	ctx.GetRenderer().SetPrimitive(t.PrimitiveId, pr, t.ShouldRedraw())
-	t.Redraw = false
+	ctx.GetRenderingNode().SetPrimitive(t.PrimitiveId, pr)
+	t.ShouldRedraw = false
 }
 
 // Sets the text equal to the specified value, forcing the view to redraw and requesting rendering.
 func (t *TextView) SetText(text string) {
 	t.Text = text
-	t.Redraw = true
+	t.ShouldRedraw = true
 	engine.RequestRendering()
 }
 
@@ -62,28 +62,28 @@ func (t *TextView) SetTextColor(color interface{}) {
 		t.TextColor = a.BlackColor()
 	}
 
-	t.Redraw = true
+	t.ShouldRedraw = true
 	engine.RequestRendering()
 }
 
 // Sets the current text size.
 func (t *TextView) SetFontSize(fontSize byte) {
 	t.FontSize = fontSize
-	t.Redraw = true
+	t.ShouldRedraw = true
 	engine.RequestRendering()
 }
 
 // Sets the current horizontal text alignment.
 func (t *TextView) SetHTextAlign(align a.TextAlign) {
 	t.HTextAlign = align
-	t.Redraw = true
+	t.ShouldRedraw = true
 	engine.RequestRendering()
 }
 
 // Sets the current horizontal text alignment.
 func (t *TextView) SetVTextAlign(align a.TextAlign) {
 	t.VTextAlign = align
-	t.Redraw = true
+	t.ShouldRedraw = true
 	engine.RequestRendering()
 }
 

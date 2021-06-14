@@ -3,6 +3,7 @@ package engine
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 )
 
 type LogLevel uint
@@ -21,19 +22,19 @@ type Logger struct {
 	loggerImpl ILogger
 }
 
-func (logger *Logger) Info(subsystem NamedObject, message string) {
+func (logger *Logger) Info(subsystem a.NamedObject, message string) {
 	logger.loggerImpl.Log(Info, logger.subsystemNameOrEmptyString(subsystem), message)
 }
 
-func (logger *Logger) Warning(subsystem NamedObject, message string) {
+func (logger *Logger) Warning(subsystem a.NamedObject, message string) {
 	logger.loggerImpl.Log(Warning, logger.subsystemNameOrEmptyString(subsystem), message)
 }
 
-func (logger *Logger) Error(subsystem NamedObject, message string) {
+func (logger *Logger) Error(subsystem a.NamedObject, message string) {
 	logger.loggerImpl.Log(Error, logger.subsystemNameOrEmptyString(subsystem), message)
 }
 
-func (logger *Logger) subsystemNameOrEmptyString(subsystem NamedObject) string {
+func (logger *Logger) subsystemNameOrEmptyString(subsystem a.NamedObject) string {
 	if subsystem == nil {
 		return ""
 	}

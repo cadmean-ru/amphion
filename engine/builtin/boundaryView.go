@@ -20,8 +20,8 @@ func (r *BoundaryView) OnDraw(ctx engine.DrawingContext) {
 	pr.Transform.Position.Z = 100
 	pr.Appearance.FillColor = a.TransparentColor()
 	pr.Appearance.StrokeColor = a.PinkColor()
-	ctx.GetRenderer().SetPrimitive(r.PrimitiveId, pr, r.ShouldRedraw())
-	r.Redraw = false
+	ctx.GetRenderingNode().SetPrimitive(r.PrimitiveId, pr)
+	r.ShouldRedraw = false
 }
 
 func NewBoundaryView() *BoundaryView {

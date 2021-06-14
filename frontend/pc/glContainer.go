@@ -10,7 +10,7 @@ import (
 )
 
 type glContainer struct {
-	primitive rendering.IPrimitive
+	primitive rendering.Primitive
 	vbo       uint32
 	vao       uint32
 	ebo       uint32

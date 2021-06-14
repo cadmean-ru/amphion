@@ -24,15 +24,15 @@ func (v *ImageView) OnDraw(ctx engine.DrawingContext) {
 
 	pr := rendering.NewImagePrimitive(url)
 	pr.Transform = v.SceneObject.Transform.ToRenderingTransform()
-	ctx.GetRenderer().SetPrimitive(v.PrimitiveId, pr, v.ShouldRedraw())
-	v.Redraw = false
+	ctx.GetRenderingNode().SetPrimitive(v.PrimitiveId, pr)
+	v.ShouldRedraw = false
 }
 
 // Sets the resource index equal to the specified value, forcing the view to redraw and requesting rendering.
 func (v *ImageView) SetResId(i a.ResId) {
 	v.ResId = i
 	v.ImageUrl = ""
-	v.Redraw = true
+	v.ShouldRedraw = true
 	engine.RequestRendering()
 }
 
@@ -40,7 +40,7 @@ func (v *ImageView) SetResId(i a.ResId) {
 func (v *ImageView) SetImageUrl(url string) {
 	v.ResId = -1
 	v.ImageUrl = url
-	v.Redraw = true
+	v.ShouldRedraw = true
 	engine.RequestRendering()
 }
 

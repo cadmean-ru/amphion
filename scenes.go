@@ -161,7 +161,7 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	//textScene2.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
 	//	fmt.Println("Click")
 	//	textScene2Renderer.SetText(strconv.Itoa(counter))
-	//	textScene2Renderer.ForceRedraw()
+	//	textScene2Renderer.Redraw()
 	//	e.RequestRendering()
 	//	e.RequestUpdate()
 	//	counter++
@@ -316,7 +316,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 		engine.LogInfo("Mouse in")
 		shape := addBtn.GetComponentByName(".+ShapeView").(*builtin.ShapeView)
 		shape.FillColor = a.PinkColor()
-		shape.ForceRedraw()
+		shape.Redraw()
 		engine.RequestRendering()
 		return false
 	}))
@@ -324,7 +324,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 		engine.LogInfo("Mouse out")
 		shape := addBtn.GetComponentByName(".+ShapeView").(*builtin.ShapeView)
 		shape.FillColor = a.GreenColor()
-		shape.ForceRedraw()
+		shape.Redraw()
 		engine.RequestRendering()
 		return false
 	}))
@@ -486,61 +486,6 @@ func navigateOnClick2(_ engine.AmphionEvent) bool {
 	return true
 }
 
-//func dropScene(e *engine.AmphionEngine) *engine.SceneObject {
-//	scene := engine.NewSceneObject("drop scene")
-//
-//	gridLayout := builtin.NewGridLayout()
-//	gridLayout.RowPadding = 10
-//
-//	scene.AddComponent(gridLayout)
-//
-//	title := engine.NewSceneObject("title")
-//	title.Transform.Size.Y = 30
-//	title.AddComponent(builtin.NewTextView("Drop a file here:"))
-//	scene.AddChild(title)
-//
-//	fileName := engine.NewSceneObject("file name")
-//	fileName.Transform.Size.Y = 30
-//	fileNameText := builtin.NewTextView("")
-//	fileName.AddComponent(fileNameText)
-//
-//	fileContents := engine.NewSceneObject("file contents")
-//	fileContents.Transform.Size.Y = 1000
-//	fileContentsText := builtin.NewTextView("")
-//	fileContents.AddComponent(fileContentsText)
-//
-//	preview := engine.NewSceneObject("preview")
-//	preview.Transform.Size.Y = 100
-//	previewImage := builtin.NewImageView(Res_images_babyyoda)
-//	preview.AddComponent(previewImage)
-//
-//	dropZone := engine.NewSceneObject("drop zone")
-//	dropZone.Transform.Size = a.NewVector3(0, 100, 0)
-//	dropZone.Transform.Position = a.NewVector3(0, 0, 10)
-//	dropZone.AddComponent(builtin.NewBoundaryView())
-//	dropZone.AddComponent(builtin.NewFileDropZone(func(event engine.AmphionEvent) bool {
-//		data := event.Data.(engine.InputFileData)
-//
-//		if strings.Contains(data.Mime, "image") {
-//			fileNameText.SetText("")
-//			fileContentsText.SetText("")
-//			url := fmt.Sprintf("data:%s;base64,%s", data.Mime, base64.StdEncoding.EncodeToString(data.Data))
-//			previewImage.SetImageUrl(url)
-//		} else {
-//			fileNameText.SetText(data.Name)
-//			fileContentsText.SetText(string(data.Data))
-//		}
-//		return false
-//	}))
-//
-//	scene.AddChild(dropZone)
-//	scene.AddChild(preview)
-//	scene.AddChild(fileName)
-//	scene.AddChild(fileContents)
-//
-//	return scene
-//}
-
 func textScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("text scene")
 
@@ -562,6 +507,29 @@ func textScene(e *engine.AmphionEngine) *engine.SceneObject {
 	grogu.AddComponent(builtin.NewRectBoundary())
 	grogu.AddComponent(builtin.NewMouseMover())
 	scene.AddChild(grogu)
+
+	return scene
+}
+
+func treeScene(e *engine.AmphionEngine) *engine.SceneObject {
+	scene := engine.NewSceneObject("Tree")
+
+	rect := engine.NewSceneObject("rect")
+	rectView := builtin.NewShapeView(builtin.ShapeRectangle)
+	rectView.FillColor = a.NewColor(0, 69, 0)
+	rect.AddComponent(rectView)
+	rect.SetSizeXy(100, 100)
+	rect.AddComponent(builtin.NewMouseMover())
+	rect.AddComponent(builtin.NewRectBoundary())
+
+	rectInside := engine.NewSceneObject("rect inside")
+	rectInsideView := builtin.NewShapeView(builtin.ShapeRectangle)
+	rectInsideView.FillColor = a.NewColor(69, 0, 0)
+	rectInside.AddComponent(rectInsideView)
+	rectInside.SetSizeXy(50, 50)
+
+	scene.AddChild(rect)
+	rect.AddChild(rectInside)
 
 	return scene
 }

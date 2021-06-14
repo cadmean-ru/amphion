@@ -1,10 +1,8 @@
 package rendering
 
 import (
-	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/dispatch"
-	"sort"
 )
 
 type ManagementMode byte
@@ -15,7 +13,7 @@ const (
 )
 
 type ARenderer struct {
-	primitives         map[int]*PrimitiveContainer
+	primitives         map[int]*PrimitiveNode
 	idgen              *common.IdGenerator
 	delegate           RendererDelegate
 	primitiveDelegates map[byte]PrimitiveRendererDelegate
@@ -24,11 +22,12 @@ type ARenderer struct {
 	renderDispatcher   dispatch.WorkDispatcher
 	preparedCallback   func()
 	prepared           bool
+	root               *Node
 }
 
 // PC - main, android - rendering thread
 func (r *ARenderer) Prepare() {
-	r.layers[0] = newLayer()
+	r.layers[0] = newLayer(0)
 
 	r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(func() {
 		r.delegate.OnPrepare()
@@ -44,52 +43,47 @@ func (r *ARenderer) Prepare() {
 	}))
 }
 
-// Any thread, update goroutine
-func (r *ARenderer) AddPrimitive() int {
-	id := r.idgen.NextId()
-	r.primitives[id] = &PrimitiveContainer{}
-	r.layers[0].addPrimitiveId(id)
-	return id
+func (r *ARenderer) SetRoot(n *Node) {
+	r.root = n
+}
+
+func (r *ARenderer) MakeNode(host NodeHost) *Node {
+	return &Node{
+		renderer:    r,
+		primitives:  make(primitiveNodeMap, 1),
+		Traversable: host,
+		host:        host,
+	}
 }
 
 // Any thread, update goroutine
-func (r *ARenderer) SetPrimitive(id int, primitive IPrimitive, shouldRerender bool) {
-	if !shouldRerender {
-		return
-	}
+//func (r *ARenderer) AddPrimitive() int {
+//	id := r.idgen.NextId()
+//	r.primitives[id] = &PrimitiveNode{}
+//	r.layers[0].addPrimitiveId(id)
+//	return id
+//}
 
-	if _, ok := r.primitives[id]; ok {
-		if r.primitives[id].primitive != nil && primitive.GetType() != r.primitives[id].primitive.GetType() {
-			fmt.Printf("Cannot change primitive type for id: %d\n", id)
-			return
-		}
-		r.primitives[id].primitive = primitive
-		r.primitives[id].redraw = true
-
+// Any thread, update goroutine
+func (r *ARenderer) setPrimitiveOnFrontend(pNode *PrimitiveNode, data Primitive) {
+	if delegate, ok := r.primitiveDelegates[data.GetType()]; ok {
 		r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(func() {
-			if delegate, ok := r.primitiveDelegates[primitive.GetType()]; ok {
-				ctx := r.makePrimitiveRenderingContext(r.primitives[id])
-				delegate.OnSetPrimitive(ctx)
-				r.primitives[id].state = ctx.State
-			}
+			pNode.primitive = data
+			pNode.redraw = true
+
+			ctx := r.makePrimitiveRenderingContext(pNode)
+			delegate.OnSetPrimitive(ctx)
+			pNode.state = ctx.State
 		}))
-	} else {
-		fmt.Printf("Warning! Primitive with id %d was not found.\n", id)
 	}
 }
 
 // Any thread, update goroutine
-func (r *ARenderer) RemovePrimitive(id int) {
-	if p, ok := r.primitives[id]; ok {
-		if d, ok := r.primitiveDelegates[p.primitive.GetType()]; ok {
-			r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(func() {
-				d.OnRemovePrimitive(r.makePrimitiveRenderingContext(p))
-			}))
-		}
-		for _, l := range r.layers {
-			l.removePrimitiveId(id)
-		}
-		delete(r.primitives, id)
+func (r *ARenderer) removePrimitiveOnFrontend(pNode *PrimitiveNode) {
+	if d, ok := r.primitiveDelegates[pNode.primitive.GetType()]; ok {
+		r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(func() {
+			d.OnRemovePrimitive(r.makePrimitiveRenderingContext(pNode))
+		}))
 	}
 }
 
@@ -107,9 +101,9 @@ func (r *ARenderer) PerformRendering() {
 }
 
 func (r *ARenderer) Clear() {
-	r.primitives = make(map[int]*PrimitiveContainer)
+	r.primitives = make(map[int]*PrimitiveNode)
 	r.layers = make([]*Layer, 1)
-	r.layers[0] = newLayer()
+	r.layers[0] = newLayer(0)
 	r.idgen = common.NewIdGenerator()
 	r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(r.delegate.OnClear))
 }
@@ -121,7 +115,7 @@ func (r *ARenderer) Stop() {
 	r.renderDispatcher.Execute(dispatch.NewWorkItemFunc(r.delegate.OnStop))
 }
 
-func (r *ARenderer) makePrimitiveRenderingContext(container *PrimitiveContainer) *PrimitiveRenderingContext {
+func (r *ARenderer) makePrimitiveRenderingContext(container *PrimitiveNode) *PrimitiveRenderingContext {
 	return &PrimitiveRenderingContext{
 		Renderer:      r,
 		Primitive:     container.primitive,
@@ -147,51 +141,20 @@ func (r *ARenderer) GetLayer(index int) *Layer {
 }
 
 func (r *ARenderer) AddLayer() {
-	r.layers = append(r.layers, newLayer())
+	r.layers = append(r.layers, newLayer(len(r.layers)))
 }
 
 func (r *ARenderer) RemoveLayer(index int) {
-	if len(r.layers) <= 1 {
+	if len(r.layers) <= 1 || index >= len(r.layers) {
 		return
 	}
 
-	var i2 int
-	newLayers := make([]*Layer, len(r.layers) - 1)
-	for i, l := range r.layers {
-		if i == index {
-			continue
-		}
-
-		newLayers[i2] = l
-		i2++
-	}
-}
-
-func (r *ARenderer) SetPrimitiveLayer(primitiveId, layerIndex int) {
-	newLayer := r.GetLayer(layerIndex)
-	if newLayer == nil {
-		return
+	for i := index; i < len(r.layers)-1; i++ {
+		r.layers[i] = r.layers[i+1]
+		r.layers[i].index = i
 	}
 
-	var oldLayer *Layer
-	for _, l := range r.layers {
-		for _, p := range l.primitives {
-			if p == primitiveId {
-				oldLayer = l
-				break
-			}
-		}
-		if oldLayer != nil {
-			break
-		}
-	}
-
-	if oldLayer == nil {
-		return
-	}
-
-	oldLayer.removePrimitiveId(primitiveId)
-	newLayer.addPrimitiveId(primitiveId)
+	r.layers = r.layers[:len(r.layers)-1]
 }
 
 func (r *ARenderer) SetManagementMode(mode ManagementMode) {
@@ -215,49 +178,28 @@ func (r *ARenderer) SetPreparedCallback(f func()) {
 }
 
 func (r *ARenderer) renderingPerformer() {
+	if r.root == nil {
+		panic("No root node")
+	}
+
 	for _, layer := range r.layers {
-		count := 0
-		for _, p := range layer.primitives {
-			if r.primitives[p].primitive == nil {
-				continue
-			}
+		r.root.RenderTraverse(func(node *Node) {
+			for _, p := range node.GetPrimitivesInLayer(layer.index) {
+				if d, ok := r.primitiveDelegates[p.primitive.GetType()]; ok {
+					if p.redraw {
+						tr := p.primitive.GetTransform()
+						tr.Position = tr.Position.Add(layer.translation)
+						p.primitive.SetTransform(tr)
+					}
 
-			count++
-		}
-
-		list := make([]*PrimitiveContainer, count)
-
-		var i = 0
-		for _, p := range layer.primitives {
-			if r.primitives[p].primitive == nil {
-				continue
-			}
-
-			list[i] = r.primitives[p]
-			i++
-		}
-
-		sort.Slice(list, func(i, j int) bool {
-			z1 := list[i].primitive.GetTransform().Position.Z
-			z2 := list[j].primitive.GetTransform().Position.Z
-			return z1 < z2
-		})
-
-		for _, p := range list {
-			if d, ok := r.primitiveDelegates[p.primitive.GetType()]; ok {
-				if p.redraw {
-					tr := p.primitive.GetTransform()
-					tr.Position = tr.Position.Add(layer.translation)
-					p.primitive.SetTransform(tr)
+					ctx := r.makePrimitiveRenderingContext(p)
+					d.OnRender(ctx)
+					p.state = ctx.State
 				}
 
-				ctx := r.makePrimitiveRenderingContext(p)
-				d.OnRender(ctx)
-				p.state = ctx.State
+				p.redraw = false
 			}
-
-			p.redraw = false
-		}
+		})
 	}
 }
 
@@ -266,7 +208,7 @@ func NewARenderer(delegate RendererDelegate, renderDispatcher dispatch.WorkDispa
 		delegate:           delegate,
 		renderDispatcher:   renderDispatcher,
 		idgen:              common.NewIdGenerator(),
-		primitives:         make(map[int]*PrimitiveContainer),
+		primitives:         make(map[int]*PrimitiveNode),
 		primitiveDelegates: make(map[byte]PrimitiveRendererDelegate),
 		layers:             make([]*Layer, 1),
 	}

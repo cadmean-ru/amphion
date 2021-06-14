@@ -7,7 +7,7 @@ import (
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
-func drawPoint(p5 *p5, primitive rendering.IPrimitive) {
+func drawPoint(p5 *p5, primitive rendering.Primitive) {
 	t := primitive.GetTransform()
 	pos := t.Position
 
@@ -16,7 +16,7 @@ func drawPoint(p5 *p5, primitive rendering.IPrimitive) {
 	p5.point(pos.X, pos.Y)
 }
 
-func drawLine(p5 *p5, primitive rendering.IPrimitive) {
+func drawLine(p5 *p5, primitive rendering.Primitive) {
 	t := primitive.GetTransform()
 	pos := t.Position
 	size := t.Size
@@ -28,7 +28,7 @@ func drawLine(p5 *p5, primitive rendering.IPrimitive) {
 	p5.line(pos.X, pos.Y, x2, y2)
 }
 
-func drawRectangle(p5 *p5, primitive rendering.IPrimitive) {
+func drawRectangle(p5 *p5, primitive rendering.Primitive) {
 	t := primitive.GetTransform()
 	pos := t.Position
 	size := t.Size
@@ -40,7 +40,7 @@ func drawRectangle(p5 *p5, primitive rendering.IPrimitive) {
 	p5.rect(pos.X, pos.Y, size.X, size.Y, int(rect.Appearance.CornerRadius))
 }
 
-func drawEllipse(p5 *p5, primitive rendering.IPrimitive) {
+func drawEllipse(p5 *p5, primitive rendering.Primitive) {
 	t := primitive.GetTransform()
 	pos := t.Position
 	size := t.Size
@@ -52,7 +52,7 @@ func drawEllipse(p5 *p5, primitive rendering.IPrimitive) {
 	p5.ellipse(pos.X, pos.Y, size.X, size.Y)
 }
 
-func drawTriangle(p5 *p5, primitive rendering.IPrimitive) {
+func drawTriangle(p5 *p5, primitive rendering.Primitive) {
 	t := primitive.GetTransform()
 	pos := t.Position
 	size := t.Size
@@ -71,7 +71,7 @@ func drawTriangle(p5 *p5, primitive rendering.IPrimitive) {
 }
 
 var prevFontSize byte
-func drawText(p5 *p5, primitive rendering.IPrimitive) {
+func drawText(p5 *p5, primitive rendering.Primitive) {
 	t := primitive.GetTransform()
 	pos := t.Position
 	size := t.Size
@@ -88,7 +88,7 @@ func drawText(p5 *p5, primitive rendering.IPrimitive) {
 }
 
 var images = map[string]*p5image{}
-func drawImage(p5 *p5, primitive rendering.IPrimitive) {
+func drawImage(p5 *p5, primitive rendering.Primitive) {
 	t := primitive.GetTransform()
 	pos := t.Position
 	size := t.Size

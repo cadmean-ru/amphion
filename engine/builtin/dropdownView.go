@@ -22,7 +22,7 @@ type DropdownView struct {
 }
 
 func (d *DropdownView) OnStart() {
-	d.arrowId = d.Engine.GetRenderer().AddPrimitive()
+	d.arrowId = d.Context.GetRenderingNode().AddPrimitive()
 	//d.arrow2Id = d.eng.GetRenderer().AddPrimitive()
 
 	siz := d.SceneObject.Transform.Size
@@ -113,12 +113,12 @@ func (d *DropdownView) SetItems(items []string) {
 	if len(d.items) > 0 {
 		d.selectedItem = d.items[0]
 	}
-	d.ForceRedraw()
+	d.Redraw()
 }
 
 func (d *DropdownView) SetSelectedItem(item string) {
 	d.selectedItem = item
-	d.ForceRedraw()
+	d.Redraw()
 }
 
 func (d *DropdownView) GetSelectedItem() string {
@@ -139,7 +139,7 @@ func (d *DropdownView) hideDropdown() {
 }
 
 func (d *DropdownView) OnStop() {
-	d.Engine.GetRenderer().RemovePrimitive(d.arrowId)
+	d.Context.GetRenderingNode().RemovePrimitive(d.arrowId)
 }
 
 func (d *DropdownView) GetName() string {

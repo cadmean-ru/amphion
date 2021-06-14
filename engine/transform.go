@@ -20,7 +20,7 @@ type Transform struct {
 // Creates a new transform with default values.
 func NewTransform2D(object *SceneObject) Transform {
 	return Transform{
-		Position:    a.NewVector3(0, 0, 1),
+		Position:    a.ZeroVector(),
 		Pivot:       a.ZeroVector(),
 		Rotation:    a.ZeroVector(),
 		Size:        a.OneVector(),

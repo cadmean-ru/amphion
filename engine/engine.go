@@ -210,6 +210,7 @@ func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 	engine.configureScene(newScene)
 	engine.messageDispatcher = newMessageDispatcherForScene(newScene)
 	engine.currentScene = newScene
+	engine.renderer.SetRoot(engine.currentScene.renderingNode)
 
 	engine.logger.Info(engine, "Starting Loop")
 	engine.updateRoutine.start()
@@ -411,7 +412,7 @@ func (engine *AmphionEngine) handleClickEvent(clickPos a.IntVector2, code int) {
 	candidates := make([]*SceneObject, 0, 1)
 
 	engine.currentScene.ForEachObject(func(o *SceneObject) {
-		if o.IsRendering() && o.HasBoundary() && o.IsPointInsideBoundaries2D(a.NewVector3(float32(clickPos.X), float32(clickPos.Y), 0)) {
+		if o.HasViews() && o.HasBoundary() && o.IsPointInsideBoundaries2D(a.NewVector3(float32(clickPos.X), float32(clickPos.Y), 0)) {
 			candidates = append(candidates, o)
 		}
 	})
@@ -468,7 +469,7 @@ func (engine *AmphionEngine) handleMouseMove(mousePos a.IntVector2) {
 
 	candidates := make([]*SceneObject, 0, 1)
 	engine.currentScene.ForEachObject(func(o *SceneObject) {
-		if o.IsRendering() && o.HasBoundary() && o.IsPointInsideBoundaries2D(a.NewVector3(float32(mousePos.X), float32(mousePos.Y), 0)) {
+		if o.HasViews() && o.HasBoundary() && o.IsPointInsideBoundaries2D(a.NewVector3(float32(mousePos.X), float32(mousePos.Y), 0)) {
 			candidates = append(candidates, o)
 		}
 	})

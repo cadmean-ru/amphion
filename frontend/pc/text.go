@@ -28,6 +28,8 @@ func (r *TextRenderer) OnStart() {
 }
 
 func (r *TextRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
+	r.glPrimitiveRenderer.OnRender(ctx)
+
 	tp := ctx.Primitive.(*rendering.TextPrimitive)
 
 	fontName := tp.TextAppearance.Font

@@ -5,7 +5,7 @@ package web
 import "github.com/cadmean-ru/amphion/rendering"
 
 type p5Container struct {
-	primitive rendering.IPrimitive
+	primitive rendering.Primitive
 	redraw    bool
 }
 

@@ -29,6 +29,8 @@ func (r *ImageRenderer) OnStart() {
 }
 
 func (r *ImageRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
+	r.glPrimitiveRenderer.OnRender(ctx)
+
 	ip := ctx.Primitive.(*rendering.ImagePrimitive)
 	state := ctx.State.(*glPrimitiveState)
 

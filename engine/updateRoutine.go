@@ -204,7 +204,7 @@ func (r *updateRoutine) handleSceneObjectsLifecycle() {
 		r.newSceneObjects = make([]*SceneObject, 0, 10)
 
 		for _, o := range temp {
-			o.init(newInitContext(instance, o))
+			o.init(newInitContext(o))
 		}
 	}
 
@@ -262,10 +262,13 @@ func (r *updateRoutine) performRenderingIdNeeded() {
 	r.renderingWasRequested = false
 	instance.state = StateRendering
 
-	ctx := newRenderingContext(instance.renderer)
+	instance.currentScene.Traverse(func(object *SceneObject) bool {
+		ctx := newDrawingContext(object)
+		object.draw(ctx)
 
-	// Render objects
-	r.loopRender(instance.currentScene, ctx)
+		return true
+	})
+
 	instance.renderer.PerformRendering()
 
 	instance.forceRedraw = false
@@ -302,7 +305,7 @@ func (r *updateRoutine) handleStop() {
 //endregion
 
 func (r *updateRoutine) loopInit(obj *SceneObject) {
-	obj.init(newInitContext(instance, obj))
+	obj.init(newInitContext(obj))
 	temp := make([]*SceneObject, len(obj.children))
 	copy(temp, obj.children)
 	for _, c := range temp {
@@ -331,18 +334,6 @@ func (r *updateRoutine) loopUpdate(obj *SceneObject, ctx UpdateContext) {
 
 	for _, c := range obj.children {
 		r.loopUpdate(c, ctx)
-	}
-}
-
-func (r *updateRoutine) loopRender(obj *SceneObject, ctx DrawingContext) {
-	if !obj.enabled {
-		return
-	}
-
-	obj.draw(ctx)
-
-	for _, c := range obj.children {
-		r.loopRender(c, ctx)
 	}
 }
 

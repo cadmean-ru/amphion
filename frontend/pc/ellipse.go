@@ -23,6 +23,8 @@ func (r *EllipseRenderer) OnStart() {
 }
 
 func (r *EllipseRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
+	r.glPrimitiveRenderer.OnRender(ctx)
+
 	gp := ctx.Primitive.(*rendering.GeometryPrimitive)
 	state := ctx.State.(*glPrimitiveState)
 

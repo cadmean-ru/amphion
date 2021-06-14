@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
+	"github.com/cadmean-ru/amphion/rendering"
 	"gopkg.in/yaml.v2"
 	"reflect"
 )
@@ -20,6 +21,7 @@ type SceneObject struct {
 	renderingComponents []*ComponentContainer
 	boundaryComponents  []*ComponentContainer
 	layout              *ComponentContainer
+	renderingNode       *rendering.Node
 	Transform           Transform
 	parent              *SceneObject
 	enabled             bool
@@ -409,7 +411,10 @@ func (o *SceneObject) Redraw() {
 			continue
 		}
 
-		view.component.(ViewComponent).ForceRedraw()
+		viewComp := view.component.(ViewComponent)
+		if viewRedraw, ok := viewComp.(ViewComponentRedraw); ok {
+			viewRedraw.Redraw()
+		}
 	}
 	instance.RequestRendering()
 }
@@ -475,18 +480,6 @@ func (o *SceneObject) update(ctx UpdateContext) {
 	instance.currentComponent = nil
 }
 
-func (o *SceneObject) draw(ctx DrawingContext) {
-	for _, c := range o.renderingComponents {
-		if !c.enabled || !c.initialized {
-			continue
-		}
-
-		instance.currentComponent = c.component
-		c.component.(ViewComponent).OnDraw(ctx)
-	}
-	instance.currentComponent = nil
-}
-
 func (o *SceneObject) stop() {
 	for _, c := range o.components {
 		if c.enabled || !c.started {
@@ -500,6 +493,31 @@ func (o *SceneObject) stop() {
 	instance.currentComponent = nil
 }
 
+func (o *SceneObject) draw(ctx DrawingContext) {
+	for _, c := range o.renderingComponents {
+		if !c.enabled || !c.initialized {
+			continue
+		}
+
+		view := c.component.(ViewComponent)
+		instance.currentComponent = c.component
+
+		if !view.ShouldDraw() {
+			continue
+		}
+
+		view.OnDraw(ctx)
+	}
+	instance.currentComponent = nil
+}
+
+func (o *SceneObject) RenderTraverse(action func(node *rendering.Node)) {
+	o.Traverse(func(object *SceneObject) bool {
+		action(object.renderingNode)
+		return true
+	})
+}
+
 func (o *SceneObject) setInCurrentScene(b bool) {
 	o.inCurrentScene = b
 	for _, c := range o.children {
@@ -507,8 +525,8 @@ func (o *SceneObject) setInCurrentScene(b bool) {
 	}
 }
 
-//IsRendering checks if the scene object has any view components.
-func (o *SceneObject) IsRendering() bool {
+//HasViews checks if the scene object has any view components.
+func (o *SceneObject) HasViews() bool {
 	return len(o.renderingComponents) > 0
 }
 
@@ -826,6 +844,7 @@ func (o *SceneObject) FromMap(siMap a.SiMap) {
 	o.updatingComponents = make([]*ComponentContainer, 0, 1)
 	o.boundaryComponents = make([]*ComponentContainer, 0, 1)
 	o.enabled = true
+	o.renderingNode = instance.renderer.MakeNode(o)
 	for _, c := range iComponents {
 		cMap := a.RequireSiMap(c)
 		cName := cMap["name"].(string)
@@ -888,6 +907,7 @@ func NewSceneObject(name string) *SceneObject {
 		boundaryComponents:  make([]*ComponentContainer, 0, 1),
 		enabled:             true,
 	}
+	obj.renderingNode = instance.renderer.MakeNode(obj)
 	obj.Transform = NewTransform2D(obj)
 	return obj
 }
@@ -914,7 +934,7 @@ func NewSceneObjectForTesting(name string, components ...Component) *SceneObject
 		obj.AddComponent(c)
 	}
 
-	ctx := newInitContext(&AmphionEngine{}, obj)
+	ctx := newInitContext(obj)
 	for _, component := range obj.components {
 		component.GetComponent().OnInit(ctx)
 		component.initialized = true

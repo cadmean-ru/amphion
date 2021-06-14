@@ -35,8 +35,8 @@ func (c *ShapeView) OnDraw(ctx engine.DrawingContext) {
 		StrokeWeight: c.StrokeWeight,
 		CornerRadius: c.CornerRadius,
 	}
-	ctx.GetRenderer().SetPrimitive(c.PrimitiveId, pr, c.ShouldRedraw())
-	c.Redraw = false
+	ctx.GetRenderingNode().SetPrimitive(c.PrimitiveId, pr)
+	c.ShouldRedraw = false
 }
 
 func (c *ShapeView) GetName() string {

@@ -22,6 +22,8 @@ func (r *LineRenderer) OnStart() {
 }
 
 func (r *LineRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
+	r.glPrimitiveRenderer.OnRender(ctx)
+
 	gp := ctx.Primitive.(*rendering.GeometryPrimitive)
 	state := ctx.State.(*glPrimitiveState)
 
