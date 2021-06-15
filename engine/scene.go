@@ -495,7 +495,7 @@ func (o *SceneObject) stop() {
 
 func (o *SceneObject) draw(ctx DrawingContext) {
 	for _, c := range o.renderingComponents {
-		if !c.enabled || !c.initialized {
+		if c.IsDirty() || !c.started {
 			continue
 		}
 
