@@ -266,6 +266,7 @@ func makeRect(name string, x, y, sx, sy float32, fill a.Color) *engine.SceneObje
 
 	view := builtin.NewShapeView(builtin.ShapeRectangle)
 	view.FillColor = fill
+	view.CornerRadius = 10
 
 	rect.AddComponent(view)
 
@@ -517,16 +518,20 @@ func treeScene(e *engine.AmphionEngine) *engine.SceneObject {
 	rect := engine.NewSceneObject("rect")
 	rectView := builtin.NewShapeView(builtin.ShapeRectangle)
 	rectView.FillColor = a.NewColor(0, 69, 0)
+	rectView.CornerRadius = 100
 	rect.AddComponent(rectView)
-	rect.SetSizeXy(100, 100)
+	rect.SetSizeXy(120, 120)
 	rect.AddComponent(builtin.NewMouseMover())
 	rect.AddComponent(builtin.NewRectBoundary())
 
 	rectInside := engine.NewSceneObject("rect inside")
 	rectInsideView := builtin.NewShapeView(builtin.ShapeRectangle)
 	rectInsideView.FillColor = a.NewColor(69, 0, 0)
+	rectInsideView.CornerRadius = 5
 	rectInside.AddComponent(rectInsideView)
 	rectInside.SetSizeXy(50, 50)
+	rectInside.SetPositionXy(a.CenterInParent, a.CenterInParent)
+	rectInside.Transform.Pivot = a.NewVector3(0.5, 0.5, 0.5)
 
 	scene.AddChild(rect)
 	rect.AddChild(rectInside)
