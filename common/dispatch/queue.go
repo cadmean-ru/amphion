@@ -25,10 +25,6 @@ func (q *MessageQueue) Enqueue(message *Message) {
 		return
 	}
 
-	//if message.What == MessageRender && q.hasRenderMessage {
-	//	return
-	//}
-
 	if q.locked {
 		select {
 		case q.secMessageChan <- message:
