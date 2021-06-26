@@ -134,7 +134,18 @@ func (f *Frontend) mouseButtonCallback(w *glfw.Window, button glfw.MouseButton, 
 	var callback *dispatch.Message
 
 	mouseX, mouseY := w.GetCursorPos()
-	data := fmt.Sprintf("%d;%d", int(math.Floor(mouseX)), int(math.Floor(mouseY)))
+
+	var b byte
+	switch button {
+	case glfw.MouseButtonLeft:
+		b = 0
+	case glfw.MouseButtonRight:
+		b = 1
+	case glfw.MouseButtonMiddle:
+		b = 2
+	}
+
+	data := fmt.Sprintf("%d;%d;%d", int(math.Floor(mouseX)), int(math.Floor(mouseY)), b)
 
 	switch button {
 	case glfw.MouseButton1:
@@ -198,10 +209,6 @@ func (f *Frontend) scrollCallback(_ *glfw.Window, xoff float64, yoff float64) {
 
 func (f *Frontend) Stop() {
 	f.renderer.Stop()
-}
-
-func (f *Frontend) SetCallback(handler frontend.CallbackHandler) {
-
 }
 
 func (f *Frontend) SetEngineDispatcher(disp dispatch.MessageDispatcher) {

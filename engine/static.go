@@ -46,7 +46,7 @@ func LoadPrefab(resId a.ResId) (*SceneObject, error) {
 }
 
 // RunTask - shortcut for (engine *AmphionEngine) RunTask(task Task).
-func RunTask(task Task) {
+func RunTask(task *Task) {
 	instance.RunTask(task)
 }
 

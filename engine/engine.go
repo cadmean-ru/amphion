@@ -381,8 +381,9 @@ func (engine *AmphionEngine) GetStateString() string {
 func (engine *AmphionEngine) handleStop() {
 	if engine.currentScene != nil {
 		engine.logger.Info(engine, "Unable to stop. Scene is showing. Closing scene and retrying.")
-		engine.CloseScene(engine.closeSceneCallback)
-		engine.Stop()
+		engine.CloseScene(func() {
+			engine.handleStop()
+		})
 		return
 	}
 
@@ -391,8 +392,8 @@ func (engine *AmphionEngine) handleStop() {
 	engine.state = StateStopped
 
 	engine.updateRoutine.close()
-
 	engine.renderer.Stop()
+	engine.tasksRoutine.stop()
 
 	engine.logger.Info(engine, "Amphion stopped")
 
@@ -402,64 +403,6 @@ func (engine *AmphionEngine) handleStop() {
 
 func (engine *AmphionEngine) canStop() bool {
 	return engine.currentScene == nil
-}
-
-func (engine *AmphionEngine) handleClickEvent(clickPos a.IntVector2, code int) {
-	if engine.currentScene == nil {
-		return
-	}
-
-	candidates := make([]*SceneObject, 0, 1)
-
-	engine.currentScene.ForEachObject(func(o *SceneObject) {
-		if o.HasViews() && o.HasBoundary() && o.IsPointInsideBoundaries2D(a.NewVector3(float32(clickPos.X), float32(clickPos.Y), 0)) {
-			candidates = append(candidates, o)
-		}
-	})
-
-	if len(candidates) > 0 {
-		sort.Slice(candidates, func(i, j int) bool {
-			return candidates[i].Transform.GetGlobalPosition().Z > candidates[j].Transform.GetGlobalPosition().Z
-		})
-		o := candidates[0]
-
-		if engine.sceneContext.focusedObject != nil {
-			engine.messageDispatcher.DispatchDirectly(
-				engine.sceneContext.focusedObject,
-				NewMessage(
-					engine.sceneContext.focusedObject,
-					MessageBuiltinEvent,
-					NewAmphionEvent(engine.sceneContext.focusedObject, EventFocusLoose, nil),
-				),
-			)
-		}
-		engine.messageDispatcher.DispatchDirectly(o, NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, code, clickPos)))
-		engine.sceneContext.focusedObject = o
-		engine.messageDispatcher.DispatchDirectly(o, NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, EventFocusGain, nil)))
-
-		event := NewAmphionEvent(engine, code, MouseEventData{
-			MousePosition: clickPos,
-			SceneObject:   o,
-		})
-		engine.updateRoutine.enqueueEventAndRequestUpdate(event)
-	} else {
-		if engine.sceneContext.focusedObject != nil {
-			engine.messageDispatcher.DispatchDirectly(
-				engine.sceneContext.focusedObject,
-				NewMessage(
-					engine.sceneContext.focusedObject,
-					MessageBuiltinEvent,
-					NewAmphionEvent(engine.sceneContext.focusedObject, EventFocusLoose, nil),
-				),
-			)
-		}
-		engine.sceneContext.focusedObject = nil
-		event := NewAmphionEvent(engine, code, MouseEventData{
-			MousePosition: clickPos,
-			SceneObject:   nil,
-		})
-		engine.updateRoutine.enqueueEventAndRequestUpdate(event)
-	}
 }
 
 func (engine *AmphionEngine) handleMouseMove(mousePos a.IntVector2) {
@@ -541,7 +484,7 @@ func (engine *AmphionEngine) GetTasksRoutine() *TasksRoutine {
 }
 
 // Runs the given task in the background goroutine.
-func (engine *AmphionEngine) RunTask(task Task) {
+func (engine *AmphionEngine) RunTask(task *Task) {
 	engine.tasksRoutine.RunTask(task)
 }
 

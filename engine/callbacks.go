@@ -20,30 +20,27 @@ func (c *frontendCallbackHandler) SendMessage(message *dispatch.Message) {
 }
 
 func handleMouseDown(callback *dispatch.Message) {
-	pos := parseCursorPositionData(callback.StrData)
-	instance.inputManager.reportCursorPosition(pos)
+	mouseData := parseMouseEventData(callback.StrData)
+	instance.inputManager.reportCursorPosition(mouseData.MousePosition)
 	var eventCode int
 	if callback.What == frontend.CallbackMouseDown {
 		eventCode = EventMouseDown
 	} else {
 		eventCode = EventTouchDown
 	}
-	instance.handleClickEvent(pos, eventCode)
+	instance.handleClickEvent(mouseData, eventCode)
 }
 
 func handleMouseUp(callback *dispatch.Message) {
-	pos := parseCursorPositionData(callback.StrData)
-	instance.inputManager.reportCursorPosition(pos)
+	mouseData := parseMouseEventData(callback.StrData)
+	instance.inputManager.reportCursorPosition(mouseData.MousePosition)
 	var eventCode int
 	if callback.What == frontend.CallbackMouseUp {
 		eventCode = EventMouseUp
 	} else {
 		eventCode = EventTouchUp
 	}
-	event := NewAmphionEvent(instance, eventCode, MouseEventData{
-		MousePosition: pos,
-		SceneObject:   nil,
-	})
+	event := NewAmphionEvent(instance, eventCode, mouseData)
 	instance.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 
@@ -79,6 +76,31 @@ func parseCursorPositionData(data string) a.IntVector2 {
 	}
 	return a.NewIntVector2(int(x), int(y))
 }
+
+func parseMouseEventData(data string) MouseEventData {
+	coords := strings.Split(data, ";")
+	if len(coords) != 3 {
+		panic("Invalid click callback Data")
+	}
+	x, err := strconv.ParseInt(coords[0], 10, 32)
+	if err != nil {
+		panic("Invalid click callback Data")
+	}
+	y, err := strconv.ParseInt(coords[1], 10, 32)
+	if err != nil {
+		panic("Invalid click callback Data")
+	}
+	pos := a.NewIntVector2(int(x), int(y))
+	b, err := strconv.ParseInt(coords[2], 10, 8)
+	if err != nil {
+		panic("Invalid click callback Data")
+	}
+	return MouseEventData{
+		MousePosition: pos,
+		MouseButton:   MouseButton(b),
+	}
+}
+
 
 func handleContextChange(_ *dispatch.Message) {
 	instance.globalContext = instance.front.GetContext()

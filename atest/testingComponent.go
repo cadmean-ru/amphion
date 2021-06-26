@@ -6,7 +6,7 @@ package atest
 
 import "github.com/cadmean-ru/amphion/engine"
 
-// Component for running testing code in scene.
+// TestingComponent is a component for running testing code in scene.
 // It calls the specified delegate in OnStart method.
 type TestingComponent struct {
 	engine.ComponentImpl

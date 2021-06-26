@@ -1,7 +1,3 @@
-// +build linux windows darwin
-// +build !android
-// +build !ios
-
 package atest
 
 import (
@@ -24,6 +20,8 @@ func RunEngineTest(t *testing.T, delegate TestingDelegate) {
 	front.Init()
 
 	eng = engine.Initialize(front)
+
+	front.Run()
 
 	eng.Start()
 
@@ -64,6 +62,7 @@ func MakeTestScene(delegate TestingDelegate) (*engine.SceneObject, *engine.Scene
 	testObject := engine.NewSceneObject("test object")
 	testObject.Transform.Position = a.NewVector3(a.CenterInParent, a.CenterInParent, a.CenterInParent)
 	testObject.Transform.Size = a.NewVector3(100, 100, 100)
+	testObject.Transform.Pivot = a.NewVector3(0.5, 0.5, 0.5)
 	testObject.AddComponent(NewTestingComponent(delegate))
 
 	scene.AddChild(testObject)
@@ -77,16 +76,16 @@ func SimulateCallback(code int, data string) {
 }
 
 // SimulateClick simulates user's click at the specified position on the screen.
-func SimulateClick(x, y int) {
-	instance.simulateClick(x, y)
+func SimulateClick(x, y int, button engine.MouseButton) {
+	instance.simulateClick(x, y, button)
 }
 
 // SimulateClickOnObject simulates user's click in the center of the specified object.
-func SimulateClickOnObject(o *engine.SceneObject) {
+func SimulateClickOnObject(o *engine.SceneObject, button engine.MouseButton) {
 	rect := o.Transform.GetGlobalRect()
 	x := int(rect.X.Min + rect.X.GetLength() / 2)
 	y := int(rect.Y.Min + rect.Y.GetLength() / 2)
-	SimulateClick(x, y)
+	SimulateClick(x, y, button)
 }
 
 // Blocks the calling goroutine until the engine is stopped.

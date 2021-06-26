@@ -25,9 +25,9 @@ func TestFocusEvent(t *testing.T) {
 			return true
 		}))
 	}, func(e *engine.AmphionEngine, testScene, testObject *engine.SceneObject) {
-		atest.SimulateClickOnObject(testObject)
+		atest.SimulateClickOnObject(testObject, engine.MouseLeft)
 		time.Sleep(1 * time.Second)
-		atest.SimulateClick(0, 0)
+		atest.SimulateClick(0, 0, engine.MouseLeft)
 		atest.Stop()
 	})
 
@@ -35,4 +35,24 @@ func TestFocusEvent(t *testing.T) {
 
 	assert.True(t, gained)
 	assert.True(t, lost)
+}
+
+func TestClickEvent(t *testing.T) {
+	var clicked bool
+	atest.RunEngineTestWithScene(t, func(e *engine.AmphionEngine, testScene, testObject *engine.SceneObject) {
+		testObject.AddComponent(NewRectBoundary())
+		testObject.AddComponent(NewEventListener(engine.EventMouseDown, func(event engine.AmphionEvent) bool {
+			engine.LogInfo("Clicked")
+			clicked = true
+			atest.Stop()
+			return true
+		}))
+	}, func(e *engine.AmphionEngine, testScene, testObject *engine.SceneObject) {
+		atest.SimulateClickOnObject(testObject, engine.MouseLeft)
+
+	})
+
+	atest.WaitForStop()
+
+	assert.True(t, clicked)
 }

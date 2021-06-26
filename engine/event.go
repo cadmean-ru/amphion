@@ -45,7 +45,7 @@ func NewAmphionEvent(from interface{}, code int, data interface{}) AmphionEvent 
 	}
 }
 
-// Function, that handles event. Returns whether to continue event propagation or not.
+// EventHandler handles event. Returns whether to continue event propagation or not.
 type EventHandler func(event AmphionEvent) bool
 
 type EventBinder struct {
