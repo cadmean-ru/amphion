@@ -29,28 +29,43 @@ void main() {
     vec2 bl = vec2(tl.x, br.y);
     vec2 tr = vec2(br.x, tl.y);
 
-    if (isInsideRect(pos2d, tl, tl + vec2(fCornerRadius, -fCornerRadius))) {
-        if (!isInsideCircle(pos2d, tl + vec2(fCornerRadius, -fCornerRadius), fCornerRadius)) {
+    float cr = min(min(size.x/2, size.y/2), fCornerRadius);
+    float cr2 = cr - fStrokeWeight;
+
+    if (isInsideRect(pos2d, tl, tl + vec2(cr, -cr))) {
+        if (!isInsideCircle(pos2d, tl + vec2(cr, -cr), cr)) {
             discard;
+        } else if (!isInsideCircle(pos2d, tl + vec2(cr, -cr), cr2)) {
+            resultColor = fStrokeColor;
+            return;
         }
     }
-    if (isInsideRect(pos2d, tr - vec2(fCornerRadius, 0), tr - vec2(0, fCornerRadius))) {
-        if (!isInsideCircle(pos2d, tr - vec2(fCornerRadius), fCornerRadius)) {
+    if (isInsideRect(pos2d, tr - vec2(cr, 0), tr - vec2(0, cr))) {
+        if (!isInsideCircle(pos2d, tr - vec2(cr), cr)) {
             discard;
+        } else if (!isInsideCircle(pos2d, tr - vec2(cr), cr2)) {
+            resultColor = fStrokeColor;
+            return;
         }
     }
-    if (isInsideRect(pos2d, bl + vec2(0, fCornerRadius), bl + vec2(fCornerRadius, 0))) {
-        if (!isInsideCircle(pos2d, bl + vec2(fCornerRadius), fCornerRadius)) {
+    if (isInsideRect(pos2d, bl + vec2(0, cr), bl + vec2(cr, 0))) {
+        if (!isInsideCircle(pos2d, bl + vec2(cr), cr)) {
             discard;
+        } else if (!isInsideCircle(pos2d, bl + vec2(cr), cr2)) {
+            resultColor = fStrokeColor;
+            return;
         }
     }
-    if (isInsideRect(pos2d, br - vec2(fCornerRadius, -fCornerRadius), br)) {
-        if (!isInsideCircle(pos2d, br - vec2(fCornerRadius, -fCornerRadius), fCornerRadius)) {
+    if (isInsideRect(pos2d, br - vec2(cr, -cr), br)) {
+        if (!isInsideCircle(pos2d, br - vec2(cr, -cr), cr)) {
             discard;
+        } else if (!isInsideCircle(pos2d, br - vec2(cr, -cr), cr2)) {
+            resultColor = fStrokeColor;
+            return;
         }
     }
 
-    if (isInsideRect(pos2d, tl + vec2(fStrokeWeight), br - vec2(fStrokeWeight))) {
+    if (isInsideRect(pos2d, tl + vec2(fStrokeWeight, -fStrokeWeight), br - vec2(fStrokeWeight, -fStrokeWeight))) {
         resultColor = fFillColor;
     } else {
         resultColor = fStrokeColor;
