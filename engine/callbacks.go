@@ -114,10 +114,23 @@ func handleKeyDown(callback *dispatch.Message) {
 	if len(tokens) != 2 {
 		panic("Invalid key down callback Data")
 	}
-	event := NewAmphionEvent(instance, EventKeyDown, KeyEvent{
+	var code int
+	if callback.What == frontend.CallbackKeyDown {
+		code = EventKeyDown
+	} else {
+		code = EventKeyUp
+	}
+	event := NewAmphionEvent(instance, code, KeyEvent{
 		Key:  tokens[0],
 		Code: tokens[1],
 	})
+	instance.updateRoutine.enqueueEventAndRequestUpdate(event)
+}
+
+func handleRuneInput(callback *dispatch.Message) {
+	instance.logger.Info(instance, fmt.Sprintf("Input rune callback: %v", callback.StrData))
+	r := []rune(callback.StrData)[0]
+	event := NewAmphionEvent(instance, EventRuneInput, r)
 	instance.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 
@@ -161,6 +174,8 @@ func newFrontendCallbackHandler() dispatch.MessageDispatcher {
 			frontend.CallbackAppShow: handleAppShow,
 			frontend.CallbackMouseScroll: handleMouseScroll,
 			frontend.CallbackReady: handleFrontendReady,
+			frontend.CallbackKeyUp: handleKeyDown, //TODO: create handlers
+			frontend.CallbackRuneInput: handleRuneInput,
 		},
 	}
 }

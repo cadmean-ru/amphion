@@ -28,7 +28,9 @@ const (
 	EventMouseScroll = -21
 	EventTouchDown   = -22
 	EventTouchUp     = -23
-	EventTouchMove     = -24
+	EventTouchMove   = -24
+	EventKeyUp       = -25
+	EventRuneInput   = -26
 )
 
 type AmphionEvent struct {

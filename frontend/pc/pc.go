@@ -56,6 +56,7 @@ func (f *Frontend) Init() {
 	f.window.SetRefreshCallback(f.windowRefreshCallback)
 	f.window.SetCursorPosCallback(f.cursorPosCallback)
 	f.window.SetScrollCallback(f.scrollCallback)
+	f.window.SetCharCallback(f.charCallback)
 
 	f.context.ScreenInfo = common.NewScreenInfo(f.wSize.X, f.wSize.Y)
 
@@ -161,19 +162,6 @@ func (f *Frontend) mouseButtonCallback(w *glfw.Window, button glfw.MouseButton, 
 	}
 
 	f.disp.SendMessage(callback)
-}
-
-func (f *Frontend) keyCallback(_ *glfw.Window, key glfw.Key, scancode int, action glfw.Action, _ glfw.ModifierKey) {
-	keyName := glfw.GetKeyName(key, scancode)
-	data := fmt.Sprintf("%s\n", keyName)
-	var code int
-
-	switch action {
-	case glfw.Press:
-		code = frontend.CallbackKeyDown
-	}
-
-	f.disp.SendMessage(dispatch.NewMessageWithStringData(code, data))
 }
 
 func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, width int, height int) {
