@@ -56,7 +56,6 @@ func handleMouseMove(callback *dispatch.Message) {
 	}
 	event := NewAmphionEvent(instance, eventCode, MouseEventData{
 		MousePosition: pos,
-		SceneObject:   nil,
 	})
 	instance.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
@@ -101,7 +100,6 @@ func parseMouseEventData(data string) MouseEventData {
 	}
 }
 
-
 func handleContextChange(_ *dispatch.Message) {
 	instance.globalContext = instance.front.GetContext()
 	instance.configureScene(instance.currentScene)
@@ -110,27 +108,20 @@ func handleContextChange(_ *dispatch.Message) {
 }
 
 func handleKeyDown(callback *dispatch.Message) {
-	tokens := strings.Split(callback.StrData, "\n")
-	if len(tokens) != 2 {
-		panic("Invalid key down callback Data")
-	}
 	var code int
 	if callback.What == frontend.CallbackKeyDown {
 		code = EventKeyDown
+		instance.inputManager.reportKeyPressed(KeyName(callback.StrData))
 	} else {
 		code = EventKeyUp
+		instance.inputManager.reportKeyReleased(KeyName(callback.StrData))
 	}
-	event := NewAmphionEvent(instance, code, KeyEvent{
-		Key:  tokens[0],
-		Code: tokens[1],
-	})
+	event := NewAmphionEvent(instance, code, callback.StrData)
 	instance.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 
 func handleRuneInput(callback *dispatch.Message) {
-	instance.logger.Info(instance, fmt.Sprintf("Input rune callback: %v", callback.StrData))
-	r := []rune(callback.StrData)[0]
-	event := NewAmphionEvent(instance, EventRuneInput, r)
+	event := NewAmphionEvent(instance, EventTextInput, callback.StrData)
 	instance.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 
@@ -174,8 +165,8 @@ func newFrontendCallbackHandler() dispatch.MessageDispatcher {
 			frontend.CallbackAppShow: handleAppShow,
 			frontend.CallbackMouseScroll: handleMouseScroll,
 			frontend.CallbackReady: handleFrontendReady,
-			frontend.CallbackKeyUp: handleKeyDown, //TODO: create handlers
-			frontend.CallbackRuneInput: handleRuneInput,
+			frontend.CallbackKeyUp: handleKeyDown,
+			frontend.CallbackTextInput: handleRuneInput,
 		},
 	}
 }

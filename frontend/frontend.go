@@ -59,7 +59,7 @@ const (
 	CallbackTouchMove     = -110
 	CallbackReady         = -111
 	CallbackKeyUp         = -112
-	CallbackRuneInput     = -113
+	CallbackTextInput     = -113
 )
 
 //Deprecated: use dispatch.Message instead

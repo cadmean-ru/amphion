@@ -5,9 +5,13 @@ import (
 )
 
 const (
+	//Deprecated
 	EventUpdate      = -1
+	//Deprecated
 	EventRender      = -2
+	//Deprecated
 	EventCloseScene  = -3
+
 	EventMouseDown   = -4
 	EventDoubleClick = -5
 	EventNavigate    = -6
@@ -30,13 +34,21 @@ const (
 	EventTouchUp     = -23
 	EventTouchMove   = -24
 	EventKeyUp       = -25
-	EventRuneInput   = -26
+	EventTextInput   = -26
 )
 
 type AmphionEvent struct {
 	Sender interface{}
 	Code   int
 	Data   interface{}
+}
+
+func (e AmphionEvent) StringData() string {
+	return e.Data.(string)
+}
+
+func (e AmphionEvent) MouseEventData() MouseEventData {
+	return e.Data.(MouseEventData)
 }
 
 func NewAmphionEvent(from interface{}, code int, data interface{}) AmphionEvent {
@@ -103,7 +115,8 @@ func newEventBinder() *EventBinder {
 	}
 }
 
-type KeyEvent struct {
+//Deprecated
+type KeyEventData struct {
 	Key, Code string
 }
 

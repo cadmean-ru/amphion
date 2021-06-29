@@ -42,7 +42,9 @@ func (f *Frontend) Init() {
 		e := args[0]
 		x := e.Get("pageX").Int()
 		y := e.Get("pageY").Int()
-		f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackMouseDown, fmt.Sprintf("%d;%d", x, y)))
+		b := e.Get("button").Int()
+
+		f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackMouseDown, fmt.Sprintf("%d;%d;%d", x, y, b+1)))
 		return nil
 	}))
 
@@ -50,7 +52,9 @@ func (f *Frontend) Init() {
 		e := args[0]
 		x := e.Get("pageX").Int()
 		y := e.Get("pageY").Int()
-		f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackMouseUp, fmt.Sprintf("%d;%d", x, y)))
+		b := e.Get("button").Int()
+
+		f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackMouseUp, fmt.Sprintf("%d;%d;%d", x, y, b+1)))
 		return nil
 	}))
 
@@ -58,8 +62,25 @@ func (f *Frontend) Init() {
 		e := args[0]
 		key := e.Get("key").String()
 		code := e.Get("code").String()
+		//fmt.Println(code, key)
 
-		f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackKeyDown, fmt.Sprintf("%s\n%s", key, code)))
+		name := getKeyName(code)
+
+		f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackKeyDown, name))
+		if len([]rune(key)) == 1 {
+			f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackTextInput, key))
+		}
+		return nil
+	}))
+
+	js.Global().Get("document").Set("onkeyup", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		e := args[0]
+		code := e.Get("code").String()
+		//fmt.Println(code)
+
+		name := getKeyName(code)
+
+		f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackKeyUp, name))
 		return nil
 	}))
 

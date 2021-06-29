@@ -170,7 +170,7 @@ func (engine *AmphionEngine) LoadScene(scene a.ResId, show bool) {
 			engine.SwapScenes()
 		}
 	}).Err(func(err error) {
-		engine.logger.Error(engine, fmt.Sprintf("Error loading scene with id %d: %e", scene, err))
+		engine.logger.Error(engine, fmt.Sprintf("Error loading scene with id %d: %v", scene, err))
 	}).Build())
 }
 

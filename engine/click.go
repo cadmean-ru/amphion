@@ -8,9 +8,12 @@ import (
 type MouseButton byte
 
 const (
-	MouseLeft MouseButton = iota
+	MouseUnknown MouseButton = iota
+	MouseLeft
 	MouseRight
 	MouseMiddle
+	MouseBack
+	MouseForward
 )
 
 // MouseEventData represents the data of mouse related event.

@@ -139,26 +139,23 @@ func (f *Frontend) mouseButtonCallback(w *glfw.Window, button glfw.MouseButton, 
 	var b byte
 	switch button {
 	case glfw.MouseButtonLeft:
-		b = 0
-	case glfw.MouseButtonRight:
 		b = 1
-	case glfw.MouseButtonMiddle:
+	case glfw.MouseButtonRight:
 		b = 2
+	case glfw.MouseButtonMiddle:
+		b = 3
 	}
 
 	data := fmt.Sprintf("%d;%d;%d", int(math.Floor(mouseX)), int(math.Floor(mouseY)), b)
 
-	switch button {
-	case glfw.MouseButton1:
-		switch action {
-		case glfw.Press:
-			callback = dispatch.NewMessageWithStringData(frontend.CallbackMouseDown, data)
-		case glfw.Release:
-			callback = dispatch.NewMessageWithStringData(frontend.CallbackMouseUp, data)
-		default:
-			fmt.Printf("Wthat: %d", action)
-			return
-		}
+	switch action {
+	case glfw.Press:
+		callback = dispatch.NewMessageWithStringData(frontend.CallbackMouseDown, data)
+	case glfw.Release:
+		callback = dispatch.NewMessageWithStringData(frontend.CallbackMouseUp, data)
+	default:
+		fmt.Printf("Wthat: %d", action)
+		return
 	}
 
 	f.disp.SendMessage(callback)

@@ -65,7 +65,7 @@ func (z *FileDropZone) OnStart() {
 	z.style.Set("display", "block")
 }
 
-func (z *FileDropZone) OnDraw(_ rendering.Context) {
+func (z *FileDropZone) OnDraw(_ engine.DrawingContext) {
 	t := z.SceneObject.Transform.ToRenderingTransform()
 	z.style.Set("left", t.Position.X)
 	z.style.Set("top", t.Position.Y)
