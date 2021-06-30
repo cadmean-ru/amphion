@@ -1,7 +1,6 @@
 package pc
 
 import (
-	"fmt"
 	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend"
@@ -39,7 +38,6 @@ var keyNames = map[glfw.Key]engine.KeyName{
 
 func (f *Frontend) keyCallback(_ *glfw.Window, key glfw.Key, scancode int, action glfw.Action, _ glfw.ModifierKey) {
 	keyName := findKeyName(key, scancode)
-	data := fmt.Sprintf("%s\n%s", keyName, "")
 
 	var code int
 	switch action {
@@ -49,7 +47,7 @@ func (f *Frontend) keyCallback(_ *glfw.Window, key glfw.Key, scancode int, actio
 		code = frontend.CallbackKeyUp
 	}
 
-	f.disp.SendMessage(dispatch.NewMessageWithStringData(code, data))
+	f.disp.SendMessage(dispatch.NewMessageWithStringData(code, keyName))
 }
 
 func findKeyName(key glfw.Key, scancode int) string {
