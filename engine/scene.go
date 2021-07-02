@@ -10,7 +10,7 @@ import (
 	"reflect"
 )
 
-// An object in the scene. The scene itself is also a SceneObject.
+// SceneObject is an object in the scene. The scene itself is also a SceneObject.
 type SceneObject struct {
 	id                  int
 	name                string
@@ -43,12 +43,12 @@ func (o *SceneObject) GetId() int {
 	return o.id
 }
 
-// Returns the string representation of the scene object.
+// ToString returns the string representation of the scene object.
 func (o *SceneObject) ToString() string {
 	return o.name
 }
 
-// For GoLand debugging.
+// DebugString return string for debugging.
 func (o *SceneObject) DebugString() string {
 	return o.ToString()
 }
@@ -80,6 +80,13 @@ func (o *SceneObject) AddChild(object *SceneObject) {
 		instance.rebuildMessageTree()
 		instance.RequestRendering()
 	}
+}
+
+//AddNewChild creates a new scene object with the given name and adds it as a child to the current object.
+func (o *SceneObject) AddNewChild(name string) *SceneObject {
+	obj := NewSceneObject(name)
+	o.AddChild(obj)
+	return obj
 }
 
 //RemoveChild removes the specified child from this scene object.
@@ -129,6 +136,16 @@ func (o *SceneObject) GetChildren() []*SceneObject {
 	return c
 }
 
+//GetChildAt returns the child scene object at the given index.
+//If there is no child with that index returns nil.
+func (o *SceneObject) GetChildAt(index int) *SceneObject {
+	if index >= 0 && index < len(o.children) {
+		return o.children[index]
+	} else {
+		return nil
+	}
+}
+
 //GetChildrenCount returns the number of children of this object.
 func (o *SceneObject) GetChildrenCount() int {
 	return len(o.children)
@@ -147,7 +164,8 @@ func (o *SceneObject) GetChildByName(name string) *SceneObject {
 }
 
 //AddComponent adds a component to this scene object.
-func (o *SceneObject) AddComponent(component Component) {
+//Returns the given component.
+func (o *SceneObject) AddComponent(component Component) Component {
 	container := NewComponentContainer(o, component)
 	o.components = append(o.components, container)
 
@@ -171,6 +189,8 @@ func (o *SceneObject) AddComponent(component Component) {
 		instance.updateRoutine.initSceneObject(o)
 		instance.RequestRendering()
 	}
+
+	return component
 }
 
 // GetComponentByName searches for component with the specified name throughout the components attached to this object.
@@ -369,38 +389,39 @@ func (o *SceneObject) IsEnabled() bool {
 	return o.enabled
 }
 
-// Set the position of this object equal to the specified vector, requesting rendering.
+// SetPosition sets the position of this object equal to the specified vector, requesting rendering.
 func (o *SceneObject) SetPosition(v a.Vector3) {
 	o.Transform.Position = v
 	o.Redraw()
 }
 
-// Set the position of this object equal to a new vector with specified coordinates, requesting rendering.
+// SetPositionXyz sets the position of this object equal to a new vector with specified coordinates, requesting rendering.
 func (o *SceneObject) SetPositionXyz(x, y, z float32) {
 	o.SetPosition(a.NewVector3(x, y, z))
 }
 
+//SetPositionXy sets the position of this object equal to a new vector with specified coordinates, requesting rendering.
 func (o *SceneObject) SetPositionXy(x, y float32) {
 	o.SetPosition(a.NewVector3(x, y, o.Transform.Position.Z))
 }
 
-// Set the size of this object equal to the specified vector, requesting rendering.
+// SetSize Set the size of this object equal to the specified vector, requesting rendering.
 func (o *SceneObject) SetSize(v a.Vector3) {
 	o.Transform.Size = v
 	o.Redraw()
 }
 
-// Set the size of this object equal to a new vector with specified coordinates, requesting rendering.
+// SetSizeXyz Set the size of this object equal to a new vector with specified coordinates, requesting rendering.
 func (o *SceneObject) SetSizeXyz(x, y, z float32) {
 	o.SetSize(a.NewVector3(x, y, z))
 }
 
-// Set the size of this object equal to a new vector with specified coordinates, requesting rendering.
+// SetSizeXy Set the size of this object equal to a new vector with specified coordinates, requesting rendering.
 func (o *SceneObject) SetSizeXy(x, y float32) {
 	o.SetSize(a.NewVector3(x, y, o.Transform.Size.Z))
 }
 
-// Forces all views of this object to redraw and requests rendering.
+// Redraw forces all views of this object to redraw and requests rendering.
 func (o *SceneObject) Redraw() {
 	if o.IsDirty() || !o.inCurrentScene {
 		return
