@@ -440,6 +440,13 @@ func (o *SceneObject) Redraw() {
 	instance.RequestRendering()
 }
 
+//func (o *SceneObject) Measure() a.IntVector3 {
+//	rect := common.NewRectBoundary(0, 0, 0, 0, 0, 0)
+//	for _, c := range o.children {
+//
+//	}
+//}
+
 func (o *SceneObject) OnMessage(message Message) bool {
 	if !o.enabled {
 		return true

@@ -17,7 +17,7 @@ type Transform struct {
 	parent      *Transform
 }
 
-// Creates a new transform with default values.
+// NewTransform2D creates a new transform with default values.
 func NewTransform2D(object *SceneObject) Transform {
 	return Transform{
 		Position:    a.ZeroVector(),
@@ -60,7 +60,7 @@ func (t *Transform) decodeSpecialValuesInVector(siMap a.SiMap) a.SiMap {
 	return siMap
 }
 
-// Calculates the actual local position related to this transform's parent.
+// GetLocalPosition calculates the actual local position related to this transform's parent.
 func (t Transform) GetLocalPosition() a.Vector3 {
 	var x, y, z float32
 
@@ -93,7 +93,7 @@ func (t Transform) GetLocalPosition() a.Vector3 {
 	return a.NewVector3(x, y, z)
 }
 
-// Calculates the actual global position in the scene.
+// GetGlobalPosition calculates the actual global position in the scene.
 func (t Transform) GetGlobalPosition() a.Vector3 {
 	if t.parent == nil {
 		return t.Position
@@ -102,22 +102,22 @@ func (t Transform) GetGlobalPosition() a.Vector3 {
 	return t.parent.GetGlobalPosition().Sub(t.parent.Size.Multiply(t.parent.Pivot)).Add(t.GetLocalPosition())
 }
 
-// Returns the parent transform of the current transform.
+// GetParent returns the parent transform of the current transform.
 func (t Transform) GetParent() *Transform {
 	return t.parent
 }
 
-// Calculates local position of the top left point of the bounding box.
+// GetTopLeftPosition calculates local position of the top left point of the bounding box.
 func (t Transform) GetTopLeftPosition() a.Vector3 {
 	return t.Position.Sub(t.Size.Multiply(t.Pivot))
 }
 
-// Calculates global position of the top left point of the bounding box.
+// GetGlobalTopLeftPosition calculates global position of the top left point of the bounding box.
 func (t Transform) GetGlobalTopLeftPosition() a.Vector3 {
 	return t.GetGlobalPosition().Sub(t.Size.Multiply(t.Pivot))
 }
 
-// Calculates the actual size of the Transform replacing the special values.
+// GetSize calculates the actual size of the Transform replacing the special values.
 func (t Transform) GetSize() a.Vector3 {
 	var x, y, z float32
 	var parentSize a.Vector3
@@ -153,17 +153,17 @@ func (t Transform) GetSize() a.Vector3 {
 	return a.NewVector3(x, y, z)
 }
 
-// Calculates local rect of this transform.
+// GetRect calculates local rect of this transform.
 func (t Transform) GetRect() *common.RectBoundary {
 	return t.calculateRect(a.ZeroVector())
 }
 
-// Calculates global rect of this transform.
+// GetGlobalRect calculates global rect of this transform.
 func (t Transform) GetGlobalRect() *common.RectBoundary {
 	return t.calculateRect(t.GetGlobalTopLeftPosition())
 }
 
-// Calculates a transform that is ready to be rendered on screen with all absolute values in pixels calculated.
+// ToRenderingTransform calculates a transform that is ready to be rendered on screen with all absolute values in pixels calculated.
 func (t *Transform) ToRenderingTransform() rendering.Transform {
 	rt := rendering.NewTransform()
 

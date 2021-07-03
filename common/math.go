@@ -1,6 +1,6 @@
 package common
 
-// Limits the x value between min and max values.
+// ClampFloat32 limits the x value between min and max values.
 func ClampFloat32(x, min, max float32) float32 {
 	if x < min {
 		return min
@@ -11,7 +11,7 @@ func ClampFloat32(x, min, max float32) float32 {
 	}
 }
 
-// Limits the x value between min and max values.
+// ClampFloat64 limits the x value between min and max values.
 func ClampFloat64(x, min, max float64) float64 {
 	if x < min {
 		return min
@@ -22,7 +22,7 @@ func ClampFloat64(x, min, max float64) float64 {
 	}
 }
 
-// Limits the x value between min and max values.
+// ClampInt limits the x value between min and max values.
 func ClampInt(x, min, max int) int {
 	if x < min {
 		return min
@@ -31,4 +31,22 @@ func ClampInt(x, min, max int) int {
 	} else {
 		return x
 	}
+}
+
+//MaxFloat32 returns the maximum of two floats.
+func MaxFloat32(a, b float32) float32 {
+	if b > a {
+		return b
+	}
+
+	return a
+}
+
+//MinFloat32 returns the minimum of two floats.
+func MinFloat32(a, b float32) float32 {
+	if b < a {
+		return b
+	}
+
+	return a
 }
