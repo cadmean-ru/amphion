@@ -277,12 +277,13 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("grid scene")
 
 	grid := builtin.NewGridLayout()
-	grid.AddColumn(50)
+	grid.AddColumn(100)
 	grid.AddColumn(a.FillParent)
 	grid.AddColumn(100)
-	grid.ChildrenSizeFit = true
-	//grid.RowPadding = 10
-	//grid.ColPadding = 50
+	grid.AddRow(a.WrapContent)
+	//grid.ChildrenSizeFit = true
+	grid.RowPadding = 10
+	grid.ColumnPadding = 20
 	scene.AddComponent(grid)
 
 	//var counter int

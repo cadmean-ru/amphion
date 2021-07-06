@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/require"
 	"reflect"
@@ -52,6 +53,7 @@ func (m *ComponentsManager) MakeComponent(name string) Component {
 	}
 
 	if !found {
+		instance.logger.Warning(m, fmt.Sprintf("Component \"name\" was not found!"))
 		return nil
 	}
 
@@ -172,6 +174,8 @@ func (m *ComponentsManager) setReflectValue(vf reflect.Value, value interface{})
 	switch vf.Kind() {
 	case reflect.Int, reflect.Int32, reflect.Int64, reflect.Uint8, reflect.Float32, reflect.Float64:
 		newValue = m.setReflectNumberValue(vf, value)
+	case reflect.Bool:
+		newValue = m.setReflectBoolValue(vf, value)
 	case reflect.String:
 		newValue = m.setReflectStringValue(vf, value)
 	case reflect.Struct:
@@ -215,6 +219,10 @@ func (m *ComponentsManager) setReflectNumberValue(vf reflect.Value, value interf
 	}
 
 	return newValue
+}
+
+func (m *ComponentsManager) setReflectBoolValue(_ reflect.Value, value interface{}) reflect.Value {
+	return reflect.ValueOf(require.Bool(value))
 }
 
 func (m *ComponentsManager) setReflectStringValue(_ reflect.Value, value interface{}) reflect.Value {

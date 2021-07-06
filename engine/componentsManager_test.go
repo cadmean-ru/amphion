@@ -10,6 +10,7 @@ import (
 type SetComponentStateTestComponent struct {
 	*ComponentImpl
 	StateInt          int           `state:"stateInt"`
+	StateBool         bool          `state:"stateBool"`
 	StateResId        a.ResId       `state:"stateResId"`
 	StateTextAlign    a.TextAlign   `state:"stateTextAlign"`
 	StateString       string        `state:"stateString"`
@@ -18,7 +19,7 @@ type SetComponentStateTestComponent struct {
 	StatePtr          *a.Vector3    `state:"statePtr"`
 	StateSlice        []a.Vector3   `state:"stateSlice"`
 	StateEventHandler EventHandler  `state:"stateEventHandler"`
-	StateSpecialFloat float32       `state:"stateSpecialFloat"`
+	StateSpecialFloat float32        `state:"stateSpecialFloat"`
 	StateSpecialAlign a.TextAlign   `state:"stateSpecialAlign"`
 	StateSpecialShape byte          `state:"stateSpecialShape"`
 }
@@ -34,6 +35,7 @@ func TestComponentsManager_SetComponentState(t *testing.T) {
 
 	var state = a.SiMap{
 		"stateInt":       2,
+		"stateBool":      true,
 		"stateResId":     12,
 		"stateTextAlign": 3,
 		"stateString":    "test",
@@ -70,6 +72,7 @@ func TestComponentsManager_SetComponentState(t *testing.T) {
 	ass := assert.New(t)
 
 	ass.Equal(2, comp.StateInt)
+	ass.Equal(true, comp.StateBool)
 	ass.Equal(a.ResId(12), comp.StateResId)
 	ass.Equal(a.TextAlign(3), comp.StateTextAlign)
 	ass.Equal("test", comp.StateString)
@@ -88,6 +91,7 @@ func TestComponentsManager_SetComponentState(t *testing.T) {
 
 func TestComponentsManager_GetComponentState(t *testing.T) {
 	var comp = &SetComponentStateTestComponent{
+		StateBool: true,
 		StateUnstringable: a.NewColor("#696969"),
 		StateUnmappable:   a.NewVector3(69, 69, 69),
 	}
@@ -99,6 +103,7 @@ func TestComponentsManager_GetComponentState(t *testing.T) {
 
 	ass.Equal("#696969", state.GetString("stateUnstringable"))
 	ass.Equal(float32(69), state["stateUnmappable"].(a.SiMap)["x"])
+	ass.Equal(true, state.GetBool("stateBool"))
 }
 
 func TestGetFunctionName(t *testing.T) {

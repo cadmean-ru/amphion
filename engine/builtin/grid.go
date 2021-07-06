@@ -3,6 +3,7 @@ package builtin
 import (
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/require"
 	"github.com/cadmean-ru/amphion/engine"
 	"math"
 )
@@ -10,7 +11,22 @@ import (
 type GridRowDefinition struct {
 	Height     float32
 	maxHeight  float32
-	fillHeight float32
+	fillHeight  float32
+}
+
+func (r *GridRowDefinition) ToMap() a.SiMap {
+	return a.SiMap{
+		"height": r.Height,
+	}
+}
+
+func (r *GridRowDefinition) FromMap(siMap a.SiMap) {
+	height := siMap["height"]
+	if engine.IsSpecialValueString(height) {
+		r.Height = require.Float32(engine.GetSpecialValueFromString(height))
+	} else {
+		r.Height = require.Float32(height)
+	}
 }
 
 func (r *GridRowDefinition) actualHeight() float32 {
@@ -27,7 +43,22 @@ func (r *GridRowDefinition) actualHeight() float32 {
 type GridColumnDefinition struct {
 	Width     float32
 	maxWidth  float32
-	fillWidth float32
+	fillWidth  float32
+}
+
+func (c *GridColumnDefinition) ToMap() a.SiMap {
+	return a.SiMap{
+		"width": c.Width,
+	}
+}
+
+func (c *GridColumnDefinition) FromMap(siMap a.SiMap) {
+	width := siMap["width"]
+	if engine.IsSpecialValueString(width) {
+		c.Width = require.Float32(engine.GetSpecialValueFromString(width))
+	} else {
+		c.Width = require.Float32(width)
+	}
 }
 
 func (c *GridColumnDefinition) actualWidth() float32 {
@@ -63,7 +94,8 @@ type GridLayout struct {
 	AutoExpansion   bool                   `state:"autoExpansion"`
 	AutoShrinking   bool                   `state:"autoShrinking"`
 	AutoSizeAdjust  bool                   `state:"autoSizeAdjust"`
-	ChildrenSizeFit bool                   `state:"childrenSizeFit"`
+	RowPadding      float32                 `state:"rowPadding"`
+	ColumnPadding   float32                 `state:"columnPadding"`
 	Rows            []*GridRowDefinition    `state:"rows"`
 	Columns         []*GridColumnDefinition `state:"columns"`
 }
@@ -152,6 +184,22 @@ func (l *GridLayout) SetColumnWidth(colIndex int, width float32) {
 	l.Columns[colIndex].Width = width
 
 	engine.RequestRendering()
+}
+
+//GetRows returns the slice of all row definitions.
+//Modifying the returned slice wont modify the actual rows of the grid.
+func (l *GridLayout) GetRows() []*GridRowDefinition {
+	rowsCopy := make([]*GridRowDefinition, len(l.Rows))
+	copy(rowsCopy, l.Rows)
+	return rowsCopy
+}
+
+//GetColumns returns the slice of all column definitions.
+//Modifying the returned slice wont modify the actual columns of the grid.
+func (l *GridLayout) GetColumns() []*GridColumnDefinition {
+	colsCopy := make([]*GridColumnDefinition, len(l.Columns))
+	copy(colsCopy, l.Columns)
+	return colsCopy
 }
 
 //LayoutChildren implements the engine.Layout interface.
@@ -342,19 +390,9 @@ func (l *GridLayout) layoutVertical(children []*engine.SceneObject) (x float32, 
 			}
 
 			child := children[i]
-			chSize := child.Transform.GetSize()
 			col := l.Columns[c]
 
-			if l.ChildrenSizeFit {
-				child.Transform.Size.X = col.actualWidth()
-				child.Transform.Size.Y = row.actualHeight()
-			} else {
-				child.Transform.Size.X = common.MinFloat32(chSize.X, col.actualWidth())
-				child.Transform.Size.Y = common.MinFloat32(chSize.Y, row.actualHeight())
-			}
-
-			child.Transform.Position.X = x
-			child.Transform.Position.Y = y
+			l.adjustChildTransformIfNeeded(child, row, col, x, y)
 
 			x += col.actualWidth()
 
@@ -380,19 +418,9 @@ func (l *GridLayout) layoutHorizontal(children []*engine.SceneObject) (x float32
 			}
 
 			child := children[i]
-			chSize := child.Transform.GetSize()
 			row := l.Rows[r]
 
-			if l.ChildrenSizeFit {
-				child.Transform.Size.X = col.actualWidth()
-				child.Transform.Size.Y = row.actualHeight()
-			} else {
-				child.Transform.Size.X = common.MinFloat32(chSize.X, col.actualWidth())
-				child.Transform.Size.Y = common.MinFloat32(chSize.Y, row.actualHeight())
-			}
-
-			child.Transform.Position.X = x
-			child.Transform.Position.Y = y
+			l.adjustChildTransformIfNeeded(child, row, col, x, y)
 
 			y += row.actualHeight()
 
@@ -403,6 +431,27 @@ func (l *GridLayout) layoutHorizontal(children []*engine.SceneObject) (x float32
 	}
 
 	return
+}
+
+func (l *GridLayout) adjustChildTransformIfNeeded(child *engine.SceneObject,
+	row *GridRowDefinition, col *GridColumnDefinition,
+	x, y float32) {
+
+	pos := a.NewVector3(x+l.ColumnPadding, y+l.RowPadding, l.SceneObject.Transform.Position.Z)
+	size := a.NewVector3(
+		common.MaxFloat32(col.actualWidth()-l.ColumnPadding*2, 0),
+		common.MaxFloat32(row.actualHeight()-l.RowPadding*2, 0),
+		child.Transform.Size.Z,
+	)
+
+	if child.Transform.Position.Equals(pos) && child.Transform.Size.Equals(size) {
+		return
+	}
+
+	child.Transform.Size = size
+	child.Transform.Position = pos
+
+	child.Redraw()
 }
 
 func (l *GridLayout) adjustSizeIfNeeded(x, y float32) {
