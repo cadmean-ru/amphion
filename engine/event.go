@@ -6,35 +6,36 @@ import (
 
 const (
 	//Deprecated
-	EventUpdate      = -1
+	EventUpdate            = -1
 	//Deprecated
-	EventRender      = -2
+	EventRender            = -2
 	//Deprecated
-	EventCloseScene  = -3
+	EventCloseScene        = -3
 
-	EventMouseDown   = -4
-	EventDoubleClick = -5
-	EventNavigate    = -6
-	EventStop        = -7
-	EventKeyDown     = -8
-	EventMouseUp     = -9
-	EventAppHide     = -10
-	EventAppShow     = -11
-	EventPaste       = -12
-	EventCopy        = -13
-	EventMouseIn     = -14
-	EventMouseOut    = -15
-	EventDropFile    = -16
-	EventMouseMove   = -17
-	EventAppLoaded   = -18
-	EventFocusGain   = -19
-	EventFocusLoose  = -20
-	EventMouseScroll = -21
-	EventTouchDown   = -22
-	EventTouchUp     = -23
-	EventTouchMove   = -24
-	EventKeyUp       = -25
-	EventTextInput   = -26
+	EventMouseDown         = -4
+	EventDoubleClick       = -5
+	EventNavigate          = -6
+	EventStop              = -7
+	EventKeyDown           = -8
+	EventMouseUp           = -9
+	EventAppHide           = -10
+	EventAppShow           = -11
+	EventPaste             = -12
+	EventCopy              = -13
+	EventMouseIn           = -14
+	EventMouseOut          = -15
+	EventDropFile          = -16
+	EventMouseMove         = -17
+	EventAppLoaded         = -18
+	EventFocusGain         = -19
+	EventFocusLoose        = -20
+	EventMouseScroll       = -21
+	EventTouchDown         = -22
+	EventTouchUp           = -23
+	EventTouchMove         = -24
+	EventKeyUp             = -25
+	EventTextInput         = -26
+	EventOrientationChange = -27
 )
 
 type AmphionEvent struct {

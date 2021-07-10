@@ -46,20 +46,21 @@ type Frontend interface {
 }
 
 const (
-	CallbackContextChange = -100
-	CallbackMouseDown     = -101
-	CallbackKeyDown       = -102
-	CallbackMouseUp       = -103
-	CallbackAppHide       = -104
-	CallbackAppShow       = -105
-	CallbackMouseMove     = -106
-	CallbackMouseScroll   = -107
-	CallbackTouchDown     = -108
-	CallbackTouchUp       = -109
-	CallbackTouchMove     = -110
-	CallbackReady         = -111
-	CallbackKeyUp         = -112
-	CallbackTextInput     = -113
+	CallbackContextChange     = -100
+	CallbackMouseDown         = -101
+	CallbackKeyDown           = -102
+	CallbackMouseUp           = -103
+	CallbackAppHide           = -104
+	CallbackAppShow           = -105
+	CallbackMouseMove         = -106
+	CallbackMouseScroll       = -107
+	CallbackTouchDown         = -108
+	CallbackTouchUp           = -109
+	CallbackTouchMove         = -110
+	CallbackReady             = -111
+	CallbackKeyUp             = -112
+	CallbackTextInput         = -113
+	CallbackOrientationChange = -114
 )
 
 //Deprecated: use dispatch.Message instead
