@@ -5,9 +5,24 @@ import (
 	"github.com/cadmean-ru/amphion/frontend"
 )
 
-// App context holds app specific data.
+type ScreenOrientation int
+
+const (
+	OrientationUnknown ScreenOrientation = iota
+	OrientationStraight
+	OrientationReverse
+	OrientationLeft
+	OrientationRight
+)
+
+// AppContext holds app specific data.
 type AppContext struct {
 	navigationArgs a.SiMap
+	orientation ScreenOrientation
+}
+
+func (a AppContext) Orientation() ScreenOrientation {
+	return a.orientation
 }
 
 func makeAppContext(app *frontend.App) *AppContext {

@@ -150,6 +150,16 @@ func handleFrontendReady(_ *dispatch.Message) {
 	instance.startingWg.Done()
 }
 
+func handleOrientationChange(callback *dispatch.Message) {
+	atoi, err := strconv.Atoi(callback.StrData)
+	if err != nil {
+		panic("invalid callback")
+	}
+	instance.appContext.orientation = ScreenOrientation(atoi)
+	e := NewAmphionEvent(instance, EventOrientationChange, instance.appContext.orientation)
+	instance.updateRoutine.enqueueEventAndRequestUpdate(e)
+}
+
 func newFrontendCallbackHandler() dispatch.MessageDispatcher {
 	return &frontendCallbackHandler{
 		handlersMap: map[int]dispatch.MessageHandlerFunc{
@@ -167,6 +177,7 @@ func newFrontendCallbackHandler() dispatch.MessageDispatcher {
 			frontend.CallbackReady: handleFrontendReady,
 			frontend.CallbackKeyUp: handleKeyDown,
 			frontend.CallbackTextInput: handleRuneInput,
+			frontend.CallbackOrientationChange: handleOrientationChange,
 		},
 	}
 }
