@@ -61,3 +61,11 @@ func NewRectBoundary(minX, maxX, minY, maxY, minZ, maxZ float32) *RectBoundary {
 		Z: NewFloatRange(minZ, maxZ),
 	}
 }
+
+func NewRectBoundarySized(position a.Vector3, size a.Vector3) *RectBoundary {
+	return &RectBoundary{
+		X: NewFloatRange(position.X, position.X + size.X),
+		Y: NewFloatRange(position.Y, position.Y + size.Y),
+		Z: NewFloatRange(position.Z, position.Z + size.Z),
+	}
+}

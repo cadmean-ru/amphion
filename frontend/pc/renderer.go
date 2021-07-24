@@ -7,6 +7,7 @@ package pc
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/frontend/pc/opengl"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -19,34 +20,13 @@ type OpenGLRenderer struct {
 	projection     [16]float32
 	front          *Frontend
 	renderers      []*glPrimitiveRenderer
+	gpu            *opengl.Gpu
 }
 
 func (r *OpenGLRenderer) OnPrepare() {
-	var err error
-
-	r.window.MakeContextCurrent()
-
-	if err = gl.Init(); err != nil {
-		panic(err)
-	}
-
-	fmt.Println(gl.GoStr(gl.GetString(gl.VERSION)))
-	fmt.Println(gl.GoStr(gl.GetString(gl.VENDOR)))
-	fmt.Println(gl.GoStr(gl.GetString(gl.RENDERER)))
-
-	//gl.Viewport(0, 0, int32(r.wSize.X), int32(r.wSize.Y))
-
-	gl.Enable(gl.BLEND)
-	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-	gl.PixelStorei(gl.UNPACK_ALIGNMENT, 1)
-
-	gl.ClearColor(1, 1, 1, 1)
-	//
-	//gl.Clear(gl.COLOR_BUFFER_BIT)
+	r.gpu.Init()
 
 	//r.calculateProjection()
-
-	//gl.Viewport(0, 0, 500, 500)
 
 	textRenderer := &TextRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
 	rectangleRenderer := &RectangleRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}

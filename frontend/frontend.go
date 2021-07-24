@@ -6,6 +6,7 @@ import (
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/rendering"
+	"github.com/cadmean-ru/amphion/rendering/gpu"
 )
 
 //Frontend interface defines functions that should be implemented in an Amphion frontend natively.
@@ -43,6 +44,9 @@ type Frontend interface {
 
 	//GetLaunchArgs should return arguments.
 	GetLaunchArgs() a.SiMap
+
+	//GetGpu should return the gpu implementation for the current frontend.
+	GetGpu() gpu.Gpu
 }
 
 const (

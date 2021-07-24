@@ -10,7 +10,9 @@ import (
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/frontend"
+	"github.com/cadmean-ru/amphion/frontend/pc/opengl"
 	"github.com/cadmean-ru/amphion/rendering"
+	"github.com/cadmean-ru/amphion/rendering/gpu"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -31,6 +33,7 @@ type Frontend struct {
 	resMan           *ResourceManager
 	app              *frontend.App
 	disp             dispatch.MessageDispatcher
+	gpu              *opengl.Gpu
 }
 
 func (f *Frontend) Init() {
@@ -260,6 +263,10 @@ func (f *Frontend) GetLaunchArgs() a.SiMap {
 	return args
 }
 
+func (f *Frontend) GetGpu() gpu.Gpu {
+	return f.gpu
+}
+
 func NewFrontend() *Frontend {
 	f := &Frontend{
 		wSize: a.NewIntVector3(500, 500, 0),
@@ -269,6 +276,7 @@ func NewFrontend() *Frontend {
 	f.rendererDelegate = &OpenGLRenderer{
 		front:      f,
 	}
+	f.gpu = opengl.NewOpenGlGpu()
 	f.renderer = rendering.NewARenderer(f.rendererDelegate, f)
 	return f
 }
