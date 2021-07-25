@@ -7,11 +7,10 @@ package pc
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/rendering"
-	"github.com/go-gl/gl/v4.1-core/gl"
 )
 
 type glPrimitiveRenderer struct {
-	program uint32
+	program  *GlProgram
 }
 
 func (r *glPrimitiveRenderer) OnStart() {
@@ -29,6 +28,12 @@ func (r *glPrimitiveRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext)
 	if ctx.State == nil {
 		panic(fmt.Sprintf("OnRender called before OnSetPrimitive was called for id: %d", ctx.PrimitiveId))
 	}
+
+	r.program.Use()
+
+	if ctx.ClipArea2D != nil {
+		r.program.SetClipArea2DUniforms(ctx.ClipArea2D)
+	}
 }
 
 func (r *glPrimitiveRenderer) OnRemovePrimitive(ctx *rendering.PrimitiveRenderingContext) {
@@ -39,6 +44,5 @@ func (r *glPrimitiveRenderer) OnRemovePrimitive(ctx *rendering.PrimitiveRenderin
 
 func (r *glPrimitiveRenderer) OnStop() {
 	//fmt.Println("glPrimitiveRenderer OnStop")
-	gl.DeleteProgram(r.program)
+	r.program.Delete()
 }
-

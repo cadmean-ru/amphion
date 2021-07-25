@@ -14,21 +14,17 @@ type TriangleRenderer struct {
 	*glPrimitiveRenderer
 }
 
-func (t *TriangleRenderer) OnStart() {
-	t.program = createAndLinkProgramOrPanic(
-		createAndCompileShaderOrPanic(zeroTerminated(ShapeVertexShaderStr), gl.VERTEX_SHADER),
-		createAndCompileShaderOrPanic(zeroTerminated(ShapeFragShaderStr), gl.FRAGMENT_SHADER),
-	)
+func (r *TriangleRenderer) OnStart() {
+	r.program = NewGlProgram(ShapeVertexShaderStr, ShapeFragShaderStr, "triangle")
+	r.program.CompileAndLink()
 }
 
-func (t *TriangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
-	t.glPrimitiveRenderer.OnRender(ctx)
+func (r *TriangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
+	r.glPrimitiveRenderer.OnRender(ctx)
 
 	gp := ctx.Primitive.(*rendering.GeometryPrimitive)
 	state := ctx.State.(*glPrimitiveState)
 	state.gen()
-
-	gl.UseProgram(t.program)
 
 	if ctx.Redraw {
 		gl.BindVertexArray(state.vao)

@@ -1,5 +1,3 @@
-#version 330
-
 layout (location = 0) in vec3 vPosition;
 layout (location = 1) in vec3 vTlPosition;
 layout (location = 2) in vec3 vBrPosition;
@@ -17,11 +15,7 @@ out float fStrokeWeight;
 out vec4 fStrokeColor;
 out float fCornerRadius;
 
-//uniform mat4 uProjection;
-//uniform vec4 uClippingArea2d;
-
 void main() {
-//    vec4 test = uProjection * vec4(vTest.xyz, 1.0);
     fPosition = vec4(vPosition.xyz, 1.0);
     gl_Position = fPosition;
     fTlPosition = vTlPosition;

@@ -7,6 +7,7 @@ type PrimitiveRenderingContext struct {
 	PrimitiveId   int
 	State         interface{}
 	Redraw        bool
+	ClipArea2D    *ClipArea2D
 }
 
 type PrimitiveRendererDelegate interface {

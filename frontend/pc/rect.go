@@ -16,12 +16,8 @@ type RectangleRenderer struct {
 }
 
 func (r *RectangleRenderer) OnStart() {
-	r.program = createAndLinkProgramOrPanic(
-		createAndCompileShaderOrPanic(zeroTerminated(ShapeVertexShaderStr), gl.VERTEX_SHADER),
-		createAndCompileShaderOrPanic(zeroTerminated(ShapeFragShaderStr), gl.FRAGMENT_SHADER),
-		//createAndCompileShaderOrPanic(zeroTerminated(CommonVertexShaderStr), gl.VERTEX_SHADER),
-		//createAndCompileShaderOrPanic(zeroTerminated(CommonFragmentShaderStr), gl.FRAGMENT_SHADER),
-	)
+	r.program = NewGlProgram(ShapeVertexShaderStr, ShapeFragShaderStr, "rect")
+	r.program.CompileAndLink()
 }
 
 func (r *RectangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
@@ -31,8 +27,6 @@ func (r *RectangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 	state := ctx.State.(*glPrimitiveState)
 
 	state.gen()
-
-	gl.UseProgram(r.program)
 
 	if ctx.Redraw {
 		gl.BindVertexArray(state.vao)

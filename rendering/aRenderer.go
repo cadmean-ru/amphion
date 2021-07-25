@@ -23,6 +23,7 @@ type ARenderer struct {
 	preparedCallback   func()
 	prepared           bool
 	root               *Node
+	clipStack          *ClipStack2D
 }
 
 // PC - main, android - rendering thread
@@ -123,6 +124,7 @@ func (r *ARenderer) makePrimitiveRenderingContext(container *PrimitiveNode) *Pri
 		PrimitiveId:   container.id,
 		State:         container.state,
 		Redraw:        container.redraw,
+		ClipArea2D:    r.clipStack.Peek(),
 	}
 }
 
@@ -184,6 +186,10 @@ func (r *ARenderer) renderingPerformer() {
 
 	for _, layer := range r.layers {
 		r.root.RenderTraverse(func(node *Node) {
+			if node.clipArea != nil {
+				r.clipStack.Push(node.clipArea)
+			}
+
 			for _, p := range node.GetPrimitivesInLayer(layer.index) {
 				if d, ok := r.primitiveDelegates[p.primitive.GetType()]; ok {
 					if p.redraw {
@@ -199,7 +205,13 @@ func (r *ARenderer) renderingPerformer() {
 
 				p.redraw = false
 			}
+		}, func(node *Node) {
+			if node.clipArea != nil {
+				r.clipStack.Pop()
+			}
 		})
+
+		r.clipStack.Clear()
 	}
 }
 
@@ -211,5 +223,6 @@ func NewARenderer(delegate RendererDelegate, renderDispatcher dispatch.WorkDispa
 		primitives:         make(map[int]*PrimitiveNode),
 		primitiveDelegates: make(map[byte]PrimitiveRendererDelegate),
 		layers:             make([]*Layer, 1),
+		clipStack:          NewClipStack2D(),
 	}
 }

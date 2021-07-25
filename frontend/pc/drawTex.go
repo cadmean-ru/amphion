@@ -45,7 +45,6 @@ func drawTex(ctx *rendering.PrimitiveRenderingContext, nPos, nbrPos a.Vector3, t
 		gl.BindVertexArray(0)
 	}
 
-	gl.UseProgram(progId)
 	gl.BindVertexArray(state.vao)
 	gl.BindTexture(gl.TEXTURE_2D, texId)
 

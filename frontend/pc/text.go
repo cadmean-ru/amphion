@@ -21,10 +21,9 @@ type TextRenderer struct {
 func (r *TextRenderer) OnStart() {
 	r.fonts = make(map[string]*atext.Font)
 	r.charsTextures = make(map[int]map[rune]uint32)
-	r.program = createAndLinkProgramOrPanic(
-		createAndCompileShaderOrPanic(zeroTerminated(TextVertexShaderStr), gl.VERTEX_SHADER),
-		createAndCompileShaderOrPanic(zeroTerminated(TextFragShaderStr), gl.FRAGMENT_SHADER),
-	)
+
+	r.program = NewGlProgram(TextVertexShaderStr, TextFragShaderStr, "text")
+	r.program.CompileAndLink()
 }
 
 func (r *TextRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
@@ -87,8 +86,8 @@ func (r *TextRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 			r.charsTextures[int(tp.TextAppearance.FontSize)][c.GetRune()] = textId
 		}
 
-		drawTex(ctx, npos, nbrpos, textId, r.program, true, func() {
-			gl.Uniform3f(gl.GetUniformLocation(r.program, gl.Str("textColor\x00")), color.X, color.Y, color.Z)
+		drawTex(ctx, npos, nbrpos, textId, r.program.id, true, func() {
+			gl.Uniform4f(r.program.GetUniformLocation("uTextColor"), color.X, color.Y, color.Z, color.W)
 		})
 	})
 

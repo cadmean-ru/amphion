@@ -22,10 +22,8 @@ type ImageRenderer struct {
 }
 
 func (r *ImageRenderer) OnStart() {
-	r.program = createAndLinkProgramOrPanic(
-		createAndCompileShaderOrPanic(zeroTerminated(ImageVertexShaderStr), gl.VERTEX_SHADER),
-		createAndCompileShaderOrPanic(zeroTerminated(ImageFragShaderStr), gl.FRAGMENT_SHADER),
-	)
+	r.program = NewGlProgram(ImageVertexShaderStr, ImageFragShaderStr, "image")
+	r.program.CompileAndLink()
 }
 
 func (r *ImageRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
@@ -85,5 +83,5 @@ func (r *ImageRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 	nPos := ip.Transform.Position.Ndc(wSize)
 	brPos := ip.Transform.Position.Add(ip.Transform.Size).Ndc(wSize)
 
-	drawTex(ctx, nPos, brPos, texId, r.program, false, nil)
+	drawTex(ctx, nPos, brPos, texId, r.program.id, false, nil)
 }

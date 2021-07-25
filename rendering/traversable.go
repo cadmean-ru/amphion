@@ -1,5 +1,5 @@
 package rendering
 
 type Traversable interface {
-	RenderTraverse(func(node *Node))
+	RenderTraverse(func(node *Node), func(node *Node))
 }

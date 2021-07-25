@@ -17,6 +17,7 @@ type Node struct {
 	host       a.NamedObject
 	renderer   *ARenderer
 	primitives primitiveNodeMap
+	clipArea   *ClipArea2D
 }
 
 func (n *Node) GetPrimitives() []*PrimitiveNode {
@@ -93,4 +94,12 @@ func (n *Node) RemovePrimitive(id int) {
 
 	delete(n.primitives, id)
 	n.renderer.removePrimitiveOnFrontend(pNode)
+}
+
+func (n *Node) SetClipArea2D(area *ClipArea2D) {
+	n.clipArea = area
+}
+
+func (n *Node) RemoveClipArea2D() {
+	n.clipArea = nil
 }

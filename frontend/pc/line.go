@@ -15,10 +15,8 @@ type LineRenderer struct {
 }
 
 func (r *LineRenderer) OnStart() {
-	r.program = createAndLinkProgramOrPanic(
-		createAndCompileShaderOrPanic(zeroTerminated(DefaultVertexShaderStr), gl.VERTEX_SHADER),
-		createAndCompileShaderOrPanic(zeroTerminated(DefaultFragShaderStr), gl.FRAGMENT_SHADER),
-	)
+	r.program = NewGlProgram(DefaultVertexShaderStr, DefaultFragShaderStr, "line")
+	r.program.CompileAndLink()
 }
 
 func (r *LineRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
@@ -28,8 +26,6 @@ func (r *LineRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 	state := ctx.State.(*glPrimitiveState)
 
 	state.gen()
-
-	gl.UseProgram(r.program)
 
 	if ctx.Redraw {
 		gl.BindVertexArray(state.vao)

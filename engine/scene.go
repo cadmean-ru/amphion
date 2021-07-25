@@ -433,9 +433,7 @@ func (o *SceneObject) Redraw() {
 		}
 
 		viewComp := view.component.(ViewComponent)
-		if viewRedraw, ok := viewComp.(ViewComponentRedraw); ok {
-			viewRedraw.Redraw()
-		}
+		viewComp.Redraw()
 	}
 	instance.RequestRendering()
 }
@@ -539,11 +537,22 @@ func (o *SceneObject) draw(ctx DrawingContext) {
 	instance.currentComponent = nil
 }
 
-func (o *SceneObject) RenderTraverse(action func(node *rendering.Node)) {
-	o.Traverse(func(object *SceneObject) bool {
-		action(object.renderingNode)
-		return true
-	})
+func (o *SceneObject) RenderTraverse(action func(node *rendering.Node), afterChildrenAction func(node *rendering.Node)) {
+	if o.IsDirty() {
+		return
+	}
+
+	action(o.renderingNode)
+
+	for _, c := range o.children {
+		c.RenderTraverse(action, afterChildrenAction)
+	}
+
+	afterChildrenAction(o.renderingNode)
+}
+
+func (o *SceneObject) GetRenderingNode() *rendering.Node {
+	return o.renderingNode
 }
 
 func (o *SceneObject) setInCurrentScene(b bool) {

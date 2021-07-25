@@ -1,5 +1,3 @@
-#version 330
-
 in vec4 fPosition;
 flat in vec3 fTlPosition;
 flat in vec3 fBrPosition;
@@ -10,17 +8,12 @@ in float fCornerRadius;
 
 out vec4 resultColor;
 
-bool isInsideRect(vec2 pos, vec2 tl, vec2 br) {
-    return pos.x >= tl.x && pos.x <= br.x && pos.y <= tl.y && pos.y >= br.y;
-}
-
-bool isInsideCircle(vec2 pos, vec2 center, float r) {
-    float a = pos.x - center.x;
-    float b = pos.y - center.y;
-    return sqrt(a*a + b*b) <= r;
-}
-
 void main() {
+    _clipCornerRadius = fCornerRadius;
+    if (isOutsideClipArea(fPosition)) {
+        discard;
+    }
+
     vec2 pos2d = fPosition.xy;
     vec2 tl = fTlPosition.xy;
     vec2 br = fBrPosition.xy;

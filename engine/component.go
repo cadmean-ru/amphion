@@ -31,12 +31,10 @@ type UpdatingComponent interface {
 // ViewComponent is an interface for views.
 type ViewComponent interface {
 	Component
+	BeforeDraw()
 	OnDraw(ctx DrawingContext)
+	AfterDraw()
 	ShouldDraw() bool
-}
-
-type ViewComponentRedraw interface {
-	ViewComponent
 	Redraw()
 }
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/shape"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/engine/builtin"
 	"math"
@@ -539,6 +540,42 @@ func treeScene(e *engine.AmphionEngine) *engine.SceneObject {
 
 	scene.AddChild(rect)
 	rect.AddChild(rectInside)
+
+	return scene
+}
+
+func clipScene(e *engine.AmphionEngine) *engine.SceneObject {
+	scene := engine.NewSceneObject("clip scene")
+
+	image := engine.NewSceneObject("image")
+	image.Transform.Position = a.NewVector3(a.CenterInParent, a.CenterInParent, 0)
+	image.Transform.Pivot = a.NewVector3(0.5, 0.5, 0)
+	image.Transform.Size = a.NewVector3(400, 400, 0)
+	imageView := builtin.NewImageView(Res_images_babyyoda)
+	image.AddComponent(imageView)
+
+	frame := engine.NewSceneObject("baby frame")
+	frame.Transform.Size = a.NewVector3(a.MatchParent, a.MatchParent, 0)
+	circle := builtin.NewShapeView(builtin.ShapeEllipse)
+	circle.FillColor = a.TransparentColor()
+	circle.StrokeWeight = 10
+	circle.StrokeColor = a.PinkColor()
+	frame.AddComponent(circle)
+	image.AddChild(frame)
+
+	image.AddComponent(builtin.NewClipArea(shape.Circle))
+	scene.AddChild(image)
+
+	rect := engine.NewSceneObject("rect")
+	rect.Transform.Size = a.NewVector3(50, 50, 0)
+	rect.Transform.Pivot = a.NewVector3(0.5, 0.5, 0)
+	rect.Transform.Position = a.NewVector3(a.CenterInParent, a.CenterInParent, 0)
+	textView := builtin.NewTextView("BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH ")
+	textView.FontSize = 10
+	textView.TextColor = a.RedColor()
+	rect.AddComponent(textView)
+	rect.AddComponent(builtin.NewClipArea(shape.Circle))
+	image.AddChild(rect)
 
 	return scene
 }

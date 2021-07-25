@@ -1,5 +1,3 @@
-#version 330
-
 in vec4 fPosition;
 flat in vec3 fTlPosition;
 flat in vec3 fBrPosition;
@@ -25,6 +23,10 @@ bool isInsideEllipse(float a, float b, float offset) {
 
 void main()
 {
+    if (isOutsideClipArea(fPosition)) {
+        discard;
+    }
+
     float a = (fBrPosition.x - fTlPosition.x) / 2;
     float b = (fBrPosition.y - fTlPosition.y) / 2;
     float a1 = (fBrPosition.x - fTlPosition.x - fStrokeWeight - fStrokeWeight) / 2;

@@ -1,12 +1,17 @@
-#version 330
-in vec2 TexCoords;
+in vec2 fTexCoord;
+in vec4 fPosition;
+
 out vec4 color;
 
-uniform sampler2D text;
-uniform vec3 textColor;
+uniform sampler2D uTexture;
+uniform vec4 uTextColor;
 
 void main()
 {
-    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);
-    color = vec4(textColor, 1.0) * sampled;
+    if (isOutsideClipArea(fPosition)) {
+        discard;
+    }
+
+    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(uTexture, fTexCoord).r);
+    color = uTextColor * sampled;
 }

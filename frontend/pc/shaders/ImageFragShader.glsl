@@ -1,12 +1,15 @@
-#version 330
+out vec4 fragColor;
 
-out vec4 FragColor;
+in vec2 fTexCoord;
+in vec4 fPosition;
 
-in vec2 texCoord;
-
-uniform sampler2D ourTexture;
+uniform sampler2D uTexture;
 
 void main()
 {
-    FragColor = texture(ourTexture, texCoord);
+    if (isOutsideClipArea(fPosition)) {
+        discard;
+    }
+
+    fragColor = texture(uTexture, fTexCoord);
 }

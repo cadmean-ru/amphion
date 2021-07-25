@@ -14,11 +14,12 @@ import (
 
 // OpenGLRenderer implements the RendererDelegate interface for pc
 type OpenGLRenderer struct {
-	window         *glfw.Window
-	wSize          a.IntVector3
-	projection     [16]float32
-	front          *Frontend
-	renderers      []*glPrimitiveRenderer
+	window     *glfw.Window
+	wSize      a.IntVector3
+	projection [16]float32
+	front      *Frontend
+	renderers  []*glPrimitiveRenderer
+	clipArea   *rendering.ClipArea2D
 }
 
 func (r *OpenGLRenderer) OnPrepare() {
@@ -50,7 +51,7 @@ func (r *OpenGLRenderer) OnPrepare() {
 
 	textRenderer := &TextRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
 	rectangleRenderer := &RectangleRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
-	ellipseRenderer :=  &EllipseRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
+	ellipseRenderer := &EllipseRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
 	triangleRenderer := &TriangleRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
 	lineRenderer := &LineRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
 	imageRenderer := &ImageRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
@@ -62,7 +63,7 @@ func (r *OpenGLRenderer) OnPrepare() {
 	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveLine, lineRenderer)
 	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveImage, imageRenderer)
 
-	r.renderers = []*glPrimitiveRenderer {
+	r.renderers = []*glPrimitiveRenderer{
 		textRenderer.glPrimitiveRenderer,
 		rectangleRenderer.glPrimitiveRenderer,
 		ellipseRenderer.glPrimitiveRenderer,
@@ -70,6 +71,8 @@ func (r *OpenGLRenderer) OnPrepare() {
 		lineRenderer.glPrimitiveRenderer,
 		imageRenderer.glPrimitiveRenderer,
 	}
+
+	r.clipArea = rendering.NewClipArea2DEmpty()
 }
 
 func (r *OpenGLRenderer) OnPerformRenderingStart() {
@@ -120,13 +123,13 @@ func (r *OpenGLRenderer) handleWindowResize(w, h int) {
 //	fmt.Println(r.projection)
 //
 //	for _, renderer := range r.renderers {
-//		r.setProjectionUniform(renderer.program)
+//		r.setProjectionUniform(renderer.id)
 //	}
 //}
 //
-//func (r *OpenGLRenderer) setProjectionUniform(program uint32) {
-//	gl.UseProgram(program)
-//	loc := gl.GetUniformLocation(program, gl.Str(zeroTerminated("uProjection")))
+//func (r *OpenGLRenderer) setProjectionUniform(id uint32) {
+//	gl.UseProgram(id)
+//	loc := gl.GetUniformLocation(id, gl.Str(zeroTerminatedString("uProjection")))
 //	if loc >= 0 {
 //		gl.UniformMatrix4fv(loc, 1, false, &r.projection[0])
 //	}

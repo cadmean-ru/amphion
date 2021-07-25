@@ -16,10 +16,8 @@ type EllipseRenderer struct {
 }
 
 func (r *EllipseRenderer) OnStart() {
-	r.program = createAndLinkProgramOrPanic(
-		createAndCompileShaderOrPanic(zeroTerminated(ShapeVertexShaderStr), gl.VERTEX_SHADER),
-		createAndCompileShaderOrPanic(zeroTerminated(EllipseFragShaderStr), gl.FRAGMENT_SHADER),
-	)
+	r.program = NewGlProgram(ShapeVertexShaderStr, EllipseFragShaderStr, "ellipse")
+	r.program.CompileAndLink()
 }
 
 func (r *EllipseRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
@@ -29,8 +27,6 @@ func (r *EllipseRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 	state := ctx.State.(*glPrimitiveState)
 
 	state.gen()
-
-	gl.UseProgram(r.program)
 
 	if ctx.Redraw {
 		gl.BindVertexArray(state.vao)
