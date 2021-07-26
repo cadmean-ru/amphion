@@ -35,6 +35,7 @@ func LayoutRunes(face *Face, runes []rune, bounds *common.RectBoundary, options 
 	for i, char := range allChars {
 		if char.rune == ' ' {
 			x += face.GetSize() / 4
+			currentLine.append(char)
 			continue
 		}
 
@@ -58,6 +59,7 @@ func LayoutRunes(face *Face, runes []rune, bounds *common.RectBoundary, options 
 			currentLine = newLine(face)
 
 			if char.rune == '\n' {
+				currentLine.append(char)
 				continue
 			}
 		}

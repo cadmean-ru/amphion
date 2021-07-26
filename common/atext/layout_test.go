@@ -19,7 +19,7 @@ func TestLayoutRunes(t *testing.T) {
 
 	fmt.Println("The layered out chars:")
 	text.ForEachChar(func(c *Char) {
-		fmt.Printf("%+v\n", c)
+		fmt.Printf("%c: %+v\n", c.rune, c)
 	})
 }
 

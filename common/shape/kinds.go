@@ -10,3 +10,7 @@ const (
 	Ellipse
 	Triangle
 )
+
+func IsValidKindValue(value Kind) bool {
+	return value >= 0 && value <= Triangle
+}
