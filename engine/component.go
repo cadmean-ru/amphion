@@ -9,8 +9,6 @@ import (
 //Component is a basic component interface.
 //A component is a piece of functionality, that can be attached to scene objects.
 type Component interface {
-	a.NamedObject
-
 	// OnInit is called only once when the component is first created.
 	OnInit(ctx InitContext)
 
@@ -31,9 +29,7 @@ type UpdatingComponent interface {
 // ViewComponent is an interface for views.
 type ViewComponent interface {
 	Component
-	BeforeDraw()
 	OnDraw(ctx DrawingContext)
-	AfterDraw()
 	ShouldDraw() bool
 	Redraw()
 }

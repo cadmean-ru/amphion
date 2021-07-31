@@ -31,15 +31,7 @@ func (v *ViewImpl) OnStop() {
 	v.PrimitiveId = -1
 }
 
-func (v *ViewImpl) BeforeDraw() {
-
-}
-
 func (v *ViewImpl) OnDraw(_ DrawingContext) {
-
-}
-
-func (v *ViewImpl) AfterDraw() {
 
 }
 

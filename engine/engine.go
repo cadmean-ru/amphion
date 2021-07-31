@@ -9,7 +9,6 @@ import (
 	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
-	"reflect"
 	"sort"
 	"sync"
 )
@@ -146,7 +145,7 @@ func (engine *AmphionEngine) GetGlobalContext() frontend.Context {
 	return engine.globalContext
 }
 
-// Loads scene from a resource file asynchronously.
+// LoadScene loads scene from a resource file asynchronously.
 // If show is true, after loading also shows this scene.
 func (engine *AmphionEngine) LoadScene(scene a.ResId, show bool) {
 	if engine.state != StateStarted {
@@ -174,10 +173,10 @@ func (engine *AmphionEngine) LoadScene(scene a.ResId, show bool) {
 	}).Build())
 }
 
-// Hides the current showing scene and shows the currently loaded scene (using LoadScene).
+// SwapScenes hides the current showing scene and shows the currently loaded scene (using LoadScene).
 // The previously showing scene will be properly stopped and the deleted.
-// So, calling SwapScenes again wont swap the two scenes back.
-// If no scene is loaded, wont do anything.
+// So, calling SwapScenes again will not swap the two scenes back.
+// If no scene is loaded, will not do anything.
 func (engine *AmphionEngine) SwapScenes() {
 	if engine.loadedScene == nil {
 		return
@@ -189,7 +188,7 @@ func (engine *AmphionEngine) SwapScenes() {
 	})
 }
 
-// Shows the specified scene object.
+// ShowScene shows the specified scene object.
 // Returns an error, if the engine is not yet ready or if another scene is already showing.
 func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 	if !engine.started {
@@ -226,7 +225,7 @@ func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 	return nil
 }
 
-// Closes the currently showing scene asynchronously.
+// CloseScene closes the currently showing scene asynchronously.
 // It will call the provided callback function as soon as the scene was closed.
 // If no scene is showing calls the callback function immediately.
 func (engine *AmphionEngine) CloseScene(callback func()) {
@@ -331,7 +330,7 @@ func (engine *AmphionEngine) recover() {
 		engine.logger.Error(engine, fmt.Sprintf("Current state: %s", engine.GetStateString()))
 		reason := "Kernel panic"
 		if engine.currentComponent != nil {
-			reason = fmt.Sprintf("Error in component %s", engine.currentComponent.GetName())
+			reason = fmt.Sprintf("Error in component %s", NameOfComponent(engine.currentComponent))
 			engine.logger.Error(engine, reason)
 		}
 		engine.front.CommencePanic(reason, fmt.Sprintf("%v", err))
@@ -483,26 +482,27 @@ func (engine *AmphionEngine) GetTasksRoutine() *TasksRoutine {
 	return engine.tasksRoutine
 }
 
-// Runs the given task in the background goroutine.
+// RunTask runs the given task in the background goroutine.
 func (engine *AmphionEngine) RunTask(task *Task) {
 	engine.tasksRoutine.RunTask(task)
 }
 
-// Returns the current resource manager.
+// GetResourceManager returns the current resource manager.
 func (engine *AmphionEngine) GetResourceManager() frontend.ResourceManager {
 	return engine.front.GetResourceManager()
 }
 
-// Returns the current frontend.
+// GetFrontend returns the current frontend.
 func (engine *AmphionEngine) GetFrontend() frontend.Frontend {
 	return engine.front
 }
 
-// Returns the current input manager.
+// GetInputManager returns the current input manager.
 func (engine *AmphionEngine) GetInputManager() *InputManager {
 	return engine.inputManager
 }
 
+//GetComponentsManager returns the current ComponentsManager.
 func (engine *AmphionEngine) GetComponentsManager() *ComponentsManager {
 	return engine.componentsManager
 }
@@ -576,15 +576,4 @@ func (engine *AmphionEngine) rebuildMessageTree() {
 		return
 	}
 	engine.messageDispatcher = newMessageDispatcherForScene(engine.currentScene)
-}
-
-// NameOfComponent return the name of the given component suitable for serialization.
-func NameOfComponent(component interface{}) string {
-	t := reflect.TypeOf(component)
-
-	if t.Kind() == reflect.Ptr {
-		t = reflect.Indirect(reflect.ValueOf(component)).Type()
-	}
-
-	return t.PkgPath() + "." + t.Name()
 }

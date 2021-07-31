@@ -10,7 +10,7 @@ import (
 
 // LogInfo prints a message to the log from the current component, formatting the msg using fmt.Sprintf.
 func LogInfo(msg string, values ...interface{}) {
-	instance.logger.Info(instance.currentComponent, fmt.Sprintf(msg, values...))
+	instance.logger.Info(NameOfComponent(instance.currentComponent), fmt.Sprintf(msg, values...))
 }
 
 // LogWarning prints a warning to the log from the current component, formatting the msg using fmt.Sprintf.
@@ -188,18 +188,39 @@ func IsInDebugMode() bool {
 	return instance.currentApp != nil && instance.currentApp.Debug
 }
 
+// CloseScene closes the currently showing scene asynchronously.
+// It will call the provided callback function as soon as the scene was closed.
+// If no scene is showing calls the callback function immediately.
 func CloseScene(closeCallback func()) {
 	instance.CloseScene(closeCallback)
 }
 
+// ShowScene shows the specified scene object.
+// Returns an error, if the engine is not yet ready or if another scene is already showing.
 func ShowScene(scene *SceneObject) error {
 	return instance.ShowScene(scene)
 }
 
+// LoadScene loads scene from a resource file asynchronously.
+// If show is true, after loading also shows this scene.
 func LoadScene(sceneId a.ResId, show bool) {
 	instance.LoadScene(sceneId, show)
 }
 
+// SwapScenes hides the current showing scene and shows the currently loaded scene (using LoadScene).
+// The previously showing scene will be properly stopped and the deleted.
+// So, calling SwapScenes again will not swap the two scenes back.
+// If no scene is loaded, will not do anything.
 func SwapScenes() {
 	instance.SwapScenes()
+}
+
+//GetComponentsManager returns the current ComponentsManager.
+func GetComponentsManager() *ComponentsManager {
+	return instance.componentsManager
+}
+
+// NameOfComponent return the name of the given component suitable for serialization.
+func NameOfComponent(component interface{}) string {
+	return instance.GetComponentsManager().NameOfComponent(component)
 }

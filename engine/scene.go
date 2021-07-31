@@ -226,7 +226,7 @@ func (o *SceneObject) GetComponentByName(n string, includeDirty ...bool) Compone
 // - regex string.
 //
 // Returns empty slice if no components with the name n was found.
-//Components that have not been initialized or are disabled wont be included.
+//Components that have not been initialized or are disabled will not be included.
 func (o *SceneObject) GetComponentsByName(n string, includeDirty ...bool) []Component {
 	arr := make([]Component, 0, 1)
 
@@ -242,11 +242,11 @@ func (o *SceneObject) GetComponentsByName(n string, includeDirty ...bool) []Comp
 }
 
 func (o *SceneObject) componentMatcher(container *ComponentContainer, name string, dirty bool) bool {
-	return (dirty || !container.IsDirty()) && ComponentNameMatches(container.GetComponent().GetName(), name)
+	return (dirty || !container.IsDirty()) && ComponentNameMatches(NameOfComponent(container.GetComponent()), name)
 }
 
 //GetComponents returns a slice of all components attached to the object.
-//Modifying the returned list wont change the actual list of components of this scene object.
+//Modifying the returned list will not change the actual list of components of this scene object.
 func (o *SceneObject) GetComponents(includeDirty ...bool) []Component {
 	dirty := getDirty(includeDirty...)
 
@@ -294,7 +294,7 @@ func (o *SceneObject) removeComponentFromAllLists(container *ComponentContainer)
 	}
 
 	component := container.component
-	name := component.GetName()
+	name := NameOfComponent(component)
 
 	o.components = o.removeComponentFromList(o.components, name)
 
@@ -814,7 +814,7 @@ func (o *SceneObject) ToMap() a.SiMap {
 		}
 
 		cMap := map[string]interface{} {
-			"name":  c.GetComponent().GetName(),
+			"name":  NameOfComponent(c.GetComponent()),
 			"state": state,
 		}
 
@@ -845,7 +845,7 @@ func (o *SceneObject) DumpToMap() a.SiMap {
 		}
 
 		cMap := map[string]interface{} {
-			"name":  c.GetComponent().GetName(),
+			"name":  NameOfComponent(c.GetComponent()),
 			"state": state,
 			"initialized": c.initialized,
 			"started": c.started,

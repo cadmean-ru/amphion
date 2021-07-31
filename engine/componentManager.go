@@ -17,7 +17,7 @@ type ComponentsManager struct {
 
 //RegisterComponentType registers component, so an instance of it can be later created using MakeComponent.
 func (m *ComponentsManager) RegisterComponentType(component Component) {
-	cName := component.GetName()
+	cName := NameOfComponent(component)
 	cType := reflect.TypeOf(component)
 	m.typesMap[cName] = cType
 }
@@ -63,6 +63,17 @@ func (m *ComponentsManager) MakeComponent(name string) Component {
 
 	c := reflect.New(compType)
 	return c.Interface().(Component)
+}
+
+// NameOfComponent return the unique name of the given component suitable for serialization.
+func (m *ComponentsManager) NameOfComponent(component interface{}) string {
+	t := reflect.TypeOf(component)
+
+	if t.Kind() == reflect.Ptr {
+		t = reflect.Indirect(reflect.ValueOf(component)).Type()
+	}
+
+	return t.PkgPath() + "." + t.Name()
 }
 
 // GetComponentState retrieves component's state and returns it as string-interface map.
@@ -306,6 +317,6 @@ func getFunctionName(i interface{}) string {
 	return runtime.FuncForPC(v.Pointer()).Name()
 }
 
-func eh(event AmphionEvent) bool {
+func eh(_ AmphionEvent) bool {
 	return true
 }
