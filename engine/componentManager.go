@@ -67,6 +67,10 @@ func (m *ComponentsManager) MakeComponent(name string) Component {
 
 // NameOfComponent return the unique name of the given component suitable for serialization.
 func (m *ComponentsManager) NameOfComponent(component interface{}) string {
+	if component == nil {
+		return ""
+	}
+
 	t := reflect.TypeOf(component)
 
 	if t.Kind() == reflect.Ptr {

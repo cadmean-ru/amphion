@@ -98,7 +98,7 @@ func GetInstance() *AmphionEngine {
 	return instance
 }
 
-// Starts the engine.
+// Start starts the engine.
 // Must be called, before any interaction with the engine.
 func (engine *AmphionEngine) Start() {
 	engine.startingWg.Wait()
@@ -109,37 +109,37 @@ func (engine *AmphionEngine) Start() {
 	engine.logger.Info(engine, "Amphion started")
 }
 
-// Closes the current scene if any, and stops the engine.
+// Stop closes the current scene if any, and stops the engine.
 func (engine *AmphionEngine) Stop() {
 	engine.updateRoutine.enqueueEventAndRequestUpdate(NewAmphionEvent(engine, EventStop, nil))
 }
 
-// Blocks the calling goroutine until the engine is stopped.
+// WaitForStop blocks the calling goroutine until the engine is stopped.
 func (engine *AmphionEngine) WaitForStop() {
 	<-engine.stopChan
 }
 
-// Returns the renderer.
+// GetRenderer returns the renderer.
 func (engine *AmphionEngine) GetRenderer() *rendering.ARenderer {
 	return engine.renderer
 }
 
-// Returns the logger.
+// GetLogger returns the logger.
 func (engine *AmphionEngine) GetLogger() *Logger {
 	return engine.logger
 }
 
-// Returns the currently displaying scene object.
+// GetCurrentScene returns the currently displaying scene object.
 func (engine *AmphionEngine) GetCurrentScene() *SceneObject {
 	return engine.currentScene
 }
 
-// Returns the current loaded app or nil if no app is loaded.
+// GetCurrentApp returns the current loaded app or nil if no app is loaded.
 func (engine *AmphionEngine) GetCurrentApp() *frontend.App {
 	return engine.currentApp
 }
 
-// Returns the global application context.
+// GetGlobalContext returns the global application context.
 // See frontend.Context.
 func (engine *AmphionEngine) GetGlobalContext() frontend.Context {
 	return engine.globalContext
@@ -259,12 +259,12 @@ func (engine *AmphionEngine) configureScene(scene *SceneObject) {
 	scene.Transform.Size.Y = float32(screenInfo.GetHeight())
 }
 
-// Tells the engine to schedule an update as soon as possible.
+// RequestUpdate tells the engine to schedule an update as soon as possible.
 func (engine *AmphionEngine) RequestUpdate() {
 	engine.updateRoutine.requestUpdate()
 }
 
-// Tells the engine to schedule rendering in the next update cycle.
+// RequestRendering tells the engine to schedule rendering in the next update cycle.
 // It will also request an update, if it was not requested already.
 func (engine *AmphionEngine) RequestRendering() {
 	engine.updateRoutine.requestRendering()
@@ -281,24 +281,24 @@ func (engine *AmphionEngine) IsForcedToRedraw() bool {
 	return engine.forceRedraw
 }
 
-// Binds an event handler for the specified event code.
+// BindEventHandler binds an event handler for the specified event code.
 // The handler will be invoked in the event Loop goroutine, when the event with the specified code is raised.
 func (engine *AmphionEngine) BindEventHandler(code int, handler EventHandler) {
 	engine.updateRoutine.eventBinder.Bind(code, handler)
 }
 
-// Unbinds the event handler for the specified event code.
+// UnbindEventHandler unbinds the event handler for the specified event code.
 // The handler will no longer be invoked, when the event with the specified code is raised.
 func (engine *AmphionEngine) UnbindEventHandler(code int, handler EventHandler) {
 	engine.updateRoutine.eventBinder.Unbind(code, handler)
 }
 
-// Raises a new event.
+// RaiseEvent raises a new event.
 func (engine *AmphionEngine) RaiseEvent(event AmphionEvent) {
 	engine.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 
-// Synchronously loads prefab from file.
+// LoadPrefab synchronously loads prefab from file.
 func (engine *AmphionEngine) LoadPrefab(resId a.ResId) (*SceneObject, error) {
 	prefab := &SceneObject{}
 	data, err := engine.GetResourceManager().ReadFile(resId)
@@ -338,12 +338,12 @@ func (engine *AmphionEngine) recover() {
 	}
 }
 
-// Returns whether rendering is requested for the next update cycle.
+// IsRenderingRequested returns whether rendering is requested for the next update cycle.
 func (engine *AmphionEngine) IsRenderingRequested() bool {
 	return engine.updateRoutine.renderingRequested
 }
 
-// Returns whether an update is requested for the next frame.
+// IsUpdateRequested returns whether an update is requested for the next frame.
 func (engine *AmphionEngine) IsUpdateRequested() bool {
 	return engine.updateRoutine.updateRequested
 }
@@ -356,12 +356,12 @@ func (engine *AmphionEngine) GetMessageDispatcher() *MessageDispatcher {
 	return engine.messageDispatcher
 }
 
-// Returns the current engine state.
+// GetState returns the current engine state.
 func (engine *AmphionEngine) GetState() byte {
 	return engine.state
 }
 
-// Returns the current engine state as string.
+// GetStateString returns the current engine state as string.
 func (engine *AmphionEngine) GetStateString() string {
 	switch engine.state {
 	case StateStarted:
@@ -384,6 +384,10 @@ func (engine *AmphionEngine) handleStop() {
 			engine.handleStop()
 		})
 		return
+	}
+
+	if engine.appContext != nil {
+		engine.appContext.onAppStopping()
 	}
 
 	engine.logger.Info(engine, "Stopping")
@@ -512,9 +516,12 @@ func (engine *AmphionEngine) GetName() string {
 }
 
 // LoadApp loads app data from well-known source and shows the main scene.
-func (engine *AmphionEngine) LoadApp() {
+func (engine *AmphionEngine) LoadApp(delegate ...AppDelegate) {
 	if engine.state != StateStarted {
 		panic("Invalid engine state")
+	}
+	if engine.appContext != nil {
+		panic("app already loaded")
 	}
 
 	engine.RunTask(NewTaskBuilder().Run(func() (interface{}, error) {
@@ -525,7 +532,12 @@ func (engine *AmphionEngine) LoadApp() {
 		if app != nil {
 			engine.currentApp = app
 			engine.appContext = makeAppContext(app)
+			if len(delegate) > 0 {
+				engine.appContext.delegate = delegate[0]
+			}
+
 			engine.RaiseEvent(NewAmphionEvent(engine, EventAppLoaded, nil))
+			engine.appContext.onAppLoaded()
 
 			args := engine.front.GetLaunchArgs()
 			path := args.GetString("path")
