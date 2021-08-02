@@ -10,8 +10,6 @@ type OnSelectHandler func(item string)
 
 type DropdownView struct {
 	engine.ViewImpl
-	//arrow1Id         int64
-	//arrow2Id         int64
 	arrowId          int
 	items            []string
 	selectedItem     string
@@ -140,10 +138,6 @@ func (d *DropdownView) hideDropdown() {
 
 func (d *DropdownView) OnStop() {
 	d.Context.GetRenderingNode().RemovePrimitive(d.arrowId)
-}
-
-func (d *DropdownView) GetName() string {
-	return engine.NameOfComponent(d)
 }
 
 func NewDropdownView(options []string) *DropdownView {

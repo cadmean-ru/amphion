@@ -77,7 +77,7 @@ const (
 	GridHorizontal
 )
 
-//GridLayout is a simple layout component, that organizes it's children into a grid.
+//GridLayout is a simple layout component, that organizes its children into a grid.
 //Each child is placed in cell after previous.
 //If the orientation is vertical, the children are first places in rows from left to right.
 //When a row is filled, the next row below is filled and so on.
@@ -503,10 +503,6 @@ func (l *GridLayout) forColumns(action func(c int, col *GridColumnDefinition) bo
 			break
 		}
 	}
-}
-
-func (l *GridLayout) GetName() string {
-	return engine.NameOfComponent(l)
 }
 
 //NewGridLayout creates a new empty GridLayout.

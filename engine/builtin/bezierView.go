@@ -19,10 +19,6 @@ func (b *BezierView) OnDraw(ctx engine.DrawingContext) {
 	ctx.GetRenderingNode().SetPrimitive(b.PrimitiveId, bezier)
 }
 
-func (b *BezierView) GetName() string {
-	return engine.NameOfComponent(b)
-}
-
 func NewBezierView(cp1, cp2 a.Vector3) *BezierView {
 	return &BezierView{
 		ControlPoint1: cp1,

@@ -6,7 +6,7 @@ import (
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
-// Component for displaying text
+// TextView component displays the given text
 type TextView struct {
 	engine.ViewImpl
 	TextColor  a.Color     `state:"textColor"`
@@ -16,10 +16,6 @@ type TextView struct {
 	Text       string      `state:"text"`
 	HTextAlign a.TextAlign `state:"hTextAlign"`
 	VTextAlign a.TextAlign `state:"vTextAlign"`
-}
-
-func (t *TextView) GetName() string {
-	return engine.NameOfComponent(t)
 }
 
 func (t *TextView) OnDraw(ctx engine.DrawingContext) {
@@ -39,19 +35,19 @@ func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 	t.ShouldRedraw = false
 }
 
-// Sets the text equal to the specified value, forcing the view to redraw and requesting rendering.
+// SetText sets the text equal to the specified value, forcing the view to redraw and requesting rendering.
 func (t *TextView) SetText(text string) {
 	t.Text = text
 	t.ShouldRedraw = true
 	engine.RequestRendering()
 }
 
-// Returns the current text value.
+// GetText returns the current text value.
 func (t *TextView) GetText() string {
 	return t.Text
 }
 
-// Sets the current text color.
+// SetTextColor sets the current text color.
 func (t *TextView) SetTextColor(color interface{}) {
 	switch color.(type) {
 	case a.Color:
@@ -66,27 +62,28 @@ func (t *TextView) SetTextColor(color interface{}) {
 	engine.RequestRendering()
 }
 
-// Sets the current text size.
+// SetFontSize sets the current text size.
 func (t *TextView) SetFontSize(fontSize byte) {
 	t.FontSize = fontSize
 	t.ShouldRedraw = true
 	engine.RequestRendering()
 }
 
-// Sets the current horizontal text alignment.
+// SetHTextAlign sets the current horizontal text alignment.
 func (t *TextView) SetHTextAlign(align a.TextAlign) {
 	t.HTextAlign = align
 	t.ShouldRedraw = true
 	engine.RequestRendering()
 }
 
-// Sets the current horizontal text alignment.
+// SetVTextAlign sets the current horizontal text alignment.
 func (t *TextView) SetVTextAlign(align a.TextAlign) {
 	t.VTextAlign = align
 	t.ShouldRedraw = true
 	engine.RequestRendering()
 }
 
+//NewTextView creates a new TextView with the given text.
 func NewTextView(text string) *TextView {
 	return &TextView{
 		TextColor:  a.BlackColor(),

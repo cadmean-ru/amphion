@@ -56,10 +56,6 @@ func (m *MouseMover) OnStop() {
 	engine.UnbindEventHandler(engine.EventTouchDown, m.handleMouseDown)
 }
 
-func (m *MouseMover) GetName() string {
-	return engine.NameOfComponent(m)
-}
-
 func NewMouseMover() *MouseMover {
 	return &MouseMover{}
 }

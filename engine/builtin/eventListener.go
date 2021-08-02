@@ -5,15 +5,11 @@ import (
 )
 
 // EventListener is used to detect and handle scene object events.
-// It react to the events with the specified code and invokes the specified event handler.
+// It reacts to the events with the specified code and invokes the specified event handler.
 type EventListener struct {
 	engine.ComponentImpl
 	EventCode int                 `state:"eventCode"`
 	Handler   engine.EventHandler `state:"handler"`
-}
-
-func (l *EventListener) GetName() string {
-	return engine.NameOfComponent(l)
 }
 
 func (l *EventListener) OnMessage(msg engine.Message) bool {
@@ -32,7 +28,7 @@ func (l *EventListener) OnMessage(msg engine.Message) bool {
 	return false
 }
 
-// Creates a new EventListener, that reacts to the events with the specified code and invokes the specified handler.
+// NewEventListener creates a new EventListener, that reacts to the events with the specified code and invokes the specified handler.
 func NewEventListener(eventCode int, handler engine.EventHandler) *EventListener {
 	return &EventListener{
 		EventCode:     eventCode,

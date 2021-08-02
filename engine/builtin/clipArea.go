@@ -19,10 +19,6 @@ func (c *ClipArea) OnStop() {
 	c.SceneObject.GetRenderingNode().RemoveClipArea2D()
 }
 
-func (c *ClipArea) GetName() string {
-	return engine.NameOfComponent(c)
-}
-
 func NewClipArea(shape shape.Kind) *ClipArea {
 	return &ClipArea{
 		shape: shape,

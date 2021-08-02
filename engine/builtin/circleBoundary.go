@@ -6,32 +6,16 @@ import (
 )
 
 type CircleBoundary struct {
-	obj *engine.SceneObject
+	engine.ComponentImpl
 }
 
-func (r *CircleBoundary) GetName() string {
-	return engine.NameOfComponent(r)
-}
-
-func (r *CircleBoundary) OnInit(ctx engine.InitContext) {
-	r.obj = ctx.GetSceneObject()
-}
-
-func (r *CircleBoundary) OnStart() {
-
-}
-
-func (r *CircleBoundary) OnStop() {
-
-}
-
-func (r *CircleBoundary) IsPointInside(_ a.Vector3) bool {
+func (s *CircleBoundary) IsPointInside(_ a.Vector3) bool {
 	return false
 }
 
-func (r *CircleBoundary) IsPointInside2D(point a.Vector3) bool {
-	rect := r.obj.Transform.GetGlobalRect()
-	pos := r.obj.Transform.GetGlobalTopLeftPosition()
+func (s *CircleBoundary) IsPointInside2D(point a.Vector3) bool {
+	rect := s.SceneObject.Transform.GetGlobalRect()
+	pos := s.SceneObject.Transform.GetGlobalTopLeftPosition()
 	a := rect.X.GetLength() / 2
 	b := rect.Y.GetLength() / 2
 	x := point.X

@@ -4,7 +4,7 @@ import (
 	"github.com/cadmean-ru/amphion/engine"
 )
 
-// Component displays a native input widget for current platform.
+// NativeInputView component displays a native input widget for current platform.
 type NativeInputView struct {
 	engine.ComponentImpl
 	onTextChange  func(text string)
@@ -50,40 +50,36 @@ func (n *NativeInputView) OnStop() {
 	n.onStopNative()
 }
 
-func (n *NativeInputView) GetName() string {
-	return engine.NameOfComponent(n)
-}
-
-// Returns the current text value of the input view.
+// GetText returns the current text value of the input view.
 func (n *NativeInputView) GetText() string {
 	return n.text
 }
 
-// Updates the text.
+// SetText updates the text.
 func (n *NativeInputView) SetText(text string) {
 	n.setTextNative(text)
 	n.Engine.RequestRendering()
 }
 
-// Sets the callback that is invoked when the text of the input view is changed.
+// SetOnTextChangeListener sets the callback that is invoked when the text of the input view is changed.
 func (n *NativeInputView) SetOnTextChangeListener(listener func(text string)) {
 	n.onTextChange = listener
 }
 
-// Updates the hint text of the input view.
+// SetHint updates the hint text of the input view.
 func (n *NativeInputView) SetHint(hint string) {
 	n.hint = hint
 	n.setHintNative(hint)
 	n.Engine.RequestRendering()
 }
 
-// Returns the current hint value of the input view.
+// GetHint returns the current hint value of the input view.
 func (n *NativeInputView) GetHint() string {
 	n.hint = n.getHintNative()
 	return n.hint
 }
 
-// Creates a new NativeInputView. Returns pointer to the instance.
+// NewNativeInputView creates a new NativeInputView. Returns pointer to the instance.
 // This function takes a set of parameters to initialize the input view. All of them are optional.
 // The parameters are in the following order:
 // 0 - initial text

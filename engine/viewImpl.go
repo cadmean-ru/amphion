@@ -1,6 +1,6 @@
 package engine
 
-// Basic view component implementation.
+// ViewImpl is a basic view component implementation.
 type ViewImpl struct {
 	ShouldRedraw bool
 	Context      InitContext
@@ -51,9 +51,4 @@ func (v *ViewImpl) OnMessage(message Message) bool {
 	}
 
 	return true
-}
-
-
-func (v *ViewImpl) GetName() string {
-	return "ViewImpl"
 }

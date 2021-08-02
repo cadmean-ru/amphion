@@ -9,10 +9,6 @@ type RectBoundary struct {
 	engine.ComponentImpl
 }
 
-func (r *RectBoundary) GetName() string {
-	return engine.NameOfComponent(r)
-}
-
 func (r *RectBoundary) IsPointInside(point a.Vector3) bool {
 	return r.SceneObject.Transform.GetGlobalRect().IsPointInside(point)
 }

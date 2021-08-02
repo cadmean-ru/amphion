@@ -16,7 +16,7 @@ const (
 	ShapePoint     ShapeType = ShapeType(rendering.PrimitivePoint)
 )
 
-// Displays a basic shape: rectangle, ellipse, triangle, line, point.
+// ShapeView displays a basic shape: rectangle, ellipse, triangle, line, point.
 type ShapeView struct {
 	engine.ViewImpl
 	FillColor    a.Color `state:"fillColor"`
@@ -37,10 +37,6 @@ func (c *ShapeView) OnDraw(ctx engine.DrawingContext) {
 	}
 	ctx.GetRenderingNode().SetPrimitive(c.PrimitiveId, pr)
 	c.ShouldRedraw = false
-}
-
-func (c *ShapeView) GetName() string {
-	return engine.NameOfComponent(c)
 }
 
 func NewShapeView(pType ShapeType) *ShapeView {

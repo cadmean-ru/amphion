@@ -1,6 +1,6 @@
 package engine
 
-// Default component interface implementation
+// ComponentImpl is a default component interface implementation
 type ComponentImpl struct {
 	Engine      *AmphionEngine
 	SceneObject *SceneObject
@@ -19,8 +19,4 @@ func (c *ComponentImpl) OnStart() {
 
 func (c *ComponentImpl) OnStop() {
 
-}
-
-func (c *ComponentImpl) GetName() string {
-	panic("Get name not implemented")
 }

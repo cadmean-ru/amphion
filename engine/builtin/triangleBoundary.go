@@ -7,23 +7,7 @@ import (
 )
 
 type TriangleBoundary struct {
-	obj *engine.SceneObject
-}
-
-func (r *TriangleBoundary) GetName() string {
-	return engine.NameOfComponent(r)
-}
-
-func (r *TriangleBoundary) OnInit(ctx engine.InitContext) {
-	r.obj = ctx.GetSceneObject()
-}
-
-func (r *TriangleBoundary) OnStart() {
-
-}
-
-func (r *TriangleBoundary) OnStop() {
-
+	engine.ComponentImpl
 }
 
 func (r *TriangleBoundary) IsPointInside(_ a.Vector3) bool {
@@ -31,9 +15,9 @@ func (r *TriangleBoundary) IsPointInside(_ a.Vector3) bool {
 }
 
 func (r *TriangleBoundary) IsPointInside2D(point a.Vector3) bool {
-	rect := r.obj.Transform.GetGlobalRect()
-	pos := r.obj.Transform.GetGlobalTopLeftPosition()
-	size := r.obj.Transform.Size
+	rect := r.SceneObject.Transform.GetGlobalRect()
+	pos := r.SceneObject.Transform.GetGlobalTopLeftPosition()
+	size := r.SceneObject.Transform.Size
 	a1 := rect.X.GetLength()
 	h := rect.Y.GetLength()
 	s := a1 * h / 2

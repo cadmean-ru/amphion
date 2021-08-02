@@ -11,10 +11,6 @@ type OnClickListener struct {
 	OnClick engine.EventHandler `state:"onClick"`
 }
 
-func (l *OnClickListener) GetName() string {
-	return engine.NameOfComponent(l)
-}
-
 func (l *OnClickListener) OnMessage(m engine.Message) bool {
 	if m.Code != engine.MessageBuiltinEvent || l.OnClick == nil || m.Sender != l.SceneObject {
 		return true
@@ -28,7 +24,7 @@ func (l *OnClickListener) OnMessage(m engine.Message) bool {
 	return l.OnClick(event)
 }
 
-// Creates a new OnClickListener component with the specified event handler.
+// NewOnClickListener creates a new OnClickListener component with the specified event handler.
 func NewOnClickListener(handler engine.EventHandler) *OnClickListener {
 	return &OnClickListener{
 		OnClick: handler,

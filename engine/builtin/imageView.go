@@ -6,7 +6,7 @@ import (
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
-// Displays an image given it's resource index
+// ImageView displays an image given its resource index
 type ImageView struct {
 	engine.ViewImpl
 	ResId    a.ResId `state:"resId"`
@@ -28,7 +28,7 @@ func (v *ImageView) OnDraw(ctx engine.DrawingContext) {
 	v.ShouldRedraw = false
 }
 
-// Sets the resource index equal to the specified value, forcing the view to redraw and requesting rendering.
+// SetResId sets the resource index equal to the specified value, forcing the view to redraw and requesting rendering.
 func (v *ImageView) SetResId(i a.ResId) {
 	v.ResId = i
 	v.ImageUrl = ""
@@ -36,16 +36,12 @@ func (v *ImageView) SetResId(i a.ResId) {
 	engine.RequestRendering()
 }
 
-// Sets the image url equal to the specified value, forcing the view to redraw and requesting rendering.
+// SetImageUrl sets the image url equal to the specified value, forcing the view to redraw and requesting rendering.
 func (v *ImageView) SetImageUrl(url string) {
 	v.ResId = -1
 	v.ImageUrl = url
 	v.ShouldRedraw = true
 	engine.RequestRendering()
-}
-
-func (v *ImageView) GetName() string {
-	return engine.NameOfComponent(v)
 }
 
 func NewImageView(index a.ResId) *ImageView {

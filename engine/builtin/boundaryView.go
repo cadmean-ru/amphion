@@ -10,10 +10,6 @@ type BoundaryView struct {
 	engine.ViewImpl
 }
 
-func (r *BoundaryView) GetName() string {
-	return engine.NameOfComponent(r)
-}
-
 func (r *BoundaryView) OnDraw(ctx engine.DrawingContext) {
 	pr := rendering.NewGeometryPrimitive(rendering.PrimitiveRectangle)
 	pr.Transform = r.SceneObject.Transform.ToRenderingTransform()
