@@ -5,23 +5,23 @@ import (
 	"github.com/cadmean-ru/amphion/common/a"
 )
 
-// Represents the boundaries of an object, like collider in unity
+// Boundary represents the boundaries of an object, like collider in unity
 type Boundary interface {
 	IsPointInside(point a.Vector3) bool
 	IsPointInside2D(point a.Vector3) bool
 }
 
-// Represents a boundary in 3D space
+// RectBoundary represents a boundary in 3D space
 type RectBoundary struct {
 	X, Y, Z FloatRange
 }
 
-// Checks if specific point is inside the boundary
+// IsPointInside checks if specific point is inside the boundary
 func (b *RectBoundary) IsPointInside(v a.Vector3) bool {
 	return b.X.IsValueInside(v.X) && b.Y.IsValueInside(v.Y) && b.Z.IsValueInside(v.Z)
 }
 
-// Checks if specific point is inside the boundary ignoring z position
+// IsPointInside2D checks if specific point is inside the boundary ignoring z position
 func (b *RectBoundary) IsPointInside2D(v a.Vector3) bool {
 	return b.X.IsValueInside(v.X) && b.Y.IsValueInside(v.Y)
 }
@@ -54,10 +54,26 @@ func (b *RectBoundary) ToString() string {
 	return fmt.Sprintf("(%s %s %s)", b.X.ToString(), b.Y.ToString(), b.Z.ToString())
 }
 
+func (b *RectBoundary) String() string {
+	return b.ToString()
+}
+
 func NewRectBoundary(minX, maxX, minY, maxY, minZ, maxZ float32) *RectBoundary {
 	return &RectBoundary{
 		X: NewFloatRange(minX, maxX),
 		Y: NewFloatRange(minY, maxY),
 		Z: NewFloatRange(minZ, maxZ),
 	}
+}
+
+func NewRectBoundaryXY(minX, maxX, minY, maxY float32) *RectBoundary {
+	return &RectBoundary{
+		X: NewFloatRange(minX, maxX),
+		Y: NewFloatRange(minY, maxY),
+		Z: NewFloatRange(0, 0),
+	}
+}
+
+func NewRectBoundaryFromPositionAndSize(position a.Vector3, size a.Vector3) *RectBoundary {
+	return NewRectBoundary(position.X, position.X + size.X, position.Y, position.Y + size.Y, position.Z, position.Z + size.Z)
 }

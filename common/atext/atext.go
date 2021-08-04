@@ -2,18 +2,27 @@
 package atext
 
 import (
+	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
+	"strings"
 )
 
-// Text contains the layered out text.
+// Text contains the layered out text. Read only.
 type Text struct {
-	lines  []*Line
-	width  int
-	height int
+	lines       []*Line
+	width       int
+	height      int
+	initialRect *common.RectBoundary
 }
 
 func (t *Text) append(line *Line) {
 	t.lines = append(t.lines, line)
+
+	if line.width > t.width {
+		t.width = line.width
+	}
+
+	t.height += line.face.GetLineHeight()
 }
 
 // ForEachChar iterates over each character in this text.
@@ -42,7 +51,7 @@ func (t *Text) GetAllChars() []*Char {
 	return allChars
 }
 
-//GetCharCount returns the total number of characters in the text.
+//GetCharsCount returns the total number of characters in the text.
 func (t *Text) GetCharsCount() int {
 	count := 0
 	for _, l := range t.lines {
@@ -82,4 +91,22 @@ func (t *Text) GetLineAt(index int) *Line {
 // GetSize returns the calculated text size.
 func (t *Text) GetSize() a.IntVector2 {
 	return a.NewIntVector2(t.width, t.height)
+}
+
+func (t *Text) GetInitialRect() *common.RectBoundary {
+	return t.initialRect
+}
+
+func (t *Text) GetActualRect() *common.RectBoundary {
+	return common.NewRectBoundaryFromPositionAndSize(t.initialRect.GetMin(), a.NewVector3(float32(t.width), float32(t.height), 0))
+}
+
+func (t *Text) String() string {
+	sb := strings.Builder{}
+
+	for _, l := range t.lines {
+		sb.WriteString(l.String())
+	}
+
+	return sb.String()
 }

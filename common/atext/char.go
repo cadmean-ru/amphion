@@ -1,6 +1,9 @@
 package atext
 
-import "github.com/cadmean-ru/amphion/common/a"
+import (
+	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
+)
 
 // Char is a representation of a character of text on the screen.
 type Char struct {
@@ -19,20 +22,31 @@ func (c *Char) GetGlyph() *Glyph {
 	return c.glyph
 }
 
-// GetPosition returns the position of the character on the screen, where it should be drawn.
+// GetPosition returns the top-left position of the character on the screen, where it should be drawn.
 func (c *Char) GetPosition() a.IntVector2 {
 	return c.pos
 }
 
+//GetX return the x coordinate of the top-left position of the char.
 func (c *Char) GetX() int {
 	return c.pos.X
 }
 
+//GetY return the y coordinate of the top-left position of the char.
 func (c *Char) GetY() int {
 	return c.pos.Y
 }
 
+//GetRect returns the rect of the char.
+func (c *Char) GetRect() *common.RectBoundary {
+	return common.NewRectBoundaryFromPositionAndSize(c.GetPosition().ToFloat3(), c.GetGlyph().GetSize().ToFloat3())
+}
+
 // IsVisible tells if the character has a visual representation.
 func (c *Char) IsVisible() bool {
-	return c.rune != ' ' && c.rune != '\n'
+	return c.glyph != nil && c.rune != ' ' && c.rune != '\n'
+}
+
+func (c *Char) String() string {
+	return string(c.rune)
 }
