@@ -3,6 +3,7 @@ package engine
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common"
+	"github.com/cadmean-ru/amphion/common/a"
 )
 
 type LogLevel uint
@@ -38,7 +39,13 @@ func (logger *Logger) subsystemNameOrEmptyString(subsystem interface{}) string {
 		return ""
 	}
 
-	return NameOfComponent(subsystem)
+	if comp, ok := subsystem.(Component); ok {
+		return NameOfComponent(comp)
+	} else if named, ok := subsystem.(a.NamedObject); ok {
+		return named.GetName()
+	} else {
+		return fmt.Sprintf("%v", subsystem)
+	}
 }
 
 func getLoggerImpl(p common.Platform) ILogger {
