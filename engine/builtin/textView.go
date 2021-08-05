@@ -17,6 +17,7 @@ type TextView struct {
 	Text          string      `state:"text"`
 	HTextAlign    a.TextAlign `state:"hTextAlign"`
 	VTextAlign    a.TextAlign `state:"vTextAlign"`
+	SingleLine    bool        `state:"singleLine"`
 	prevTransform engine.Transform
 	aText         *atext.Text
 	aFont         *atext.Font
@@ -63,6 +64,7 @@ func (t *TextView) layoutText() {
 	t.aText = atext.LayoutRunes(t.aFace, []rune(t.Text), t.SceneObject.Transform.GetGlobalRect(), atext.LayoutOptions{
 		VTextAlign: t.VTextAlign,
 		HTextAlign: t.HTextAlign,
+		SingleLine: t.SingleLine,
 	})
 }
 
@@ -111,6 +113,13 @@ func (t *TextView) SetHTextAlign(align a.TextAlign) {
 // SetVTextAlign sets the current horizontal text alignment.
 func (t *TextView) SetVTextAlign(align a.TextAlign) {
 	t.VTextAlign = align
+	t.ShouldRedraw = true
+	engine.RequestRendering()
+}
+
+//SetSingleLine sets if the text should be on single line.
+func (t *TextView) SetSingleLine(singleLine bool) {
+	t.SingleLine = singleLine
 	t.ShouldRedraw = true
 	engine.RequestRendering()
 }

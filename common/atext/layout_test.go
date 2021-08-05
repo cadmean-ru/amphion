@@ -21,24 +21,33 @@ func TestLayoutRunes(t *testing.T) {
 	testCases := []struct{
 		input string
 		rect *common.RectBoundary
+		options LayoutOptions
 		nLines int
 	} {
 		{
 			"Hello bruh",
 			common.NewRectBoundaryXY(0, 100, 0, 100),
+			LayoutOptions{},
 			1,
 		},
 		{
 			"Hello\nbruh",
 			common.NewRectBoundaryXY(0, 100, 0, 100),
+			LayoutOptions{},
 			2,
+		},
+		{
+			"Hello\nbruh",
+			common.NewRectBoundaryXY(0, 100, 0, 100),
+			LayoutOptions{SingleLine: true},
+			1,
 		},
 	}
 
 	for i, testCase := range testCases {
 		fmt.Printf("Test case %d\n", i)
 		runes := []rune(testCase.input)
-		text := LayoutRunes(face, runes, testCase.rect, LayoutOptions{})
+		text := LayoutRunes(face, runes, testCase.rect, testCase.options)
 
 		fmt.Printf("Initial rect: %v\n", text.GetInitialRect())
 		fmt.Printf("Actual rect: %v\n", text.GetActualRect())

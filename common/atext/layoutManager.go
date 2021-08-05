@@ -102,6 +102,10 @@ func (m *layoutManager) align() {
 }
 
 func (m *layoutManager) lineBreak() {
+	if m.options.SingleLine {
+		return
+	}
+
 	m.x = m.xMin
 	m.y += m.face.GetLineHeight()
 	m.text.append(m.currentLine)
