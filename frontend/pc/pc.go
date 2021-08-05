@@ -82,15 +82,16 @@ func (f *Frontend) Run() {
 			timeToWait = SleepTimeS - msgTime.Seconds()
 		}
 
-		//if timeToWait == 0 && f.app != nil && f.app.Debug {
-		//	fmt.Println("Warning! The frontend is skipping frames!")
-		//	fmt.Printf("Message processing took: %dms\n", msgTime.Milliseconds())
-		//}
+		if timeToWait == 0 && f.app != nil && f.app.Debug {
+			fmt.Println("Warning! The frontend is skipping frames!")
+			fmt.Printf("Message processing took: %dms\n", msgTime.Milliseconds())
+		}
 
 		glfw.WaitEventsTimeout(timeToWait)
 	}
 
-	// TODO: notify the engine to stop correctly
+	f.disp.SendMessage(dispatch.NewMessage(frontend.CallbackStop))
+	f.msgChan.WaitForMessage(frontend.MessageEngineStopped)
 
 	glfw.Terminate()
 }

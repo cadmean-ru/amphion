@@ -160,6 +160,10 @@ func handleOrientationChange(callback *dispatch.Message) {
 	instance.updateRoutine.enqueueEventAndRequestUpdate(e)
 }
 
+func handleStop(_ *dispatch.Message) {
+	instance.Stop()
+}
+
 func newFrontendCallbackHandler() dispatch.MessageDispatcher {
 	return &frontendCallbackHandler{
 		handlersMap: map[int]dispatch.MessageHandlerFunc{
@@ -178,6 +182,7 @@ func newFrontendCallbackHandler() dispatch.MessageDispatcher {
 			frontend.CallbackKeyUp: handleKeyDown,
 			frontend.CallbackTextInput: handleRuneInput,
 			frontend.CallbackOrientationChange: handleOrientationChange,
+			frontend.CallbackStop: handleStop,
 		},
 	}
 }

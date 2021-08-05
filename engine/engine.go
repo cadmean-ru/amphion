@@ -72,7 +72,7 @@ func Initialize(front frontend.Frontend) *AmphionEngine {
 		logger:            GetLoggerForPlatform(front.GetPlatform()),
 		idgen:             common.NewIdGenerator(),
 		state:             StateStopped,
-		stopChan:          make(chan bool),
+		stopChan:          make(chan bool, 1),
 		updateRoutine:     newUpdateRoutine(),
 		tasksRoutine:      newTasksRoutine(),
 		componentsManager: newComponentsManager(),
@@ -402,6 +402,8 @@ func (engine *AmphionEngine) handleStop() {
 
 	engine.stopChan<-true
 	close(engine.stopChan)
+
+	engine.front.GetMessageDispatcher().SendMessage(dispatch.NewMessage(frontend.MessageEngineStopped))
 }
 
 func (engine *AmphionEngine) canStop() bool {

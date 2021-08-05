@@ -38,7 +38,7 @@ type Frontend interface {
 	//GetResourceManager should return an implementation of ResourceManager interface.
 	GetResourceManager() ResourceManager
 
-	//GetApp should returns the app data from app.yaml file.
+	//GetApp should return the app data from app.yaml file.
 	GetApp() *App
 
 	//GetLaunchArgs should return arguments.
@@ -46,43 +46,23 @@ type Frontend interface {
 }
 
 const (
-	CallbackContextChange     = -100
-	CallbackMouseDown         = -101
-	CallbackKeyDown           = -102
-	CallbackMouseUp           = -103
-	CallbackAppHide           = -104
-	CallbackAppShow           = -105
-	CallbackMouseMove         = -106
-	CallbackMouseScroll       = -107
-	CallbackTouchDown         = -108
-	CallbackTouchUp           = -109
-	CallbackTouchMove         = -110
-	CallbackReady             = -111
-	CallbackKeyUp             = -112
-	CallbackTextInput         = -113
-	CallbackOrientationChange = -114
+	CallbackContextChange = -100-iota
+	CallbackMouseDown
+	CallbackKeyDown
+	CallbackMouseUp
+	CallbackAppHide
+	CallbackAppShow
+	CallbackMouseMove
+	CallbackMouseScroll
+	CallbackTouchDown
+	CallbackTouchUp
+	CallbackTouchMove
+	CallbackReady
+	CallbackKeyUp
+	CallbackTextInput
+	CallbackOrientationChange
+	CallbackStop
 )
-
-//Deprecated: use dispatch.Message instead
-//Callback contains a code and string data, that is accepted by the engine through the CallbackHandler passed with SetCallback.
-type Callback struct {
-	Code int
-	Data string
-}
-
-//Deprecated: use dispatch.Message instead
-//NewCallback creates a new Callback instance with the specified code and string data.
-func NewCallback(code int, data string) Callback {
-	return Callback{
-		Code: code,
-		Data: data,
-	}
-}
-
-//Deprecated: use dispatch.MessageHandler instead
-//CallbackHandler is a function that is provided by the engine through SetCallback and
-//called to pass data from frontend to the engine.
-type CallbackHandler func(callback Callback)
 
 //ResourceManager defines interface, that should be implemented in the frontend to provide functionality of
 //working with files in res folder.

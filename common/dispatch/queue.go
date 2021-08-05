@@ -57,11 +57,20 @@ func (q *MessageQueue) Dequeue() *Message {
 }
 
 //DequeueBlocking Removes the first message from the queue.
-//Id the queue is empty waits for a message to come.
+//If the queue is empty waits for a message to come.
 func (q *MessageQueue) DequeueBlocking() *Message {
 	var msg = <-q.messageChan
 	q.size--
 	return msg
+}
+
+//WaitForMessage blocks the calling thread until a message with the given code is read from the queue.
+func (q *MessageQueue) WaitForMessage(what int) {
+	for msg := range q.messageChan {
+		if msg.What == what {
+			break
+		}
+	}
 }
 
 //GetSize returns the current size of the queue.
