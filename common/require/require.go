@@ -1,2 +1,2 @@
-// Provides convenient types conversion functions.
+// Package require provides convenient type conversions.
 package require
