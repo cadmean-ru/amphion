@@ -101,6 +101,10 @@ func (t *Text) GetActualRect() *common.RectBoundary {
 	return common.NewRectBoundaryFromPositionAndSize(t.initialRect.GetMin(), a.NewVector3(float32(t.width), float32(t.height), 0))
 }
 
+func (t *Text) GetAText() *Text {
+	return t
+}
+
 func (t *Text) String() string {
 	sb := strings.Builder{}
 

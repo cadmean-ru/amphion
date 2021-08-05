@@ -31,32 +31,9 @@ func (r *TextRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 
 	tp := ctx.Primitive.(*rendering.TextPrimitive)
 
-	fontName := tp.TextAppearance.Font
-	if fontName == "" {
-		fontName = "Arial"
-	}
-
-	var font *atext.Font
-	var ok bool
-	var err error
-	if font, ok = r.fonts[fontName]; !ok {
-		font, err = atext.LoadFont(fontName)
-		if err != nil {
-			panic(err)
-		}
-		r.fonts[fontName] = font
-	}
-
-	face := font.NewFace(int(tp.TextAppearance.FontSize))
-
 	color := tp.Appearance.FillColor.Normalize()
 
-	runes := []rune(tp.Text)
-
-	atext.LayoutRunes(face, runes, tp.Transform.GetRect(), atext.LayoutOptions{
-		VTextAlign: tp.VTextAlign,
-		HTextAlign: tp.HTextAlign,
-	}).ForEachChar(func(c *atext.Char) {
+	tp.TextProvider.GetAText().ForEachChar(func(c *atext.Char) {
 		if !c.IsVisible() {
 			return
 		}

@@ -2,6 +2,7 @@ package builtin
 
 import (
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/atext"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 )
@@ -9,17 +10,40 @@ import (
 // TextView component displays the given text
 type TextView struct {
 	engine.ViewImpl
-	TextColor  a.Color     `state:"textColor"`
-	Font       string      `state:"font"`
-	FontSize   byte        `state:"fontSize"`
-	FontWeight byte        `state:"fontWeight"`
-	Text       string      `state:"text"`
-	HTextAlign a.TextAlign `state:"hTextAlign"`
-	VTextAlign a.TextAlign `state:"vTextAlign"`
+	TextColor     a.Color     `state:"textColor"`
+	Font          string      `state:"font"`
+	FontSize      byte        `state:"fontSize"`
+	FontWeight    byte        `state:"fontWeight"`
+	Text          string      `state:"text"`
+	HTextAlign    a.TextAlign `state:"hTextAlign"`
+	VTextAlign    a.TextAlign `state:"vTextAlign"`
+	prevTransform engine.Transform
+	aText         *atext.Text
+	aFont         *atext.Font
+	aFace         *atext.Face
+}
+
+func (t *TextView) OnInit(ctx engine.InitContext) {
+    t.ViewImpl.OnInit(ctx)
+
+    t.aFont, _ = atext.ParseFont(atext.DefaultFontData)
+    t.aFace = t.aFont.NewFace(int(t.FontSize))
+
+    t.layoutText()
+}
+
+func (t *TextView) OnUpdate(_ engine.UpdateContext) {
+	if !t.ShouldRedraw && t.prevTransform.Equals(t.SceneObject.Transform) {
+		return
+	}
+
+	t.prevTransform = t.SceneObject.Transform
+
+	t.layoutText()
 }
 
 func (t *TextView) OnDraw(ctx engine.DrawingContext) {
-	pr := rendering.NewTextPrimitive(t.Text)
+	pr := rendering.NewTextPrimitive(t.Text, t)
 	pr.Transform = t.SceneObject.Transform.ToRenderingTransform()
 	pr.Appearance = rendering.Appearance{
 		FillColor:    t.TextColor,
@@ -33,6 +57,13 @@ func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 	pr.VTextAlign = t.VTextAlign
 	ctx.GetRenderingNode().SetPrimitive(t.PrimitiveId, pr)
 	t.ShouldRedraw = false
+}
+
+func (t *TextView) layoutText() {
+	t.aText = atext.LayoutRunes(t.aFace, []rune(t.Text), t.SceneObject.Transform.GetGlobalRect(), atext.LayoutOptions{
+		VTextAlign: t.VTextAlign,
+		HTextAlign: t.HTextAlign,
+	})
 }
 
 // SetText sets the text equal to the specified value, forcing the view to redraw and requesting rendering.
@@ -66,6 +97,7 @@ func (t *TextView) SetTextColor(color interface{}) {
 func (t *TextView) SetFontSize(fontSize byte) {
 	t.FontSize = fontSize
 	t.ShouldRedraw = true
+	t.aFace = t.aFont.NewFace(int(fontSize))
 	engine.RequestRendering()
 }
 
@@ -81,6 +113,10 @@ func (t *TextView) SetVTextAlign(align a.TextAlign) {
 	t.VTextAlign = align
 	t.ShouldRedraw = true
 	engine.RequestRendering()
+}
+
+func (t *TextView) GetAText() *atext.Text {
+	return t.aText
 }
 
 //NewTextView creates a new TextView with the given text.

@@ -7,6 +7,7 @@ import (
 
 // Char is a representation of a character of text on the screen.
 type Char struct {
+	face  *Face
 	rune  rune
 	glyph *Glyph
 	pos   a.IntVector2
@@ -35,6 +36,15 @@ func (c *Char) GetX() int {
 //GetY return the y coordinate of the top-left position of the char.
 func (c *Char) GetY() int {
 	return c.pos.Y
+}
+
+//GetSize reruns the size of the char in pixels.
+func (c *Char) GetSize() a.IntVector2 {
+	if c.glyph != nil {
+		return c.glyph.GetSize()
+	}
+
+	return a.NewIntVector2(c.face.GetSize(), c.face.GetSize() / 4)
 }
 
 //GetRect returns the rect of the char.

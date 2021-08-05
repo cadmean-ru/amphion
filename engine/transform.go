@@ -173,6 +173,10 @@ func (t *Transform) ToRenderingTransform() rendering.Transform {
 	return rt
 }
 
+func (t Transform) Equals(other Transform) bool {
+	return t.Position.Equals(other.Position) && t.Size.Equals(other.Size) && t.Pivot.Equals(other.Pivot) && t.Rotation.Equals(other.Rotation)
+}
+
 // Calculates the rect boundary of the transform given the top left point's position.
 func (t Transform) calculateRect(tlp a.Vector3) *common.RectBoundary {
 	minX := tlp.X
