@@ -34,7 +34,7 @@ func (t *TextView) OnInit(ctx engine.InitContext) {
 }
 
 func (t *TextView) OnUpdate(_ engine.UpdateContext) {
-	if !t.ShouldRedraw && t.prevTransform.Equals(t.SceneObject.Transform) {
+	if !t.ShouldDraw() && t.prevTransform.Equals(t.SceneObject.Transform) {
 		return
 	}
 

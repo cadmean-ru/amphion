@@ -350,8 +350,8 @@ func (l *GridLayout) setFillParentRowsCols() {
 	totalRowsHeight, rowFillCount := l.calculateRowsMetrics()
 	totalColsWidth, colFillCount := l.calculateColumnsMetrics()
 
-	availableColsSpace := common.MaxFloat32(gridSize.X-totalColsWidth, 0)
-	availableRowsSpace := common.MaxFloat32(gridSize.Y-totalRowsHeight, 0)
+	availableColsSpace := common.MaxFloat32(gridSize.X-totalColsWidth-l.ColumnPadding*2*float32(l.GetColumnsCount()), 0)
+	availableRowsSpace := common.MaxFloat32(gridSize.Y-totalRowsHeight-l.RowPadding*2*float32(l.GetRowsCount()), 0)
 
 	for r := 0; r < len(l.Rows); r++ {
 		for c := 0; c < len(l.Columns); c++ {
@@ -379,10 +379,11 @@ func (l *GridLayout) layout(children []*engine.SceneObject) (float32, float32) {
 
 func (l *GridLayout) layoutVertical(children []*engine.SceneObject) (x float32, y float32) {
 	var i = 0
+	y = l.RowPadding
 
 	for r := 0; r < len(l.Rows); r++ {
 		row := l.Rows[r]
-		x = 0
+		x = l.ColumnPadding
 
 		for c := 0; c < len(l.Columns); c++ {
 			if i >= len(children) {
@@ -394,12 +395,12 @@ func (l *GridLayout) layoutVertical(children []*engine.SceneObject) (x float32, 
 
 			l.adjustChildTransformIfNeeded(child, row, col, x, y)
 
-			x += col.actualWidth()
+			x += col.actualWidth() + l.ColumnPadding*2
 
 			i++
 		}
 
-		y += row.actualHeight()
+		y += row.actualHeight() + l.RowPadding*2
 	}
 
 	return
@@ -407,10 +408,11 @@ func (l *GridLayout) layoutVertical(children []*engine.SceneObject) (x float32, 
 
 func (l *GridLayout) layoutHorizontal(children []*engine.SceneObject) (x float32, y float32) {
 	var i = 0
+	x = l.ColumnPadding
 
 	for c := 0; c < len(l.Columns); c++ {
 		col := l.Columns[c]
-		y = 0
+		y = l.RowPadding
 
 		for r := 0; r < len(l.Rows); r++ {
 			if i >= len(children) {
@@ -422,12 +424,12 @@ func (l *GridLayout) layoutHorizontal(children []*engine.SceneObject) (x float32
 
 			l.adjustChildTransformIfNeeded(child, row, col, x, y)
 
-			y += row.actualHeight()
+			y += row.actualHeight() + l.RowPadding*2
 
 			i++
 		}
 
-		x += col.actualWidth()
+		x += col.actualWidth() + l.ColumnPadding*2
 	}
 
 	return
@@ -437,10 +439,10 @@ func (l *GridLayout) adjustChildTransformIfNeeded(child *engine.SceneObject,
 	row *GridRowDefinition, col *GridColumnDefinition,
 	x, y float32) {
 
-	pos := a.NewVector3(x+l.ColumnPadding, y+l.RowPadding, l.SceneObject.Transform.Position.Z)
+	pos := a.NewVector3(x, y, l.SceneObject.Transform.Position.Z)
 	size := a.NewVector3(
-		common.MaxFloat32(col.actualWidth()-l.ColumnPadding*2, 0),
-		common.MaxFloat32(row.actualHeight()-l.RowPadding*2, 0),
+		col.actualWidth(),
+		row.actualHeight(),
 		child.Transform.Size.Z,
 	)
 
