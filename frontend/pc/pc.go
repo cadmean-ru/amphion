@@ -162,7 +162,7 @@ func (f *Frontend) mouseButtonCallback(w *glfw.Window, button glfw.MouseButton, 
 	f.disp.SendMessage(callback)
 }
 
-func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, width int, height int) {
+func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, _ int, _ int) {
 	w, h := f.window.GetSize()
 	f.wSize = a.NewIntVector3(w, h, 0)
 	f.rendererDelegate.wSize = f.wSize

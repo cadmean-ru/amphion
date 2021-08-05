@@ -2,12 +2,13 @@ package dispatch
 
 import "fmt"
 
-//MessageQueue is a non blocking message buffer.
-//It is used to communicate between the engine and the frontend.
+//MessageQueue is a thread-safe message buffer.
+//In general, it can be used to communicate between different threads.
+//It is mostly used to communicate between the engine and the frontend.
 //There are two channels under the hood - main and secondary.
 //The size of main channel is specified in the constructor function,
 //whereas the size of the secondary channel equals half the size of the main channel.
-//You can lock the main channel, so new messages wont be send to it. Then all messages in it can be processed.
+//You can lock the main channel, so new messages won't be sent to it. Then all messages in it can be processed.
 //While the main channel is locked, messages are sent to the secondary channel.
 //As soon as the main channel is unlocked, all messages from the secondary channel are sent to main channel.
 type MessageQueue struct {
