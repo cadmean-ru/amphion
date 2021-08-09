@@ -33,11 +33,13 @@ func (m *layoutManager) makeAllChars(runes []rune) {
 			m.allChars[i] = &Char{
 				rune:  r,
 				glyph: g,
+				face:  m.face,
 			}
 		} else {
 			m.allChars[i] = &Char{
 				rune:  r,
 				glyph: nil,
+				face:  m.face,
 			}
 		}
 	}
