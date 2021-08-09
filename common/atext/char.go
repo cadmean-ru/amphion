@@ -44,7 +44,7 @@ func (c *Char) GetSize() a.IntVector2 {
 		return c.glyph.GetSize()
 	}
 
-	return a.NewIntVector2(c.face.GetSize(), c.face.GetSize() / 4)
+	return a.NewIntVector2(c.face.GetSize() / 4, c.face.GetSize())
 }
 
 //GetRect returns the rect of the char.

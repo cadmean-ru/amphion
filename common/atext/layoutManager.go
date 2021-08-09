@@ -48,9 +48,9 @@ func (m *layoutManager) makeAllChars(runes []rune) {
 func (m *layoutManager) splitIntoLines() {
 	for i, char := range m.allChars {
 		if char.rune == ' ' || char.glyph == nil {
+			char.pos = a.NewIntVector2(m.x, m.y+m.face.GetAscent())
 			space := m.face.GetSize() / 4
 			m.x += space
-			char.pos = a.NewIntVector2(m.x, m.y+m.face.GetAscent())
 			m.currentLine.append(char, space)
 			continue
 		}
