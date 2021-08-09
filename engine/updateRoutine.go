@@ -12,10 +12,10 @@ type updateRoutine struct {
 	eventQueue         *dispatch.MessageQueue
 	updateRequested    bool
 	renderingRequested bool
-	newSceneObjects    []*SceneObject
-	startSceneObjects  []*SceneObject
-	stopSceneObjects   []*SceneObject
-	componentsToStop   []*ComponentContainer
+	newSceneObjects    *dispatch.MessageQueue
+	startSceneObjects  *dispatch.MessageQueue
+	stopSceneObjects   *dispatch.MessageQueue
+	componentsToStop   *dispatch.MessageQueue
 	eventBinder        *EventBinder
 	dt                 time.Duration
 	lastFrameTime      time.Time
@@ -31,6 +31,13 @@ func (r *updateRoutine) start() {
 	if r.running {
 		return
 	}
+
+	r.updateChan = dispatch.NewMessageQueue(10)
+	r.eventQueue = dispatch.NewMessageQueue(100)
+	r.newSceneObjects = dispatch.NewMessageQueue(MaxSceneObjects/2)
+	r.startSceneObjects = dispatch.NewMessageQueue(MaxSceneObjects/2)
+	r.stopSceneObjects = dispatch.NewMessageQueue(MaxSceneObjects/2)
+	r.componentsToStop =  dispatch.NewMessageQueue(MaxSceneObjects/2)
 
 	go r.Loop()
 }
@@ -54,20 +61,22 @@ func (r *updateRoutine) stop() {
 }
 
 func (r *updateRoutine) initSceneObject(object *SceneObject) {
-	r.newSceneObjects = append(r.newSceneObjects, object)
+	LogDebug("Request to init %s", object.GetName())
+	r.newSceneObjects.Enqueue(dispatch.NewMessageWithAnyData(0, object))
 	r.startSceneObject(object)
 }
 
 func (r *updateRoutine) startSceneObject(object *SceneObject) {
-	r.startSceneObjects = append(r.startSceneObjects, object)
+	LogDebug("Request to start %s", object.GetName())
+	r.startSceneObjects.Enqueue(dispatch.NewMessageWithAnyData(0, object))
 }
 
 func (r *updateRoutine) stopSceneObject(object *SceneObject) {
-	r.stopSceneObjects = append(r.stopSceneObjects, object)
+	r.stopSceneObjects.Enqueue(dispatch.NewMessageWithAnyData(0, object))
 }
 
 func (r *updateRoutine) stopComponent(c *ComponentContainer) {
-	r.componentsToStop = append(r.componentsToStop, c)
+	r.componentsToStop.Enqueue(dispatch.NewMessageWithAnyData(0, c))
 }
 
 func (r *updateRoutine) waitForStop() {
@@ -199,49 +208,41 @@ func (r *updateRoutine) handleEvents() {
 }
 
 func (r *updateRoutine) handleSceneObjectsLifecycle() {
-	if len(r.newSceneObjects) > 0 {
-		temp := r.newSceneObjects
-		r.newSceneObjects = make([]*SceneObject, 0, 10)
+	r.newSceneObjects.LockMainChannel()
+	r.startSceneObjects.LockMainChannel()
+	r.stopSceneObjects.LockMainChannel()
+	r.componentsToStop.LockMainChannel()
 
-		for _, o := range temp {
-			o.init(newInitContext(o))
-		}
+	for !r.newSceneObjects.IsEmpty() {
+		o := r.newSceneObjects.Dequeue().AnyData.(*SceneObject)
+		o.init(newInitContext(o))
 	}
 
-	if len(r.startSceneObjects) > 0 {
-		temp := r.startSceneObjects
-		r.startSceneObjects = make([]*SceneObject, 0, 10)
-
-		for _, o := range temp {
-			o.start()
-		}
+	for !r.startSceneObjects.IsEmpty() {
+		o := r.startSceneObjects.Dequeue().AnyData.(*SceneObject)
+		o.start()
 	}
 
-	if len(r.stopSceneObjects) > 0 {
-		temp := r.stopSceneObjects
-		r.stopSceneObjects = make([]*SceneObject, 0, 10)
-
-		for _, o := range temp {
-			o.stop()
-		}
+	for !r.stopSceneObjects.IsEmpty() {
+		o := r.stopSceneObjects.Dequeue().AnyData.(*SceneObject)
+		o.stop()
 	}
 
-	if len(r.componentsToStop) > 0 {
-		temp := r.componentsToStop
-		r.componentsToStop = make([]*ComponentContainer, 0, 10)
-
-		for _, c := range temp {
-			c.stop()
-		}
+	for !r.componentsToStop.IsEmpty() {
+		c := r.componentsToStop.Dequeue().AnyData.(*ComponentContainer)
+		c.stop()
 	}
+
+	r.newSceneObjects.UnlockMainChannel()
+	r.startSceneObjects.UnlockMainChannel()
+	r.stopSceneObjects.UnlockMainChannel()
+	r.componentsToStop.UnlockMainChannel()
 }
 
 func (r *updateRoutine) performUpdateIfNeeded() {
 	if !r.updateWasRequested {
 		return
 	}
-
-	//engine.logger.Info("Update Loop", "Updating components")
 
 	r.updateWasRequested = false
 	instance.state = StateUpdating
@@ -256,8 +257,6 @@ func (r *updateRoutine) performRenderingIdNeeded() {
 	if !r.renderingWasRequested {
 		return
 	}
-
-	//instance.logger.Warning(r, "Rendering components")
 
 	r.renderingWasRequested = false
 	instance.state = StateRendering
@@ -293,9 +292,13 @@ func (r *updateRoutine) handleStop() {
 	instance.currentScene.setInCurrentScene(false)
 
 	r.running = false
-	r.newSceneObjects = make([]*SceneObject, 0)
-	r.startSceneObjects = make([]*SceneObject, 0)
-	r.stopSceneObjects = make([]*SceneObject, 0)
+
+	r.newSceneObjects.Close()
+	r.startSceneObjects.Close()
+	r.stopSceneObjects.Close()
+	r.componentsToStop.Close()
+	r.eventQueue.Close()
+	r.updateChan.Close()
 
 	instance.logger.Info(r, "Stopped")
 
@@ -358,13 +361,6 @@ func (r *updateRoutine) GetName() string {
 
 func newUpdateRoutine() *updateRoutine {
 	return &updateRoutine{
-		running:           false,
-		updateChan:        dispatch.NewMessageQueue(10),
-		eventQueue:        dispatch.NewMessageQueue(100),
-		newSceneObjects:   make([]*SceneObject, 0, 10),
-		startSceneObjects: make([]*SceneObject, 0, 10),
-		stopSceneObjects:  make([]*SceneObject, 0, 10),
-		componentsToStop:  make([]*ComponentContainer, 0, 10),
 		eventBinder:       newEventBinder(),
 	}
 }

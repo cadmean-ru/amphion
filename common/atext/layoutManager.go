@@ -50,6 +50,7 @@ func (m *layoutManager) splitIntoLines() {
 		if char.rune == ' ' || char.glyph == nil {
 			space := m.face.GetSize() / 4
 			m.x += space
+			char.pos = a.NewIntVector2(m.x, m.y+m.face.GetAscent())
 			m.currentLine.append(char, space)
 			continue
 		}

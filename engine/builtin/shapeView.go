@@ -16,7 +16,7 @@ const (
 	ShapePoint     ShapeType = ShapeType(rendering.PrimitivePoint)
 )
 
-// ShapeView displays a basic shape: rectangle, ellipse, triangle, line, point.
+// ShapeView displays a basic Shape: rectangle, ellipse, triangle, line, point.
 type ShapeView struct {
 	engine.ViewImpl
 	FillColor    a.Color `state:"fillColor"`

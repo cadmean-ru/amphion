@@ -538,7 +538,6 @@ func (engine *AmphionEngine) LoadApp(delegate ...AppDelegate) {
 				engine.appContext.delegate = delegate[0]
 			}
 
-			engine.RaiseEvent(NewAmphionEvent(engine, EventAppLoaded, nil))
 			engine.appContext.onAppLoaded()
 
 			args := engine.front.GetLaunchArgs()

@@ -10,6 +10,8 @@ import (
 	"reflect"
 )
 
+const MaxSceneObjects = 1000
+
 // SceneObject is an object in the scene. The scene itself is also a SceneObject.
 type SceneObject struct {
 	id                  int
@@ -468,6 +470,9 @@ func (o *SceneObject) init(ctx InitContext) {
 		instance.currentComponent = c.component
 		c.component.OnInit(ctx)
 		c.initialized = true
+		if NameOfComponent(c.component) == "github.com/cadmean-ru/amphion/engine/builtin.ClipArea" {
+			LogDebug("init %+v", c)
+		}
 	}
 
 	o.initialized = true
@@ -476,7 +481,7 @@ func (o *SceneObject) init(ctx InitContext) {
 
 func (o *SceneObject) start() {
 	for _, c := range o.components {
-		if !c.enabled || !c.initialized || c.started {
+		if c.IsDirty() || c.started {
 			continue
 		}
 		instance.currentComponent = c.component
@@ -490,7 +495,7 @@ func (o *SceneObject) start() {
 
 func (o *SceneObject) update(ctx UpdateContext) {
 	for _, c := range o.updatingComponents {
-		if !c.enabled {
+		if c.IsDirty() || !c.started {
 			continue
 		}
 

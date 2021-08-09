@@ -8,11 +8,11 @@ import (
 
 type ClipArea struct {
 	engine.ComponentImpl
-	shape shape.Kind
+	Shape shape.Kind `state:"shape"`
 }
 
-func (c *ClipArea) OnUpdate(ctx engine.UpdateContext) {
-    c.SceneObject.GetRenderingNode().SetClipArea2D(rendering.NewClipArea2D(c.shape, c.SceneObject.Transform.GetGlobalRect()))
+func (c *ClipArea) OnUpdate(_ engine.UpdateContext) {
+    c.SceneObject.GetRenderingNode().SetClipArea2D(rendering.NewClipArea2D(c.Shape, c.SceneObject.Transform.GetGlobalRect()))
 }
 
 func (c *ClipArea) OnStop() {
@@ -21,6 +21,6 @@ func (c *ClipArea) OnStop() {
 
 func NewClipArea(shape shape.Kind) *ClipArea {
 	return &ClipArea{
-		shape: shape,
+		Shape: shape,
 	}
 }

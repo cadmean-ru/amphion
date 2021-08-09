@@ -1,6 +1,6 @@
 package engine
 
-// Wrap around container interface, that can be enabled or disabled
+// ComponentContainer is a wrap around container interface, that can be enabled or disabled
 type ComponentContainer struct {
 	enabled       bool
 	sceneObject   *SceneObject
