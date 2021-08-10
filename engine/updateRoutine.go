@@ -100,8 +100,6 @@ func (r *updateRoutine) close() {
 		instance.logger.Error(r, "Cannot close update Loop before stopping")
 		panic("Cannot close update Loop before stopping")
 	}
-	r.updateChan.Close()
-	r.eventQueue.Close()
 }
 
 //endregion
