@@ -61,13 +61,11 @@ func (r *updateRoutine) stop() {
 }
 
 func (r *updateRoutine) initSceneObject(object *SceneObject) {
-	LogDebug("Request to init %s", object.GetName())
 	r.newSceneObjects.Enqueue(dispatch.NewMessageWithAnyData(0, object))
 	r.startSceneObject(object)
 }
 
 func (r *updateRoutine) startSceneObject(object *SceneObject) {
-	LogDebug("Request to start %s", object.GetName())
 	r.startSceneObjects.Enqueue(dispatch.NewMessageWithAnyData(0, object))
 }
 
