@@ -43,7 +43,7 @@ func (r *updateRoutine) start() {
 }
 
 func (r *updateRoutine) requestUpdate() {
-	if r.updateRequested {
+	if !r.running || r.updateRequested {
 		return
 	}
 
