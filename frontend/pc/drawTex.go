@@ -7,7 +7,7 @@ package pc
 import (
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/rendering"
-	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
 func drawTex(ctx *rendering.PrimitiveRenderingContext, nPos, nbrPos a.Vector3, texId, progId uint32, alwaysRedraw bool, beforeDraw func()) {

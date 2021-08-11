@@ -6,7 +6,7 @@ package pc
 
 import (
 	"github.com/cadmean-ru/amphion/rendering"
-	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
 type glContainer struct {
