@@ -32,8 +32,8 @@ func (r *RectangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		gl.BindVertexArray(state.vao)
 
 		wSize := engine.GetScreenSize3()
-		ntlPos := gp.Transform.Position.Ndc(wSize)                        // normalized top left
-		nbrPos := gp.Transform.Position.Add(gp.Transform.Size).Ndc(wSize) // normalized bottom right
+		ntlPos := gp.Transform.Position.ToFloat()                        // normalized top left
+		nbrPos := gp.Transform.Position.Add(gp.Transform.Size).ToFloat() // normalized bottom right
 
 		color := gp.Appearance.FillColor
 		r1 := float32(color.R)

@@ -112,12 +112,16 @@ func (p *GlProgram) IsUsable() bool {
 	return p.compiled && !p.deleted
 }
 
-func (p *GlProgram) Use() {
+func (p *GlProgram) Activate() {
 	if !p.IsUsable() {
 		panic(fmt.Sprintf("program '%s' is not usable", p.tag))
 	}
 
 	gl.UseProgram(p.id)
+}
+
+func (p *GlProgram) Deactivate() {
+	gl.UseProgram(0)
 }
 
 func (p *GlProgram) SetClipArea2DUniforms(area *rendering.ClipArea2D) {

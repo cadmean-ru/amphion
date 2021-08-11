@@ -16,7 +16,7 @@ import (
 type OpenGLRenderer struct {
 	window     *glfw.Window
 	wSize      a.IntVector3
-	projection [16]float32
+	projection a.Matrix4
 	front      *Frontend
 	renderers  []*glPrimitiveRenderer
 	clipArea   *rendering.ClipArea2D
@@ -45,7 +45,9 @@ func (r *OpenGLRenderer) OnPrepare() {
 	//
 	//gl.Clear(gl.COLOR_BUFFER_BIT)
 
-	//r.calculateProjection()
+	gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
+
+	r.calculateProjection()
 
 	//gl.Viewport(0, 0, 500, 500)
 
@@ -104,34 +106,46 @@ func (r *OpenGLRenderer) handleWindowResize(w, h int) {
 	//r.wSize = a.NewIntVector3(w, h, 0)
 	//fmt.Printf("OpenGL renderer: handle resize: %d, %d\n", w, h)
 	gl.Viewport(0, 0, int32(w), int32(h))
-	//r.calculateProjection()
+	r.calculateProjection()
 }
 
-//func (r *OpenGLRenderer) calculateProjection() {
-//	xs := float32(r.wSize.X)
-//	ys := float32(r.wSize.Y)
-//	c1 := 2 / xs
-//	c2 := 2 / ys
-//
-//	r.projection = [16]float32 {
-//		c1, 0,  0,  -1,
-//		0,  c2, 0,  -1,
-//		0,  0,  1,  0,
-//		0,  0,  0,  1,
-//	}
-//
-//	fmt.Println(r.projection)
-//
-//	for _, renderer := range r.renderers {
-//		r.setProjectionUniform(renderer.id)
-//	}
-//}
-//
-//func (r *OpenGLRenderer) setProjectionUniform(id uint32) {
-//	gl.UseProgram(id)
-//	loc := gl.GetUniformLocation(id, gl.Str(zeroTerminatedString("uProjection")))
-//	if loc >= 0 {
-//		gl.UniformMatrix4fv(loc, 1, false, &r.projection[0])
-//	}
-//	gl.UseProgram(0)
-//}
+func (r *OpenGLRenderer) calculateProjection() {
+	xs := float32(r.wSize.X)
+	ys := float32(r.wSize.Y)
+	zs := float32(2)
+	c1 := 2 / xs
+	c2 := 2 / ys
+	c3 := -2 / zs
+
+	r.projection = a.Matrix4 {
+		c1, 0,  0, -1,
+		0,  c2, 0, -1,
+		0,  0,  c3, 0,
+		0,  0,  0,  1,
+	}
+
+	//r.projection = a.Matrix4 {
+	//	c1, 0,  0, 0,
+	//	0,  c2, 0, 0,
+	//	0,  0, c3, 0,
+	//	-1, -1, 0, 1,
+	//}
+
+	fmt.Println(r.projection)
+
+	fmt.Println(r.projection.MulVector(a.NewVector4(float32(r.wSize.X), float32(r.wSize.X), 0, 1)))
+	fmt.Println(r.projection.MulVector(a.NewVector4(250, 250, 0, 1)))
+
+	for _, renderer := range r.renderers {
+		r.setProjectionUniform(renderer.program)
+	}
+}
+
+func (r *OpenGLRenderer) setProjectionUniform(prog *GlProgram) {
+	prog.Activate()
+	loc := prog.GetUniformLocation("uProjection")
+	if loc >= 0 {
+		gl.UniformMatrix4fv(loc, 1, true, &r.projection[0])
+	}
+	prog.Deactivate()
+}

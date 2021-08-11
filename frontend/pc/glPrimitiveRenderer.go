@@ -29,7 +29,7 @@ func (r *glPrimitiveRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext)
 		panic(fmt.Sprintf("OnRender called before OnSetPrimitive was called for id: %d", ctx.PrimitiveId))
 	}
 
-	r.program.Use()
+	r.program.Activate()
 
 	if ctx.ClipArea2D != nil {
 		r.program.SetClipArea2DUniforms(ctx.ClipArea2D)

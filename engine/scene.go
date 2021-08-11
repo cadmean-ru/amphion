@@ -162,7 +162,7 @@ func (o *SceneObject) GetChildByName(name string) *SceneObject {
 		}
 	}
 
-	panic(fmt.Sprintf("child scene object with name %s was not found (is it dirty?)", name))
+	panic(fmt.Sprintf("child scene object with name %s was not found", name))
 }
 
 //AddComponent adds a component to this scene object.
@@ -674,7 +674,7 @@ func (o *SceneObject) ForEachChild(action func(object *SceneObject), includeDirt
 //FindObjectByName searches for an object with the specified name through all the scene object tree.
 //Returns the first suitable object.
 //Returns nil if no object with the name was found.
-//By default the search does not include dirty objects.
+//By default, the search does not include dirty objects.
 //To also include dirty objects pass true as the second argument.
 func (o *SceneObject) FindObjectByName(name string, includeDirty ...bool) *SceneObject {
 	var found *SceneObject
@@ -699,7 +699,7 @@ func (o *SceneObject) FindObjectByName(name string, includeDirty ...bool) *Scene
 //FindComponentByName searches for a component with the specified name through all the scene object tree.
 //Returns the first suitable component.
 //Returns nil if no component with the name was found.
-//By default the search does not include dirty components.
+//By default, the search does not include dirty components.
 //To also include dirty components pass true as the second argument.
 func (o *SceneObject) FindComponentByName(name string, includeDirty ...bool) Component {
 	var found Component
