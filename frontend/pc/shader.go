@@ -35,6 +35,9 @@ var ShapeFragShaderStr string
 //go:embed shaders/ShapeVertexShader.glsl
 var ShapeVertexShaderStr string
 
+//go:embed shaders/TriangleFragShader.glsl
+var TriangleFragShaderStr string
+
 //go:embed shaders/TextFragShader.glsl
 var TextFragShaderStr string
 

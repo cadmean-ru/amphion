@@ -5,6 +5,7 @@
 package pc
 
 import (
+	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -15,7 +16,7 @@ type TriangleRenderer struct {
 }
 
 func (r *TriangleRenderer) OnStart() {
-	r.program = NewGlProgram(ShapeVertexShaderStr, ShapeFragShaderStr, "triangle")
+	r.program = NewGlProgram(ShapeVertexShaderStr, TriangleFragShaderStr, "triangle")
 	r.program.CompileAndLink()
 }
 
@@ -30,9 +31,9 @@ func (r *TriangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		gl.BindVertexArray(state.vao)
 
 		wSize := engine.GetScreenSize3()
-		nPos := gp.Transform.Position.Ndc(wSize)
-		nSize := gp.Transform.Position.Add(gp.Transform.Size).Ndc(wSize)
-		midX := nPos.X + ((nSize.X - nPos.X) / 2)
+		ntlPos := gp.Transform.Position.Ndc(wSize)
+		nbrPos := gp.Transform.Position.Add(gp.Transform.Size).Ndc(wSize)
+		midX := ntlPos.X + ((nbrPos.X - ntlPos.X) / 2)
 
 		color := gp.Appearance.FillColor
 		r1 := float32(color.R)
@@ -40,17 +41,26 @@ func (r *TriangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		b1 := float32(color.B)
 		a1 := float32(color.A)
 
+		strokeColor := gp.Appearance.StrokeColor
+		r2 := float32(strokeColor.R)
+		g2 := float32(strokeColor.G)
+		b2 := float32(strokeColor.B)
+		a2 := float32(strokeColor.A)
+
+		var stroke = a.NewIntVector3(int(gp.Appearance.StrokeWeight), int(gp.Appearance.StrokeWeight), int(gp.Appearance.StrokeWeight))
+		var nStroke = stroke.Ndc(wSize).Add(a.OneVector())
+
 		vertices := []float32 {
-			nPos.X,  nSize.Y, 0, r1, g1, b1, a1,
-			midX,    nPos.Y,  0, r1, g1, b1, a1,
-			nSize.X, nSize.Y, 0, r1, g1, b1, a1,
+			ntlPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, 0,
+			midX,     ntlPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, 0,
+			nbrPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, 0,
 		}
 
 		indices := []uint32 {
 			0, 1, 2,
 		}
 
-		const stride int32 = 28
+		const stride int32 = 76
 
 		gl.BindBuffer(gl.ARRAY_BUFFER, state.vbo)
 		gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
@@ -61,8 +71,23 @@ func (r *TriangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		gl.VertexAttribPointer(0, 3, gl.FLOAT, false, stride, nil)
 		gl.EnableVertexAttribArray(0)
 
-		gl.VertexAttribPointer(1, 4, gl.FLOAT, false, stride, gl.PtrOffset(12))
+		gl.VertexAttribPointer(1, 3, gl.FLOAT, false, stride, gl.PtrOffset(12))
 		gl.EnableVertexAttribArray(1)
+
+		gl.VertexAttribPointer(2, 3, gl.FLOAT, false, stride, gl.PtrOffset(24))
+		gl.EnableVertexAttribArray(2)
+
+		gl.VertexAttribPointer(3, 4, gl.FLOAT, false, stride, gl.PtrOffset(36))
+		gl.EnableVertexAttribArray(3)
+
+		gl.VertexAttribPointer(4, 1, gl.FLOAT, false, stride, gl.PtrOffset(52))
+		gl.EnableVertexAttribArray(4)
+
+		gl.VertexAttribPointer(5, 4, gl.FLOAT, false, stride, gl.PtrOffset(56))
+		gl.EnableVertexAttribArray(5)
+
+		gl.VertexAttribPointer(6, 1, gl.FLOAT, false, stride, gl.PtrOffset(72))
+		gl.EnableVertexAttribArray(6)
 
 		gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 		gl.BindVertexArray(0)
