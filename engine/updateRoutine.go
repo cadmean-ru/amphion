@@ -32,12 +32,17 @@ func (r *updateRoutine) start() {
 		return
 	}
 
+	instance.logger.Info(r, "bruh buruh")
+	r.updateRequested = true
+	r.renderingRequested = true
 	r.updateChan = dispatch.NewMessageQueue(10)
 	r.eventQueue = dispatch.NewMessageQueue(100)
 	r.newSceneObjects = dispatch.NewMessageQueue(MaxSceneObjects/2)
 	r.startSceneObjects = dispatch.NewMessageQueue(MaxSceneObjects/2)
 	r.stopSceneObjects = dispatch.NewMessageQueue(MaxSceneObjects/2)
 	r.componentsToStop =  dispatch.NewMessageQueue(MaxSceneObjects/2)
+
+	r.updateChan.Enqueue(dispatch.NewMessage(MessageUpdate))
 
 	go r.Loop()
 }
@@ -115,7 +120,10 @@ func (r *updateRoutine) Loop() {
 
 	// Updating every frame or wait for update chan
 	for {
+		instance.logger.Info(r, "Waiting for update")
 		msg := r.updateChan.DequeueBlocking()
+
+		instance.logger.Info(r, "Performing update")
 
 		if msg.What == MessageUpdateStop {
 			instance.logger.Info(r, "Stopping")
@@ -253,6 +261,8 @@ func (r *updateRoutine) performRenderingIdNeeded() {
 	if !r.renderingWasRequested {
 		return
 	}
+
+	instance.logger.Info(r, "Performing rendering")
 
 	r.renderingWasRequested = false
 	instance.state = StateRendering

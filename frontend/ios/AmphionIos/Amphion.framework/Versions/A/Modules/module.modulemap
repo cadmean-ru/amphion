@@ -1,0 +1,11 @@
+framework module "Amphion" {
+	header "ref.h"
+    header "IosCli.objc.h"
+    header "Cli.objc.h"
+    header "Atext.objc.h"
+    header "Dispatch.objc.h"
+    header "Universe.objc.h"
+    header "Amphion.h"
+
+    export *
+}

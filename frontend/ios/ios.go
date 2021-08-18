@@ -16,7 +16,6 @@ import (
 type Frontend struct {
 	*dispatch.LooperImpl
 	f        cli.FrontendDelegate
-	handler  *cli.CallbackHandler
 	resMan   frontend.ResourceManager
 	renderer *rendering.ARenderer
 	msgQueue *dispatch.MessageQueue
