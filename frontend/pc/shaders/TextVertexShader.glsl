@@ -6,7 +6,7 @@ out vec4 fPosition;
 
 void main()
 {
-    gl_Position = vec4(vPosition, 1.0);
+    gl_Position = applyProjection(vPosition);
     fPosition = gl_Position;
     fTexCoord = vTexCoord;
 }

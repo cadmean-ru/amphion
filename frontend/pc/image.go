@@ -5,7 +5,6 @@
 package pc
 
 import (
-	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"image"
@@ -79,9 +78,8 @@ func (r *ImageRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		texId = state.tex
 	}
 
-	wSize := engine.GetScreenSize3()
-	nPos := ip.Transform.Position.Ndc(wSize)
-	brPos := ip.Transform.Position.Add(ip.Transform.Size).Ndc(wSize)
+	nPos := ip.Transform.Position.ToFloat()
+	brPos := ip.Transform.Position.Add(ip.Transform.Size).ToFloat()
 
 	drawTex(ctx, nPos, brPos, texId, r.program.id, false, nil)
 }

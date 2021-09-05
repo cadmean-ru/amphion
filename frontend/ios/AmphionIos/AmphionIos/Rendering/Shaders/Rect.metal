@@ -18,9 +18,13 @@ struct RectOut {
     float4 color;
 };
 
-vertex RectOut rect_vertex(const RectIn rectIn [[stage_in]]) {
+struct Uniform {
+    float4x4 projection;
+};
+
+vertex RectOut rect_vertex(const RectIn rectIn [[stage_in]], constant Uniform& uniform [[buffer(1)]]) {
     RectOut rectOut;
-    rectOut.position = rectIn.position;
+    rectOut.position = uniform.projection * rectIn.position;
     rectOut.color = rectIn.color;
     
     return rectOut;

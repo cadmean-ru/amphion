@@ -34,6 +34,8 @@ func (r *glPrimitiveRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext)
 	if ctx.ClipArea2D != nil {
 		r.program.SetClipArea2DUniforms(ctx.ClipArea2D)
 	}
+
+	r.program.SetProjectionUniform(ctx.Projection)
 }
 
 func (r *glPrimitiveRenderer) OnRemovePrimitive(ctx *rendering.PrimitiveRenderingContext) {

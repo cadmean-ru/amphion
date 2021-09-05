@@ -47,7 +47,7 @@ class RendererDelegate : NSObject, CliRendererDelegateProtocol {
         commandQueue = device.makeCommandQueue()
         
         IosCliRegisterPrimitiveRendererDelegate(CliPrimitiveRectangle, RectRendererDelegate(library, device))
-//        IosCliRegisterPrimitiveRendererDelegate(CliPrimitiveImage, ImageRendererDelegate(library, device))
+        IosCliRegisterPrimitiveRendererDelegate(CliPrimitiveImage, ImageRendererDelegate(library, device))
 //        IosCliRegisterPrimitiveRendererDelegate(CliPrimitiveText, TextRendererDelegate(library, device))
     }
     

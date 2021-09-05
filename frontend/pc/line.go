@@ -5,7 +5,6 @@
 package pc
 
 import (
-	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
@@ -30,9 +29,8 @@ func (r *LineRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 	if ctx.Redraw {
 		gl.BindVertexArray(state.vao)
 
-		wSize := engine.GetScreenSize3()
-		nPos := gp.Transform.Position.Ndc(wSize)
-		nSize := gp.Transform.Position.Add(gp.Transform.Size).Ndc(wSize)
+		nPos := gp.Transform.Position.ToFloat()
+		nSize := gp.Transform.Position.Add(gp.Transform.Size).ToFloat()
 
 		vertices := []float32 {
 			nPos.X, nPos.Y, 0,

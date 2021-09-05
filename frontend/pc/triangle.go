@@ -6,7 +6,6 @@ package pc
 
 import (
 	"github.com/cadmean-ru/amphion/common/a"
-	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
@@ -30,9 +29,8 @@ func (r *TriangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 	if ctx.Redraw {
 		gl.BindVertexArray(state.vao)
 
-		wSize := engine.GetScreenSize3()
-		ntlPos := gp.Transform.Position.Ndc(wSize)
-		nbrPos := gp.Transform.Position.Add(gp.Transform.Size).Ndc(wSize)
+		ntlPos := gp.Transform.Position.ToFloat()
+		nbrPos := gp.Transform.Position.Add(gp.Transform.Size).ToFloat()
 		midX := ntlPos.X + ((nbrPos.X - ntlPos.X) / 2)
 
 		color := gp.Appearance.FillColor
@@ -48,7 +46,7 @@ func (r *TriangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		a2 := float32(strokeColor.A)
 
 		var stroke = a.NewIntVector3(int(gp.Appearance.StrokeWeight), int(gp.Appearance.StrokeWeight), int(gp.Appearance.StrokeWeight))
-		var nStroke = stroke.Ndc(wSize).Add(a.OneVector())
+		var nStroke = stroke.ToFloat().Add(a.OneVector())
 
 		vertices := []float32 {
 			ntlPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, 0,

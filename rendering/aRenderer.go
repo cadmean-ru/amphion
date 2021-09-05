@@ -117,7 +117,7 @@ func (r *ARenderer) Stop() {
 }
 
 func (r *ARenderer) makePrimitiveRenderingContext(container *PrimitiveNode) *PrimitiveRenderingContext {
-	return &PrimitiveRenderingContext{
+	ctx := &PrimitiveRenderingContext{
 		Renderer:      r,
 		Primitive:     container.primitive,
 		PrimitiveKind: container.primitive.GetType(),
@@ -126,6 +126,8 @@ func (r *ARenderer) makePrimitiveRenderingContext(container *PrimitiveNode) *Pri
 		Redraw:        container.redraw,
 		ClipArea2D:    r.clipStack.Peek(),
 	}
+	r.delegate.OnCreatePrimitiveRenderingContext(ctx)
+	return ctx
 }
 
 func (r *ARenderer) RegisterPrimitiveRendererDelegate(primitiveKind byte, delegate PrimitiveRendererDelegate) {

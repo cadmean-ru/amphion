@@ -57,8 +57,14 @@ class RectRendererDelegate : BasePrimitiveRendererDelegate {
                 2, 3, 0,
             ]
             
+            let 🍆: [Float] = [
+                
+            ]
+            
             primitive.vertexBuffer = device.makeBuffer(bytes: verticies, length: verticies.count * MemoryLayout<RectVertexDescriptor>.stride, options: [])
             primitive.indexBuffer = device.makeBuffer(bytes: indicies, length: indicies.count * MemoryLayout<UInt16>.stride, options: [])
+            
+            primitive.uniformBuffer = device.makeBuffer(bytes: 🍆, length: MemoryLayout<UniformBuffer>.size, options: [])
             
             PrimitivesRegistry.shared.setPrimitive(byId: context.primitiveId, withData: primitive)
         }

@@ -45,7 +45,7 @@ func (r *OpenGLRenderer) OnPrepare() {
 	//
 	//gl.Clear(gl.COLOR_BUFFER_BIT)
 
-	gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
+	//gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
 
 	r.calculateProjection()
 
@@ -75,6 +75,10 @@ func (r *OpenGLRenderer) OnPrepare() {
 	}
 
 	r.clipArea = rendering.NewClipArea2DEmpty()
+}
+
+func (r *OpenGLRenderer) OnCreatePrimitiveRenderingContext(ctx *rendering.PrimitiveRenderingContext) {
+	ctx.Projection = r.projection
 }
 
 func (r *OpenGLRenderer) OnPerformRenderingStart() {
@@ -114,38 +118,18 @@ func (r *OpenGLRenderer) calculateProjection() {
 	ys := float32(r.wSize.Y)
 	zs := float32(2)
 	c1 := 2 / xs
-	c2 := 2 / ys
+	c2 := -2 / ys
 	c3 := -2 / zs
 
 	r.projection = a.Matrix4 {
 		c1, 0,  0, -1,
-		0,  c2, 0, -1,
+		0,  c2, 0,  1,
 		0,  0,  c3, 0,
 		0,  0,  0,  1,
 	}
 
-	//r.projection = a.Matrix4 {
-	//	c1, 0,  0, 0,
-	//	0,  c2, 0, 0,
-	//	0,  0, c3, 0,
-	//	-1, -1, 0, 1,
-	//}
-
-	fmt.Println(r.projection)
-
-	fmt.Println(r.projection.MulVector(a.NewVector4(float32(r.wSize.X), float32(r.wSize.X), 0, 1)))
-	fmt.Println(r.projection.MulVector(a.NewVector4(250, 250, 0, 1)))
-
-	for _, renderer := range r.renderers {
-		r.setProjectionUniform(renderer.program)
-	}
-}
-
-func (r *OpenGLRenderer) setProjectionUniform(prog *GlProgram) {
-	prog.Activate()
-	loc := prog.GetUniformLocation("uProjection")
-	if loc >= 0 {
-		gl.UniformMatrix4fv(loc, 1, true, &r.projection[0])
-	}
-	prog.Deactivate()
+	//fmt.Println(r.projection)
+	//
+	//fmt.Println(r.projection.MulVector(a.NewVector4(float32(r.wSize.X), float32(r.wSize.X), 0, 1)))
+	//fmt.Println(r.projection.MulVector(a.NewVector4(250, 250, 0, 1)))
 }

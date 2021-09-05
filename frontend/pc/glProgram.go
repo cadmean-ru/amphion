@@ -137,6 +137,11 @@ func (p *GlProgram) SetClipArea2DUniforms(area *rendering.ClipArea2D) {
 	gl.Uniform1i(clipShapeUniform, int32(area.Shape))
 }
 
+func (p *GlProgram) SetProjectionUniform(projection a.Matrix4) {
+	projectionUniform := p.GetUniformLocation("uProjection")
+	gl.UniformMatrix4fv(projectionUniform, 1, true, &projection[0])
+}
+
 func (p *GlProgram) GetUniformLocation(uName string) int32 {
 	if loc, ok := p.uniforms[uName]; ok {
 		return loc

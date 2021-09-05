@@ -26,6 +26,7 @@ struct MetalPrimitive {
     var indexBuffer: MTLBuffer?
     var texture: MTLTexture?
     var sampler: MTLSamplerState?
+    var uniformBuffer: MTLBuffer?
     
     init() {
         data = nil

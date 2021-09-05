@@ -4,6 +4,6 @@ out vec4 trashPos;
 
 void main()
 {
-    trashPos = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    trashPos = applyProjection(aPos);
     gl_Position = trashPos;
 }

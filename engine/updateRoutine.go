@@ -120,10 +120,10 @@ func (r *updateRoutine) Loop() {
 
 	// Updating every frame or wait for update chan
 	for {
-		instance.logger.Info(r, "Waiting for update")
+		//instance.logger.Info(r, "Waiting for update")
 		msg := r.updateChan.DequeueBlocking()
 
-		instance.logger.Info(r, "Performing update")
+		//instance.logger.Info(r, "Performing update")
 
 		if msg.What == MessageUpdateStop {
 			instance.logger.Info(r, "Stopping")
@@ -262,7 +262,7 @@ func (r *updateRoutine) performRenderingIdNeeded() {
 		return
 	}
 
-	instance.logger.Info(r, "Performing rendering")
+	//instance.logger.Info(r, "Performing rendering")
 
 	r.renderingWasRequested = false
 	instance.state = StateRendering

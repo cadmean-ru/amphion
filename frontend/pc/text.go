@@ -7,7 +7,6 @@ package pc
 import (
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/atext"
-	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
@@ -39,15 +38,14 @@ func (r *TextRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		}
 
 		pos2d := c.GetPosition()
-		wSize := engine.GetScreenSize3()
 		pos := a.NewIntVector3(pos2d.X, pos2d.Y, 0)
-		npos := pos.Ndc(wSize)
+		npos := pos.ToFloat()
 
 		w := c.GetGlyph().GetSize().X
 		h := c.GetGlyph().GetSize().Y
 
 		brpos := pos.Add(a.NewIntVector3(w, h, 0))
-		nbrpos := brpos.Ndc(wSize)
+		nbrpos := brpos.ToFloat()
 
 		var textId uint32
 		if m1, ok := r.charsTextures[int(tp.TextAppearance.FontSize)]; ok {

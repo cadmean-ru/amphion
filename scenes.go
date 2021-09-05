@@ -16,7 +16,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 
 	rect := engine.NewSceneObject("rect")
 	rect.Transform.Size = a.NewVector3(100, 100, 100)
-	rect.Transform.Position = a.NewVector3(100, 100, -2)
+	rect.Transform.Position = a.NewVector3(0, 0, 0)
 	shape := builtin.NewShapeView(builtin.ShapeRectangle)
 	shape.FillColor = a.PinkColor()
 	rect.AddComponent(shape)
