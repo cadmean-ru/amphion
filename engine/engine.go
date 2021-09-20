@@ -255,8 +255,8 @@ func (engine *AmphionEngine) configureScene(scene *SceneObject) {
 	}
 
 	screenInfo := engine.globalContext.ScreenInfo
-	scene.Transform.Size.X = float32(screenInfo.GetWidth())
-	scene.Transform.Size.Y = float32(screenInfo.GetHeight())
+	scene.Transform.size.X = float32(screenInfo.GetWidth())
+	scene.Transform.size.Y = float32(screenInfo.GetHeight())
 }
 
 // RequestUpdate tells the engine to schedule an update as soon as possible.
@@ -424,7 +424,7 @@ func (engine *AmphionEngine) handleMouseMove(mousePos a.IntVector2) {
 
 	if len(candidates) > 0 {
 		sort.Slice(candidates, func(i, j int) bool {
-			return candidates[i].Transform.GetGlobalPosition().Z > candidates[j].Transform.GetGlobalPosition().Z
+			return candidates[i].Transform.GlobalPosition().Z > candidates[j].Transform.GlobalPosition().Z
 		})
 		o := candidates[0]
 

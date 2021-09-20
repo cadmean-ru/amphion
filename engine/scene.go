@@ -62,7 +62,7 @@ func (o *SceneObject) GetParent() *SceneObject {
 
 func (o *SceneObject) appendChild(object *SceneObject) {
 	object.parent = o
-	object.Transform.SceneObject = object
+	object.Transform.sceneObject = object
 	object.Transform.parent = &o.Transform
 	object.setInCurrentScene(o.inCurrentScene)
 	o.children = append(o.children, object)
@@ -393,7 +393,7 @@ func (o *SceneObject) IsEnabled() bool {
 
 // SetPosition sets the position of this object equal to the specified vector, requesting rendering.
 func (o *SceneObject) SetPosition(v a.Vector3) {
-	o.Transform.Position = v
+	o.Transform.position = v
 	o.Redraw()
 }
 
@@ -404,12 +404,12 @@ func (o *SceneObject) SetPositionXyz(x, y, z float32) {
 
 //SetPositionXy sets the position of this object equal to a new vector with specified coordinates, requesting rendering.
 func (o *SceneObject) SetPositionXy(x, y float32) {
-	o.SetPosition(a.NewVector3(x, y, o.Transform.Position.Z))
+	o.SetPosition(a.NewVector3(x, y, o.Transform.position.Z))
 }
 
 // SetSize Set the size of this object equal to the specified vector, requesting rendering.
 func (o *SceneObject) SetSize(v a.Vector3) {
-	o.Transform.Size = v
+	o.Transform.size = v
 	o.Redraw()
 }
 
@@ -420,7 +420,7 @@ func (o *SceneObject) SetSizeXyz(x, y, z float32) {
 
 // SetSizeXy Set the size of this object equal to a new vector with specified coordinates, requesting rendering.
 func (o *SceneObject) SetSizeXy(x, y float32) {
-	o.SetSize(a.NewVector3(x, y, o.Transform.Size.Z))
+	o.SetSize(a.NewVector3(x, y, o.Transform.size.Z))
 }
 
 // Redraw forces all views of this object to redraw and requests rendering.
@@ -440,7 +440,7 @@ func (o *SceneObject) Redraw() {
 	instance.RequestRendering()
 }
 
-//func (o *SceneObject) Measure() a.IntVector3 {
+//func (o *sceneObject) Measure() a.IntVector3 {
 //	rect := common.NewRectBoundary(0, 0, 0, 0, 0, 0)
 //	for _, c := range o.children {
 //
@@ -616,8 +616,8 @@ func (o *SceneObject) IsHovered() bool {
 }
 
 func (o *SceneObject) IsVisibleInScene() bool {
-	sceneRect := instance.GetCurrentScene().Transform.GetGlobalRect()
-	rect := o.Transform.GetGlobalRect()
+	sceneRect := instance.GetCurrentScene().Transform.GlobalRect()
+	rect := o.Transform.GlobalRect()
 	return rect.X.Max >= sceneRect.X.Min && rect.X.Min <= sceneRect.X.Max && rect.Y.Max >= sceneRect.Y.Min && rect.Y.Min <= sceneRect.Y.Max
 }
 

@@ -15,9 +15,9 @@ func (r *TriangleBoundary) IsPointInside(_ a.Vector3) bool {
 }
 
 func (r *TriangleBoundary) IsPointInside2D(point a.Vector3) bool {
-	rect := r.SceneObject.Transform.GetGlobalRect()
-	pos := r.SceneObject.Transform.GetGlobalTopLeftPosition()
-	size := r.SceneObject.Transform.Size
+	rect := r.SceneObject.Transform.GlobalRect()
+	pos := r.SceneObject.Transform.GlobalTopLeftPosition()
+	size := r.SceneObject.Transform.ActualSize()
 	a1 := rect.X.GetLength()
 	h := rect.Y.GetLength()
 	s := a1 * h / 2

@@ -44,7 +44,7 @@ func (m *MouseMover) OnUpdate(_ engine.UpdateContext) {
 	newMousePos := m.Engine.GetInputManager().GetCursorPosition()
 	dPos := newMousePos.Sub(m.mousePos)
 	m.mousePos = newMousePos
-	m.SceneObject.Transform.Position = m.SceneObject.Transform.Position.Add(dPos.ToFloat3())
+	m.SceneObject.Transform.Translate(dPos.ToFloat3())
 	m.Engine.GetMessageDispatcher().DispatchDown(m.SceneObject, engine.NewMessage(m, engine.MessageRedraw, nil), engine.MessageMaxDepth)
 	m.Engine.RequestRendering()
 }

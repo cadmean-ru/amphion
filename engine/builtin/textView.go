@@ -61,7 +61,7 @@ func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 }
 
 func (t *TextView) layoutText() {
-	t.aText = atext.LayoutRunes(t.aFace, []rune(t.Text), t.SceneObject.Transform.GetGlobalRect(), atext.LayoutOptions{
+	t.aText = atext.LayoutRunes(t.aFace, []rune(t.Text), t.SceneObject.Transform.GlobalRect(), atext.LayoutOptions{
 		VTextAlign: t.VTextAlign,
 		HTextAlign: t.HTextAlign,
 		SingleLine: t.SingleLine,

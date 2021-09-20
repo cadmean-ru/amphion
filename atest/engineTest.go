@@ -60,9 +60,9 @@ func MakeTestScene(delegate TestingDelegate) (*engine.SceneObject, *engine.Scene
 	scene := engine.NewSceneObject("test scene")
 
 	testObject := engine.NewSceneObject("test object")
-	testObject.Transform.Position = a.NewVector3(a.CenterInParent, a.CenterInParent, a.CenterInParent)
-	testObject.Transform.Size = a.NewVector3(100, 100, 100)
-	testObject.Transform.Pivot = a.NewVector3(0.5, 0.5, 0.5)
+	testObject.Transform.position = a.NewVector3(a.CenterInParent, a.CenterInParent, a.CenterInParent)
+	testObject.Transform.size = a.NewVector3(100, 100, 100)
+	testObject.Transform.pivot = a.NewVector3(0.5, 0.5, 0.5)
 	testObject.AddComponent(NewTestingComponent(delegate))
 
 	scene.AddChild(testObject)
@@ -82,7 +82,7 @@ func SimulateClick(x, y int, button engine.MouseButton) {
 
 // SimulateClickOnObject simulates user's click in the center of the specified object.
 func SimulateClickOnObject(o *engine.SceneObject, button engine.MouseButton) {
-	rect := o.Transform.GetGlobalRect()
+	rect := o.Transform.GlobalRect()
 	x := int(rect.X.Min + rect.X.GetLength() / 2)
 	y := int(rect.Y.Min + rect.Y.GetLength() / 2)
 	SimulateClick(x, y, button)

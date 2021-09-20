@@ -3,45 +3,79 @@ package engine
 import (
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/require"
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
 // Transform describes how a scene object is positioned on the screen.
 type Transform struct {
-	Position a.Vector3
-	Pivot    a.Vector3
-	Rotation a.Vector3
-	Size     a.Vector3
+	position a.Vector3
+	pivot    a.Vector3
+	rotation a.Vector3
+	size     a.Vector3
 
-	SceneObject *SceneObject
+	sceneObject *SceneObject
 	parent      *Transform
 }
 
-// NewTransform2D creates a new transform with default values.
-func NewTransform2D(object *SceneObject) Transform {
-	return Transform{
-		Position:    a.ZeroVector(),
-		Pivot:       a.ZeroVector(),
-		Rotation:    a.ZeroVector(),
-		Size:        a.OneVector(),
-		SceneObject: object,
-	}
+func (t *Transform) WantedPosition() a.Vector3 {
+	return t.position
 }
 
-func (t Transform) ToMap() a.SiMap {
+func (t *Transform) SetPosition(position ...interface{}) {
+	t.position = getVector3FromInterfaceValues(t.position, position...)
+}
+
+func (t *Transform) SetPositionCentered() {
+	t.SetPosition(a.NewVector3(a.CenterInParent, a.CenterInParent, a.CenterInParent))
+}
+
+func (t *Transform) Translate(translation ...interface{}) {
+	t.SetPosition(t.position.Add(getVector3FromInterfaceValues(a.ZeroVector(), translation...)))
+}
+
+func (t *Transform) Pivot() a.Vector3 {
+	return t.pivot
+}
+
+func (t *Transform) SetPivot(pivot ...interface{}) {
+	t.pivot = getVector3FromInterfaceValues(t.pivot, pivot...)
+}
+
+func (t *Transform) SetPivotCentered() {
+	t.SetPivot(a.NewVector3(0.5, 0.5, 0.5))
+}
+
+func (t *Transform) Rotation() a.Vector3 {
+	return t.rotation
+}
+
+func (t *Transform) SetRotation(rotation a.Vector3) {
+	t.rotation = rotation
+}
+
+func (t *Transform) WantedSize() a.Vector3 {
+	return t.size
+}
+
+func (t *Transform) SetSize(size ...interface{}) {
+	t.size = getVector3FromInterfaceValues(t.size, size...)
+}
+
+func (t *Transform) ToMap() a.SiMap {
 	return map[string]interface{} {
-		"position": t.Position.ToMap(),
-		"pivot":    t.Pivot.ToMap(),
-		"rotation": t.Rotation.ToMap(),
-		"size":     t.Size.ToMap(),
+		"position": t.position.ToMap(),
+		"pivot":    t.pivot.ToMap(),
+		"rotation": t.rotation.ToMap(),
+		"size":     t.size.ToMap(),
 	}
 }
 
 func (t *Transform) FromMap(siMap a.SiMap) {
-	t.Position = a.NewVector3FromMap(t.decodeSpecialValuesInVector(a.RequireSiMap(siMap["position"])))
-	t.Pivot = a.NewVector3FromMap(a.RequireSiMap(siMap["pivot"]))
-	t.Rotation = a.NewVector3FromMap(a.RequireSiMap(siMap["rotation"]))
-	t.Size = a.NewVector3FromMap(t.decodeSpecialValuesInVector(a.RequireSiMap(siMap["size"])))
+	t.position = a.NewVector3FromMap(t.decodeSpecialValuesInVector(a.RequireSiMap(siMap["position"])))
+	t.pivot = a.NewVector3FromMap(a.RequireSiMap(siMap["pivot"]))
+	t.rotation = a.NewVector3FromMap(a.RequireSiMap(siMap["rotation"]))
+	t.size = a.NewVector3FromMap(t.decodeSpecialValuesInVector(a.RequireSiMap(siMap["size"])))
 }
 
 func (t *Transform) decodeSpecialValuesInVector(siMap a.SiMap) a.SiMap {
@@ -60,46 +94,46 @@ func (t *Transform) decodeSpecialValuesInVector(siMap a.SiMap) a.SiMap {
 	return siMap
 }
 
-// GetLocalPosition calculates the actual local position related to this transform's parent.
-func (t Transform) GetLocalPosition() a.Vector3 {
+// LocalPosition calculates the actual local position related to this transform's parent.
+func (t Transform) LocalPosition() a.Vector3 {
 	var x, y, z float32
 
-	if t.parent != nil && IsSpecialTransformVector3(t.Position) {
-		pb := t.parent.GetRect()
+	if t.parent != nil && IsSpecialTransformVector3(t.position) {
+		pb := t.parent.Rect()
 
-		if t.Position.X == a.CenterInParent {
+		if t.position.X == a.CenterInParent {
 			x = pb.X.GetLength() / 2
 		} else {
-			x = t.Position.X
+			x = t.position.X
 		}
 
-		if t.Position.Y == a.CenterInParent {
+		if t.position.Y == a.CenterInParent {
 			y = pb.Y.GetLength() / 2
 		} else {
-			y = t.Position.Y
+			y = t.position.Y
 		}
 
-		if t.Position.Z == a.CenterInParent {
+		if t.position.Z == a.CenterInParent {
 			z = pb.Z.GetLength() / 2
 		} else {
-			z = t.Position.Z
+			z = t.position.Z
 		}
 	} else {
-		x = t.Position.X
-		y = t.Position.Y
-		z = t.Position.Z
+		x = t.position.X
+		y = t.position.Y
+		z = t.position.Z
 	}
 
 	return a.NewVector3(x, y, z)
 }
 
-// GetGlobalPosition calculates the actual global position in the scene.
-func (t Transform) GetGlobalPosition() a.Vector3 {
+// GlobalPosition calculates the actual global position in the scene.
+func (t Transform) GlobalPosition() a.Vector3 {
 	if t.parent == nil {
-		return t.Position
+		return t.position
 	}
 
-	return t.parent.GetGlobalPosition().Sub(t.parent.Size.Multiply(t.parent.Pivot)).Add(t.GetLocalPosition())
+	return t.parent.GlobalPosition().Sub(t.parent.size.Multiply(t.parent.pivot)).Add(t.LocalPosition())
 }
 
 // GetParent returns the parent transform of the current transform.
@@ -107,84 +141,85 @@ func (t Transform) GetParent() *Transform {
 	return t.parent
 }
 
-// GetTopLeftPosition calculates local position of the top left point of the bounding box.
-func (t Transform) GetTopLeftPosition() a.Vector3 {
-	return t.Position.Sub(t.Size.Multiply(t.Pivot))
+// TopLeftPosition calculates local position of the top left point of the bounding box.
+func (t Transform) TopLeftPosition() a.Vector3 {
+	return t.position.Sub(t.size.Multiply(t.pivot))
 }
 
-// GetGlobalTopLeftPosition calculates global position of the top left point of the bounding box.
-func (t Transform) GetGlobalTopLeftPosition() a.Vector3 {
-	return t.GetGlobalPosition().Sub(t.Size.Multiply(t.Pivot))
+// GlobalTopLeftPosition calculates global position of the top left point of the bounding box.
+func (t Transform) GlobalTopLeftPosition() a.Vector3 {
+	return t.GlobalPosition().Sub(t.size.Multiply(t.pivot))
 }
 
-// GetSize calculates the actual size of the Transform replacing the special values.
-func (t Transform) GetSize() a.Vector3 {
+// ActualSize calculates the actual size of the Transform replacing the special values.
+func (t Transform) ActualSize() a.Vector3 {
 	var x, y, z float32
 	var parentSize a.Vector3
 	if t.parent != nil {
-		parentSize = t.parent.GetSize()
+		parentSize = t.parent.ActualSize()
 	}
-	var tlp = t.GetTopLeftPosition()
+	var tlp = t.TopLeftPosition()
 
-	if IsSpecialTransformVector3(t.Size) {
-		if t.Size.X == a.MatchParent {
+	if IsSpecialTransformVector3(t.size) {
+		if t.size.X == a.MatchParent {
 			x = common.ClampFloat32(parentSize.X, 0, parentSize.X - tlp.X)
 		} else {
-			x = t.Size.X
+			x = t.size.X
 		}
 
-		if t.Size.Y == a.MatchParent {
+		if t.size.Y == a.MatchParent {
 			y = common.ClampFloat32(parentSize.Y, 0, parentSize.Y - tlp.Y)
 		} else {
-			y = t.Size.Y
+			y = t.size.Y
 		}
 
-		if t.Size.Z == a.MatchParent {
+		if t.size.Z == a.MatchParent {
 			z = common.ClampFloat32(parentSize.Z, 0, parentSize.Z - tlp.Z)
 		} else {
-			z = t.Size.Z
+			z = t.size.Z
 		}
 	} else {
-		x = t.Size.X
-		y = t.Size.Y
-		z = t.Size.Z
+		x = t.size.X
+		y = t.size.Y
+		z = t.size.Z
 	}
 
 	return a.NewVector3(x, y, z)
 }
 
-// GetRect calculates local rect of this transform.
-func (t Transform) GetRect() *common.RectBoundary {
+// Rect calculates local rect of this transform.
+func (t Transform) Rect() *common.RectBoundary {
 	return t.calculateRect(a.ZeroVector())
 }
 
-// GetGlobalRect calculates global rect of this transform.
-func (t Transform) GetGlobalRect() *common.RectBoundary {
-	return t.calculateRect(t.GetGlobalTopLeftPosition())
+// GlobalRect calculates global rect of this transform.
+func (t Transform) GlobalRect() *common.RectBoundary {
+	return t.calculateRect(t.GlobalTopLeftPosition())
 }
 
 // ToRenderingTransform calculates a transform that is ready to be rendered on screen with all absolute values in pixels calculated.
 func (t *Transform) ToRenderingTransform() rendering.Transform {
 	rt := rendering.NewTransform()
 
-	rt.Position = t.GetGlobalTopLeftPosition().Round()
-	rt.Size = t.GetSize().Round()
+	rt.Position = t.GlobalTopLeftPosition().Round()
+	rt.Size = t.ActualSize().Round()
 
 	return rt
 }
 
 func (t Transform) Equals(other Transform) bool {
-	return t.Position.Equals(other.Position) && t.Size.Equals(other.Size) && t.Pivot.Equals(other.Pivot) && t.Rotation.Equals(other.Rotation)
+	return t.position.Equals(other.position) && t.size.Equals(other.size) && t.pivot.Equals(other.pivot) && t.rotation.Equals(other.rotation)
 }
 
 // Calculates the rect boundary of the transform given the top left point's position.
 func (t Transform) calculateRect(tlp a.Vector3) *common.RectBoundary {
+	actualSize := t.ActualSize()
 	minX := tlp.X
-	maxX := tlp.X + t.GetSize().X
+	maxX := tlp.X + actualSize.X
 	minY := tlp.Y
-	maxY := tlp.Y + t.GetSize().Y
+	maxY := tlp.Y + actualSize.Y
 	minZ := tlp.Z
-	maxZ := tlp.Z + t.GetSize().Z
+	maxZ := tlp.Z + actualSize.Z
 	return common.NewRectBoundary(minX, maxX, minY, maxY, minZ, maxZ)
 }
 
@@ -192,4 +227,39 @@ func NewTransformFromMap(siMap a.SiMap) Transform {
 	var t Transform
 	t.FromMap(siMap)
 	return t
+}
+
+// NewTransform2D creates a new transform with default values.
+func NewTransform2D(object *SceneObject) Transform {
+	return Transform{
+		position:    a.ZeroVector(),
+		pivot:       a.ZeroVector(),
+		rotation:    a.ZeroVector(),
+		size:        a.NewVector3(a.WrapContent, a.WrapContent, a.WrapContent),
+		sceneObject: object,
+	}
+}
+
+func getVector3FromInterfaceValues(defaultVector a.Vector3, values ...interface{}) a.Vector3 {
+	switch len(values) {
+	case 1:
+		switch values[0].(type) {
+		case a.Vector3:
+			return values[0].(a.Vector3)
+		}
+	case 2:
+		return a.NewVector3(
+			require.Float32(values[0]),
+			require.Float32(values[1]),
+			defaultVector.Z,
+		)
+	case 3:
+		return a.NewVector3(
+			require.Float32(values[0]),
+			require.Float32(values[1]),
+			require.Float32(values[2]),
+		)
+	}
+
+	return defaultVector
 }

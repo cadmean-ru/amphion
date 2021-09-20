@@ -10,11 +10,11 @@ type RectBoundary struct {
 }
 
 func (r *RectBoundary) IsPointInside(point a.Vector3) bool {
-	return r.SceneObject.Transform.GetGlobalRect().IsPointInside(point)
+	return r.SceneObject.Transform.GlobalRect().IsPointInside(point)
 }
 
 func (r *RectBoundary) IsPointInside2D(point a.Vector3) bool {
-	return r.SceneObject.Transform.GetGlobalRect().IsPointInside2D(point)
+	return r.SceneObject.Transform.GlobalRect().IsPointInside2D(point)
 }
 
 func NewRectBoundary() *RectBoundary {

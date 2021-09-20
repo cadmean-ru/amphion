@@ -14,8 +14,8 @@ func (s *CircleBoundary) IsPointInside(_ a.Vector3) bool {
 }
 
 func (s *CircleBoundary) IsPointInside2D(point a.Vector3) bool {
-	rect := s.SceneObject.Transform.GetGlobalRect()
-	pos := s.SceneObject.Transform.GetGlobalTopLeftPosition()
+	rect := s.SceneObject.Transform.GlobalRect()
+	pos := s.SceneObject.Transform.GlobalTopLeftPosition()
 	a := rect.X.GetLength() / 2
 	b := rect.Y.GetLength() / 2
 	x := point.X

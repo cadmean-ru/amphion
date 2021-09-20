@@ -12,7 +12,7 @@ type ClipArea struct {
 }
 
 func (c *ClipArea) OnUpdate(_ engine.UpdateContext) {
-    c.SceneObject.GetRenderingNode().SetClipArea2D(rendering.NewClipArea2D(c.Shape, c.SceneObject.Transform.GetGlobalRect()))
+    c.SceneObject.GetRenderingNode().SetClipArea2D(rendering.NewClipArea2D(c.Shape, c.SceneObject.Transform.GlobalRect()))
 }
 
 func (c *ClipArea) OnStop() {

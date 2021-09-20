@@ -29,6 +29,7 @@ type UpdatingComponent interface {
 // ViewComponent is an interface for views.
 type ViewComponent interface {
 	Component
+	//LayoutResponder
 	OnDraw(ctx DrawingContext)
 	ShouldDraw() bool
 	Redraw()

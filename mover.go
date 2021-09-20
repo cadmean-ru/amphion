@@ -25,19 +25,19 @@ func (m *Mover) OnStart() {
 }
 
 func (m *Mover) OnUpdate(ctx engine.UpdateContext) {
-	maxX := m.eng.GetCurrentScene().Transform.Size.X - m.obj.Transform.Size.X
+	maxX := m.eng.GetCurrentScene().Transform.WantedSize().X - m.obj.Transform.WantedSize().X
 
-	if m.obj.Transform.Position.X <= 0 {
+	if m.obj.Transform.WantedPosition().X <= 0 {
 		m.dir = true
-	} else if m.obj.Transform.Position.X >= maxX {
-		m.obj.Transform.Position.X = maxX
+	} else if m.obj.Transform.WantedPosition().X >= maxX {
+		m.obj.Transform.SetPosition(maxX, m.obj.Transform.WantedPosition().Y)
 		m.dir = false
 	}
 	dX := 100 * ctx.DeltaTime
 	if m.dir {
-		m.obj.Transform.Position.X += dX
+		m.obj.Transform.Translate(dX, 0)
 	} else {
-		m.obj.Transform.Position.X -= dX
+		m.obj.Transform.Translate(-dX, 0)
 	}
 	m.prc.Redraw()
 	m.eng.RequestRendering()

@@ -83,7 +83,7 @@ func (r *OpenGLRenderer) OnCreatePrimitiveRenderingContext(ctx *rendering.Primit
 
 func (r *OpenGLRenderer) OnPerformRenderingStart() {
 	//fmt.Println("Start Rendering")
-	//fmt.Println(engine.GetInstance().GetCurrentScene().Transform.Size)
+	//fmt.Println(engine.GetInstance().GetCurrentScene().Transform.size)
 	//fmt.Println(r.wSize)
 
 	//gl.Viewport(0, 0, int32(r.wSize.X), int32(r.wSize.Y))

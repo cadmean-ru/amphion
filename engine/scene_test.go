@@ -40,8 +40,8 @@ func createTestScene() *SceneObject {
 	scene := NewSceneObject("Test scene")
 
 	rect := NewSceneObject("rect")
-	rect.Transform.Size = a.NewVector3(100, 100, 100)
-	rect.Transform.Position = a.NewVector3(100, 100, -2)
+	rect.Transform.size = a.NewVector3(100, 100, 100)
+	rect.Transform.position = a.NewVector3(100, 100, -2)
 	test := &testComponent{}
 	test.num = 69
 	test2 := &testStatefulWithTags{}
@@ -57,8 +57,8 @@ func createTestScene() *SceneObject {
 	rect.AddComponent(test2)
 
 	circle := NewSceneObject("circle")
-	circle.Transform.Size = a.NewVector3(50, 50, 0)
-	circle.Transform.Position = a.NewVector3(10, 10 , 1)
+	circle.Transform.size = a.NewVector3(50, 50, 0)
+	circle.Transform.position = a.NewVector3(10, 10 , 1)
 
 	rect.AddChild(circle)
 	scene.AddChild(rect)
@@ -163,7 +163,7 @@ func TestSceneObject_DecodeFromYaml(t *testing.T) {
 //		cm.RegisterComponentType(&testStatefulWithTags{})
 //
 //		data := []byte(srcYaml)
-//		scene := &SceneObject{}
+//		scene := &sceneObject{}
 //
 //		err := scene.DecodeFromYaml(data)
 //		if err != nil {
@@ -246,7 +246,7 @@ func TestSceneObject_FindComponentByName(t *testing.T) {
 
 func TestSceneObject_DeepCopy(t *testing.T) {
 	o := NewSceneObjectForTesting("Test object")
-	o.Transform.Size = a.NewVector3(69, 69, 69)
+	o.Transform.size = a.NewVector3(69, 69, 69)
 	o1 := NewSceneObjectForTesting("Test object 2", &testComponent{})
 	o.AddChild(o1)
 

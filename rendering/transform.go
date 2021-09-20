@@ -7,7 +7,7 @@ import (
 
 type Transform struct {
 	Position a.IntVector3
-	Rotation a.IntVector3
+	Rotation a.Vector3
 	Size     a.IntVector3
 }
 
@@ -33,7 +33,7 @@ func (t Transform) GetRect() *common.RectBoundary {
 func NewTransform() Transform {
 	return Transform{
 		Position: a.ZeroIntVector(),
-		Rotation: a.ZeroIntVector(),
+		Rotation: a.ZeroVector(),
 		Size:     a.OneIntVector(),
 	}
 }

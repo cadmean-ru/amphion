@@ -23,7 +23,7 @@ func (d *DropdownView) OnStart() {
 	d.arrowId = d.Context.GetRenderingNode().AddPrimitive()
 	//d.arrow2Id = d.eng.GetRenderer().AddPrimitive()
 
-	siz := d.SceneObject.Transform.Size
+	siz := d.SceneObject.Transform.WantedSize()
 
 	bg := NewShapeView(ShapeRectangle)
 	bg.StrokeWeight = 2
@@ -33,8 +33,8 @@ func (d *DropdownView) OnStart() {
 	d.SceneObject.AddComponent(bg)
 
 	textObj := engine.NewSceneObject("selected item")
-	textObj.Transform.Position = a.NewVector3(5, 5, 1)
-	textObj.Transform.Size = a.NewVector3(siz.X - 10, siz.Y - 10, 0)
+	textObj.Transform.SetPosition(5, 5, 1)
+	textObj.Transform.SetSize(siz.X - 10, siz.Y - 10)
 
 	d.textView = NewTextView(d.selectedItem)
 	d.textView.FontSize = 16
@@ -48,14 +48,14 @@ func (d *DropdownView) OnStart() {
 	optionsBg.CornerRadius = 10
 	d.optionsContainer.AddComponent(optionsBg)
 
-	d.optionsContainer.Transform.Position = a.NewVector3(0, siz.Y, 1)
-	d.optionsContainer.Transform.Size = a.NewVector3(siz.X, float32(35*len(d.items)) + 5, 0)
+	d.optionsContainer.Transform.SetPosition(0, siz.Y, 1)
+	d.optionsContainer.Transform.SetSize(siz.X, float32(35*len(d.items)) + 5)
 
 	for i, o := range d.items {
 		var itemText = o
 		item := engine.NewSceneObject(fmt.Sprintf("Item%d", i))
-		item.Transform.Position = a.NewVector3(10, float32(i*35) + 5, 1)
-		item.Transform.Size = a.NewVector3(siz.X, 35, 0)
+		item.Transform.SetPosition(10, float32(i*35) + 5, 1)
+		item.Transform.SetSize(siz.X, 35)
 		itemTextView := NewTextView(itemText)
 		itemTextView.TextColor = a.BlackColor()
 		itemTextView.FontSize = 14
@@ -80,9 +80,9 @@ func (d *DropdownView) OnStart() {
 	d.optionsContainer.SetEnabled(false)
 }
 
-func (d *DropdownView) OnDraw(ctx engine.DrawingContext) {
-	//pos := d.obj.Transform.GetGlobalTopLeftPosition()
-	//rect := d.obj.Transform.GetGlobalRect()
+func (d *DropdownView) OnDraw(_ engine.DrawingContext) {
+	//pos := d.obj.Transform.GlobalTopLeftPosition()
+	//rect := d.obj.Transform.GlobalRect()
 	//x1 := int(math.Round(float64(rect.X.Max))) - 25
 	//x2 := int(math.Round(float64(rect.X.Max))) - 5
 	////x3 := x1 + int(math.Round(common.NewFloatRange(float64(x1), float64(x2)).GetLength() / 2))
@@ -91,8 +91,8 @@ func (d *DropdownView) OnDraw(ctx engine.DrawingContext) {
 	//z1 := int(math.Round(float64(pos.Z + 1)))
 
 	//pr := rendering.NewImagePrimitive(4)
-	//pr.Transform.Position = a.NewIntVector3(x1, y1, z1)
-	//pr.Transform.Size = a.NewIntVector3(x2 - x1, y2 - y1, 0)
+	//pr.Transform.position = a.NewIntVector3(x1, y1, z1)
+	//pr.Transform.size = a.NewIntVector3(x2 - x1, y2 - y1, 0)
 	//
 	//ctx.GetRenderer().SetPrimitive(d.arrowId, pr, d.ShouldRedraw())
 }
@@ -124,9 +124,9 @@ func (d *DropdownView) GetSelectedItem() string {
 }
 
 func (d *DropdownView) showDropdown() {
-	siz := d.SceneObject.Transform.Size
-	d.optionsContainer.Transform.Position = a.NewVector3(0, siz.Y, 0)
-	d.optionsContainer.Transform.Size = a.NewVector3(siz.X, float32(35*len(d.items)), 0)
+	siz := d.SceneObject.Transform.WantedSize()
+	d.optionsContainer.Transform.SetPosition(0, siz.Y)
+	d.optionsContainer.Transform.SetSize(siz.X, float32(35*len(d.items)))
 	d.optionsContainer.SetEnabled(true)
 	d.Engine.RequestRendering()
 }

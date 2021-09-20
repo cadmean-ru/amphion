@@ -283,8 +283,8 @@ func (l *GridLayout) calculateRowsColsMax(children []*engine.SceneObject) int {
 		}
 
 		child := children[cellsCount]
-		chSize := child.Transform.GetSize()
-		chSize1 := child.Transform.Size
+		chSize := child.Transform.ActualSize()
+		chSize1 := child.Transform.WantedSize()
 
 		if chSize1.Y != a.MatchParent && chSize.Y > row.maxHeight {
 			row.maxHeight = chSize.Y
@@ -310,7 +310,7 @@ func (l *GridLayout) calculateRowsColsMax(children []*engine.SceneObject) int {
 func (l *GridLayout) hideNotFittingObjects(children []*engine.SceneObject, cellsCount int) {
 	for i := cellsCount; i < len(children); i++ {
 		child := children[i]
-		child.Transform.Size = a.ZeroVector()
+		child.Transform.SetSize(a.ZeroVector())
 	}
 }
 
@@ -345,7 +345,7 @@ func (l *GridLayout) calculateColumnsMetrics() (float32, int) {
 }
 
 func (l *GridLayout) setFillParentRowsCols() {
-	gridSize := l.SceneObject.Transform.GetSize()
+	gridSize := l.SceneObject.Transform.ActualSize()
 
 	totalRowsHeight, rowFillCount := l.calculateRowsMetrics()
 	totalColsWidth, colFillCount := l.calculateColumnsMetrics()
@@ -439,19 +439,19 @@ func (l *GridLayout) adjustChildTransformIfNeeded(child *engine.SceneObject,
 	row *GridRowDefinition, col *GridColumnDefinition,
 	x, y float32) {
 
-	pos := a.NewVector3(x, y, l.SceneObject.Transform.Position.Z)
+	pos := a.NewVector3(x, y, l.SceneObject.Transform.WantedPosition().Z)
 	size := a.NewVector3(
 		col.actualWidth(),
 		row.actualHeight(),
-		child.Transform.Size.Z,
+		child.Transform.WantedSize().Z,
 	)
 
-	if child.Transform.Position.Equals(pos) && child.Transform.Size.Equals(size) {
+	if child.Transform.WantedPosition().Equals(pos) && child.Transform.WantedSize().Equals(size) {
 		return
 	}
 
-	child.Transform.Size = size
-	child.Transform.Position = pos
+	child.Transform.SetSize(size)
+	child.Transform.SetPosition(pos)
 
 	child.Redraw()
 }
@@ -461,8 +461,7 @@ func (l *GridLayout) adjustSizeIfNeeded(x, y float32) {
 		return
 	}
 
-	l.SceneObject.Transform.Size.X = x
-	l.SceneObject.Transform.Size.Y = y
+	l.SceneObject.Transform.SetSize(x, y)
 }
 
 func (l *GridLayout) forVertical(action func(r, c int, row *GridRowDefinition, col *GridColumnDefinition) bool) {

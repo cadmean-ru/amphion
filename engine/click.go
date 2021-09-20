@@ -40,7 +40,7 @@ func (engine *AmphionEngine) handleClickEvent(mouseEventData MouseEventData, cod
 
 	if len(candidates) > 0 {
 		sort.Slice(candidates, func(i, j int) bool {
-			return candidates[i].Transform.GetGlobalPosition().Z > candidates[j].Transform.GetGlobalPosition().Z
+			return candidates[i].Transform.GlobalPosition().Z > candidates[j].Transform.GlobalPosition().Z
 		})
 		o := candidates[0]
 		mouseEventData.SceneObject = o

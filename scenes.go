@@ -15,16 +15,15 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("Test scene")
 
 	rect := engine.NewSceneObject("rect")
-	rect.Transform.Size = a.NewVector3(100, 100, 100)
-	rect.Transform.Position = a.NewVector3(0, 0, 0)
+	rect.Transform.SetSize(100, 100)
 	shape := builtin.NewShapeView(builtin.ShapeRectangle)
 	shape.FillColor = a.PinkColor()
 	rect.AddComponent(shape)
 	//rect.AddComponent(&Mover{})
 
 	circle := engine.NewSceneObject("circle")
-	circle.Transform.Size = a.NewVector3(50, 50, 0)
-	circle.Transform.Position = a.NewVector3(10, 10 , 1)
+	circle.Transform.SetSize(50, 50)
+	circle.Transform.SetPosition(10, 10 , 1)
 	circleRenderer := builtin.NewShapeView(builtin.ShapeEllipse)
 	circleRenderer.StrokeWeight = 0
 	circleRenderer.FillColor = a.GreenColor()
@@ -38,9 +37,9 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	scene.AddChild(rect)
 
 	text := engine.NewSceneObject("Close text")
-	text.Transform.Position = a.NewVector3(a.CenterInParent, a.CenterInParent, a.CenterInParent)
-	text.Transform.Pivot = a.NewVector3(0.5, 0.5, 0.5)
-	text.Transform.Size = a.NewVector3(100, 50, 0)
+	text.Transform.SetPosition(a.CenterInParent, a.CenterInParent)
+	text.Transform.SetPivotCentered()
+	text.Transform.SetSize(100, 50)
 	textComponent := builtin.NewTextView("Hello Amphion! 2")
 	textComponent.FontSize = 30
 	textComponent.TextColor = a.BlackColor()
@@ -55,8 +54,8 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	//
 	//for i := 0; i < 10; i++ {
 	//	text1 := engine.NewSceneObject(fmt.Sprintf("text%d", i))
-	//	text1.Transform.Position = common.NewVector3(10, float64(i) * 50, 0)
-	//	text1.Transform.Size = common.NewVector3(200, 50, 0)
+	//	text1.Transform.position = common.NewVector3(10, float64(i) * 50, 0)
+	//	text1.Transform.size = common.NewVector3(200, 50, 0)
 	//	textComponent1 := builtin.NewTextView(fmt.Sprintf("Bruh %d", i))
 	//	textComponent1.TextAppearance.FontSize = 30
 	//	textComponent1.Appearance.FillColor = common.BlackColor()
@@ -73,12 +72,12 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	//
 	//point := engine.NewSceneObject("point")
 	//point.AddComponent(builtin.NewShapeView(rendering.PrimitivePoint))
-	//point.Transform.Position = common.NewVector3(500, 10, 0)
+	//point.Transform.position = common.NewVector3(500, 10, 0)
 	//scene.AddChild(point)
 	//
 	line := engine.NewSceneObject("line")
-	line.Transform.Position = a.NewVector3(400, 400, 0)
-	line.Transform.Size = a.NewVector3(100, 10, 0)
+	line.Transform.SetPosition(400, 400)
+	line.Transform.SetSize(100, 10)
 	lineView := builtin.NewShapeView(builtin.ShapeLine)
 	lineView.StrokeColor = a.NewColor(0x2c, 0x68, 0xa8, 0xff)
 	lineView.StrokeWeight = 5
@@ -86,8 +85,8 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	scene.AddChild(line)
 	//
 	triangle := engine.NewSceneObject("triangle")
-	triangle.Transform.Position = a.NewVector3(100, 100, 0)
-	triangle.Transform.Size = a.NewVector3(100, 300, 0)
+	triangle.Transform.SetPosition(100, 100)
+	triangle.Transform.SetSize(100, 300)
 	triangleView := builtin.NewShapeView(builtin.ShapeTriangle)
 	triangleView.FillColor = a.BlueColor()
 	triangle.AddComponent(triangleView)
@@ -95,15 +94,15 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	scene.AddChild(triangle)
 
 	image := engine.NewSceneObject("image")
-	image.Transform.Position = a.NewVector3(200, 200, 0)
-	image.Transform.Size = a.NewVector3(500, 100, 0)
+	image.Transform.SetPosition(200, 200)
+	image.Transform.SetSize(500, 100)
 	imageView := builtin.NewImageView(Res_images_babyyoda)
 	image.AddComponent(imageView)
 	scene.AddChild(image)
 
 	image2 := engine.NewSceneObject("image2")
-	image2.Transform.Position = a.NewVector3(200, 300, -1)
-	image2.Transform.Size = a.NewVector3(100, 300, 0)
+	image2.Transform.SetPosition(200, 300, -1)
+	image2.Transform.SetSize(100, 300)
 	imageView2 := builtin.NewImageView(Res_images_cyberpunk)
 	image2.AddComponent(imageView2)
 	scene.AddChild(image2)
@@ -151,9 +150,9 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	//var counter = 0
 	scene2 := engine.NewSceneObject("scene 2")
 	textScene2 := engine.NewSceneObject("text")
-	textScene2.Transform.Position = a.NewVector3(a.CenterInParent, a.CenterInParent, 0)
-	textScene2.Transform.Pivot = a.NewVector3(0.5, 0.5, 0.5)
-	textScene2.Transform.Size = a.NewVector3(800, 200, 0)
+	textScene2.Transform.SetPosition(a.CenterInParent, a.CenterInParent, 0)
+	textScene2.Transform.SetPivotCentered()
+	textScene2.Transform.SetSize(800, 200)
 	textScene2Renderer := builtin.NewTextView("This is scene 2")
 	textScene2Renderer.FontSize = 100
 	textScene2Renderer.TextColor = a.BlackColor()
@@ -172,13 +171,12 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	//scene2.AddComponent(&TestController{})
 
 	input := engine.NewSceneObject("input")
-	input.Transform.Position = a.NewVector3(0, 0, 0)
-	input.Transform.Size = a.NewVector3(500, 500 ,0)
+	input.Transform.SetSize(500, 500)
 	scene2.AddChild(input)
 
 	dropdown := engine.NewSceneObject("dropdown")
-	dropdown.Transform.Position = a.NewVector3(10, 10, 2)
-	dropdown.Transform.Size = a.NewVector3(100, 35, 0)
+	dropdown.Transform.SetPosition(10, 10, 2)
+	dropdown.Transform.SetSize(100, 35, 0)
 	dropdownView := builtin.NewDropdownView([]string {"opt1", "opt2", "opt3"})
 	dropdown.AddComponent(dropdownView)
 	dropdown.AddComponent(builtin.NewRectBoundary())
@@ -188,8 +186,8 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	}))
 
 	dropdown1 := engine.NewSceneObject("dropdown1")
-	dropdown1.Transform.Position = a.NewVector3(10, 50, 1)
-	dropdown1.Transform.Size = a.NewVector3(450, 35, 0)
+	dropdown1.Transform.SetPosition(10, 50, 1)
+	dropdown1.Transform.SetSize(450, 35)
 	dropdownView1 := builtin.NewDropdownView([]string {"bruh1", "bruh2", "bruh3"})
 	dropdown1.AddComponent(dropdownView1)
 	dropdown1.AddComponent(builtin.NewRectBoundary())
@@ -200,8 +198,8 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 
 
 	box := engine.NewSceneObject("Moving box")
-	box.Transform.Position = a.NewVector3(10, 100, 10)
-	box.Transform.Size = a.NewVector3(500, 500, 0)
+	box.Transform.SetPosition(10, 100, 10)
+	box.Transform.SetSize(500, 500)
 	boxBg := builtin.NewShapeView(builtin.ShapeRectangle)
 	boxBg.StrokeWeight = 0
 	boxBg.FillColor = a.NewColor(0xc4, 0xc4, 0xc4, 0xff)
@@ -214,8 +212,8 @@ func scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	scene2.AddChild(box)
 
 	curve := engine.NewSceneObject("Curve")
-	curve.Transform.Position = a.NewVector3(10, 500, 5)
-	curve.Transform.Size = a.NewVector3(100, 100, 0)
+	curve.Transform.SetPosition(10, 500, 5)
+	curve.Transform.SetSize(100, 100)
 	curve.AddComponent(builtin.NewBezierView(a.NewVector3(50, 0, 0), a.NewVector3(50, 100, 0)))
 	scene2.AddChild(curve)
 
@@ -262,8 +260,8 @@ func handleCircleClick(e *engine.AmphionEngine) engine.EventHandler {
 
 func makeRect(name string, x, y, sx, sy float32, fill a.Color) *engine.SceneObject {
 	rect := engine.NewSceneObject(name)
-	rect.Transform.Position = a.NewVector3(x, y, 0)
-	rect.Transform.Size = a.NewVector3(sx, sy, 0)
+	rect.Transform.SetPosition(x, y)
+	rect.Transform.SetSize(sx, sy)
 
 	view := builtin.NewShapeView(builtin.ShapeRectangle)
 	view.FillColor = fill
@@ -291,8 +289,8 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 
 	addBtn := makeRect("add button", 0, 0, 100, 100, a.GreenColor())
 	addBtnText := engine.NewSceneObject("add text")
-	addBtnText.Transform.Position = a.NewVector3(0, 0, 1)
-	addBtnText.Transform.Size = a.NewVector3(a.MatchParent, a.MatchParent, 0)
+	addBtnText.Transform.SetPosition(0, 0, 1)
+	addBtnText.Transform.SetSize(a.MatchParent, a.MatchParent)
 	addBtnTextView := builtin.NewTextView("add")
 	addBtnTextView.HTextAlign = a.TextAlignCenter
 	addBtnTextView.VTextAlign = a.TextAlignCenter
@@ -308,7 +306,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 		//counter++
 		//
 		//inputObj := engine.NewSceneObject(fmt.Sprintf("input %d", counter))
-		//inputObj.Transform.Size.Y = float32(rand.Intn(300))
+		//inputObj.Transform.size.Y = float32(rand.Intn(300))
 		//input := builtin.NewNativeInputView("", fmt.Sprintf("Enter some text %d", counter))
 		//input.SetOnTextChangeListener(func(text string) {
 		//	engine.LogDebug(fmt.Sprintf("Hello from %s! Text: %s\n", inputObj.GetName(), text))
@@ -337,8 +335,8 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 
 	rmvButton := makeRect("remove button", 0, 0, 100, 100, a.RedColor())
 	rmvButtonText := engine.NewSceneObject("remove text")
-	rmvButtonText.Transform.Position = a.NewVector3(10, 10, 1)
-	rmvButtonText.Transform.Size = a.NewVector3(a.MatchParent, a.MatchParent, 0)
+	rmvButtonText.Transform.SetPosition(10, 10, 1)
+	rmvButtonText.Transform.SetSize(a.MatchParent, a.MatchParent, 0)
 	rmvButtonTextView := builtin.NewTextView("remove")
 	rmvButtonText.AddComponent(rmvButtonTextView)
 	rmvButtonText.AddComponent(builtin.NewBoundaryView())
@@ -376,16 +374,16 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 		dOffset := a.NewVector3(o.X, o.Y, 0)
 
 		engine.LogDebug("Scroll: %f %f", dOffset.X, dOffset.Y)
-		//e.GetCurrentScene().ForEachObject(func(object *engine.SceneObject) {
-		//	object.Transform.Position = object.Transform.Position.Add(dOffset)
+		//e.GetCurrentScene().ForEachObject(func(object *engine.sceneObject) {
+		//	object.Transform.position = object.Transform.position.Add(dOffset)
 		//})
 
 		s := e.GetCurrentScene()
-		ss := s.Transform.GetSize()
+		ss := s.Transform.ActualSize()
 		visibleArea := common.NewRectBoundary(-offset.X, -offset.X + ss.X, -offset.Y, -offset.Y + ss.Y, -999, 999)
 		realArea := common.NewRectBoundary(0, 0, 0, 0, -999, 999)
 		s.ForEachObject(func(object *engine.SceneObject) {
-			rect := object.Transform.GetGlobalRect()
+			rect := object.Transform.GlobalRect()
 			if rect.X.Min < realArea.X.Min {
 				realArea.X.Min = rect.X.Min
 			}
@@ -405,7 +403,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 		var minOutY float32 = -1
 
 		s.ForEachObject(func(object *engine.SceneObject) {
-			rect := object.Transform.GetGlobalRect()
+			rect := object.Transform.GlobalRect()
 			if !visibleArea.IsRectInside(rect) {
 				//if dOffset.Y > 0 { // if scrolling up
 				//	if rect.Y.Min < visibleArea.Y.Min {
@@ -462,7 +460,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 			}
 		}
 
-		s.Transform.Position = s.Transform.Position.Add(dOffset)
+		s.Transform.Translate(dOffset)
 		offset = offset.Add(dOffset)
 		e.ForceAllViewsRedraw()
 		e.RequestRendering()
@@ -536,7 +534,7 @@ func treeScene(e *engine.AmphionEngine) *engine.SceneObject {
 	rectInside.AddComponent(rectInsideView)
 	rectInside.SetSizeXy(50, 50)
 	rectInside.SetPositionXy(a.CenterInParent, a.CenterInParent)
-	rectInside.Transform.Pivot = a.NewVector3(0.5, 0.5, 0.5)
+	rectInside.Transform.SetPivotCentered()
 
 	scene.AddChild(rect)
 	rect.AddChild(rectInside)
@@ -548,14 +546,14 @@ func clipScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("clip scene")
 
 	image := engine.NewSceneObject("image")
-	image.Transform.Position = a.NewVector3(a.CenterInParent, a.CenterInParent, 0)
-	image.Transform.Pivot = a.NewVector3(0.5, 0.5, 0)
-	image.Transform.Size = a.NewVector3(400, 400, 0)
+	image.Transform.SetPosition(a.CenterInParent, a.CenterInParent)
+	image.Transform.SetPivotCentered()
+	image.Transform.SetSize(400, 400)
 	imageView := builtin.NewImageView(Res_images_babyyoda)
 	image.AddComponent(imageView)
 
 	frame := engine.NewSceneObject("baby frame")
-	frame.Transform.Size = a.NewVector3(a.MatchParent, a.MatchParent, 0)
+	frame.Transform.SetSize(a.MatchParent, a.MatchParent)
 	circle := builtin.NewShapeView(builtin.ShapeEllipse)
 	circle.FillColor = a.TransparentColor()
 	circle.StrokeWeight = 10
@@ -567,9 +565,9 @@ func clipScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene.AddChild(image)
 
 	rect := engine.NewSceneObject("rect")
-	rect.Transform.Size = a.NewVector3(50, 50, 0)
-	rect.Transform.Pivot = a.NewVector3(0.5, 0.5, 0)
-	rect.Transform.Position = a.NewVector3(a.CenterInParent, a.CenterInParent, 0)
+	rect.Transform.SetSize(50, 50)
+	rect.Transform.SetPivotCentered()
+	rect.Transform.SetPosition(a.CenterInParent, a.CenterInParent)
 	textView := builtin.NewTextView("BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH ")
 	textView.FontSize = 10
 	textView.TextColor = a.RedColor()
