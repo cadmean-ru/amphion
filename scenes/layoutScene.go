@@ -18,6 +18,7 @@ func (s *LayoutSceneController) OnStart() {
 		time.Sleep(3 * time.Second)
 		json, _ := GetCurrentScene().DumpToJson()
 		LogDebug(string(json))
+		SetWindowTitle("PIPI PUPU")
 		return nil, nil
 	}).Build())
 }

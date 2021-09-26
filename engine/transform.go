@@ -16,7 +16,6 @@ type Transform struct {
 	actualSize     a.Vector3
 	measuredSize   a.Vector3
 	actualPosition a.Vector3
-	//inLayout     bool
 
 	sceneObject *SceneObject
 	parent      *Transform

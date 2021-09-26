@@ -5,99 +5,66 @@ import (
 	"github.com/cadmean-ru/amphion/common/a"
 )
 
-// Layout defines layout components.
+// Layout defines interface for layout components.
 type Layout interface {
 	Component
 	Measurable
 	LayoutChildren()
 }
 
+//Measurable defines interface for views and layouts that is used to get the size of their contents.
+//The measured size is used if the wanted size of object has special value a.WrapContent.
 type Measurable interface {
 	MeasureContents() a.Vector3
 }
 
-// LayoutResponder defines interface for components that respond to layout changes.
-//type LayoutResponder interface {
-//	Component
-//	OnMeasure(ctx *LayoutContext)
-//	OnLayout(ctx *LayoutContext)
-//}
-//
-//type LayoutContext struct {
-//
-//}
-
-// LayoutImpl TODO: optimize maybe
+//LayoutImpl is the default implementation of Layout interface.
+//It handles the special values in objects' sizes and positions.
 type LayoutImpl struct {
 	ComponentImpl
 }
 
 func (l *LayoutImpl) LayoutChildren() {
-	//l.setInLayout(l.SceneObject)
-	//l.measureObjects(l.SceneObject)
-	//l.absoluteSizes(l.SceneObject)
-	//l.wrapContents(l.SceneObject)
-	//l.matchParents(l.SceneObject)
-	l.firstPass(l.SceneObject)
-	l.secondPass(l.SceneObject)
+	l.FirstPass(l.SceneObject)
+	l.SecondPass(l.SceneObject)
 }
 
-//func (l *LayoutImpl) setInLayout(object *SceneObject) {
-//	object.Transform.inLayout = true
-//	for _, c := range object.children {
-//		l.setInLayout(c)
-//	}
-//}
-
-func (l *LayoutImpl) firstPass(object *SceneObject) {
+func (l *LayoutImpl) FirstPass(object *SceneObject) {
 	for _, c := range object.children {
 		if c.HasLayout() {
-			l.measureObject(c)
-			l.finalizeAbsoluteDimensions(c)
-			l.finalizeWrapContentDimensions(c)
+			l.MeasureObject(c)
+			l.FinalizeAbsoluteDimensions(c)
+			l.FinalizeWrapContentDimensions(c)
 			continue
 		}
 
-		l.firstPass(c)
+		l.FirstPass(c)
 	}
 
-	l.measureObject(object)
-	l.finalizeAbsoluteDimensions(object)
-	l.finalizeWrapContentDimensions(object)
+	l.MeasureObject(object)
+	l.FinalizeAbsoluteDimensions(object)
+	l.FinalizeWrapContentDimensions(object)
 }
 
-func (l *LayoutImpl) secondPass(object *SceneObject) {
-	l.finalizeMatchParentDimensions(object)
-	l.finalizePosition(object)
+func (l *LayoutImpl) SecondPass(object *SceneObject) {
+	l.FinalizeMatchParentDimensions(object)
+	l.FinalizePosition(object)
 
 	for _, c := range object.children {
 		if c.HasLayout() {
-			l.finalizeMatchParentDimensions(c)
+			l.FinalizeMatchParentDimensions(c)
 			continue
 		}
 
-		l.secondPass(c)
+		l.SecondPass(c)
 	}
 }
 
-//func (l *LayoutImpl) thirdPass(object *SceneObject) {
-//
-//}
+func (l *LayoutImpl) MeasureObject(object *SceneObject) {
+	if !l.ObjectNeedsToBeMeasured(object) {
+		return
+	}
 
-//func (l *LayoutImpl) measureObjects(object *SceneObject) {
-//	for _, c := range object.children {
-//		if c.HasLayout() {
-//			c.Transform.measuredSize = c.layout.component.(Layout).MeasureContents()
-//			continue
-//		}
-//
-//		l.measureObjects(c)
-//	}
-//
-//	l.measureObject(object)
-//}
-
-func (l *LayoutImpl) measureObject(object *SceneObject) {
 	if object.HasLayout() {
 		object.Transform.measuredSize = object.layout.component.(Layout).MeasureContents()
 		return
@@ -134,20 +101,13 @@ func (l *LayoutImpl) measureObject(object *SceneObject) {
 	object.Transform.measuredSize = size
 }
 
-//func (l *LayoutImpl) absoluteSizes(object *SceneObject) {
-//	for _, c := range object.children {
-//		if c.HasLayout() {
-//			l.finalizeAbsoluteDimensions(c)
-//			continue
-//		}
-//
-//		l.absoluteSizes(c)
-//	}
-//
-//	l.finalizeAbsoluteDimensions(object)
-//}
+func (l *LayoutImpl) ObjectNeedsToBeMeasured(object *SceneObject) bool {
+	return object.Transform.size.X == a.WrapContent ||
+		object.Transform.size.Y == a.WrapContent ||
+		object.Transform.size.Z == a.WrapContent
+}
 
-func (l *LayoutImpl) finalizeAbsoluteDimensions(object *SceneObject) {
+func (l *LayoutImpl) FinalizeAbsoluteDimensions(object *SceneObject) {
 	if !IsSpecialTransformValue(object.Transform.size.X) {
 		object.Transform.actualSize.X = object.Transform.size.X
 	}
@@ -159,20 +119,7 @@ func (l *LayoutImpl) finalizeAbsoluteDimensions(object *SceneObject) {
 	}
 }
 
-//func (l *LayoutImpl) wrapContents(object *SceneObject) {
-//	for _, c := range object.children {
-//		if c.HasLayout() {
-//			l.finalizeWrapContentDimensions(c)
-//			continue
-//		}
-//
-//		l.wrapContents(c)
-//	}
-//
-//	l.finalizeWrapContentDimensions(object)
-//}
-
-func (l *LayoutImpl) finalizeWrapContentDimensions(object *SceneObject) {
+func (l *LayoutImpl) FinalizeWrapContentDimensions(object *SceneObject) {
 	if object.Transform.size.X == a.WrapContent {
 		object.Transform.actualSize.X = object.Transform.measuredSize.X
 	}
@@ -184,20 +131,7 @@ func (l *LayoutImpl) finalizeWrapContentDimensions(object *SceneObject) {
 	}
 }
 
-//func (l *LayoutImpl) matchParents(object *SceneObject) {
-//	l.finalizeMatchParentDimensions(object)
-//
-//	for _, c := range object.children {
-//		if c.HasLayout() {
-//			l.finalizeMatchParentDimensions(c)
-//			continue
-//		}
-//
-//		l.matchParents(c)
-//	}
-//}
-
-func (l *LayoutImpl) finalizeMatchParentDimensions(object *SceneObject) {
+func (l *LayoutImpl) FinalizeMatchParentDimensions(object *SceneObject) {
 	if object.parent == nil {
 		return
 	}
@@ -213,7 +147,7 @@ func (l *LayoutImpl) finalizeMatchParentDimensions(object *SceneObject) {
 	}
 }
 
-func (l *LayoutImpl) finalizePosition(object *SceneObject) {
+func (l *LayoutImpl) FinalizePosition(object *SceneObject) {
 	if object.parent != nil {
 		pos := object.Transform.position
 		pr := object.parent.Transform.Rect()

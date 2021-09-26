@@ -103,7 +103,6 @@ func GetInstance() *AmphionEngine {
 func (engine *AmphionEngine) Start() {
 	engine.startingWg.Wait()
 	engine.started = true
-	engine.registerInternalEventHandlers()
 	engine.state = StateStarted
 	engine.tasksRoutine.start()
 	engine.logger.Info(engine, "Amphion started")
@@ -479,10 +478,6 @@ func (engine *AmphionEngine) handleSceneClose() {
 	if engine.closeSceneCallback != nil {
 		engine.closeSceneCallback()
 	}
-}
-
-func (engine *AmphionEngine) registerInternalEventHandlers() {
-	//TODO: remove maybe?
 }
 
 func (engine *AmphionEngine) GetTasksRoutine() *TasksRoutine {
