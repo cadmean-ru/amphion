@@ -100,7 +100,7 @@ func (t *TextView) SetTextColor(color interface{}) {
 	case string:
 		t.TextColor = a.ParseHexColor(color.(string))
 	default:
-		t.TextColor = a.BlackColor()
+		t.TextColor = a.Black()
 	}
 
 	t.ShouldRedraw = true
@@ -143,7 +143,7 @@ func (t *TextView) GetAText() *atext.Text {
 //NewTextView creates a new TextView with the given text.
 func NewTextView(text string) *TextView {
 	return &TextView{
-		TextColor:  a.BlackColor(),
+		TextColor:  a.Black(),
 		FontSize:   16,
 		FontWeight: 0,
 		Text:       text,

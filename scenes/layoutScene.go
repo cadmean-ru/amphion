@@ -31,21 +31,21 @@ func LayoutScene(e *AmphionEngine) *SceneObject {
 	scene.AddComponent(NewLayoutSceneController())
 	scene.AddComponent(NewAbsoluteLayout())
 	bg := NewShapeView(ShapeRectangle)
-	bg.FillColor = BlueColor()
+	bg.FillColor = Blue()
 	scene.AddComponent(bg)
 
 	rect := NewSceneObject("rect")
 	rect.Transform.SetPosition(10, 10)
 	rect.Transform.SetSize(WrapContent, WrapContent)
 	rectView := NewShapeView(ShapeRectangle)
-	rectView.FillColor = PinkColor()
+	rectView.FillColor = Pink()
 	rect.AddComponent(rectView)
 	scene.AddChild(rect)
 
 	textContainer := NewSceneObject("text container")
 	textContainer.Transform.CenterInParent()
 	textContainerBg := NewShapeView(ShapeRectangle)
-	textContainerBg.FillColor = WhiteColor()
+	textContainerBg.FillColor = White()
 	textContainer.AddComponent(textContainerBg)
 	scene.AddChild(textContainer)
 
@@ -57,8 +57,8 @@ func LayoutScene(e *AmphionEngine) *SceneObject {
 
 	bigContainer := NewSceneObject("big container")
 	bigContainerBg := NewShapeView(ShapeRectangle)
-	bigContainerBg.FillColor = RedColor()
-	bigContainerBg.StrokeColor = WhiteColor()
+	bigContainerBg.FillColor = Red()
+	bigContainerBg.StrokeColor = White()
 	bigContainerBg.StrokeWeight = 3
 	bigContainer.AddComponent(bigContainerBg)
 	circle1 := NewSceneObject("circle 1")
@@ -86,14 +86,14 @@ func LayoutScene(e *AmphionEngine) *SceneObject {
 	gridLayout.ColumnPadding = 10
 	grid.AddComponent(gridLayout)
 	gridBg := NewShapeView(ShapeRectangle)
-	gridBg.FillColor = PinkColor()
+	gridBg.FillColor = Pink()
 	grid.AddComponent(gridBg)
 
 	for i := 0; i < 10; i++ {
 		gridRect := NewSceneObject("grid rect")
 		gridRect.Transform.SetSize(10, 10)
 		gridRectView := NewShapeView(ShapeRectangle)
-		gridRectView.FillColor = GreenColor()
+		gridRectView.FillColor = Green()
 		gridRect.AddComponent(gridRectView)
 		grid.AddChild(gridRect)
 	}

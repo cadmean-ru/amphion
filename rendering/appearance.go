@@ -24,8 +24,8 @@ func (ap Appearance) ToMap() map[string]interface{} {
 
 func DefaultAppearance() Appearance {
 	return Appearance{
-		FillColor:    a.WhiteColor(),
-		StrokeColor:  a.BlackColor(),
+		FillColor:    a.White(),
+		StrokeColor:  a.Black(),
 		StrokeWeight: 1,
 	}
 }

@@ -47,7 +47,7 @@ func createTestScene() *SceneObject {
 	test2 := &testStatefulWithTags{}
 	test2.Bruh = "Nice"
 	test2.Bruh2 = 2
-	test2.Color = a.GreenColor()
+	test2.Color = a.Green()
 	test2.Arr = []int {42, 69}
 	test2.Hand = func(_ AmphionEvent) bool {
 		fmt.Println("Handle breh")

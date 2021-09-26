@@ -36,7 +36,7 @@ func TestGetComponentState(t *testing.T) {
 	comp := &testStatefulWithTags{}
 	comp.Bruh = "abc"
 	comp.Bruh2 = 6.9
-	comp.Color = a.PinkColor()
+	comp.Color = a.Pink()
 	comp.Arr = []int{1, 3, 4}
 	comp.Hand = handleTest
 

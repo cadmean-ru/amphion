@@ -27,8 +27,8 @@ func (d *DropdownView) OnStart() {
 
 	bg := NewShapeView(ShapeRectangle)
 	bg.StrokeWeight = 2
-	bg.StrokeColor = a.BlackColor()
-	bg.FillColor = a.WhiteColor()
+	bg.StrokeColor = a.Black()
+	bg.FillColor = a.White()
 	bg.CornerRadius = 10
 	d.SceneObject.AddComponent(bg)
 
@@ -44,7 +44,7 @@ func (d *DropdownView) OnStart() {
 
 	d.optionsContainer = engine.NewSceneObject("OptionsContainer")
 	optionsBg := NewShapeView(ShapeRectangle)
-	optionsBg.FillColor = a.WhiteColor()
+	optionsBg.FillColor = a.White()
 	optionsBg.CornerRadius = 10
 	d.optionsContainer.AddComponent(optionsBg)
 
@@ -57,7 +57,7 @@ func (d *DropdownView) OnStart() {
 		item.Transform.SetPosition(10, float32(i*35) + 5, 1)
 		item.Transform.SetSize(siz.X, 35)
 		itemTextView := NewTextView(itemText)
-		itemTextView.TextColor = a.BlackColor()
+		itemTextView.TextColor = a.Black()
 		itemTextView.FontSize = 14
 		item.AddComponent(itemTextView)
 		item.AddComponent(NewRectBoundary())
