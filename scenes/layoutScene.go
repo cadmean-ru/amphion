@@ -26,10 +26,9 @@ func NewLayoutSceneController() *LayoutSceneController {
     return &LayoutSceneController{}
 }
 
-func LayoutScene(e *AmphionEngine) *SceneObject {
+func LayoutScene(_ *AmphionEngine) *SceneObject {
 	scene := NewSceneObject("layout scene")
-	scene.AddComponent(NewLayoutSceneController())
-	scene.AddComponent(NewAbsoluteLayout())
+	scene.AddComponents(NewLayoutSceneController(), NewAbsoluteLayout())
 	bg := NewShapeView(ShapeRectangle)
 	bg.FillColor = Blue()
 	scene.AddComponent(bg)

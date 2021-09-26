@@ -131,7 +131,7 @@ func (o *SceneObject) RemoveAllChildren() {
 }
 
 //GetChildren returns the list of children of this SceneObject object.
-//Modifying the returned list wont modify the actual list of children of this SceneObject object.
+//Modifying the returned list won't modify the actual list of children of this SceneObject object.
 func (o *SceneObject) GetChildren() []*SceneObject {
 	c := make([]*SceneObject, len(o.children))
 	copy(c, o.children)
@@ -173,7 +173,7 @@ func (o *SceneObject) GetView() ViewComponent {
 	return nil
 }
 
-//AddComponent adds a component to this SceneObject object.
+//AddComponent adds a component to this SceneObject.
 //Returns the given component.
 func (o *SceneObject) AddComponent(component Component) Component {
 	container := NewComponentContainer(o, component)
@@ -207,6 +207,13 @@ func (o *SceneObject) AddComponent(component Component) Component {
 	}
 
 	return component
+}
+
+//AddComponents adds multiple components to this SceneObject.
+func (o *SceneObject) AddComponents(components ...Component) {
+	for _, c := range components {
+		o.AddComponent(c)
+	}
 }
 
 // GetComponentByName searches for component with the specified name throughout the components attached to this object.
