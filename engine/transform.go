@@ -22,31 +22,73 @@ type Transform struct {
 	parent      *Transform
 }
 
+//WantedPosition returns the wanted position, i.e. the local position of the object that
+//may contain either special value a.CenterInParent or absolute coordinates.
 func (t *Transform) WantedPosition() a.Vector3 {
 	return t.position
 }
 
+//SetPosition sets the wanted position of an object.
+//The function supports one of the following arguments sets:
+//
+//- one a.Vector3 with coordinates,
+//
+//- two float32's for x- and y-axis,
+//
+//- three float32's for x-, y-, and z-axis.
+//
+//The coordinates may contain special value a.CenterInParent.
+//Requests rendering.
 func (t *Transform) SetPosition(position ...interface{}) {
 	t.position = getVector3FromInterfaceValues(t.position, position...)
 	t.actualPosition = t.vectorWithoutSpecialValues(t.position)
+	RequestRendering()
 }
 
+//SetPositionCentered sets the position coordinates on all axes to the special value a.CenterInParent.
+//Requests rendering.
 func (t *Transform) SetPositionCentered() {
 	t.SetPosition(a.NewVector3(a.CenterInParent, a.CenterInParent, a.CenterInParent))
 }
 
+//Translate performs vector addition of the given coordinates to the current object's position, i.e.
+//shifts the object by the given coordinates.
+//The function supports one of the following arguments sets:
+//
+//- one a.Vector3 with coordinates,
+//
+//- two float32's for x- and y-axis,
+//
+//- three float32's for x-, y-, and z-axis.
+//
+//Requests rendering.
 func (t *Transform) Translate(translation ...interface{}) {
 	t.SetPosition(t.position.Add(getVector3FromInterfaceValues(a.ZeroVector(), translation...)))
 }
 
+//Pivot returns the current pivot of the object.
 func (t *Transform) Pivot() a.Vector3 {
 	return t.pivot
 }
 
+//SetPivot sets the current pivot of the object.
+//The function supports one of the following arguments sets:
+//
+//- one a.Vector3 with coordinates,
+//
+//- two float32's for x- and y-axis,
+//
+//- three float32's for x-, y-, and z-axis.
+//
+//The coordinates should be in range [0,1].
+//Requests rendering.
 func (t *Transform) SetPivot(pivot ...interface{}) {
 	t.pivot = getVector3FromInterfaceValues(t.pivot, pivot...)
+	RequestRendering()
 }
 
+//SetPivotCentered sets the pivot coordinates on all axes to 0.5.
+////Requests rendering.
 func (t *Transform) SetPivotCentered() {
 	t.SetPivot(a.NewVector3(0.5, 0.5, 0.5))
 }
@@ -59,29 +101,47 @@ func (t *Transform) SetRotation(rotation a.Vector3) {
 	t.rotation = rotation
 }
 
+//WantedSize return the wanted size, i.e. the size of the object that
+//may contain either special values a.WrapContent or a.MatchParent, or absolute coordinates.
 func (t *Transform) WantedSize() a.Vector3 {
 	return t.size
 }
 
+//SetSize sets the wanted size of an object.
+//The function supports one of the following arguments sets:
+//
+//- one a.Vector3 with coordinates,
+//
+//- two float32's for x- and y-axis,
+//
+//- three float32's for x-, y-, and z-axis.
+//
+//The coordinates may contain special values a.WrapContent or a.MatchParent.
+//Requests rendering.
 func (t *Transform) SetSize(size ...interface{}) {
 	t.size = getVector3FromInterfaceValues(t.size, size...)
 	t.actualSize = t.vectorWithoutSpecialValues(t.size)
+	RequestRendering()
 }
 
+//SetSizeWrapContent sets the size coordinates on all axes to the special value a.WrapContent.
+//Requests rendering.
 func (t *Transform) SetSizeWrapContent() {
 	t.SetSize(a.NewVector3(a.WrapContent, a.WrapContent, a.WrapContent))
 }
 
+//SetSizeMatchParent sets the size coordinates on all axes to the special value a.MatchParent.
+//Requests rendering.
 func (t *Transform) SetSizeMatchParent() {
 	t.SetSize(a.NewVector3(a.MatchParent, a.MatchParent, a.MatchParent))
 }
 
-// ActualSize calculates the actual size of the Transform replacing the special values.
+// ActualSize calculates the actual absolute size of the object without the special values.
 func (t *Transform) ActualSize() a.Vector3 {
 	return t.actualSize
 }
 
-// LocalPosition calculates the actual local position related to this transform's parent.
+// LocalPosition returns the actual local position related to this transform's parent.
 func (t *Transform) LocalPosition() a.Vector3 {
 	return t.actualPosition
 }
@@ -95,6 +155,7 @@ func (t *Transform) GlobalPosition() a.Vector3 {
 	return t.parent.GlobalPosition().Sub(t.parent.actualSize.Multiply(t.parent.pivot)).Add(t.actualPosition)
 }
 
+//CenterInParent sets the position and pivot of the object to be centered.
 func (t *Transform) CenterInParent() {
 	t.SetPivotCentered()
 	t.SetPositionCentered()
@@ -135,6 +196,8 @@ func (t *Transform) ToRenderingTransform() rendering.Transform {
 	return rt
 }
 
+//Equals checks if the properties of this Transform are the same as the ones of the given Transform.
+//The wanted position, wanted size, pivot and rotation are compared.
 func (t *Transform) Equals(other Transform) bool {
 	return t.position.Equals(other.position) && t.size.Equals(other.size) && t.pivot.Equals(other.pivot) && t.rotation.Equals(other.rotation)
 }
