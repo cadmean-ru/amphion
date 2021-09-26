@@ -46,8 +46,8 @@ func NewShapeView(pType ShapeType) *ShapeView {
 
 	return &ShapeView{
 		PType:        byte(pType),
-		FillColor:    a.WhiteColor(),
-		StrokeColor:  a.BlackColor(),
+		FillColor:    a.White(),
+		StrokeColor:  a.Black(),
 		StrokeWeight: 1,
 	}
 }

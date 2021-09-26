@@ -14,8 +14,8 @@ func (r *BoundaryView) OnDraw(ctx engine.DrawingContext) {
 	pr := rendering.NewGeometryPrimitive(rendering.PrimitiveRectangle)
 	pr.Transform = r.SceneObject.Transform.ToRenderingTransform()
 	pr.Transform.Position.Z = 100
-	pr.Appearance.FillColor = a.TransparentColor()
-	pr.Appearance.StrokeColor = a.PinkColor()
+	pr.Appearance.FillColor = a.Transparent()
+	pr.Appearance.StrokeColor = a.Pink()
 	ctx.GetRenderingNode().SetPrimitive(r.PrimitiveId, pr)
 	r.ShouldRedraw = false
 }

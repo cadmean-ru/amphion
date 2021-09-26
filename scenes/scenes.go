@@ -17,7 +17,7 @@ func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	rect := engine.NewSceneObject("rect")
 	rect.Transform.SetSize(100, 100)
 	shape := builtin.NewShapeView(builtin.ShapeRectangle)
-	shape.FillColor = a.PinkColor()
+	shape.FillColor = a.Pink()
 	rect.AddComponent(shape)
 	//rect.AddComponent(&Mover{})
 
@@ -26,7 +26,7 @@ func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	circle.Transform.SetPosition(10, 10 , 1)
 	circleRenderer := builtin.NewShapeView(builtin.ShapeEllipse)
 	circleRenderer.StrokeWeight = 0
-	circleRenderer.FillColor = a.GreenColor()
+	circleRenderer.FillColor = a.Green()
 	circle.AddComponent(circleRenderer)
 	circle.AddComponent(builtin.NewCircleBoundary())
 	circle.AddComponent(builtin.NewOnClickListener(HandleCircleClick(e)))
@@ -42,7 +42,7 @@ func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	text.Transform.SetSize(100, 50)
 	textComponent := builtin.NewTextView("Hello Amphion! 2")
 	textComponent.FontSize = 30
-	textComponent.TextColor = a.BlackColor()
+	textComponent.TextColor = a.Black()
 	text.AddComponent(textComponent)
 	text.AddComponent(builtin.NewRectBoundary())
 	text.AddComponent(builtin.NewBoundaryView())
@@ -58,7 +58,7 @@ func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	//	text1.Transform.size = common.NewVector3(200, 50, 0)
 	//	textComponent1 := builtin.NewTextView(fmt.Sprintf("Bruh %d", i))
 	//	textComponent1.TextAppearance.FontSize = 30
-	//	textComponent1.Appearance.FillColor = common.BlackColor()
+	//	textComponent1.Appearance.FillColor = common.Black()
 	//	text1.AddComponent(textComponent1)
 	//	text1.AddComponent(builtin.NewBoundaryView())
 	//	text1.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
@@ -88,7 +88,7 @@ func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	triangle.Transform.SetPosition(100, 100)
 	triangle.Transform.SetSize(100, 300)
 	triangleView := builtin.NewShapeView(builtin.ShapeTriangle)
-	triangleView.FillColor = a.BlueColor()
+	triangleView.FillColor = a.Blue()
 	triangle.AddComponent(triangleView)
 	triangle.AddComponent(builtin.NewTriangleBoundary())
 	scene.AddChild(triangle)
@@ -155,7 +155,7 @@ func Scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	textScene2.Transform.SetSize(800, 200)
 	textScene2Renderer := builtin.NewTextView("This is scene 2")
 	textScene2Renderer.FontSize = 100
-	textScene2Renderer.TextColor = a.BlackColor()
+	textScene2Renderer.TextColor = a.Black()
 	textScene2.AddComponent(textScene2Renderer)
 	textScene2.AddComponent(builtin.NewRectBoundary())
 	//textScene2.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
@@ -287,7 +287,7 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 
 	//var counter int
 
-	addBtn := MakeRect("add button", 0, 0, 100, 100, a.GreenColor())
+	addBtn := MakeRect("add button", 0, 0, 100, 100, a.Green())
 	addBtnText := engine.NewSceneObject("add text")
 	addBtnText.Transform.SetPosition(0, 0, 1)
 	addBtnText.Transform.SetSize(a.MatchParent, a.MatchParent)
@@ -319,7 +319,7 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	addBtn.AddComponent(builtin.NewEventListener(engine.EventMouseIn, func(event engine.AmphionEvent) bool {
 		engine.LogInfo("Mouse in")
 		shape := addBtn.GetComponentByName(".+ShapeView").(*builtin.ShapeView)
-		shape.FillColor = a.PinkColor()
+		shape.FillColor = a.Pink()
 		shape.Redraw()
 		engine.RequestRendering()
 		return false
@@ -327,13 +327,13 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	addBtn.AddComponent(builtin.NewEventListener(engine.EventMouseOut, func(event engine.AmphionEvent) bool {
 		engine.LogInfo("Mouse out")
 		shape := addBtn.GetComponentByName(".+ShapeView").(*builtin.ShapeView)
-		shape.FillColor = a.GreenColor()
+		shape.FillColor = a.Green()
 		shape.Redraw()
 		engine.RequestRendering()
 		return false
 	}))
 
-	rmvButton := MakeRect("remove button", 0, 0, 100, 100, a.RedColor())
+	rmvButton := MakeRect("remove button", 0, 0, 100, 100, a.Red())
 	rmvButtonText := engine.NewSceneObject("remove text")
 	rmvButtonText.Transform.SetPosition(10, 10, 1)
 	rmvButtonText.Transform.SetSize(a.MatchParent, a.MatchParent, 0)
@@ -555,9 +555,9 @@ func ClipScene(e *engine.AmphionEngine) *engine.SceneObject {
 	frame := engine.NewSceneObject("baby frame")
 	frame.Transform.SetSize(a.MatchParent, a.MatchParent)
 	circle := builtin.NewShapeView(builtin.ShapeEllipse)
-	circle.FillColor = a.TransparentColor()
+	circle.FillColor = a.Transparent()
 	circle.StrokeWeight = 10
-	circle.StrokeColor = a.PinkColor()
+	circle.StrokeColor = a.Pink()
 	frame.AddComponent(circle)
 	image.AddChild(frame)
 
@@ -570,7 +570,7 @@ func ClipScene(e *engine.AmphionEngine) *engine.SceneObject {
 	rect.Transform.SetPosition(a.CenterInParent, a.CenterInParent)
 	textView := builtin.NewTextView("BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH BRUH ")
 	textView.FontSize = 10
-	textView.TextColor = a.RedColor()
+	textView.TextColor = a.Red()
 	rect.AddComponent(textView)
 	rect.AddComponent(builtin.NewClipArea(shape.Circle))
 	image.AddChild(rect)

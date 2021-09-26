@@ -30,7 +30,7 @@ func NewColor(params ...interface{}) Color {
 				A: 255,
 			}
 		} else {
-			return BlackColor()
+			return Black()
 		}
 	case 3:
 		var r, g, b, a byte = requireByte(params[0]), requireByte(params[1]), requireByte(params[2]), 255
@@ -49,13 +49,13 @@ func NewColor(params ...interface{}) Color {
 			A: a,
 		}
 	default:
-		return BlackColor()
+		return Black()
 	}
 }
 
 // Parses color hex string in format #rrggbbaa, #rrggbb, #rgba or #rgb to a Color struct.
 func ParseHexColor(hex string) Color {
-	c := BlackColor()
+	c := Black()
 
 	if !strings.HasPrefix(hex, "#") {
 		return c
@@ -153,31 +153,31 @@ func (c *Color) Normalize() Vector4 {
 
 //region color presets
 
-func BlackColor() Color {
+func Black() Color {
 	return NewColor(0, 0, 0, 255)
 }
 
-func WhiteColor() Color {
+func White() Color {
 	return NewColor(255, 255, 255, 255)
 }
 
-func RedColor() Color {
+func Red() Color {
 	return NewColor(255, 0, 0, 255)
 }
 
-func GreenColor() Color {
+func Green() Color {
 	return NewColor(0, 255, 0, 255)
 }
 
-func BlueColor() Color {
+func Blue() Color {
 	return NewColor(0, 0, 255, 255)
 }
 
-func TransparentColor() Color {
+func Transparent() Color {
 	return NewColor(0, 0, 0, 0)
 }
 
-func PinkColor() Color {
+func Pink() Color {
 	return NewColor(255,192,203, 255)
 }
 

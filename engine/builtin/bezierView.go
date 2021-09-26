@@ -24,8 +24,8 @@ func NewBezierView(cp1, cp2 a.Vector3) *BezierView {
 		ControlPoint1: cp1,
 		ControlPoint2: cp2,
 		Appearance: rendering.Appearance{
-			FillColor:    a.TransparentColor(),
-			StrokeColor:  a.BlackColor(),
+			FillColor:    a.Transparent(),
+			StrokeColor:  a.Black(),
 			StrokeWeight: 1,
 		},
 	}
