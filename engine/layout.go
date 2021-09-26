@@ -105,8 +105,8 @@ func (l *LayoutImpl) measureObject(object *SceneObject) {
 
 	size := a.ZeroVector()
 
-	for _, v := range object.GetViews() {
-		contents := v.MeasureContents()
+	if view := object.GetView(); view != nil {
+		contents := view.MeasureContents()
 		if contents.X > size.X {
 			size.X = contents.X
 		}

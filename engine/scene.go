@@ -20,8 +20,8 @@ type SceneObject struct {
 	components          []*ComponentContainer
 	messageListeners    []*ComponentContainer
 	updatingComponents  []*ComponentContainer
-	viewComponents      []*ComponentContainer
 	boundaryComponents  []*ComponentContainer
+	view                *ComponentContainer
 	layout              *ComponentContainer
 	renderingNode       *rendering.Node
 	Transform           Transform
@@ -165,13 +165,12 @@ func (o *SceneObject) GetChildByName(name string) *SceneObject {
 	panic(fmt.Sprintf("child SceneObject object with name %s was not found", name))
 }
 
-//GetViews returns all views(ViewComponent) attached to this object.
-func (o *SceneObject) GetViews() []ViewComponent {
-	views := make([]ViewComponent, len(o.viewComponents))
-	for i, v := range o.viewComponents {
-		views[i] = v.component.(ViewComponent)
+//GetView returns the view(ViewComponent) attached to this object or nil if no ViewComponent is attached.
+func (o *SceneObject) GetView() ViewComponent {
+	if o.view != nil {
+		return o.view.component.(ViewComponent)
 	}
-	return views
+	return nil
 }
 
 //AddComponent adds a component to this SceneObject object.
@@ -184,7 +183,10 @@ func (o *SceneObject) AddComponent(component Component) Component {
 		o.updatingComponents = append(o.updatingComponents, container)
 	}
 	if _, ok := component.(ViewComponent); ok {
-		o.viewComponents = append(o.viewComponents, container)
+		if o.view != nil {
+			panic("object already has a view component")
+		}
+		o.view = container
 	}
 	if _, ok := component.(MessageListenerComponent); ok {
 		o.messageListeners = append(o.messageListeners, container)
@@ -193,6 +195,9 @@ func (o *SceneObject) AddComponent(component Component) Component {
 		o.boundaryComponents = append(o.boundaryComponents, container)
 	}
 	if _, ok := component.(Layout); ok {
+		if o.layout != nil {
+			panic("object already has a layout component")
+		}
 		o.layout = container
 	}
 
@@ -214,7 +219,7 @@ func (o *SceneObject) AddComponent(component Component) Component {
 // - regex string.
 //
 // If there are multiple components with the same name returns the first.
-// Returns nil if no component with the name n was found or it has not been initialized or is disabled.
+// Returns nil if no component with the name n was found, or it has not been initialized or is disabled.
 func (o *SceneObject) GetComponentByName(n string, includeDirty ...bool) Component {
 	dirty := getDirty(includeDirty...)
 
@@ -313,7 +318,7 @@ func (o *SceneObject) removeComponentFromAllLists(container *ComponentContainer)
 		o.updatingComponents = o.removeComponentFromList(o.updatingComponents, name)
 	}
 	if _, ok := component.(ViewComponent); ok {
-		o.viewComponents = o.removeComponentFromList(o.viewComponents, name)
+		o.view = nil
 	}
 	if _, ok := component.(MessageListenerComponent); ok {
 		o.messageListeners = o.removeComponentFromList(o.messageListeners, name)
@@ -406,14 +411,12 @@ func (o *SceneObject) Redraw() {
 		return
 	}
 
-	for _, view := range o.viewComponents {
-		if view.IsDirty() {
-			continue
-		}
-
-		viewComp := view.component.(ViewComponent)
-		viewComp.Redraw()
+	if o.view.IsDirty() {
+		return
 	}
+
+	o.view.component.(ViewComponent).Redraw()
+
 	instance.RequestRendering()
 }
 
@@ -457,9 +460,9 @@ func (o *SceneObject) setInCurrentScene(b bool) {
 	}
 }
 
-//HasViews checks if the SceneObject object has any view components.
-func (o *SceneObject) HasViews() bool {
-	return len(o.viewComponents) > 0
+//HasView checks if the SceneObject object has a view component.
+func (o *SceneObject) HasView() bool {
+	return o.view != nil
 }
 
 //HasBoundary checks if the SceneObject object has any boundary components.
@@ -794,7 +797,6 @@ func (o *SceneObject) FromMap(siMap a.SiMap) {
 	// Decode components
 	iComponents := siMap["components"].([]interface{})
 	o.components = make([]*ComponentContainer, 0, len(iComponents))
-	o.viewComponents = make([]*ComponentContainer, 0, 1)
 	o.updatingComponents = make([]*ComponentContainer, 0, 1)
 	o.boundaryComponents = make([]*ComponentContainer, 0, 1)
 	o.enabled = true
@@ -856,7 +858,6 @@ func NewSceneObject(name string) *SceneObject {
 		children:           make([]*SceneObject, 0, 10),
 		components:         make([]*ComponentContainer, 0, 10),
 		messageListeners:   make([]*ComponentContainer, 0),
-		viewComponents:     make([]*ComponentContainer, 0, 1),
 		updatingComponents: make([]*ComponentContainer, 0, 1),
 		boundaryComponents: make([]*ComponentContainer, 0, 1),
 		enabled:            true,
@@ -876,7 +877,6 @@ func NewSceneObjectForTesting(name string, components ...Component) *SceneObject
 		children:           make([]*SceneObject, 0, 10),
 		components:         make([]*ComponentContainer, 0, 10),
 		messageListeners:   make([]*ComponentContainer, 0),
-		viewComponents:     make([]*ComponentContainer, 0, 1),
 		updatingComponents: make([]*ComponentContainer, 0, 1),
 		boundaryComponents: make([]*ComponentContainer, 0, 1),
 		enabled:            true,

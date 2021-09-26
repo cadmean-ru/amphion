@@ -171,16 +171,16 @@ func (m *sceneLifecycleManager) loopRender(obj *SceneObject) {
 }
 
 func (m *sceneLifecycleManager) onDrawSceneObject(o *SceneObject, ctx DrawingContext) {
-	for _, c := range o.viewComponents {
-		if c.IsDirty() || !c.started {
-			continue
+	if o.HasView() {
+		if o.view.IsDirty() || !o.view.started {
+			return
 		}
 
-		view := c.component.(ViewComponent)
-		instance.currentComponent = c.component
+		view := o.view.component.(ViewComponent)
+		instance.currentComponent = o.view.component
 
 		if !view.ShouldDraw() {
-			continue
+			return
 		}
 
 		view.OnDraw(ctx)

@@ -418,7 +418,7 @@ func (engine *AmphionEngine) handleMouseMove(mousePos a.IntVector2) {
 
 	candidates := make([]*SceneObject, 0, 1)
 	engine.currentScene.ForEachObject(func(o *SceneObject) {
-		if o.HasViews() && o.HasBoundary() && o.IsPointInsideBoundaries2D(a.NewVector3(float32(mousePos.X), float32(mousePos.Y), 0)) {
+		if o.HasView() && o.HasBoundary() && o.IsPointInsideBoundaries2D(a.NewVector3(float32(mousePos.X), float32(mousePos.Y), 0)) {
 			candidates = append(candidates, o)
 		}
 	})
