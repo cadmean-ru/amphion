@@ -1,5 +1,7 @@
 package engine
 
+import "github.com/cadmean-ru/amphion/common/a"
+
 // ViewImpl is a basic view component implementation.
 type ViewImpl struct {
 	ShouldRedraw bool
@@ -43,6 +45,18 @@ func (v *ViewImpl) Redraw() {
 func (v *ViewImpl) ShouldDraw() bool {
 	return v.ShouldRedraw || v.Engine.IsForcedToRedraw()
 }
+
+func (v *ViewImpl) MeasureContents() a.Vector3 {
+	 return a.ZeroVector()
+}
+
+//func (v *ViewImpl) OnMeasure(ctx *LayoutContext) {
+//
+//}
+//
+//func (v *ViewImpl) OnLayout(ctx *LayoutContext) {
+//
+//}
 
 func (v *ViewImpl) OnMessage(message Message) bool {
 	if message.Code == MessageRedraw {

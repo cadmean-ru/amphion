@@ -1,7 +1,6 @@
 package atest
 
 import (
-	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/engine"
 	"testing"
 )
@@ -60,9 +59,9 @@ func MakeTestScene(delegate TestingDelegate) (*engine.SceneObject, *engine.Scene
 	scene := engine.NewSceneObject("test scene")
 
 	testObject := engine.NewSceneObject("test object")
-	testObject.Transform.position = a.NewVector3(a.CenterInParent, a.CenterInParent, a.CenterInParent)
-	testObject.Transform.size = a.NewVector3(100, 100, 100)
-	testObject.Transform.pivot = a.NewVector3(0.5, 0.5, 0.5)
+	testObject.Transform.SetPositionCentered()
+	testObject.Transform.SetSize(100, 100, 100)
+	testObject.Transform.SetPivotCentered()
 	testObject.AddComponent(NewTestingComponent(delegate))
 
 	scene.AddChild(testObject)
@@ -88,12 +87,12 @@ func SimulateClickOnObject(o *engine.SceneObject, button engine.MouseButton) {
 	SimulateClick(x, y, button)
 }
 
-// Blocks the calling goroutine until the engine is stopped.
+// WaitForStop blocks the calling goroutine until the engine is stopped.
 func WaitForStop() {
 	eng.WaitForStop()
 }
 
-// Stops the testing instance of Amphion engine.
+// Stop stops the testing instance of Amphion engine.
 func Stop() {
 	eng.Stop()
 }

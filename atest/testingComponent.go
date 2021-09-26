@@ -1,7 +1,3 @@
-// +build linux windows darwin
-// +build !android
-// +build !ios
-
 package atest
 
 import "github.com/cadmean-ru/amphion/engine"
@@ -19,10 +15,6 @@ func (t *TestingComponent) OnStart() {
 	}
 
 	t.testDelegate(t.Engine)
-}
-
-func (t *TestingComponent) GetName() string {
-	return engine.NameOfComponent(t)
 }
 
 func NewTestingComponent(testingDelegate TestingDelegate) *TestingComponent {

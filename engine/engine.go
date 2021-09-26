@@ -109,7 +109,7 @@ func (engine *AmphionEngine) Start() {
 	engine.logger.Info(engine, "Amphion started")
 }
 
-// Stop closes the current scene if any, and stops the engine.
+// Stop closes the current SceneObject if any, and stops the engine.
 func (engine *AmphionEngine) Stop() {
 	engine.updateRoutine.enqueueEventAndRequestUpdate(NewAmphionEvent(engine, EventStop, nil))
 }
@@ -129,7 +129,7 @@ func (engine *AmphionEngine) GetLogger() *Logger {
 	return engine.logger
 }
 
-// GetCurrentScene returns the currently displaying scene object.
+// GetCurrentScene returns the currently displaying SceneObject object.
 func (engine *AmphionEngine) GetCurrentScene() *SceneObject {
 	return engine.currentScene
 }
@@ -145,8 +145,8 @@ func (engine *AmphionEngine) GetGlobalContext() frontend.Context {
 	return engine.globalContext
 }
 
-// LoadScene loads scene from a resource file asynchronously.
-// If show is true, after loading also shows this scene.
+// LoadScene loads SceneObject from a resource file asynchronously.
+// If show is true, after loading also shows this SceneObject.
 func (engine *AmphionEngine) LoadScene(scene a.ResId, show bool) {
 	if engine.state != StateStarted {
 		panic("Invalid engine state")
@@ -159,7 +159,7 @@ func (engine *AmphionEngine) LoadScene(scene a.ResId, show bool) {
 		so := &SceneObject{}
 		err := so.DecodeFromYaml(data)
 		if err != nil {
-			engine.logger.Info(engine, fmt.Sprintf("Failed to decode scene: %s", err.Error()))
+			engine.logger.Info(engine, fmt.Sprintf("Failed to decode SceneObject: %s", err.Error()))
 			return
 		}
 
@@ -169,14 +169,14 @@ func (engine *AmphionEngine) LoadScene(scene a.ResId, show bool) {
 			engine.SwapScenes()
 		}
 	}).Err(func(err error) {
-		engine.logger.Error(engine, fmt.Sprintf("Error loading scene with id %d: %v", scene, err))
+		engine.logger.Error(engine, fmt.Sprintf("Error loading SceneObject with id %d: %v", scene, err))
 	}).Build())
 }
 
-// SwapScenes hides the current showing scene and shows the currently loaded scene (using LoadScene).
-// The previously showing scene will be properly stopped and the deleted.
+// SwapScenes hides the current showing SceneObject and shows the currently loaded SceneObject (using LoadScene).
+// The previously showing SceneObject will be properly stopped and the deleted.
 // So, calling SwapScenes again will not swap the two scenes back.
-// If no scene is loaded, will not do anything.
+// If no SceneObject is loaded, will not do anything.
 func (engine *AmphionEngine) SwapScenes() {
 	if engine.loadedScene == nil {
 		return
@@ -188,20 +188,20 @@ func (engine *AmphionEngine) SwapScenes() {
 	})
 }
 
-// ShowScene shows the specified scene object.
-// Returns an error, if the engine is not yet ready or if another scene is already showing.
+// ShowScene shows the specified SceneObject object.
+// Returns an error, if the engine is not yet ready or if another SceneObject is already showing.
 func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 	if !engine.started {
-		engine.logger.Error(engine, "Cannot show scene. Engine not started!")
+		engine.logger.Error(engine, "Cannot show SceneObject. Engine not started!")
 		return errors.New("engine not started")
 	}
 
 	if engine.currentScene != nil {
-		engine.logger.Error(engine, "Cannot show scene. A scene is already showing!")
-		return errors.New("a scene is already loaded")
+		engine.logger.Error(engine, "Cannot show SceneObject. A SceneObject is already showing!")
+		return errors.New("a SceneObject is already loaded")
 	}
 
-	engine.logger.Info(engine, fmt.Sprintf("Starting scene %s", scene.name))
+	engine.logger.Info(engine, fmt.Sprintf("Starting SceneObject %s", scene.name))
 
 	engine.sceneContext = makeSceneContext()
 
@@ -225,9 +225,9 @@ func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 	return nil
 }
 
-// CloseScene closes the currently showing scene asynchronously.
-// It will call the provided callback function as soon as the scene was closed.
-// If no scene is showing calls the callback function immediately.
+// CloseScene closes the currently showing SceneObject asynchronously.
+// It will call the provided callback function as soon as the SceneObject was closed.
+// If no SceneObject is showing calls the callback function immediately.
 func (engine *AmphionEngine) CloseScene(callback func()) {
 	if engine.currentScene == nil {
 		callback()
@@ -255,8 +255,9 @@ func (engine *AmphionEngine) configureScene(scene *SceneObject) {
 	}
 
 	screenInfo := engine.globalContext.ScreenInfo
-	scene.Transform.size.X = float32(screenInfo.GetWidth())
-	scene.Transform.size.Y = float32(screenInfo.GetHeight())
+	size := a.NewVector3(float32(screenInfo.GetWidth()), float32(screenInfo.GetHeight()), 0)
+	scene.Transform.size = size
+	scene.Transform.actualSize = size
 }
 
 // RequestUpdate tells the engine to schedule an update as soon as possible.
@@ -270,7 +271,7 @@ func (engine *AmphionEngine) RequestRendering() {
 	engine.updateRoutine.requestRendering()
 }
 
-//ForceAllViewsRedraw will request all view in the scene to redraw on the next rendering cycle.
+//ForceAllViewsRedraw will request all view in the SceneObject to redraw on the next rendering cycle.
 //It will not request rendering, you will need to call RequestRendering after that.
 func (engine *AmphionEngine) ForceAllViewsRedraw() {
 	engine.forceRedraw = true
@@ -379,7 +380,7 @@ func (engine *AmphionEngine) GetStateString() string {
 
 func (engine *AmphionEngine) handleStop() {
 	if engine.currentScene != nil {
-		engine.logger.Info(engine, "Unable to stop. Scene is showing. Closing scene and retrying.")
+		engine.logger.Info(engine, "Unable to stop. Scene is showing. Closing SceneObject and retrying.")
 		engine.CloseScene(func() {
 			engine.handleStop()
 		})
@@ -481,7 +482,7 @@ func (engine *AmphionEngine) handleSceneClose() {
 }
 
 func (engine *AmphionEngine) registerInternalEventHandlers() {
-
+	//TODO: remove maybe?
 }
 
 func (engine *AmphionEngine) GetTasksRoutine() *TasksRoutine {
@@ -517,7 +518,7 @@ func (engine *AmphionEngine) GetName() string {
 	return "Amphion Engine"
 }
 
-// LoadApp loads app data from well-known source and shows the main scene.
+// LoadApp loads app data from well-known source and shows the main SceneObject.
 func (engine *AmphionEngine) LoadApp(delegate ...AppDelegate) {
 	if engine.state != StateStarted {
 		panic("Invalid engine state")
@@ -549,7 +550,7 @@ func (engine *AmphionEngine) LoadApp(delegate ...AppDelegate) {
 
 			err := Navigate(path, nil)
 			if err != nil {
-				engine.logger.Warning(engine, fmt.Sprintf("Failed to navigate to main scene: %s", err.Error()))
+				engine.logger.Warning(engine, fmt.Sprintf("Failed to navigate to main SceneObject: %s", err.Error()))
 			}
 		} else {
 			engine.logger.Warning(engine, "No app info found in well-known location!")
@@ -562,7 +563,7 @@ func (engine *AmphionEngine) GetAppContext() *AppContext {
 	return engine.appContext
 }
 
-// GetSceneContext returns the current scene's context.
+// GetSceneContext returns the current SceneObject's context.
 func (engine *AmphionEngine) GetSceneContext() *SceneContext {
 	return engine.sceneContext
 }

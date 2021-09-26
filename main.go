@@ -8,6 +8,7 @@ import (
 	"flag"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend/pc"
+	"github.com/cadmean-ru/amphion/scenes"
 	"github.com/cadmean-ru/amphion/utils"
 	"log"
 	"runtime"
@@ -52,13 +53,13 @@ func main() {
 
 	e := engine.Initialize(front)
 
-	registerComponents(e)
-	registerResources(e)
+	scenes.RegisterComponents(e)
+	scenes.RegisterResources(e)
 
 	go func() {
 		e.Start()
 
-		if err := e.ShowScene(scene1(e)); err != nil {
+		if err := e.ShowScene(scenes.LayoutScene(e)); err != nil {
 			log.Println(err)
 		}
 

@@ -1,4 +1,4 @@
-package main
+package scenes
 
 import (
 	"github.com/cadmean-ru/amphion/engine"

@@ -1,4 +1,4 @@
-package main
+package scenes
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"math/rand"
 )
 
-func scene1(e *engine.AmphionEngine) *engine.SceneObject {
+func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("Test scene")
 
 	rect := engine.NewSceneObject("rect")
@@ -29,7 +29,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	circleRenderer.FillColor = a.GreenColor()
 	circle.AddComponent(circleRenderer)
 	circle.AddComponent(builtin.NewCircleBoundary())
-	circle.AddComponent(builtin.NewOnClickListener(handleCircleClick(e)))
+	circle.AddComponent(builtin.NewOnClickListener(HandleCircleClick(e)))
 
 	rect.AddChild(circle)
 
@@ -110,7 +110,7 @@ func scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	return scene
 }
 
-func registerResources(e *engine.AmphionEngine) {
+func RegisterResources(e *engine.AmphionEngine) {
 	rm := e.GetResourceManager()
 	rm.RegisterResource("2006.ttf")
 	rm.RegisterResource("images/baby-yoda.jpg")
@@ -124,7 +124,7 @@ func registerResources(e *engine.AmphionEngine) {
 	rm.RegisterResource("prefabs/test.yaml")
 }
 
-func registerComponents(e *engine.AmphionEngine) {
+func RegisterComponents(e *engine.AmphionEngine) {
 	cm := e.GetComponentsManager()
 	cm.RegisterComponentType(&Mover{})
 	cm.RegisterComponentType(&builtin.ShapeView{})
@@ -141,12 +141,12 @@ func registerComponents(e *engine.AmphionEngine) {
 	cm.RegisterComponentType(&TestController{})
 	cm.RegisterComponentType(&PrefabController{})
 
-	cm.RegisterEventHandler(handleCircleClick(e))
+	cm.RegisterEventHandler(HandleCircleClick(e))
 	cm.RegisterEventHandler(navigateOnClick)
 	cm.RegisterEventHandler(navigateOnClick2)
 }
 
-func scene2(e *engine.AmphionEngine) *engine.SceneObject {
+func Scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	//var counter = 0
 	scene2 := engine.NewSceneObject("scene 2")
 	textScene2 := engine.NewSceneObject("text")
@@ -250,7 +250,7 @@ func (c *TestController) GetName() string {
 
 //endregion
 
-func handleCircleClick(e *engine.AmphionEngine) engine.EventHandler {
+func HandleCircleClick(e *engine.AmphionEngine) engine.EventHandler {
 	return func(event engine.AmphionEvent) bool {
 		var mousePos = event.Data.(a.IntVector3)
 		e.GetLogger().Info(nil, fmt.Sprintf("BIG CLICK ON CIRCLE. Mouse pos: %d %d", mousePos.X, mousePos.Y))
@@ -258,7 +258,7 @@ func handleCircleClick(e *engine.AmphionEngine) engine.EventHandler {
 	}
 }
 
-func makeRect(name string, x, y, sx, sy float32, fill a.Color) *engine.SceneObject {
+func MakeRect(name string, x, y, sx, sy float32, fill a.Color) *engine.SceneObject {
 	rect := engine.NewSceneObject(name)
 	rect.Transform.SetPosition(x, y)
 	rect.Transform.SetSize(sx, sy)
@@ -272,7 +272,7 @@ func makeRect(name string, x, y, sx, sy float32, fill a.Color) *engine.SceneObje
 	return rect
 }
 
-func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
+func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("grid scene")
 
 	grid := builtin.NewGridLayout()
@@ -287,7 +287,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 
 	//var counter int
 
-	addBtn := makeRect("add button", 0, 0, 100, 100, a.GreenColor())
+	addBtn := MakeRect("add button", 0, 0, 100, 100, a.GreenColor())
 	addBtnText := engine.NewSceneObject("add text")
 	addBtnText.Transform.SetPosition(0, 0, 1)
 	addBtnText.Transform.SetSize(a.MatchParent, a.MatchParent)
@@ -299,7 +299,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	addBtn.AddComponent(builtin.NewRectBoundary())
 	addBtn.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
 		color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
-		rect := makeRect(fmt.Sprintf("Rect"), 0, 0, 100, float32(rand.Intn(300)), color)
+		rect := MakeRect(fmt.Sprintf("Rect"), 0, 0, 100, float32(rand.Intn(300)), color)
 		rect.AddComponent(builtin.NewRectBoundary())
 		scene.AddChild(rect)
 
@@ -333,7 +333,7 @@ func gridScene(e *engine.AmphionEngine) *engine.SceneObject {
 		return false
 	}))
 
-	rmvButton := makeRect("remove button", 0, 0, 100, 100, a.RedColor())
+	rmvButton := MakeRect("remove button", 0, 0, 100, 100, a.RedColor())
 	rmvButtonText := engine.NewSceneObject("remove text")
 	rmvButtonText.Transform.SetPosition(10, 10, 1)
 	rmvButtonText.Transform.SetSize(a.MatchParent, a.MatchParent, 0)
@@ -494,7 +494,7 @@ func textScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("text scene")
 
 	text := engine.NewSceneObject("text")
-	text.SetSizeXy(200, 200)
+	text.Transform.SetSize(200, 200)
 	textView := builtin.NewTextView("Hello\nnext line\naaaaaaaaaaaaaa aaaaaaaaaaaaaa aaaaaaaaa aaaaaaaaaaaa\nывлоарывлаолывтёоылдомыволадыаааа дылаоыа\n\"!@#$%^&*()_+-={}[]🤢🌮")
 	textView.FontSize = 16
 	textView.HTextAlign = a.TextAlignCenter
@@ -505,8 +505,8 @@ func textScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene.AddChild(text)
 
 	grogu := engine.NewSceneObject("grogu")
-	grogu.SetSizeXy(69, 69)
-	grogu.SetPositionXyz(0, 0, 69)
+	grogu.Transform.SetSize(69, 69)
+	grogu.Transform.SetPosition(0, 0, 69)
 	grogu.AddComponent(builtin.NewImageView(Res_images_gun))
 	grogu.AddComponent(builtin.NewRectBoundary())
 	grogu.AddComponent(builtin.NewMouseMover())
@@ -515,7 +515,7 @@ func textScene(e *engine.AmphionEngine) *engine.SceneObject {
 	return scene
 }
 
-func treeScene(e *engine.AmphionEngine) *engine.SceneObject {
+func TreeScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("Tree")
 
 	rect := engine.NewSceneObject("rect")
@@ -523,7 +523,7 @@ func treeScene(e *engine.AmphionEngine) *engine.SceneObject {
 	rectView.FillColor = a.NewColor(0, 69, 0)
 	rectView.CornerRadius = 100
 	rect.AddComponent(rectView)
-	rect.SetSizeXy(120, 120)
+	rect.Transform.SetSize(120, 120)
 	rect.AddComponent(builtin.NewMouseMover())
 	rect.AddComponent(builtin.NewRectBoundary())
 
@@ -532,8 +532,8 @@ func treeScene(e *engine.AmphionEngine) *engine.SceneObject {
 	rectInsideView.FillColor = a.NewColor(69, 0, 0)
 	rectInsideView.CornerRadius = 5
 	rectInside.AddComponent(rectInsideView)
-	rectInside.SetSizeXy(50, 50)
-	rectInside.SetPositionXy(a.CenterInParent, a.CenterInParent)
+	rectInside.Transform.SetSize(50, 50)
+	rectInside.Transform.SetPosition(a.CenterInParent, a.CenterInParent)
 	rectInside.Transform.SetPivotCentered()
 
 	scene.AddChild(rect)
@@ -542,7 +542,7 @@ func treeScene(e *engine.AmphionEngine) *engine.SceneObject {
 	return scene
 }
 
-func clipScene(e *engine.AmphionEngine) *engine.SceneObject {
+func ClipScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("clip scene")
 
 	image := engine.NewSceneObject("image")

@@ -116,11 +116,11 @@ func (m *layoutManager) lineBreak() {
 }
 
 func (m *layoutManager) lineFits() bool {
-	return m.y < m.yMax
+	return m.bounds.Y.Max == Unbounded || m.y < m.yMax
 }
 
 func (m *layoutManager) charFits(char *Char) bool {
-	return !char.IsVisible() || m.x+char.glyph.GetSize().X <= m.xMax
+	return m.bounds.X.Max == Unbounded || !char.IsVisible() || m.x+char.glyph.GetSize().X <= m.xMax
 }
 
 func newLayoutManager(face *Face, runes []rune, bounds *common.RectBoundary, options LayoutOptions) *layoutManager {

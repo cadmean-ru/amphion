@@ -104,12 +104,12 @@ func GetResourceManager() frontend.ResourceManager {
 	return instance.GetResourceManager()
 }
 
-//GetCurrentScene returns the currently displaying scene object.
+//GetCurrentScene returns the currently displaying SceneObject object.
 func GetCurrentScene() *SceneObject {
 	return instance.GetCurrentScene()
 }
 
-//GetSceneContext returns the current scene's context.
+//GetSceneContext returns the current SceneObject's context.
 func GetSceneContext() *SceneContext {
 	return instance.GetSceneContext()
 }
@@ -135,7 +135,7 @@ func SetWindowTitle(title string) {
 	instance.SetWindowTitle(title)
 }
 
-//FindObjectByName searches for an object with the specified name through all the current scene object tree.
+//FindObjectByName searches for an object with the specified name through all the current SceneObject object tree.
 //See SceneObject.FindObjectByName.
 func FindObjectByName(name string, includeDirty ...bool) *SceneObject {
 	if instance.currentScene == nil {
@@ -144,7 +144,7 @@ func FindObjectByName(name string, includeDirty ...bool) *SceneObject {
 	return instance.currentScene.FindObjectByName(name, includeDirty...)
 }
 
-//FindComponentByName searches for a component with the specified name through all the current scene object tree.
+//FindComponentByName searches for a component with the specified name through all the current SceneObject object tree.
 //See SceneObject.FindComponentByName.
 func FindComponentByName(name string, includeDirty ...bool) Component {
 	if instance.currentScene == nil {
@@ -153,7 +153,7 @@ func FindComponentByName(name string, includeDirty ...bool) Component {
 	return instance.currentScene.FindComponentByName(name, includeDirty...)
 }
 
-//ForceAllViewsRedraw will request all view in the scene to redraw on the next rendering cycle.
+//ForceAllViewsRedraw will request all view in the SceneObject to redraw on the next rendering cycle.
 //It will not request rendering, you will need to call RequestRendering after that.
 func ForceAllViewsRedraw() {
 	instance.forceRedraw = true
@@ -188,29 +188,29 @@ func IsInDebugMode() bool {
 	return instance.currentApp != nil && instance.currentApp.Debug
 }
 
-// CloseScene closes the currently showing scene asynchronously.
-// It will call the provided callback function as soon as the scene was closed.
-// If no scene is showing calls the callback function immediately.
+// CloseScene closes the currently showing SceneObject asynchronously.
+// It will call the provided callback function as soon as the SceneObject was closed.
+// If no SceneObject is showing calls the callback function immediately.
 func CloseScene(closeCallback func()) {
 	instance.CloseScene(closeCallback)
 }
 
-// ShowScene shows the specified scene object.
-// Returns an error, if the engine is not yet ready or if another scene is already showing.
+// ShowScene shows the specified SceneObject object.
+// Returns an error, if the engine is not yet ready or if another SceneObject is already showing.
 func ShowScene(scene *SceneObject) error {
 	return instance.ShowScene(scene)
 }
 
-// LoadScene loads scene from a resource file asynchronously.
-// If show is true, after loading also shows this scene.
+// LoadScene loads SceneObject from a resource file asynchronously.
+// If show is true, after loading also shows this SceneObject.
 func LoadScene(sceneId a.ResId, show bool) {
 	instance.LoadScene(sceneId, show)
 }
 
-// SwapScenes hides the current showing scene and shows the currently loaded scene (using LoadScene).
-// The previously showing scene will be properly stopped and the deleted.
+// SwapScenes hides the current showing SceneObject and shows the currently loaded SceneObject (using LoadScene).
+// The previously showing SceneObject will be properly stopped and the deleted.
 // So, calling SwapScenes again will not swap the two scenes back.
-// If no scene is loaded, will not do anything.
+// If no SceneObject is loaded, will not do anything.
 func SwapScenes() {
 	instance.SwapScenes()
 }

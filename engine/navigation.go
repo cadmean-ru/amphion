@@ -8,11 +8,11 @@ import (
 	"strings"
 )
 
-// Opens the scene corresponding to the specified path.
-// Path "/" corresponds to the app's main scene.
-// Other paths correspond to the scene path in the scene folder.
-// For example "res/scenes/test.scene" corresponds to "/test", "res/scenes/hello/test.scene" to "/hello/test".
-// Args can be passed, that can be later read from the scene.
+// Opens the SceneObject corresponding to the specified path.
+// Path "/" corresponds to the app's main SceneObject.
+// Other paths correspond to the SceneObject path in the SceneObject folder.
+// For example "res/scenes/test.SceneObject" corresponds to "/test", "res/scenes/hello/test.SceneObject" to "/hello/test".
+// Args can be passed, that can be later read from the SceneObject.
 func Navigate(path string, args a.SiMap) (err error) {
 	if instance.currentApp == nil {
 		err = errors.New("cannot navigate without loaded app")
@@ -22,7 +22,7 @@ func Navigate(path string, args a.SiMap) (err error) {
 	var scenePath string
 
 	if path == "/" {
-		scenePath = "scenes/" + instance.currentApp.MainScene + ".scene"
+		scenePath = "scenes/" + instance.currentApp.MainScene + ".SceneObject"
 	} else {
 		pathTokens := strings.Split(path, "/")
 
@@ -47,14 +47,14 @@ func Navigate(path string, args a.SiMap) (err error) {
 			}
 		}
 
-		scenePath = "scenes/" + strings.Join(pathTokens, "/") + ".scene"
+		scenePath = "scenes/" + strings.Join(pathTokens, "/") + ".SceneObject"
 	}
 
 
 	sceneId := instance.GetResourceManager().IdOf(scenePath)
 
 	if sceneId == -1 {
-		err = errors.New("scene not found")
+		err = errors.New("SceneObject not found")
 		return
 	}
 

@@ -5,6 +5,7 @@ package main
 import (
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend/web"
+	"github.com/cadmean-ru/amphion/scenes"
 )
 
 func main() {
@@ -13,12 +14,12 @@ func main() {
 
 	e := engine.Initialize(front)
 
-	registerComponents(e)
-	registerResources(e)
+	scenes.RegisterComponents(e)
+	scenes.RegisterResources(e)
 
 	go func() {
 		e.Start()
-		_ = e.ShowScene(gridScene(e))
+		_ = e.ShowScene(scenes.GridScene(e))
 		//e.LoadApp()
 		e.WaitForStop()
 	}()

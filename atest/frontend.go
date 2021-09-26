@@ -14,7 +14,7 @@ import (
 
 var instance *Frontend
 
-// The testing frontend.
+// Frontend the testing frontend.
 type Frontend struct {
 	disp dispatch.MessageDispatcher
 	clicked bool
@@ -152,6 +152,10 @@ type RendererDelegate struct {
 }
 
 func (r *RendererDelegate) OnPrepare() {
+
+}
+
+func (r *RendererDelegate) OnCreatePrimitiveRenderingContext(ctx *rendering.PrimitiveRenderingContext) {
 
 }
 

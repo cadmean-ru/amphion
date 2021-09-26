@@ -2,11 +2,12 @@ package engine
 
 import "github.com/cadmean-ru/amphion/common/a"
 
-// This struct holds data related to a scene.
+// SceneContext struct holds data related to a SceneObject instance.
 type SceneContext struct {
 	Args          a.SiMap
 	focusedObject *SceneObject
 	hoveredObject *SceneObject
+	//layouter      *LayoutImpl
 }
 
 func makeSceneContext() *SceneContext {
@@ -16,6 +17,7 @@ func makeSceneContext() *SceneContext {
 	}
 
 	return &SceneContext{
-		Args: args,
+		Args:     args,
+		//layouter: newLayouter(),
 	}
 }

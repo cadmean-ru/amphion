@@ -60,8 +60,20 @@ func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 	t.ShouldRedraw = false
 }
 
+func (t *TextView) MeasureContents() a.Vector3 {
+	return t.aText.GetSize().ToFloat3()
+}
+
 func (t *TextView) layoutText() {
-	t.aText = atext.LayoutRunes(t.aFace, []rune(t.Text), t.SceneObject.Transform.GlobalRect(), atext.LayoutOptions{
+	bounds := t.SceneObject.Transform.GlobalRect()
+	wantedSize := t.SceneObject.Transform.WantedSize()
+	if wantedSize.X == a.WrapContent {
+		bounds.X.Max = atext.Unbounded
+	}
+	if wantedSize.Y == a.WrapContent {
+		bounds.Y.Max = atext.Unbounded
+	}
+	t.aText = atext.LayoutRunes(t.aFace, []rune(t.Text), bounds, atext.LayoutOptions{
 		VTextAlign: t.VTextAlign,
 		HTextAlign: t.HTextAlign,
 		SingleLine: t.SingleLine,

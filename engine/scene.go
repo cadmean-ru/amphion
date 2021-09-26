@@ -12,7 +12,7 @@ import (
 
 const MaxSceneObjects = 1000
 
-// SceneObject is an object in the scene. The scene itself is also a SceneObject.
+// SceneObject is an object in the SceneObject. The SceneObject itself is also a SceneObject.
 type SceneObject struct {
 	id                  int
 	name                string
@@ -20,7 +20,7 @@ type SceneObject struct {
 	components          []*ComponentContainer
 	messageListeners    []*ComponentContainer
 	updatingComponents  []*ComponentContainer
-	renderingComponents []*ComponentContainer
+	viewComponents      []*ComponentContainer
 	boundaryComponents  []*ComponentContainer
 	layout              *ComponentContainer
 	renderingNode       *rendering.Node
@@ -33,19 +33,19 @@ type SceneObject struct {
 	willBeRemoved       bool
 }
 
-//GetName returns the name of the scene object.
+//GetName returns the name of the SceneObject object.
 func (o *SceneObject) GetName() string {
 	return o.name
 }
 
-// GetId returns the id of the object in the scene.
+// GetId returns the id of the object in the SceneObject.
 // The id is not guaranteed to remain the same over time and serves for internal engine purposes.
 // For identification use object's name.
 func (o *SceneObject) GetId() int {
 	return o.id
 }
 
-// ToString returns the string representation of the scene object.
+// ToString returns the string representation of the SceneObject object.
 func (o *SceneObject) ToString() string {
 	return o.name
 }
@@ -55,7 +55,7 @@ func (o *SceneObject) DebugString() string {
 	return o.ToString()
 }
 
-//GetParent returns the parent object of this scene object. Returns nil if no parent object.
+//GetParent returns the parent object of this SceneObject object. Returns nil if no parent object.
 func (o *SceneObject) GetParent() *SceneObject {
 	return o.parent
 }
@@ -68,13 +68,13 @@ func (o *SceneObject) appendChild(object *SceneObject) {
 	o.children = append(o.children, object)
 }
 
-//AddChild adds a child object to this scene object.
+//AddChild adds a child object to this SceneObject object.
 func (o *SceneObject) AddChild(object *SceneObject) {
 	o.appendChild(object)
 
 	if o.inCurrentScene {
 		if !object.initialized {
-			object.Traverse(func(child *SceneObject) bool {
+			object.TraversePreOrder(func(child *SceneObject) bool {
 				instance.updateRoutine.initSceneObject(child)
 				return true
 			}, true)
@@ -84,14 +84,14 @@ func (o *SceneObject) AddChild(object *SceneObject) {
 	}
 }
 
-//AddNewChild creates a new scene object with the given name and adds it as a child to the current object.
+//AddNewChild creates a new SceneObject object with the given name and adds it as a child to the current object.
 func (o *SceneObject) AddNewChild(name string) *SceneObject {
 	obj := NewSceneObject(name)
 	o.AddChild(obj)
 	return obj
 }
 
-//RemoveChild removes the specified child from this scene object.
+//RemoveChild removes the specified child from this SceneObject object.
 func (o *SceneObject) RemoveChild(object *SceneObject) {
 	if !o.removeChildFromList(object) {
 		return
@@ -123,22 +123,22 @@ func (o *SceneObject) removeChildFromList(object *SceneObject) bool {
 	return false
 }
 
-//RemoveAllChildren removes all children from the receiver scene object.
+//RemoveAllChildren removes all children from the receiver SceneObject object.
 func (o *SceneObject) RemoveAllChildren() {
 	for _, o1 := range o.children {
 		o.RemoveChild(o1)
 	}
 }
 
-//GetChildren returns the list of children of this scene object.
-//Modifying the returned list wont modify the actual list of children of this scene object.
+//GetChildren returns the list of children of this SceneObject object.
+//Modifying the returned list wont modify the actual list of children of this SceneObject object.
 func (o *SceneObject) GetChildren() []*SceneObject {
 	c := make([]*SceneObject, len(o.children))
 	copy(c, o.children)
 	return c
 }
 
-//GetChildAt returns the child scene object at the given index.
+//GetChildAt returns the child SceneObject object at the given index.
 //If there is no child with that index returns nil.
 func (o *SceneObject) GetChildAt(index int) *SceneObject {
 	if index >= 0 && index < len(o.children) {
@@ -153,7 +153,7 @@ func (o *SceneObject) GetChildrenCount() int {
 	return len(o.children)
 }
 
-//GetChildByName finds scene object in the list of children of the current object.
+//GetChildByName finds SceneObject object in the list of children of the current object.
 //Returns nil if no object with the specified name was not found.
 func (o *SceneObject) GetChildByName(name string) *SceneObject {
 	for _, c := range o.children {
@@ -162,10 +162,19 @@ func (o *SceneObject) GetChildByName(name string) *SceneObject {
 		}
 	}
 
-	panic(fmt.Sprintf("child scene object with name %s was not found", name))
+	panic(fmt.Sprintf("child SceneObject object with name %s was not found", name))
 }
 
-//AddComponent adds a component to this scene object.
+//GetViews returns all views(ViewComponent) attached to this object.
+func (o *SceneObject) GetViews() []ViewComponent {
+	views := make([]ViewComponent, len(o.viewComponents))
+	for i, v := range o.viewComponents {
+		views[i] = v.component.(ViewComponent)
+	}
+	return views
+}
+
+//AddComponent adds a component to this SceneObject object.
 //Returns the given component.
 func (o *SceneObject) AddComponent(component Component) Component {
 	container := NewComponentContainer(o, component)
@@ -175,7 +184,7 @@ func (o *SceneObject) AddComponent(component Component) Component {
 		o.updatingComponents = append(o.updatingComponents, container)
 	}
 	if _, ok := component.(ViewComponent); ok {
-		o.renderingComponents = append(o.renderingComponents, container)
+		o.viewComponents = append(o.viewComponents, container)
 	}
 	if _, ok := component.(MessageListenerComponent); ok {
 		o.messageListeners = append(o.messageListeners, container)
@@ -248,7 +257,7 @@ func (o *SceneObject) componentMatcher(container *ComponentContainer, name strin
 }
 
 //GetComponents returns a slice of all components attached to the object.
-//Modifying the returned list will not change the actual list of components of this scene object.
+//Modifying the returned list will not change the actual list of components of this SceneObject object.
 func (o *SceneObject) GetComponents(includeDirty ...bool) []Component {
 	dirty := getDirty(includeDirty...)
 
@@ -263,7 +272,7 @@ func (o *SceneObject) GetComponents(includeDirty ...bool) []Component {
 	return arr
 }
 
-//RemoveComponent removes the given component from the scene object.
+//RemoveComponent removes the given component from the SceneObject object.
 func (o *SceneObject) RemoveComponent(comp Component) {
 	var container *ComponentContainer
 	for _, c := range o.components {
@@ -276,7 +285,7 @@ func (o *SceneObject) RemoveComponent(comp Component) {
 	o.removeComponentFromAllLists(container)
 }
 
-//RemoveComponentByName removes a component with the given name from the scene object&
+//RemoveComponentByName removes a component with the given name from the SceneObject object&
 //If there are more than one component with the same name only the first encountered component will be removed.
 func (o *SceneObject) RemoveComponentByName(name string) {
 	var container *ComponentContainer
@@ -304,7 +313,7 @@ func (o *SceneObject) removeComponentFromAllLists(container *ComponentContainer)
 		o.updatingComponents = o.removeComponentFromList(o.updatingComponents, name)
 	}
 	if _, ok := component.(ViewComponent); ok {
-		o.renderingComponents = o.removeComponentFromList(o.renderingComponents, name)
+		o.viewComponents = o.removeComponentFromList(o.viewComponents, name)
 	}
 	if _, ok := component.(MessageListenerComponent); ok {
 		o.messageListeners = o.removeComponentFromList(o.messageListeners, name)
@@ -339,7 +348,7 @@ func (o *SceneObject) removeComponentFromList(arr []*ComponentContainer, name st
 	return arr[:len(arr)-1]
 }
 
-//RemoveAllComponents removes all components of the scene object.
+//RemoveAllComponents removes all components of the SceneObject object.
 func (o *SceneObject) RemoveAllComponents() {
 	for _, c := range o.components {
 		o.RemoveComponent(c.component)
@@ -391,45 +400,13 @@ func (o *SceneObject) IsEnabled() bool {
 	return o.enabled
 }
 
-// SetPosition sets the position of this object equal to the specified vector, requesting rendering.
-func (o *SceneObject) SetPosition(v a.Vector3) {
-	o.Transform.position = v
-	o.Redraw()
-}
-
-// SetPositionXyz sets the position of this object equal to a new vector with specified coordinates, requesting rendering.
-func (o *SceneObject) SetPositionXyz(x, y, z float32) {
-	o.SetPosition(a.NewVector3(x, y, z))
-}
-
-//SetPositionXy sets the position of this object equal to a new vector with specified coordinates, requesting rendering.
-func (o *SceneObject) SetPositionXy(x, y float32) {
-	o.SetPosition(a.NewVector3(x, y, o.Transform.position.Z))
-}
-
-// SetSize Set the size of this object equal to the specified vector, requesting rendering.
-func (o *SceneObject) SetSize(v a.Vector3) {
-	o.Transform.size = v
-	o.Redraw()
-}
-
-// SetSizeXyz Set the size of this object equal to a new vector with specified coordinates, requesting rendering.
-func (o *SceneObject) SetSizeXyz(x, y, z float32) {
-	o.SetSize(a.NewVector3(x, y, z))
-}
-
-// SetSizeXy Set the size of this object equal to a new vector with specified coordinates, requesting rendering.
-func (o *SceneObject) SetSizeXy(x, y float32) {
-	o.SetSize(a.NewVector3(x, y, o.Transform.size.Z))
-}
-
 // Redraw forces all views of this object to redraw and requests rendering.
 func (o *SceneObject) Redraw() {
 	if o.IsDirty() || !o.inCurrentScene {
 		return
 	}
 
-	for _, view := range o.renderingComponents {
+	for _, view := range o.viewComponents {
 		if view.IsDirty() {
 			continue
 		}
@@ -439,13 +416,6 @@ func (o *SceneObject) Redraw() {
 	}
 	instance.RequestRendering()
 }
-
-//func (o *sceneObject) Measure() a.IntVector3 {
-//	rect := common.NewRectBoundary(0, 0, 0, 0, 0, 0)
-//	for _, c := range o.children {
-//
-//	}
-//}
 
 func (o *SceneObject) OnMessage(message Message) bool {
 	if !o.enabled {
@@ -460,86 +430,6 @@ func (o *SceneObject) OnMessage(message Message) bool {
 	}
 
 	return continuePropagation
-}
-
-func (o *SceneObject) init(ctx InitContext) {
-	for _, c := range o.components {
-		if c.initialized {
-			continue
-		}
-		instance.currentComponent = c.component
-		c.component.OnInit(ctx)
-		c.initialized = true
-		if NameOfComponent(c.component) == "github.com/cadmean-ru/amphion/engine/builtin.ClipArea" {
-			LogDebug("init %+v", c)
-		}
-	}
-
-	o.initialized = true
-	instance.currentComponent = nil
-}
-
-func (o *SceneObject) start() {
-	for _, c := range o.components {
-		if c.IsDirty() || c.started {
-			continue
-		}
-		instance.currentComponent = c.component
-		c.component.OnStart()
-		c.started = true
-	}
-
-	o.started = true
-	instance.currentComponent = nil
-}
-
-func (o *SceneObject) update(ctx UpdateContext) {
-	for _, c := range o.updatingComponents {
-		if c.IsDirty() || !c.started {
-			continue
-		}
-
-		instance.currentComponent = c.component
-		c.component.(UpdatingComponent).OnUpdate(ctx)
-	}
-
-	if o.layout != nil && !o.layout.IsDirty() {
-		instance.currentComponent = o.layout.component
-		o.layout.component.(Layout).LayoutChildren()
-	}
-
-	instance.currentComponent = nil
-}
-
-func (o *SceneObject) stop() {
-	for _, c := range o.components {
-		if c.enabled || !c.started {
-			continue
-		}
-		instance.currentComponent = c.component
-		c.component.OnStop()
-		c.started = false
-	}
-	o.started = false
-	instance.currentComponent = nil
-}
-
-func (o *SceneObject) draw(ctx DrawingContext) {
-	for _, c := range o.renderingComponents {
-		if c.IsDirty() || !c.started {
-			continue
-		}
-
-		view := c.component.(ViewComponent)
-		instance.currentComponent = c.component
-
-		if !view.ShouldDraw() {
-			continue
-		}
-
-		view.OnDraw(ctx)
-	}
-	instance.currentComponent = nil
 }
 
 func (o *SceneObject) RenderTraverse(action func(node *rendering.Node), afterChildrenAction func(node *rendering.Node)) {
@@ -567,14 +457,19 @@ func (o *SceneObject) setInCurrentScene(b bool) {
 	}
 }
 
-//HasViews checks if the scene object has any view components.
+//HasViews checks if the SceneObject object has any view components.
 func (o *SceneObject) HasViews() bool {
-	return len(o.renderingComponents) > 0
+	return len(o.viewComponents) > 0
 }
 
-//HasBoundary checks if the scene object has any boundary components.
+//HasBoundary checks if the SceneObject object has any boundary components.
 func (o *SceneObject) HasBoundary() bool {
 	return len(o.boundaryComponents) > 0
+}
+
+//HasLayout checks if the SceneObject has Layout component.
+func (o *SceneObject) HasLayout() bool {
+	return o.layout != nil
 }
 
 func (o *SceneObject) IsPointInsideBoundaries(point a.Vector3) bool {
@@ -605,12 +500,12 @@ func (o *SceneObject) IsPointInsideBoundaries2D(point a.Vector3) bool {
 	return false
 }
 
-//IsFocused checks if the scene object is currently focused.
+//IsFocused checks if the SceneObject object is currently focused.
 func (o *SceneObject) IsFocused() bool {
 	return instance.sceneContext.focusedObject == o
 }
 
-//IsHovered checks if the cursor is over the scene object.
+//IsHovered checks if the cursor is over the SceneObject object.
 func (o *SceneObject) IsHovered() bool {
 	return instance.sceneContext.hoveredObject == o
 }
@@ -621,11 +516,11 @@ func (o *SceneObject) IsVisibleInScene() bool {
 	return rect.X.Max >= sceneRect.X.Min && rect.X.Min <= sceneRect.X.Max && rect.Y.Max >= sceneRect.Y.Min && rect.Y.Min <= sceneRect.Y.Max
 }
 
-// Traverse traverses the scene object tree (pre-order), calling the action function for each of the objects.
+// TraversePreOrder traverses the SceneObject object tree (pre-order), calling the action function for each of the objects.
 // If action returns false interrupts the process.
-// By default the method skips dirty objects.
+// By default, the method skips dirty objects.
 // To also include dirty objects pass true as the second argument.
-func (o *SceneObject) Traverse(action func(object *SceneObject) bool, includeDirty ...bool) {
+func (o *SceneObject) TraversePreOrder(action func(object *SceneObject) bool, includeDirty ...bool) {
 	dirty := getDirty(includeDirty...)
 
 	if !dirty && o.IsDirty() {
@@ -637,23 +532,40 @@ func (o *SceneObject) Traverse(action func(object *SceneObject) bool, includeDir
 	}
 
 	for _, c := range o.children {
-		c.Traverse(action, dirty)
+		c.TraversePreOrder(action, dirty)
 	}
 }
 
-// ForEachObject traverses the scene object tree, calling the action function for each of the objects.
+// TraversePostOrder traverses the SceneObject object tree (post-order), calling the action function for each of the objects.
+// By default, the method skips dirty objects.
+// To also include dirty objects pass true as the second argument.
+func (o *SceneObject) TraversePostOrder(action func(object *SceneObject), includeDirty ...bool) {
+	for _, c := range o.children {
+		c.TraversePostOrder(action, includeDirty...)
+	}
+
+	dirty := getDirty(includeDirty...)
+
+	if !dirty && o.IsDirty() {
+		return
+	}
+
+	action(o)
+}
+
+// ForEachObject traverses the SceneObject object tree, calling the action function for each of the objects.
 // The action is also called for the object on which the method was called.
 // The method skips dirty objects.
 func (o *SceneObject) ForEachObject(action func(object *SceneObject), includeDirty ...bool) {
 	dirty := getDirty(includeDirty...)
 
-	o.Traverse(func(object *SceneObject) bool {
+	o.TraversePreOrder(func(object *SceneObject) bool {
 		action(object)
 		return true
 	}, dirty)
 }
 
-//ForEachChild cycles through all direct children of the scene object, calling the specified action for each of them.
+//ForEachChild cycles through all direct children of the SceneObject object, calling the specified action for each of them.
 //The method skips dirty objects.
 func (o *SceneObject) ForEachChild(action func(object *SceneObject), includeDirty ...bool) {
 	dirty := getDirty(includeDirty...)
@@ -671,7 +583,7 @@ func (o *SceneObject) ForEachChild(action func(object *SceneObject), includeDirt
 	}
 }
 
-//FindObjectByName searches for an object with the specified name through all the scene object tree.
+//FindObjectByName searches for an object with the specified name through all the SceneObject object tree.
 //Returns the first suitable object.
 //Returns nil if no object with the name was found.
 //By default, the search does not include dirty objects.
@@ -680,7 +592,7 @@ func (o *SceneObject) FindObjectByName(name string, includeDirty ...bool) *Scene
 	var found *SceneObject
 	dirty := getDirty(includeDirty...)
 
-	o.Traverse(func(object *SceneObject) bool {
+	o.TraversePreOrder(func(object *SceneObject) bool {
 		if object.name == name {
 			found = object
 			return false
@@ -693,10 +605,10 @@ func (o *SceneObject) FindObjectByName(name string, includeDirty ...bool) *Scene
 		return found
 	}
 
-	panic(fmt.Sprintf("scene object with name %s was not found (is it dirty?)", name))
+	panic(fmt.Sprintf("SceneObject object with name %s was not found (is it dirty?)", name))
 }
 
-//FindComponentByName searches for a component with the specified name through all the scene object tree.
+//FindComponentByName searches for a component with the specified name through all the SceneObject object tree.
 //Returns the first suitable component.
 //Returns nil if no component with the name was found.
 //By default, the search does not include dirty components.
@@ -705,7 +617,7 @@ func (o *SceneObject) FindComponentByName(name string, includeDirty ...bool) Com
 	var found Component
 	dirty := getDirty(includeDirty...)
 
-	o.Traverse(func(object *SceneObject) bool {
+	o.TraversePreOrder(func(object *SceneObject) bool {
 		for _, c := range object.components {
 			if o.componentMatcher(c, name, dirty) {
 				found = c.GetComponent()
@@ -734,7 +646,7 @@ func (o *SceneObject) ForEachComponent(action func(component Component)) {
 	}
 }
 
-//IsDirty checks if the scene object is dirty.
+//IsDirty checks if the SceneObject object is dirty.
 //An object is considered dirty if it has not been initialized or if it is disabled or
 //it will be deleted in the next update.
 //It is not safe to work with a dirty object.
@@ -742,7 +654,7 @@ func (o *SceneObject) IsDirty() bool {
 	return !o.initialized || !o.enabled || o.willBeRemoved
 }
 
-//Copy creates a new scene object with all components and children of the receiver.
+//Copy creates a new SceneObject object with all components and children of the receiver.
 //The new object is dirty. It is enabled if the receiver is enabled.
 func (o *SceneObject) Copy(copyName string) *SceneObject {
 	var newObject *SceneObject
@@ -783,7 +695,7 @@ func (o *SceneObject) Copy(copyName string) *SceneObject {
 	return newObject
 }
 
-//RemoveFromScene removes the scene object from the current scene.
+//RemoveFromScene removes the SceneObject object from the current SceneObject.
 //After that the object is considered dirty.
 func (o *SceneObject) RemoveFromScene() {
 	if o.parent == nil || !o.inCurrentScene {
@@ -793,7 +705,7 @@ func (o *SceneObject) RemoveFromScene() {
 	o.GetParent().RemoveChild(o)
 }
 
-//SetParent changes the parent of the scene object to the specified object.
+//SetParent changes the parent of the SceneObject object to the specified object.
 //Can be used to move a child from one object to another.
 func (o *SceneObject) SetParent(newParent *SceneObject) {
 	if o.parent != nil {
@@ -869,7 +781,7 @@ func (o *SceneObject) DumpToMap() a.SiMap {
 		"willBeRemoved": o.willBeRemoved,
 		"children": mChildren,
 		"components": mComponents,
-		"transform": o.Transform.ToMap(),
+		"transform": o.Transform.DumpToMap(),
 		"renderingTransform": o.Transform.ToRenderingTransform().ToMap(),
 	}
 }
@@ -882,7 +794,7 @@ func (o *SceneObject) FromMap(siMap a.SiMap) {
 	// Decode components
 	iComponents := siMap["components"].([]interface{})
 	o.components = make([]*ComponentContainer, 0, len(iComponents))
-	o.renderingComponents = make([]*ComponentContainer, 0, 1)
+	o.viewComponents = make([]*ComponentContainer, 0, 1)
 	o.updatingComponents = make([]*ComponentContainer, 0, 1)
 	o.boundaryComponents = make([]*ComponentContainer, 0, 1)
 	o.enabled = true
@@ -935,40 +847,40 @@ func (o *SceneObject) DumpToJson() ([]byte, error) {
 	return json.Marshal(o.DumpToMap())
 }
 
-// NewSceneObject creates a new instance of scene object.
+// NewSceneObject creates a new instance of SceneObject object.
 // Can be used only with engine running.
 func NewSceneObject(name string) *SceneObject {
 	obj := &SceneObject{
-		id:                  instance.idgen.NextId(),
-		name:                name,
-		children:            make([]*SceneObject, 0, 10),
-		components:          make([]*ComponentContainer, 0, 10),
-		messageListeners:    make([]*ComponentContainer, 0),
-		renderingComponents: make([]*ComponentContainer, 0, 1),
-		updatingComponents:  make([]*ComponentContainer, 0, 1),
-		boundaryComponents:  make([]*ComponentContainer, 0, 1),
-		enabled:             true,
+		id:                 instance.idgen.NextId(),
+		name:               name,
+		children:           make([]*SceneObject, 0, 10),
+		components:         make([]*ComponentContainer, 0, 10),
+		messageListeners:   make([]*ComponentContainer, 0),
+		viewComponents:     make([]*ComponentContainer, 0, 1),
+		updatingComponents: make([]*ComponentContainer, 0, 1),
+		boundaryComponents: make([]*ComponentContainer, 0, 1),
+		enabled:            true,
 	}
 	obj.renderingNode = instance.renderer.MakeNode(obj)
 	obj.Transform = NewTransform2D(obj)
 	return obj
 }
 
-//NewSceneObjectForTesting creates a new instance of scene object without engine running.
+//NewSceneObjectForTesting creates a new instance of SceneObject object without engine running.
 //Can be used for testing purposes.
 //Do not use in actual Amphion apps!
 func NewSceneObjectForTesting(name string, components ...Component) *SceneObject {
 	obj := &SceneObject{
-		id:                  0,
-		name:                name,
-		children:            make([]*SceneObject, 0, 10),
-		components:          make([]*ComponentContainer, 0, 10),
-		messageListeners:    make([]*ComponentContainer, 0),
-		renderingComponents: make([]*ComponentContainer, 0, 1),
-		updatingComponents:  make([]*ComponentContainer, 0, 1),
-		boundaryComponents:  make([]*ComponentContainer, 0, 1),
-		enabled:             true,
-		initialized:         true,
+		id:                 0,
+		name:               name,
+		children:           make([]*SceneObject, 0, 10),
+		components:         make([]*ComponentContainer, 0, 10),
+		messageListeners:   make([]*ComponentContainer, 0),
+		viewComponents:     make([]*ComponentContainer, 0, 1),
+		updatingComponents: make([]*ComponentContainer, 0, 1),
+		boundaryComponents: make([]*ComponentContainer, 0, 1),
+		enabled:            true,
+		initialized:        true,
 	}
 	obj.Transform = NewTransform2D(obj)
 

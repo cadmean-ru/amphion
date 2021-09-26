@@ -1,8 +1,8 @@
 package a
 
 const (
-	MatchParent    = -2147483648
-	WrapContent    = -2147483647
-	CenterInParent = -2147483646
-	FillParent     = -214748363
+	MatchParent float32 = -9_999_999 + iota * 10
+	WrapContent
+	CenterInParent
+	FillParent
 )

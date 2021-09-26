@@ -37,7 +37,7 @@ func (m *testComponent) GetName() string {
 
 
 func createTestScene() *SceneObject {
-	scene := NewSceneObject("Test scene")
+	scene := NewSceneObject("Test SceneObject")
 
 	rect := NewSceneObject("rect")
 	rect.Transform.size = a.NewVector3(100, 100, 100)
@@ -67,8 +67,8 @@ func createTestScene() *SceneObject {
 }
 
 func TestSceneObject_EncodeToYaml(t *testing.T) {
-	//scene := createTestScene()
-	//data, err := scene.EncodeToYaml()
+	//SceneObject := createTestScene()
+	//data, err := SceneObject.EncodeToYaml()
 	//if err != nil {
 	//	t.Error(err)
 	//}
@@ -137,7 +137,7 @@ func TestSceneObject_DecodeFromYaml(t *testing.T) {
 //      z: 100
 //components: []
 //id: 0
-//name: Test scene
+//name: Test SceneObject
 //transform:
 //  pivot:
 //    x: 0
@@ -163,19 +163,19 @@ func TestSceneObject_DecodeFromYaml(t *testing.T) {
 //		cm.RegisterComponentType(&testStatefulWithTags{})
 //
 //		data := []byte(srcYaml)
-//		scene := &sceneObject{}
+//		SceneObject := &SceneObject{}
 //
-//		err := scene.DecodeFromYaml(data)
+//		err := SceneObject.DecodeFromYaml(data)
 //		if err != nil {
 //			t.Error(err)
 //		}
 //
-//		rect := scene.GetChildByName("rect")
+//		rect := SceneObject.GetChildByName("rect")
 //		circle := rect.GetChildByName("circle")
 //		comp := rect.GetComponentByName((&testComponent{}).GetName())
 //		comp2 := rect.GetComponentByName((&testStatefulWithTags{}).GetName())
 //
-//		fmt.Printf("%+v\n", scene)
+//		fmt.Printf("%+v\n", SceneObject)
 //		fmt.Printf("%+v\n", rect)
 //		fmt.Printf("%+v\n", comp)
 //		fmt.Printf("%+v\n", comp2)

@@ -7,13 +7,13 @@ import (
 )
 
 //Component is a basic component interface.
-//A component is a piece of functionality, that can be attached to scene objects.
+//A component is a piece of functionality, that can be attached to SceneObject objects.
 type Component interface {
 	// OnInit is called only once when the component is first created.
 	OnInit(ctx InitContext)
 
 	// OnStart is called every time the component is being enabled.
-	// If the scene object is enabled on component attachment this method will also be called.
+	// If the SceneObject object is enabled on component attachment this method will also be called.
 	OnStart()
 
 	// OnStop is called when the component is being disabled.
@@ -29,7 +29,7 @@ type UpdatingComponent interface {
 // ViewComponent is an interface for views.
 type ViewComponent interface {
 	Component
-	//LayoutResponder
+	Measurable
 	OnDraw(ctx DrawingContext)
 	ShouldDraw() bool
 	Redraw()
@@ -97,7 +97,7 @@ func newUpdateContext(dTime float32) UpdateContext {
 	}
 }
 
-// BoundaryComponent is a component, that determines the bounding box of an object in the scene. Used for mouse interactions.
+// BoundaryComponent is a component, that determines the bounding box of an object in the SceneObject. Used for mouse interactions.
 type BoundaryComponent interface {
 	Component
 	common.Boundary
