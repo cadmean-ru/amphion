@@ -18,7 +18,7 @@ func (s *LayoutSceneController) OnStart() {
 		time.Sleep(3 * time.Second)
 		json, _ := GetCurrentScene().DumpToJson()
 		LogDebug(string(json))
-		SetWindowTitle("PIPI PUPU")
+		SetWindowTitle("New title")
 		return nil, nil
 	}).Build())
 }
@@ -35,10 +35,11 @@ func LayoutScene(_ *AmphionEngine) *SceneObject {
 	scene.AddComponent(bg)
 
 	rect := NewSceneObject("rect")
-	rect.Transform.SetPosition(10, 10)
-	rect.Transform.SetSize(WrapContent, WrapContent)
+	rect.Transform.SetPosition(10, 100)
+	rect.Transform.SetSize(20, 20)
 	rectView := NewShapeView(ShapeRectangle)
 	rectView.FillColor = Pink()
+	rectView.CornerRadius = 3
 	rect.AddComponent(rectView)
 	scene.AddChild(rect)
 
@@ -50,7 +51,7 @@ func LayoutScene(_ *AmphionEngine) *SceneObject {
 	scene.AddChild(textContainer)
 
 	text := NewSceneObject("text")
-	textView := NewTextView("hello")
+	textView := NewTextView("hello layout")
 	textView.FontSize = 69
 	text.AddComponent(textView)
 	textContainer.AddChild(text)
@@ -72,6 +73,8 @@ func LayoutScene(_ *AmphionEngine) *SceneObject {
 	circle2.Transform.SetPosition(20, 20)
 	circleView2 := NewShapeView(ShapeEllipse)
 	circleView2.FillColor = NewColor("#456")
+	circleView2.StrokeWeight = 3
+	circleView2.StrokeColor = White()
 	circle2.AddComponent(circleView2)
 	bigContainer.AddChild(circle2)
 	scene.AddChild(bigContainer)

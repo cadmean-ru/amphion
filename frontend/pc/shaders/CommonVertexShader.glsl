@@ -9,3 +9,9 @@ vec4 applyProjection(vec4 v) {
 vec4 applyProjection(vec3 v) {
     return applyProjection(vec4(v.xyz, 1));
 }
+
+float applyProjectionScalar(float f) {
+    vec4 res = applyProjection(vec4(f, f, f, 1));
+    res += vec4(1, 1, 1, 0);
+    return res.x;
+}

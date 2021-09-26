@@ -5,7 +5,6 @@
 package pc
 
 import (
-	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
@@ -30,8 +29,8 @@ func (r *RectangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 	if ctx.Redraw {
 		gl.BindVertexArray(state.vao)
 
-		ntlPos := gp.Transform.Position.ToFloat()                        // normalized top left
-		nbrPos := gp.Transform.Position.Add(gp.Transform.Size).ToFloat() // normalized bottom right
+		tlPos := gp.Transform.Position.ToFloat()                        // normalized top left
+		brPos := gp.Transform.Position.Add(gp.Transform.Size).ToFloat() // normalized bottom right
 
 		color := gp.Appearance.FillColor
 		r1 := float32(color.R)
@@ -45,17 +44,14 @@ func (r *RectangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		b2 := float32(strokeColor.B)
 		a2 := float32(strokeColor.A)
 
-		var stroke = a.NewIntVector3(int(gp.Appearance.StrokeWeight), int(gp.Appearance.StrokeWeight), int(gp.Appearance.StrokeWeight))
-		var nStroke = stroke.ToFloat().Add(a.OneVector())
-
-		var corner = a.NewIntVector3(int(gp.Appearance.CornerRadius), int(gp.Appearance.CornerRadius), int(gp.Appearance.CornerRadius))
-		var nCorner = corner.ToFloat().Add(a.OneVector())
+		stroke := float32(gp.Appearance.StrokeWeight)
+		corner := float32(gp.Appearance.CornerRadius)
 
 		vertices := []float32{
-			ntlPos.X, ntlPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, nCorner.X,
-			ntlPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, nCorner.X,
-			nbrPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, nCorner.X,
-			nbrPos.X, ntlPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, nCorner.X,
+			tlPos.X, tlPos.Y, 0, tlPos.X, tlPos.Y, 0, brPos.X, brPos.Y, 0, r1, g1, b1, a1, stroke, r2, g2, b2, a2, corner,
+			tlPos.X, brPos.Y, 0, tlPos.X, tlPos.Y, 0, brPos.X, brPos.Y, 0, r1, g1, b1, a1, stroke, r2, g2, b2, a2, corner,
+			brPos.X, brPos.Y, 0, tlPos.X, tlPos.Y, 0, brPos.X, brPos.Y, 0, r1, g1, b1, a1, stroke, r2, g2, b2, a2, corner,
+			brPos.X, tlPos.Y, 0, tlPos.X, tlPos.Y, 0, brPos.X, brPos.Y, 0, r1, g1, b1, a1, stroke, r2, g2, b2, a2, corner,
 		}
 
 		indices := []uint32{

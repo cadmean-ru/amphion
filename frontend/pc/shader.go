@@ -26,9 +26,6 @@ var ImageFragShaderStr string
 //go:embed shaders/ImageVertexShader.glsl
 var ImageVertexShaderStr string
 
-//go:embed shaders/RectFragShader.glsl
-var RectFragShaderStr string
-
 //go:embed shaders/ShapeFragShader.glsl
 var ShapeFragShaderStr string
 

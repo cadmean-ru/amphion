@@ -21,7 +21,7 @@ void main() {
     fTlPosition = applyProjection(vTlPosition).xyz;
     fBrPosition = applyProjection(vBrPosition).xyz;
     fFillColor = vFillCollor / 255;
-    fStrokeWeight = vStrokeWeight;
+    fStrokeWeight = applyProjectionScalar(vStrokeWeight);
     fStrokeColor = vStrokeColor / 255;
-    fCornerRadius = vCornerRadius;
+    fCornerRadius = applyProjectionScalar(vCornerRadius);
 }
