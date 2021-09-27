@@ -12,33 +12,33 @@ type glPrimitiveState struct {
 	vbo uint32
 	ebo uint32
 	vao uint32
-	tex uint32
+	tex []uint32
 }
 
-func (c *glPrimitiveState) gen() {
-	if c.vbo == 0 {
+func (s *glPrimitiveState) gen() {
+	if s.vbo == 0 {
 		temp := make([]uint32, 2)
 		gl.GenBuffers(2, &temp[0])
-		c.vbo = temp[0]
-		c.ebo = temp[1]
-		gl.GenVertexArrays(1, &c.vao)
+		s.vbo = temp[0]
+		s.ebo = temp[1]
+		gl.GenVertexArrays(1, &s.vao)
 	}
 }
 
-func (c *glPrimitiveState) free() {
-	if c.vbo != 0 {
-		gl.DeleteBuffers(1, &c.vbo)
+func (s *glPrimitiveState) free() {
+	if s.vbo != 0 {
+		gl.DeleteBuffers(1, &s.vbo)
 	}
 
-	if c.ebo != 0 {
-		gl.DeleteBuffers(1, &c.ebo)
+	if s.ebo != 0 {
+		gl.DeleteBuffers(1, &s.ebo)
 	}
 
-	if c.vao != 0 {
-		gl.DeleteVertexArrays(1, &c.vao)
+	if s.vao != 0 {
+		gl.DeleteVertexArrays(1, &s.vao)
 	}
 
-	if c.tex != 0 {
-		gl.DeleteTextures(1, &c.tex)
+	for _, t := range s.tex {
+		gl.DeleteTextures(1, &t)
 	}
 }

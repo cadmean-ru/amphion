@@ -414,7 +414,7 @@ func (o *SceneObject) IsEnabled() bool {
 
 // Redraw forces all views of this object to redraw and requests rendering.
 func (o *SceneObject) Redraw() {
-	if o.IsDirty() || !o.inCurrentScene {
+	if !o.HasView() || o.IsDirty() || !o.inCurrentScene {
 		return
 	}
 

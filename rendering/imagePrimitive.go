@@ -2,7 +2,8 @@ package rendering
 
 type ImagePrimitive struct {
 	Transform Transform
-	ImageUrl  string
+	Bitmaps   []*Bitmap
+	Index     int
 }
 
 func (p *ImagePrimitive) GetType() byte {
@@ -17,9 +18,10 @@ func (p *ImagePrimitive) SetTransform(t Transform) {
 	p.Transform = t
 }
 
-func NewImagePrimitive(url string) *ImagePrimitive {
+func NewImagePrimitive(bitmaps []*Bitmap, index int) *ImagePrimitive {
 	return &ImagePrimitive{
 		Transform: NewTransform(),
-		ImageUrl:  url,
+		Bitmaps:   bitmaps,
+		Index:     index,
 	}
 }

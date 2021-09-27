@@ -13,6 +13,7 @@ import (
 
 func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	scene := engine.NewSceneObject("Test scene")
+	scene.AddComponent(builtin.NewAbsoluteLayout())
 
 	rect := engine.NewSceneObject("rect")
 	rect.Transform.SetSize(100, 100)
@@ -45,7 +46,7 @@ func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	textComponent.TextColor = a.Black()
 	text.AddComponent(textComponent)
 	text.AddComponent(builtin.NewRectBoundary())
-	text.AddComponent(builtin.NewBoundaryView())
+	//text.AddComponent(builtin.NewBoundaryView())
 	//text.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
 	//	e.GetLogger().Info(nil, "close")
 	//	e.Stop()
@@ -102,8 +103,9 @@ func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 
 	image2 := engine.NewSceneObject("image2")
 	image2.Transform.SetPosition(200, 300, -1)
-	image2.Transform.SetSize(100, 300)
-	imageView2 := builtin.NewImageView(Res_images_cyberpunk)
+	//image2.Transform.SetSize(100, 300)
+	imageView2 := builtin.NewImageView("https://c.tenor.com/UZJd1pjj4NMAAAAM/surprised-pikachu.gif")
+	//imageView2 := builtin.NewImageView(Res_images_giphy)
 	image2.AddComponent(imageView2)
 	scene.AddChild(image2)
 
@@ -122,6 +124,7 @@ func RegisterResources(e *engine.AmphionEngine) {
 	rm.RegisterResource("scenes/second.scene")
 	rm.RegisterResource("scenes/text.scene")
 	rm.RegisterResource("prefabs/test.yaml")
+	rm.RegisterResource("images/giphy.gif")
 }
 
 func RegisterComponents(e *engine.AmphionEngine) {
