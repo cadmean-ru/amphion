@@ -224,3 +224,8 @@ func GetComponentsManager() *ComponentsManager {
 func NameOfComponent(component interface{}) string {
 	return instance.GetComponentsManager().NameOfComponent(component)
 }
+
+//GetMessageDispatcher returns the MessageDispatcher for the current scene.
+func GetMessageDispatcher() *MessageDispatcher {
+	return instance.GetMessageDispatcher()
+}

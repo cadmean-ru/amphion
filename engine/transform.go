@@ -22,7 +22,7 @@ type Transform struct {
 }
 
 //WantedPosition returns the wanted position, i.e. the local position of the object that
-//may contain either special value a.CenterInParent or absolute coordinates.
+//may contain either special value CenterInParent or absolute coordinates.
 func (t *Transform) WantedPosition() a.Vector3 {
 	return t.position
 }
@@ -36,7 +36,7 @@ func (t *Transform) WantedPosition() a.Vector3 {
 //
 //- three float32's for x-, y-, and z-axis.
 //
-//The coordinates may contain special value a.CenterInParent.
+//The coordinates may contain special value CenterInParent.
 //Requests rendering.
 func (t *Transform) SetPosition(position ...interface{}) {
 	t.position = getVector3FromInterfaceValues(t.position, position...)
@@ -44,7 +44,7 @@ func (t *Transform) SetPosition(position ...interface{}) {
 	RequestRendering()
 }
 
-//SetPositionCentered sets the position coordinates on all axes to the special value a.CenterInParent.
+//SetPositionCentered sets the position coordinates on all axes to the special value CenterInParent.
 //Requests rendering.
 func (t *Transform) SetPositionCentered() {
 	t.SetPosition(a.NewVector3(a.CenterInParent, a.CenterInParent, a.CenterInParent))
@@ -60,9 +60,20 @@ func (t *Transform) SetPositionCentered() {
 //
 //- three float32's for x-, y-, and z-axis.
 //
+//Does not translate coordinate if it is set to CenterInParent.
 //Requests rendering.
 func (t *Transform) Translate(translation ...interface{}) {
-	t.SetPosition(t.position.Add(getVector3FromInterfaceValues(a.ZeroVector(), translation...)))
+	v := getVector3FromInterfaceValues(a.ZeroVector(), translation...)
+	if t.position.X == a.CenterInParent {
+		v.X = 0
+	}
+	if t.position.Y == a.CenterInParent {
+		v.Y = 0
+	}
+	if t.position.Z == a.CenterInParent {
+		v.Z = 0
+	}
+	t.SetPosition(t.position.Add(v))
 }
 
 //Pivot returns the current pivot of the object.
@@ -101,7 +112,7 @@ func (t *Transform) SetRotation(rotation a.Vector3) {
 }
 
 //WantedSize return the wanted size, i.e. the size of the object that
-//may contain either special values a.WrapContent or a.MatchParent, or absolute coordinates.
+//may contain either special values WrapContent or MatchParent, or absolute coordinates.
 func (t *Transform) WantedSize() a.Vector3 {
 	return t.size
 }
@@ -115,7 +126,7 @@ func (t *Transform) WantedSize() a.Vector3 {
 //
 //- three float32's for x-, y-, and z-axis.
 //
-//The coordinates may contain special values a.WrapContent or a.MatchParent.
+//The coordinates may contain special values WrapContent or MatchParent.
 //Requests rendering.
 func (t *Transform) SetSize(size ...interface{}) {
 	t.size = getVector3FromInterfaceValues(t.size, size...)
@@ -123,13 +134,13 @@ func (t *Transform) SetSize(size ...interface{}) {
 	RequestRendering()
 }
 
-//SetSizeWrapContent sets the size coordinates on all axes to the special value a.WrapContent.
+//SetSizeWrapContent sets the size coordinates on all axes to the special value WrapContent.
 //Requests rendering.
 func (t *Transform) SetSizeWrapContent() {
 	t.SetSize(a.NewVector3(a.WrapContent, a.WrapContent, a.WrapContent))
 }
 
-//SetSizeMatchParent sets the size coordinates on all axes to the special value a.MatchParent.
+//SetSizeMatchParent sets the size coordinates on all axes to the special value MatchParent.
 //Requests rendering.
 func (t *Transform) SetSizeMatchParent() {
 	t.SetSize(a.NewVector3(a.MatchParent, a.MatchParent, a.MatchParent))

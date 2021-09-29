@@ -59,7 +59,7 @@ func main() {
 	go func() {
 		e.Start()
 
-		if err := e.ShowScene(scenes.ClickScene(e)); err != nil {
+		if err := e.ShowScene(scenes.ScrollScene(e)); err != nil {
 			log.Println(err)
 		}
 

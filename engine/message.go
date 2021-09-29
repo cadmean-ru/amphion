@@ -30,19 +30,11 @@ type MessageDispatcher struct {
 
 // Dispatch sends message from the root down in the message tree.
 func (d *MessageDispatcher) Dispatch(message *dispatch.Message, maxDepth int) {
-	if !d.shouldSendMessage(message) {
-		return
-	}
-
 	d.sendMessageDown(d.root, message, maxDepth)
 }
 
 // DispatchDown sends this message up in the message tree
 func (d *MessageDispatcher) DispatchDown(from MessageListener, message *dispatch.Message, maxDepth int) {
-	if !d.shouldSendMessage(message) {
-		return
-	}
-
 	c := d.findObject(d.root, from)
 	if c == nil {
 		return
@@ -52,10 +44,6 @@ func (d *MessageDispatcher) DispatchDown(from MessageListener, message *dispatch
 
 // DispatchUp sends specified message down in the message tree.
 func (d *MessageDispatcher) DispatchUp(from MessageListener, message *dispatch.Message) {
-	if !d.shouldSendMessage(message) {
-		return
-	}
-
 	c := d.findObject(d.root, from)
 	if c == nil {
 		return
@@ -66,7 +54,13 @@ func (d *MessageDispatcher) DispatchUp(from MessageListener, message *dispatch.M
 func (d *MessageDispatcher) sendMessageDown(object *SceneObject, message *dispatch.Message, counter int) {
 	if object.OnMessage(message) && (counter == MessageMaxDepth || counter > 0) {
 		for _, c := range object.children {
-			d.sendMessageDown(c, message, counter-1)
+			nextCounter := 0
+			if counter == MessageMaxDepth {
+				nextCounter = MessageMaxDepth
+			} else {
+				nextCounter = counter - 1
+			}
+			d.sendMessageDown(c, message, nextCounter)
 		}
 	}
 }
@@ -92,18 +86,7 @@ func (d *MessageDispatcher) sendMessageUp(object *SceneObject, message *dispatch
 }
 
 func (d *MessageDispatcher) DispatchDirectly(listener MessageListener, message *dispatch.Message) {
-	if !d.shouldSendMessage(message) {
-		return
-	}
-
 	listener.OnMessage(message)
-}
-
-func (d *MessageDispatcher) shouldSendMessage(message *dispatch.Message) bool {
-	if message.What == MessageRedraw && instance.state == StateRendering {
-		return false
-	}
-	return true
 }
 
 func newMessageDispatcherForScene(scene *SceneObject) *MessageDispatcher {

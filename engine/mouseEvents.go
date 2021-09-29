@@ -95,7 +95,7 @@ func (engine *AmphionEngine) handleMouseMove(mousePos a.IntVector2) {
 		return
 	}
 
-	candidates := make([]*SceneObject, 0, 1)
+	var candidate *SceneObject
 	mousePos3 := mousePos.ToFloat3()
 
 	engine.currentScene.TraversePreOrder(func(object *SceneObject) bool {
@@ -104,22 +104,19 @@ func (engine *AmphionEngine) handleMouseMove(mousePos a.IntVector2) {
 		}
 
 		if object.HasBoundary() {
-			if object.IsPointInsideSolidBoundaries2D(mousePos3) {
-				candidates = append(candidates, object)
+			if object.IsPointInsideBoundaries2D(mousePos3) {
+				candidate = object
 				return true
 			}
 
-			return object.IsPointInsideBoundaries(mousePos3)
+			return false
 		}
 
 		return true
 	})
 
-	if len(candidates) > 0 {
-		sort.Slice(candidates, func(i, j int) bool {
-			return candidates[i].Transform.GlobalPosition().Z > candidates[j].Transform.GlobalPosition().Z
-		})
-		o := candidates[0]
+	if candidate != nil {
+		o := candidate
 
 		if o == engine.sceneContext.hoveredObject {
 			return
