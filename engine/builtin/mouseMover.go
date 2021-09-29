@@ -2,6 +2,7 @@ package builtin
 
 import (
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/engine"
 )
 
@@ -45,7 +46,7 @@ func (m *MouseMover) OnUpdate(_ engine.UpdateContext) {
 	dPos := newMousePos.Sub(m.mousePos)
 	m.mousePos = newMousePos
 	m.SceneObject.Transform.Translate(dPos.ToFloat3())
-	m.Engine.GetMessageDispatcher().DispatchDown(m.SceneObject, engine.NewMessage(m, engine.MessageRedraw, nil), engine.MessageMaxDepth)
+	m.Engine.GetMessageDispatcher().DispatchDown(m.SceneObject, dispatch.NewMessageFromWithAnyData(m, engine.MessageRedraw, nil), engine.MessageMaxDepth)
 	m.Engine.RequestRendering()
 }
 

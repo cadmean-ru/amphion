@@ -34,7 +34,6 @@ type AmphionEngine struct {
 
 	globalContext      frontend.Context
 	forceRedraw        bool
-	messageDispatcher  *MessageDispatcher
 	componentsManager  *ComponentsManager
 	currentComponent   Component
 	closeSceneCallback func()
@@ -202,13 +201,12 @@ func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 
 	engine.logger.Info(engine, fmt.Sprintf("Starting SceneObject %s", scene.name))
 
-	engine.sceneContext = makeSceneContext()
 
 	newScene := engine.prepareScene(scene)
 	engine.configureScene(newScene)
-	engine.messageDispatcher = newMessageDispatcherForScene(newScene)
 	engine.currentScene = newScene
 	engine.renderer.SetRoot(engine.currentScene.renderingNode)
+	engine.sceneContext = makeSceneContext(newScene)
 
 	engine.logger.Info(engine, "Starting Loop")
 	engine.updateRoutine.start()
@@ -348,12 +346,12 @@ func (engine *AmphionEngine) IsUpdateRequested() bool {
 	return engine.updateRoutine.updateRequested
 }
 
-func (engine *AmphionEngine) OnMessage(_ Message) bool {
+func (engine *AmphionEngine) OnMessage(_ *dispatch.Message) bool {
 	return true
 }
 
 func (engine *AmphionEngine) GetMessageDispatcher() *MessageDispatcher {
-	return engine.messageDispatcher
+	return engine.sceneContext.messageDispatcher
 }
 
 // GetState returns the current engine state.
@@ -433,9 +431,9 @@ func (engine *AmphionEngine) handleMouseMove(mousePos a.IntVector2) {
 		}
 
 		if engine.sceneContext.hoveredObject != nil {
-			engine.messageDispatcher.DispatchDirectly(
+			engine.sceneContext.messageDispatcher.DispatchDirectly(
 				engine.sceneContext.hoveredObject,
-				NewMessage(
+				dispatch.NewMessageFromWithAnyData(
 					engine.sceneContext.hoveredObject,
 					MessageBuiltinEvent,
 					NewAmphionEvent(engine.sceneContext.hoveredObject, EventMouseOut, nil),
@@ -443,9 +441,9 @@ func (engine *AmphionEngine) handleMouseMove(mousePos a.IntVector2) {
 			)
 		}
 
-		engine.messageDispatcher.DispatchDirectly(
+		engine.sceneContext.messageDispatcher.DispatchDirectly(
 			o,
-			NewMessage(
+			dispatch.NewMessageFromWithAnyData(
 				o,
 				MessageBuiltinEvent,
 				NewAmphionEvent(o, EventMouseIn, nil),
@@ -455,9 +453,9 @@ func (engine *AmphionEngine) handleMouseMove(mousePos a.IntVector2) {
 		engine.sceneContext.hoveredObject = o
 	} else {
 		if engine.sceneContext.hoveredObject != nil {
-			engine.messageDispatcher.DispatchDirectly(
+			engine.sceneContext.messageDispatcher.DispatchDirectly(
 				engine.sceneContext.hoveredObject,
-				NewMessage(
+				dispatch.NewMessageFromWithAnyData(
 					engine.sceneContext.hoveredObject,
 					MessageBuiltinEvent,
 					NewAmphionEvent(engine.sceneContext.hoveredObject, EventMouseOut, nil),
@@ -578,11 +576,4 @@ func (engine *AmphionEngine) SetWindowTitle(title string) {
 //GetFeaturesManager returns the current FeaturesManager.
 func (engine *AmphionEngine) GetFeaturesManager() *FeaturesManager {
 	return engine.FeaturesManager
-}
-
-func (engine *AmphionEngine) rebuildMessageTree() {
-	if engine.currentScene == nil {
-		return
-	}
-	engine.messageDispatcher = newMessageDispatcherForScene(engine.currentScene)
 }

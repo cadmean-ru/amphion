@@ -1,6 +1,9 @@
 package engine
 
-import "github.com/cadmean-ru/amphion/common/a"
+import (
+	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/dispatch"
+)
 
 // ViewImpl is a basic view component implementation.
 type ViewImpl struct {
@@ -39,7 +42,7 @@ func (v *ViewImpl) OnDraw(_ DrawingContext) {
 
 func (v *ViewImpl) Redraw() {
 	v.ShouldRedraw = true
-	v.Engine.GetMessageDispatcher().DispatchDown(v.SceneObject, NewMessage(v.SceneObject, MessageRedraw, nil), MessageMaxDepth)
+	v.Engine.GetMessageDispatcher().DispatchDown(v.SceneObject, dispatch.NewMessageFrom(v.SceneObject, MessageRedraw), MessageMaxDepth)
 }
 
 func (v *ViewImpl) ShouldDraw() bool {
@@ -50,16 +53,8 @@ func (v *ViewImpl) MeasureContents() a.Vector3 {
 	 return a.ZeroVector()
 }
 
-//func (v *ViewImpl) OnMeasure(ctx *LayoutContext) {
-//
-//}
-//
-//func (v *ViewImpl) OnLayout(ctx *LayoutContext) {
-//
-//}
-
-func (v *ViewImpl) OnMessage(message Message) bool {
-	if message.Code == MessageRedraw {
+func (v *ViewImpl) OnMessage(message *dispatch.Message) bool {
+	if message.What == MessageRedraw {
 		v.ShouldRedraw = true
 		return true
 	}

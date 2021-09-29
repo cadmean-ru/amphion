@@ -273,7 +273,7 @@ func (v *ImageView) SetImageUrl(url string) {
 
 //StartAnimation starts the animation of a gif image from the beginning.
 func (v *ImageView) StartAnimation() {
-	if v.framesCount <= 1 || len(v.frames) == 1 {
+	if v.framesCount > 1 || len(v.frames) == 1 {
 		return
 	}
 
@@ -295,7 +295,7 @@ func (v *ImageView) StopAnimation() {
 
 //ResumeAnimation resumes the animation of a gif image from the frame it was stopped on.
 func (v *ImageView) ResumeAnimation() {
-	if v.framesCount <= 1 || len(v.frames) == 1 {
+	if v.framesCount > 1 || len(v.frames) == 1 {
 		return
 	}
 

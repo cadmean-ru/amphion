@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/common/require"
 	"github.com/cadmean-ru/amphion/rendering"
 	"gopkg.in/yaml.v2"
@@ -79,7 +80,6 @@ func (o *SceneObject) AddChild(object *SceneObject) {
 				return true
 			}, true)
 		}
-		instance.rebuildMessageTree()
 		instance.RequestRendering()
 	}
 }
@@ -101,7 +101,6 @@ func (o *SceneObject) RemoveChild(object *SceneObject) {
 	object.markForRemoval()
 
 	if o.inCurrentScene {
-		instance.rebuildMessageTree()
 		instance.RequestRendering()
 	}
 }
@@ -427,7 +426,7 @@ func (o *SceneObject) Redraw() {
 	instance.RequestRendering()
 }
 
-func (o *SceneObject) OnMessage(message Message) bool {
+func (o *SceneObject) OnMessage(message *dispatch.Message) bool {
 	if !o.enabled {
 		return true
 	}

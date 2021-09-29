@@ -342,7 +342,7 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	rmvButtonText.Transform.SetSize(a.MatchParent, a.MatchParent, 0)
 	rmvButtonTextView := builtin.NewTextView("remove")
 	rmvButtonText.AddComponent(rmvButtonTextView)
-	rmvButtonText.AddComponent(builtin.NewBoundaryView())
+	//rmvButtonText.AddComponent(builtin.NewBoundaryView())
 	rmvButton.AddChild(rmvButtonText)
 	rmvButton.AddComponent(builtin.NewRectBoundary())
 	rmvButton.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {

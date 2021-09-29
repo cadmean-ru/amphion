@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/engine"
 )
 
@@ -12,12 +13,12 @@ type EventListener struct {
 	Handler   engine.EventHandler `state:"handler"`
 }
 
-func (l *EventListener) OnMessage(msg engine.Message) bool {
-	if msg.Code != engine.MessageBuiltinEvent || l.Handler == nil {
+func (l *EventListener) OnMessage(msg *dispatch.Message) bool {
+	if msg.What != engine.MessageBuiltinEvent || l.Handler == nil {
 		return true
 	}
 
-	event := msg.Data.(engine.AmphionEvent)
+	event := msg.AnyData.(engine.AmphionEvent)
 
 	if event.Code != l.EventCode || event.Sender != l.SceneObject {
 		return true

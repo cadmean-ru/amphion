@@ -2,6 +2,7 @@ package engine
 
 import (
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"sort"
 )
 
@@ -46,26 +47,26 @@ func (engine *AmphionEngine) handleClickEvent(mouseEventData MouseEventData, cod
 		mouseEventData.SceneObject = o
 
 		if engine.sceneContext.focusedObject != nil {
-			engine.messageDispatcher.DispatchDirectly(
+			engine.sceneContext.messageDispatcher.DispatchDirectly(
 				engine.sceneContext.focusedObject,
-				NewMessage(
+				dispatch.NewMessageFromWithAnyData(
 					engine,
 					MessageBuiltinEvent,
 					NewAmphionEvent(engine.sceneContext.focusedObject, EventFocusLoose, nil),
 				),
 			)
 		}
-		engine.messageDispatcher.DispatchDirectly(o, NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, code, mouseEventData)))
+		engine.sceneContext.messageDispatcher.DispatchDirectly(o, dispatch.NewMessageFromWithAnyData(o, MessageBuiltinEvent, NewAmphionEvent(o, code, mouseEventData)))
 		engine.sceneContext.focusedObject = o
-		engine.messageDispatcher.DispatchDirectly(o, NewMessage(o, MessageBuiltinEvent, NewAmphionEvent(o, EventFocusGain, nil)))
+		engine.sceneContext.messageDispatcher.DispatchDirectly(o, dispatch.NewMessageFromWithAnyData(o, MessageBuiltinEvent, NewAmphionEvent(o, EventFocusGain, nil)))
 
 		event := NewAmphionEvent(engine, code, mouseEventData)
 		engine.updateRoutine.enqueueEventAndRequestUpdate(event)
 	} else {
 		if engine.sceneContext.focusedObject != nil {
-			engine.messageDispatcher.DispatchDirectly(
+			engine.sceneContext.messageDispatcher.DispatchDirectly(
 				engine.sceneContext.focusedObject,
-				NewMessage(
+				dispatch.NewMessageFromWithAnyData(
 					engine,
 					MessageBuiltinEvent,
 					NewAmphionEvent(engine.sceneContext.focusedObject, EventFocusLoose, nil),

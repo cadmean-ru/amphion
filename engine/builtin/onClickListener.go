@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/engine"
 )
 
@@ -11,12 +12,12 @@ type OnClickListener struct {
 	OnClick engine.EventHandler `state:"onClick"`
 }
 
-func (l *OnClickListener) OnMessage(m engine.Message) bool {
-	if m.Code != engine.MessageBuiltinEvent || l.OnClick == nil || m.Sender != l.SceneObject {
+func (l *OnClickListener) OnMessage(m *dispatch.Message) bool {
+	if m.What != engine.MessageBuiltinEvent || l.OnClick == nil || m.Sender != l.SceneObject {
 		return true
 	}
 
-	event := m.Data.(engine.AmphionEvent)
+	event := m.AnyData.(engine.AmphionEvent)
 	if event.Code != engine.EventMouseDown && event.Code != engine.EventTouchDown {
 		return true
 	}
