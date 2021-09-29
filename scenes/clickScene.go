@@ -10,6 +10,12 @@ import (
 func ClickScene(_ *AmphionEngine) *SceneObject {
 	scene := NewSceneObject("click scene")
 	scene.AddComponent(NewAbsoluteLayout())
+	scene.AddComponent(NewStartFunc(func() {
+		LogDebug("Start func")
+	}))
+	scene.AddComponent(NewUpdateFunc(func(ctx UpdateContext) {
+		LogDebug("Update func: %f", ctx.DeltaTime)
+	}))
 
 	container := NewSceneObject("container")
 	container.Transform.SetSize(100, 100)
