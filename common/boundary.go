@@ -38,15 +38,15 @@ func (b *RectBoundary) Move(by a.Vector3) {
 	b.Z.Move(by.Z)
 }
 
-func (b *RectBoundary) GetMin() a.Vector3 {
+func (b *RectBoundary) Min() a.Vector3 {
 	return a.NewVector3(b.X.Min, b.Y.Min, b.Z.Min)
 }
 
-func (b *RectBoundary) GetMax() a.Vector3 {
+func (b *RectBoundary) Max() a.Vector3 {
 	return a.NewVector3(b.X.Max, b.Y.Max, b.Z.Max)
 }
 
-func (b *RectBoundary) GetSize() a.Vector3 {
+func (b *RectBoundary) Size() a.Vector3 {
 	return a.NewVector3(b.X.GetLength(), b.Y.GetLength(), b.Z.GetLength())
 }
 
@@ -66,11 +66,11 @@ func NewRectBoundary(minX, maxX, minY, maxY, minZ, maxZ float32) *RectBoundary {
 	}
 }
 
-func NewRectBoundaryXY(minX, maxX, minY, maxY float32) *RectBoundary {
+func NewRectBoundary2D(minX, maxX, minY, maxY, z float32) *RectBoundary {
 	return &RectBoundary{
 		X: NewFloatRange(minX, maxX),
 		Y: NewFloatRange(minY, maxY),
-		Z: NewFloatRange(0, 0),
+		Z: NewFloatRange(z, z),
 	}
 }
 

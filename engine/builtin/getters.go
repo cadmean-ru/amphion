@@ -82,12 +82,12 @@ func FindTextView(so *engine.SceneObject, includeDirty ...bool) *TextView {
 	return so.FindComponentByName("github.com/cadmean-ru/amphion/engine/builtin.TextView", includeDirty...).(*TextView)
 }
 
-func GetCircleBoundary(so *engine.SceneObject, includeDirty ...bool) *CircleBoundary {
-	return so.GetComponentByName("github.com/cadmean-ru/amphion/engine/builtin.CircleBoundary", includeDirty...).(*CircleBoundary)
+func GetCircleBoundary(so *engine.SceneObject, includeDirty ...bool) *EllipseBoundary {
+	return so.GetComponentByName("github.com/cadmean-ru/amphion/engine/builtin.EllipseBoundary", includeDirty...).(*EllipseBoundary)
 }
 
-func FindCircleBoundary(so *engine.SceneObject, includeDirty ...bool) *CircleBoundary {
-	return so.FindComponentByName("github.com/cadmean-ru/amphion/engine/builtin.CircleBoundary", includeDirty...).(*CircleBoundary)
+func FindCircleBoundary(so *engine.SceneObject, includeDirty ...bool) *EllipseBoundary {
+	return so.FindComponentByName("github.com/cadmean-ru/amphion/engine/builtin.EllipseBoundary", includeDirty...).(*EllipseBoundary)
 }
 
 func GetBezierView(so *engine.SceneObject, includeDirty ...bool) *BezierView {

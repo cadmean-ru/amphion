@@ -481,13 +481,30 @@ func (o *SceneObject) HasLayout() bool {
 	return o.layout != nil
 }
 
+func (o *SceneObject) IsPointInsideSolidBoundaries(point a.Vector3) bool {
+	return o.checkIsPointInsideBoundaries(point, true)
+}
+
+func (o *SceneObject) IsPointInsideSolidBoundaries2D(point a.Vector3) bool {
+	return o.checkIsPointInsideBoundaries2D(point, true)
+}
+
 func (o *SceneObject) IsPointInsideBoundaries(point a.Vector3) bool {
+	return o.checkIsPointInsideBoundaries(point, false)
+}
+
+func (o *SceneObject) IsPointInsideBoundaries2D(point a.Vector3) bool {
+	return o.checkIsPointInsideBoundaries2D(point, false)
+}
+
+func (o *SceneObject) checkIsPointInsideBoundaries2D(point a.Vector3, solid bool) bool {
 	for _, b := range o.boundaryComponents {
 		if b.IsDirty() {
 			continue
 		}
 
-		if b.component.(BoundaryComponent).IsPointInside(point) {
+		boundary := b.component.(BoundaryComponent)
+		if (!solid || boundary.IsSolid()) && boundary.IsPointInside2D(point) {
 			return true
 		}
 	}
@@ -495,13 +512,14 @@ func (o *SceneObject) IsPointInsideBoundaries(point a.Vector3) bool {
 	return false
 }
 
-func (o *SceneObject) IsPointInsideBoundaries2D(point a.Vector3) bool {
+func (o *SceneObject) checkIsPointInsideBoundaries(point a.Vector3, solid bool) bool {
 	for _, b := range o.boundaryComponents {
 		if b.IsDirty() {
 			continue
 		}
 
-		if b.component.(BoundaryComponent).IsPointInside2D(point) {
+		boundary := b.component.(BoundaryComponent)
+		if (!solid || boundary.IsSolid()) && boundary.IsPointInside(point) {
 			return true
 		}
 	}
@@ -526,7 +544,7 @@ func (o *SceneObject) IsVisibleInScene() bool {
 }
 
 // TraversePreOrder traverses the SceneObject object tree (pre-order), calling the action function for each of the objects.
-// If action returns false interrupts the process.
+// If action returns false stops propagation further into the scene tree.
 // By default, the method skips dirty objects.
 // To also include dirty objects pass true as the second argument.
 func (o *SceneObject) TraversePreOrder(action func(object *SceneObject) bool, includeDirty ...bool) {

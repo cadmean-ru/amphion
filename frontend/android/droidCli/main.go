@@ -56,7 +56,7 @@ func registerResources(e *engine.AmphionEngine) {
 func registerComponents(e *engine.AmphionEngine) {
 	cm := e.GetComponentsManager()
 	cm.RegisterComponentType(&builtin.ShapeView{})
-	cm.RegisterComponentType(&builtin.CircleBoundary{})
+	cm.RegisterComponentType(&builtin.EllipseBoundary{})
 	cm.RegisterComponentType(&builtin.OnClickListener{})
 	cm.RegisterComponentType(&builtin.TextView{})
 	cm.RegisterComponentType(&builtin.RectBoundary{})

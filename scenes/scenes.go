@@ -131,7 +131,7 @@ func RegisterComponents(e *engine.AmphionEngine) {
 	cm := e.GetComponentsManager()
 	cm.RegisterComponentType(&Mover{})
 	cm.RegisterComponentType(&builtin.ShapeView{})
-	cm.RegisterComponentType(&builtin.CircleBoundary{})
+	cm.RegisterComponentType(&builtin.EllipseBoundary{})
 	cm.RegisterComponentType(&builtin.OnClickListener{})
 	cm.RegisterComponentType(&builtin.TextView{})
 	cm.RegisterComponentType(&builtin.RectBoundary{})

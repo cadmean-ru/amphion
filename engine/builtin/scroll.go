@@ -65,32 +65,32 @@ func (s *Scroll) handleScroll(event engine.AmphionEvent) bool {
 	var theScrolly, theScrollx float32
 
 	if s.scrollDirectionY == ScrollUp {
-		if realArea.GetMin().Y < 0 {
+		if realArea.Min().Y < 0 {
 			mouseScroll := float64(s.dScrollY)
-			areaOffset := float64(realArea.GetMin().Y)
+			areaOffset := float64(realArea.Min().Y)
 			//engine.LogDebug("%f %f", mouseScroll, areaOffset)
 			theScrolly = float32(math.Max(mouseScroll, areaOffset))
 		}
 	} else if s.scrollDirectionY == ScrollDown {
-		if realArea.GetMax().Y > sceneRect.Y.GetLength() {
+		if realArea.Max().Y > sceneRect.Y.GetLength() {
 			mouseScroll := float64(s.dScrollY)
-			areaOffset := float64(realArea.GetMax().Y - sceneRect.Y.GetLength())
+			areaOffset := float64(realArea.Max().Y - sceneRect.Y.GetLength())
 			//engine.LogDebug("%f %f %f", mouseScroll, areaOffset, sceneRect.Y.GetLength())
 			theScrolly = float32(math.Min(mouseScroll, areaOffset))
 		}
 	}
 
 	if s.scrollDirectionX == ScrollLeft {
-		if realArea.GetMin().X < 0 {
+		if realArea.Min().X < 0 {
 			mouseScroll := float64(s.dScrollX)
-			areaOffset := float64(realArea.GetMin().X)
+			areaOffset := float64(realArea.Min().X)
 			//engine.LogDebug("%f %f", mouseScroll, areaOffset)
 			theScrollx = float32(math.Max(mouseScroll, areaOffset))
 		}
 	} else if s.scrollDirectionX == ScrollRight {
-		if realArea.GetMax().X > sceneRect.X.GetLength() {
+		if realArea.Max().X > sceneRect.X.GetLength() {
 			mouseScroll := float64(s.dScrollX)
-			areaOffset := float64(realArea.GetMax().X - sceneRect.X.GetLength())
+			areaOffset := float64(realArea.Max().X - sceneRect.X.GetLength())
 			//engine.LogDebug("%f %f %f", mouseScroll, areaOffset, sceneRect.Y.GetLength())
 			theScrollx = float32(math.Min(mouseScroll, areaOffset))
 		}

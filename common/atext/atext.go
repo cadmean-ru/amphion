@@ -98,7 +98,7 @@ func (t *Text) GetInitialRect() *common.RectBoundary {
 }
 
 func (t *Text) GetActualRect() *common.RectBoundary {
-	return common.NewRectBoundaryFromPositionAndSize(t.initialRect.GetMin(), a.NewVector3(float32(t.width), float32(t.height), 0))
+	return common.NewRectBoundaryFromPositionAndSize(t.initialRect.Min(), a.NewVector3(float32(t.width), float32(t.height), 0))
 }
 
 func (t *Text) GetAText() *Text {

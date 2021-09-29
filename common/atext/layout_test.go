@@ -26,19 +26,19 @@ func TestLayoutRunes(t *testing.T) {
 	} {
 		{
 			"Hello bruh",
-			common.NewRectBoundaryXY(0, 100, 0, 100),
+			common.NewRectBoundary2D(0, 100, 0, 100, 0),
 			LayoutOptions{},
 			1,
 		},
 		{
 			"Hello\nbruh",
-			common.NewRectBoundaryXY(0, 100, 0, 100),
+			common.NewRectBoundary2D(0, 100, 0, 100, 0),
 			LayoutOptions{},
 			2,
 		},
 		{
 			"Hello\nbruh",
-			common.NewRectBoundaryXY(0, 100, 0, 100),
+			common.NewRectBoundary2D(0, 100, 0, 100, 0),
 			LayoutOptions{SingleLine: true},
 			1,
 		},

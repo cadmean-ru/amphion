@@ -101,6 +101,7 @@ func newUpdateContext(dTime float32) UpdateContext {
 type BoundaryComponent interface {
 	Component
 	common.Boundary
+	IsSolid() bool
 }
 
 // StatefulComponent is an interface for components, that can persist state.

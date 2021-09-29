@@ -9,7 +9,6 @@ import (
 	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
-	"sort"
 	"sync"
 )
 
@@ -406,65 +405,6 @@ func (engine *AmphionEngine) handleStop() {
 
 func (engine *AmphionEngine) canStop() bool {
 	return engine.currentScene == nil
-}
-
-func (engine *AmphionEngine) handleMouseMove(mousePos a.IntVector2) {
-	if engine.currentScene == nil {
-		return
-	}
-
-	candidates := make([]*SceneObject, 0, 1)
-	engine.currentScene.ForEachObject(func(o *SceneObject) {
-		if o.HasView() && o.HasBoundary() && o.IsPointInsideBoundaries2D(a.NewVector3(float32(mousePos.X), float32(mousePos.Y), 0)) {
-			candidates = append(candidates, o)
-		}
-	})
-
-	if len(candidates) > 0 {
-		sort.Slice(candidates, func(i, j int) bool {
-			return candidates[i].Transform.GlobalPosition().Z > candidates[j].Transform.GlobalPosition().Z
-		})
-		o := candidates[0]
-
-		if o == engine.sceneContext.hoveredObject {
-			return
-		}
-
-		if engine.sceneContext.hoveredObject != nil {
-			engine.sceneContext.messageDispatcher.DispatchDirectly(
-				engine.sceneContext.hoveredObject,
-				dispatch.NewMessageFromWithAnyData(
-					engine.sceneContext.hoveredObject,
-					MessageBuiltinEvent,
-					NewAmphionEvent(engine.sceneContext.hoveredObject, EventMouseOut, nil),
-				),
-			)
-		}
-
-		engine.sceneContext.messageDispatcher.DispatchDirectly(
-			o,
-			dispatch.NewMessageFromWithAnyData(
-				o,
-				MessageBuiltinEvent,
-				NewAmphionEvent(o, EventMouseIn, nil),
-			),
-		)
-
-		engine.sceneContext.hoveredObject = o
-	} else {
-		if engine.sceneContext.hoveredObject != nil {
-			engine.sceneContext.messageDispatcher.DispatchDirectly(
-				engine.sceneContext.hoveredObject,
-				dispatch.NewMessageFromWithAnyData(
-					engine.sceneContext.hoveredObject,
-					MessageBuiltinEvent,
-					NewAmphionEvent(engine.sceneContext.hoveredObject, EventMouseOut, nil),
-				),
-			)
-
-			engine.sceneContext.hoveredObject = nil
-		}
-	}
 }
 
 func (engine *AmphionEngine) handleSceneClose() {

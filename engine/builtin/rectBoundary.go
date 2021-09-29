@@ -17,6 +17,10 @@ func (r *RectBoundary) IsPointInside2D(point a.Vector3) bool {
 	return r.SceneObject.Transform.GlobalRect().IsPointInside2D(point)
 }
 
+func (r *RectBoundary) IsSolid() bool {
+	return true
+}
+
 func NewRectBoundary() *RectBoundary {
 	return &RectBoundary{}
 }
