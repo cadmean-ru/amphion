@@ -251,6 +251,8 @@ Returns nil if index is out of bounds.
 - (NSString* _Nonnull)string;
 @end
 
+FOUNDATION_EXPORT const float AtextUnbounded;
+
 @interface Atext : NSObject
 + (NSData* _Nullable) defaultFontData;
 + (void) setDefaultFontData:(NSData* _Nullable)v;

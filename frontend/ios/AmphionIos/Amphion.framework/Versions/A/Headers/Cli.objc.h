@@ -11,7 +11,9 @@
 #include "Universe.objc.h"
 
 #include "Dispatch.objc.h"
+#include "Atext.objc.h"
 
+@class CliBitmap;
 @class CliContext;
 @class CliExecDelegate;
 @class CliFrontendWrap;
@@ -20,6 +22,7 @@
 @class CliNativeFeatureDelegateWrap;
 @class CliPrimitiveRendererDelegateWrap;
 @class CliPrimitiveRenderingContext;
+@class CliRendererDelegateWrap;
 @class CliResourceManagerImpl;
 @class CliTextPrimitiveData;
 @class CliVector2;
@@ -71,6 +74,20 @@
 - (NSData* _Nullable)readFile:(NSString* _Nullable)path error:(NSError* _Nullable* _Nullable)error;
 @end
 
+@interface CliBitmap : NSObject <goSeqRefInterface> {
+}
+@property(strong, readonly) _Nonnull id _ref;
+
+- (nonnull instancetype)initWithRef:(_Nonnull id)ref;
+- (nonnull instancetype)init;
+// skipped field Bitmap.Bitmap with unsupported type: *github.com/cadmean-ru/amphion/rendering.Bitmap
+
+- (void)dispose;
+- (long)getHeight;
+- (NSData* _Nullable)getPixels;
+- (long)getWidth;
+@end
+
 @interface CliContext : NSObject <goSeqRefInterface> {
 }
 @property(strong, readonly) _Nonnull id _ref;
@@ -105,10 +122,10 @@
 - (nonnull instancetype)initWithRef:(_Nonnull id)ref;
 - (nonnull instancetype)init;
 @property (nonatomic) long geometryType;
-@property (nonatomic) CliVector3* _Nullable tlPositionN;
-@property (nonatomic) CliVector3* _Nullable brPositionN;
-@property (nonatomic) CliVector4* _Nullable fillColorN;
-@property (nonatomic) CliVector4* _Nullable strokeColorN;
+@property (nonatomic) CliVector3* _Nullable tlPosition;
+@property (nonatomic) CliVector3* _Nullable brPosition;
+@property (nonatomic) CliVector4* _Nullable fillColor;
+@property (nonatomic) CliVector4* _Nullable strokeColor;
 @property (nonatomic) long strokeWeight;
 @property (nonatomic) long cornerRadius;
 @end
@@ -119,9 +136,13 @@
 
 - (nonnull instancetype)initWithRef:(_Nonnull id)ref;
 - (nonnull instancetype)init;
-@property (nonatomic) CliVector3* _Nullable tlPositionN;
-@property (nonatomic) CliVector3* _Nullable brPositionN;
-@property (nonatomic) NSString* _Nonnull imageUrl;
+@property (nonatomic) CliVector3* _Nullable tlPosition;
+@property (nonatomic) CliVector3* _Nullable brPosition;
+// skipped field ImagePrimitiveData.Bitmaps with unsupported type: []*github.com/cadmean-ru/amphion/frontend/cli.Bitmap
+
+@property (nonatomic) long index;
+- (CliBitmap* _Nullable)bitmapAt:(long)index;
+- (long)getBitmapCount;
 @end
 
 /**
@@ -171,6 +192,23 @@ so native feature can be passed to the engine.
 
 @property (nonatomic) BOOL redraw;
 @property (nonatomic) long primitiveId;
+// skipped field PrimitiveRenderingContext.Projection with unsupported type: [16]float32
+
+@end
+
+@interface CliRendererDelegateWrap : NSObject <goSeqRefInterface, CliRendererDelegate> {
+}
+@property(strong, readonly) _Nonnull id _ref;
+
+- (nonnull instancetype)initWithRef:(_Nonnull id)ref;
+- (nullable instancetype)init:(id<CliRendererDelegate> _Nullable)delegate;
+- (void)onClear;
+// skipped method RendererDelegateWrap.OnCreatePrimitiveRenderingContext with unsupported parameter or return types
+
+- (void)onPerformRenderingEnd;
+- (void)onPerformRenderingStart;
+- (void)onPrepare;
+- (void)onStop;
 @end
 
 @interface CliResourceManagerImpl : NSObject <goSeqRefInterface> {
@@ -201,7 +239,8 @@ so native feature can be passed to the engine.
 @property (nonatomic) NSString* _Nonnull text;
 @property (nonatomic) CliVector3* _Nullable tlPosition;
 @property (nonatomic) CliVector3* _Nullable size;
-@property (nonatomic) CliVector4* _Nullable textColorN;
+@property (nonatomic) CliVector4* _Nullable textColor;
+@property (nonatomic) id<AtextProvider> _Nullable provider;
 @end
 
 @interface CliVector2 : NSObject <goSeqRefInterface> {
@@ -220,6 +259,8 @@ so native feature can be passed to the engine.
 
 - (nonnull instancetype)initWithRef:(_Nonnull id)ref;
 - (nullable instancetype)init:(float)x y:(float)y z:(float)z;
+// skipped constructor Vector3.NewVector3FromAIntVector3 with unsupported parameter or return types
+
 // skipped constructor Vector3.NewVector3FromAVector3 with unsupported parameter or return types
 
 @property (nonatomic) float x;
@@ -233,6 +274,8 @@ so native feature can be passed to the engine.
 
 - (nonnull instancetype)initWithRef:(_Nonnull id)ref;
 - (nullable instancetype)init:(float)x y:(float)y z:(float)z w:(float)w;
+// skipped constructor Vector4.NewVector4FromAColor with unsupported parameter or return types
+
 // skipped constructor Vector4.NewVector4FromAVector4 with unsupported parameter or return types
 
 @property (nonatomic) float x;
@@ -262,16 +305,24 @@ FOUNDATION_EXPORT CliNativeFeatureDelegateWrap* _Nullable CliNewNativeFeatureDel
 
 FOUNDATION_EXPORT CliPrimitiveRendererDelegateWrap* _Nullable CliNewPrimitiveRendererDelegateWrap(id<CliPrimitiveRendererDelegate> _Nullable delegate);
 
+FOUNDATION_EXPORT CliRendererDelegateWrap* _Nullable CliNewRendererDelegateWrap(id<CliRendererDelegate> _Nullable delegate);
+
 FOUNDATION_EXPORT CliResourceManagerImpl* _Nullable CliNewResourceManagerImpl(id<CliResourceManagerDelegate> _Nullable delegate);
 
 FOUNDATION_EXPORT CliVector2* _Nullable CliNewVector2(float x, float y);
 
 FOUNDATION_EXPORT CliVector3* _Nullable CliNewVector3(float x, float y, float z);
 
+// skipped function NewVector3FromAIntVector3 with unsupported parameter or return types
+
+
 // skipped function NewVector3FromAVector3 with unsupported parameter or return types
 
 
 FOUNDATION_EXPORT CliVector4* _Nullable CliNewVector4(float x, float y, float z, float w);
+
+// skipped function NewVector4FromAColor with unsupported parameter or return types
+
 
 // skipped function NewVector4FromAVector4 with unsupported parameter or return types
 
@@ -336,6 +387,9 @@ due to the gobind type restrictions.
 - (nonnull instancetype)initWithRef:(_Nonnull id)ref;
 - (void)onClear;
 - (void)onPerformRenderingEnd;
+/**
+ * OnCreatePrimitiveRenderingContext(ctx *PrimitiveRenderingContext)
+ */
 - (void)onPerformRenderingStart;
 - (void)onPrepare;
 - (void)onStop;

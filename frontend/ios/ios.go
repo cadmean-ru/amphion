@@ -55,9 +55,9 @@ func (f *Frontend) GetContext() frontend.Context {
 	ctx := frontend.Context{}
 
 	c := f.f.GetContext()
+	fmt.Printf("Frontend got cli context: %+v\n", c)
 
 	ctx.ScreenInfo = common.NewScreenInfo(int(c.ScreenSize.X), int(c.ScreenSize.Y))
-	fmt.Printf("Got context: %+v\n", ctx)
 
 	return ctx
 }
@@ -111,7 +111,7 @@ func NewFrontend(f cli.FrontendDelegate, rm cli.ResourceManagerDelegate, rd cli.
 	return &Frontend{
 		f:          f,
 		resMan:     cli.NewResourceManagerImpl(rm),
-		renderer:   rendering.NewARenderer(rd, f.GetRenderingThreadDispatcher()),
+		renderer:   rendering.NewARenderer(cli.NewRendererDelegateWrap(rd), f.GetRenderingThreadDispatcher()),
 		msgQueue:   dispatch.NewMessageQueue(1000),
 		mainDisp:   f.GetMainThreadDispatcher(),
 		LooperImpl: dispatch.NewLooperImpl(100),

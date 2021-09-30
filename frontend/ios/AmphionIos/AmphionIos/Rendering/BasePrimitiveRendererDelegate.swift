@@ -28,7 +28,7 @@ class BasePrimitiveRendererDelegate : NSObject, CliPrimitiveRendererDelegateProt
             PrimitivesRegistry.shared.createPrimitive(withId: c.primitiveId)
         }
         
-        print("On set primitive \(String(describing: ctx)) ios")
+//        print("On set primitive \(String(describing: ctx?.primitiveId))")
     }
     
     func onRemovePrimitive(_ ctx: CliPrimitiveRenderingContext?) {

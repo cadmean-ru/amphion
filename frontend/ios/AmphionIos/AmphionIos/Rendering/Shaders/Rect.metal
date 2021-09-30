@@ -5,8 +5,7 @@
 //  Created by Алексей Крицков on 18.08.2021.
 //
 
-#include <metal_stdlib>
-using namespace metal;
+#include "Common.metal"
 
 struct RectIn {
     float4 position [[attribute(0)]];
@@ -18,14 +17,11 @@ struct RectOut {
     float4 color;
 };
 
-struct Uniform {
-    float4x4 projection;
-};
-
 vertex RectOut rect_vertex(const RectIn rectIn [[stage_in]], constant Uniform& uniform [[buffer(1)]]) {
     RectOut rectOut;
     rectOut.position = uniform.projection * rectIn.position;
-    rectOut.color = rectIn.color;
+//    rectOut.color = float4(0, 1, 0, 1);
+    rectOut.color = rectIn.color / 255;
     
     return rectOut;
 }

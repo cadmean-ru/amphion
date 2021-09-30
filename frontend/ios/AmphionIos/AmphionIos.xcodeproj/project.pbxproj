@@ -25,6 +25,10 @@
 		FA33836C26D4F29B000EC3A7 /* Image.metal in Sources */ = {isa = PBXBuildFile; fileRef = FA33836B26D4F29B000EC3A7 /* Image.metal */; };
 		FA33836E26D50FED000EC3A7 /* ImageRendererDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33836D26D50FED000EC3A7 /* ImageRendererDelegate.swift */; };
 		FA4C309126DFAC4600AFE81C /* UniformBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4C309026DFAC4600AFE81C /* UniformBuffer.swift */; };
+		FAEF762D27050A1F00830930 /* Projection.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEF762C27050A1F00830930 /* Projection.swift */; };
+		FAEF762F27050C6A00830930 /* ViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEF762E27050C6A00830930 /* ViewExtension.swift */; };
+		FAEF7631270519B400830930 /* Common.metal in Sources */ = {isa = PBXBuildFile; fileRef = FAEF7630270519B400830930 /* Common.metal */; };
+		FAEF76332705F52F00830930 /* ProjectionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEF76322705F52F00830930 /* ProjectionTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +63,10 @@
 		FA33836B26D4F29B000EC3A7 /* Image.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Image.metal; sourceTree = "<group>"; };
 		FA33836D26D50FED000EC3A7 /* ImageRendererDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRendererDelegate.swift; sourceTree = "<group>"; };
 		FA4C309026DFAC4600AFE81C /* UniformBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniformBuffer.swift; sourceTree = "<group>"; };
+		FAEF762C27050A1F00830930 /* Projection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Projection.swift; sourceTree = "<group>"; };
+		FAEF762E27050C6A00830930 /* ViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtension.swift; sourceTree = "<group>"; };
+		FAEF7630270519B400830930 /* Common.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Common.metal; sourceTree = "<group>"; };
+		FAEF76322705F52F00830930 /* ProjectionTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectionTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +119,7 @@
 				FA16455C26CD308800BE23FA /* FrontendDelegate.swift */,
 				FA16455F26CD352900BE23FA /* ResourceManager.swift */,
 				FA16456326CD36FD00BE23FA /* AmphionGestureRecognizer.swift */,
+				FAEF762E27050C6A00830930 /* ViewExtension.swift */,
 			);
 			path = AmphionIos;
 			sourceTree = "<group>";
@@ -120,6 +129,7 @@
 			children = (
 				FA16454426CD2F4A00BE23FA /* AmphionIosTests.swift */,
 				FA16454626CD2F4A00BE23FA /* Info.plist */,
+				FAEF76322705F52F00830930 /* ProjectionTest.swift */,
 			);
 			path = AmphionIosTests;
 			sourceTree = "<group>";
@@ -144,6 +154,7 @@
 				FA16456C26CD3BD600BE23FA /* PrimitivesRegistry.swift */,
 				FA33836D26D50FED000EC3A7 /* ImageRendererDelegate.swift */,
 				FA4C309026DFAC4600AFE81C /* UniformBuffer.swift */,
+				FAEF762C27050A1F00830930 /* Projection.swift */,
 			);
 			path = Rendering;
 			sourceTree = "<group>";
@@ -153,6 +164,7 @@
 			children = (
 				FA16456E26CD5F6200BE23FA /* Rect.metal */,
 				FA33836B26D4F29B000EC3A7 /* Image.metal */,
+				FAEF7630270519B400830930 /* Common.metal */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -270,10 +282,13 @@
 				FA33836C26D4F29B000EC3A7 /* Image.metal in Sources */,
 				FA16456D26CD3BD600BE23FA /* PrimitivesRegistry.swift in Sources */,
 				FA33836E26D50FED000EC3A7 /* ImageRendererDelegate.swift in Sources */,
+				FAEF762D27050A1F00830930 /* Projection.swift in Sources */,
 				FA16456B26CD3A9900BE23FA /* MetalPrimitive.swift in Sources */,
+				FAEF7631270519B400830930 /* Common.metal in Sources */,
 				FA16456F26CD5F6200BE23FA /* Rect.metal in Sources */,
 				FA16456726CD38D700BE23FA /* RectRendererDelegate.swift in Sources */,
 				FA16456026CD352900BE23FA /* ResourceManager.swift in Sources */,
+				FAEF762F27050C6A00830930 /* ViewExtension.swift in Sources */,
 				FA16456426CD36FD00BE23FA /* AmphionGestureRecognizer.swift in Sources */,
 				FA16455B26CD2FED00BE23FA /* AmphionViewController.swift in Sources */,
 				FA4C309126DFAC4600AFE81C /* UniformBuffer.swift in Sources */,
@@ -286,6 +301,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAEF76332705F52F00830930 /* ProjectionTest.swift in Sources */,
 				FA16454526CD2F4A00BE23FA /* AmphionIosTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

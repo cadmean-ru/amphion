@@ -12,23 +12,6 @@
 
 #include "Cli.objc.h"
 
-@class IosCliIosTestController;
-
-@interface IosCliIosTestController : NSObject <goSeqRefInterface> {
-}
-@property(strong, readonly) _Nonnull id _ref;
-
-- (nonnull instancetype)initWithRef:(_Nonnull id)ref;
-- (nonnull instancetype)init;
-// skipped field IosTestController.ComponentImpl with unsupported type: github.com/cadmean-ru/amphion/engine.ComponentImpl
-
-- (NSString* _Nonnull)getName;
-// skipped method IosTestController.OnInit with unsupported parameter or return types
-
-- (void)onStart;
-- (void)onStop;
-@end
-
 FOUNDATION_EXPORT void IosCliAmphionInit(id<CliFrontendDelegate> _Nullable f, id<CliResourceManagerDelegate> _Nullable rm, id<CliRendererDelegate> _Nullable rd);
 
 FOUNDATION_EXPORT void IosCliRegisterPrimitiveRendererDelegate(long primitiveKind, id<CliPrimitiveRendererDelegate> _Nullable delegate);

@@ -54,6 +54,9 @@ class RendererDelegate : NSObject, CliRendererDelegateProtocol {
     func onPerformRenderingStart() {
         guard let drawable = metalLayer!.nextDrawable() else { return }
         self.drawable = drawable
+        
+        Projection.calculate(for: view)
+        
         let renderPassDescriptor = MTLRenderPassDescriptor()
         renderPassDescriptor.colorAttachments[0].texture = drawable.texture
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
@@ -61,8 +64,6 @@ class RendererDelegate : NSObject, CliRendererDelegateProtocol {
         
         commandBuffer = commandQueue.makeCommandBuffer()
         RendererDelegate.renderEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
-        
-        print("On perform rendering start ios")
     }
     
     func onPerformRenderingEnd() {
@@ -70,8 +71,6 @@ class RendererDelegate : NSObject, CliRendererDelegateProtocol {
         
         commandBuffer?.present(drawable!)
         commandBuffer?.commit()
-        
-        print("On perform rendering end ios")
     }
     
     func onClear() {

@@ -39,7 +39,7 @@ class FrontendDelegate : NSObject, CliFrontendDelegateProtocol, DispatchWorkDisp
     
     func getContext() -> CliContext? {
         let ctx = CliContext()
-        ctx.screenSize = getWindowSize()
+        ctx.screenSize = view?.getWindowSize()
         return ctx
     }
     
@@ -60,22 +60,6 @@ class FrontendDelegate : NSObject, CliFrontendDelegateProtocol, DispatchWorkDisp
         DispatchQueue.main.async {
             item?.execute()
         }
-    }
-    
-    private func getWindowSize() -> CliVector3 {
-        let v = CliNewVector3(0, 0, 0)!
-        
-        if (view?.window != nil) {
-            let windowFrame = view!.window!.frame
-            v.x = Float(windowFrame.size.width)
-            v.y = Float(windowFrame.size.height)
-        } else {
-            let screenBounds = UIScreen.main.bounds
-            v.x = Float(screenBounds.size.width)
-            v.y = Float(screenBounds.size.height)
-        }
-        
-        return v
     }
     
     func sendCallback(of code: Int, withStringData data: String) {

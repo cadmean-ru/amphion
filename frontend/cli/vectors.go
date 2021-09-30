@@ -29,6 +29,10 @@ func NewVector3FromAVector3(vector3 a.Vector3) *Vector3 {
 	return NewVector3(vector3.X, vector3.Y, vector3.Z)
 }
 
+func NewVector3FromAIntVector3(vector3 a.IntVector3) *Vector3 {
+	return NewVector3(float32(vector3.X), float32(vector3.Y), float32(vector3.Z))
+}
+
 type Vector4 struct {
 	X, Y, Z, W float32
 }
@@ -44,6 +48,10 @@ func NewVector4(x, y, z, w float32) *Vector4 {
 
 func NewVector4FromAVector4(vector4 a.Vector4) *Vector4 {
 	return NewVector4(vector4.X, vector4.Y, vector4.Z, vector4.W)
+}
+
+func NewVector4FromAColor(vector4 a.Color) *Vector4 {
+	return NewVector4(float32(vector4.R), float32(vector4.G), float32(vector4.B), float32(vector4.A))
 }
 
 func Vector3Ndc(v *Vector3, size *Vector3) *Vector3 {

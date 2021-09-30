@@ -18,7 +18,10 @@ open class AmphionViewController: UIViewController {
         
         setNeedsStatusBarAppearanceUpdate()
         
+        FrontendDelegate.shared.setView(view)
         IosCliAmphionInit(FrontendDelegate.shared, ResourceManager(), RendererDelegate(for: view))
         FrontendDelegate.shared.sendCallback(of: -111, withStringData: "")
+        
+        view.addGestureRecognizer(AmphionGestureRecognizer())
     }
 }

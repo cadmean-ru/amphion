@@ -65,12 +65,19 @@
 
 @end
 
+/**
+ * Message holds an int message code and some data.
+ */
 @interface DispatchMessage : NSObject <goSeqRefInterface> {
 }
 @property(strong, readonly) _Nonnull id _ref;
 
 - (nonnull instancetype)initWithRef:(_Nonnull id)ref;
 - (nullable instancetype)init:(long)what;
+// skipped constructor Message.NewMessageFrom with unsupported parameter or return types
+
+// skipped constructor Message.NewMessageFromWithAnyData with unsupported parameter or return types
+
 // skipped constructor Message.NewMessageWithAnyData with unsupported parameter or return types
 
 - (nullable instancetype)initWithStringData:(long)what data:(NSString* _Nullable)data;
@@ -79,7 +86,9 @@
 @property (nonatomic) NSString* _Nonnull strData;
 // skipped field Message.AnyData with unsupported type: interface{}
 
-@property (nonatomic) DispatchMessage* _Nullable replyTo;
+// skipped field Message.Sender with unsupported type: interface{}
+
+- (NSString* _Nonnull)string;
 @end
 
 /**
@@ -163,6 +172,12 @@ FOUNDATION_EXPORT const int64_t DispatchMessageWorkExec;
 FOUNDATION_EXPORT DispatchLooperImpl* _Nullable DispatchNewLooperImplCompat(long messageQueueBuffer);
 
 FOUNDATION_EXPORT DispatchMessage* _Nullable DispatchNewMessage(long what);
+
+// skipped function NewMessageFrom with unsupported parameter or return types
+
+
+// skipped function NewMessageFromWithAnyData with unsupported parameter or return types
+
 
 // skipped function NewMessageQueue with unsupported parameter or return types
 

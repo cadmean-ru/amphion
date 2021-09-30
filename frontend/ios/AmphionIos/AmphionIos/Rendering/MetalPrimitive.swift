@@ -24,7 +24,7 @@ struct MetalPrimitive {
     var kind: PrimitiveKind
     var vertexBuffer: MTLBuffer?
     var indexBuffer: MTLBuffer?
-    var texture: MTLTexture?
+    var textures: [MTLTexture]?
     var sampler: MTLSamplerState?
     var uniformBuffer: MTLBuffer?
     

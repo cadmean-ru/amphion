@@ -43,20 +43,39 @@ class ImageRendererDelegate: BasePrimitiveRendererDelegate {
         guard let context = ctx,
               var primitive = PrimitivesRegistry.shared.getPrimitive(byId: context.primitiveId),
               let image = context.imagePrimitiveData,
-              let tlp = image.tlPositionN,
-              let brp = image.brPositionN else {return}
+              let tlp = image.tlPosition,
+              let brp = image.brPosition else {return}
         
-        if (context.redraw) {
-            if (primitive.texture == nil) {
-                guard let texUrl = Bundle.main.url(forResource: image.imageUrl, withExtension: nil),
-                      let texture = try? textureLoader!.newTexture(URL: texUrl, options: [:]) else {return}
+        if context.redraw {
+            if primitive.textures == nil {
+                primitive.textures = []
                 
-                primitive.texture = texture
+                for i in 0..<image.getBitmapCount() {
+                    guard let bitmap = image.bitmap(at: i),
+                          let textureData = bitmap.getPixels() else {return}
+                        
+                    let textureDescriptor = MTLTextureDescriptor()
+                    textureDescriptor.pixelFormat = .rgba8Uint
+                    textureDescriptor.width = bitmap.getWidth()
+                    textureDescriptor.height = bitmap.getHeight()
+
+                    let texture = device.makeTexture(descriptor: textureDescriptor)!
+                    let texturePointer = textureData.withUnsafeBytes { (unsafePointer: UnsafeRawBufferPointer) -> UnsafeRawPointer in
+                        return unsafePointer.baseAddress!
+                    }
+
+                    let region = MTLRegion(origin: MTLOrigin(x: 0, y: 0, z: 0), size: MTLSize(width: bitmap.getWidth(), height: bitmap.getHeight(), depth: 1))
+                    texture.replace(region: region, mipmapLevel: 0, withBytes: texturePointer, bytesPerRow: bitmap.getWidth() * 4)
+                    
+                    primitive.textures!.append(texture)
+                }
+                
+//                print("Generated textures \(primitive.textures!.count)")
             }
             
             let verticies: [ImageVertexDescriptor] = [
-                ImageVertexDescriptor(position: SIMD3<Float>(tlp.x, tlp.y, tlp.z), texCoord: SIMD2<Float>(0, 1)),
-                ImageVertexDescriptor(position: SIMD3<Float>(tlp.x, brp.y, tlp.z), texCoord: SIMD2<Float>(0, 0)),
+                ImageVertexDescriptor(position: SIMD3<Float>(tlp.x, tlp.y, tlp.z), texCoord: SIMD2<Float>(0, 0)),
+                ImageVertexDescriptor(position: SIMD3<Float>(tlp.x, brp.y, tlp.z), texCoord: SIMD2<Float>(0, 1)),
                 ImageVertexDescriptor(position: SIMD3<Float>(brp.x, brp.y, tlp.z), texCoord: SIMD2<Float>(1, 1)),
                 ImageVertexDescriptor(position: SIMD3<Float>(brp.x, tlp.y, tlp.z), texCoord: SIMD2<Float>(1, 0)),
             ]
@@ -77,9 +96,15 @@ class ImageRendererDelegate: BasePrimitiveRendererDelegate {
             PrimitivesRegistry.shared.setPrimitive(byId: context.primitiveId, withData: primitive)
         }
         
+        var uniform = UniformBuffer(projection: Projection.current)
+        
+//        print("Rendering image. Texture: \(image.index)")
+        
         RendererDelegate.renderEncoder.setRenderPipelineState(pipelineState)
         RendererDelegate.renderEncoder.setVertexBuffer(primitive.vertexBuffer!, offset: 0, index: 0)
-        RendererDelegate.renderEncoder.setFragmentTexture(primitive.texture, index: 0)
+        RendererDelegate.renderEncoder.setVertexBytes(&uniform, length: UniformBuffer.stride, index: 1)
+        RendererDelegate.renderEncoder.setFragmentTexture(primitive.textures![image.index], index: 0)
+        RendererDelegate.renderEncoder.setFragmentSamplerState(primitive.sampler!, index: 0)
         RendererDelegate.renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: 6, indexType: .uint16, indexBuffer: primitive.indexBuffer!, indexBufferOffset: 0)
     }
 }

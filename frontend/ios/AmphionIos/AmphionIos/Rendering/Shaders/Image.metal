@@ -5,9 +5,7 @@
 //  Created by Алексей Крицков on 24.08.2021.
 //
 
-#include <metal_stdlib>
-using namespace metal;
-
+#include "Common.metal"
 
 struct ImageIn {
     float4 position [[attribute(0)]];
@@ -19,14 +17,15 @@ struct ImageOut {
     float2 texCoord;
 };
 
-vertex ImageOut image_vertex(const ImageIn ImageIn [[stage_in]]) {
+vertex ImageOut image_vertex(const ImageIn ImageIn [[stage_in]], constant Uniform& uniform [[buffer(1)]]) {
     ImageOut ImageOut;
-    ImageOut.position = ImageIn.position;
+    ImageOut.position = uniform.projection * ImageIn.position;
     ImageOut.texCoord = ImageIn.texCoord;
     
     return ImageOut;
 }
 
-fragment float4 image_fragment(ImageOut imageIn [[stage_in]], texture2d<float> texture [[texture(0)]], sampler mySampler [[sampler(0)]]) {
-    return texture.sample(mySampler, imageIn.texCoord);
+fragment float4 image_fragment(ImageOut imageIn [[stage_in]], texture2d<uint> texture [[texture(0)]], sampler mySampler [[sampler(0)]]) {
+    float4 sampled = float4(texture.sample(mySampler, imageIn.texCoord));
+    return float4(sampled.x/255, sampled.y/255, sampled.z/255, sampled.w/255);
 }

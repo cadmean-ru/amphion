@@ -28,6 +28,8 @@ class RectRendererDelegate : BasePrimitiveRendererDelegate {
         rectVertexDescriptor.attributes[1].offset = MemoryLayout<SIMD3<Float>>.stride
         rectVertexDescriptor.attributes[1].bufferIndex = 0
         
+        
+        
         rectVertexDescriptor.layouts[0].stride = MemoryLayout<RectVertexDescriptor>.stride
         
         rectPipelineDescriptor.vertexDescriptor = rectVertexDescriptor
@@ -39,9 +41,11 @@ class RectRendererDelegate : BasePrimitiveRendererDelegate {
         guard let context = ctx,
               var primitive = PrimitivesRegistry.shared.getPrimitive(byId: context.primitiveId),
               let geometry = context.geometryPrimitiveData,
-              let tlp = geometry.tlPositionN,
-              let brp = geometry.brPositionN,
-              let fillColor = geometry.fillColorN else {return}
+              let tlp = geometry.tlPosition,
+              let brp = geometry.brPosition,
+              let fillColor = geometry.fillColor else {return}
+        
+//        print("Rendering rect")
         
         if (context.redraw) {
             let simdColor = SIMD4<Float>(fillColor.x, fillColor.y, fillColor.z, fillColor.w)
@@ -57,20 +61,17 @@ class RectRendererDelegate : BasePrimitiveRendererDelegate {
                 2, 3, 0,
             ]
             
-            let 🍆: [Float] = [
-                
-            ]
-            
             primitive.vertexBuffer = device.makeBuffer(bytes: verticies, length: verticies.count * MemoryLayout<RectVertexDescriptor>.stride, options: [])
             primitive.indexBuffer = device.makeBuffer(bytes: indicies, length: indicies.count * MemoryLayout<UInt16>.stride, options: [])
-            
-            primitive.uniformBuffer = device.makeBuffer(bytes: 🍆, length: MemoryLayout<UniformBuffer>.size, options: [])
             
             PrimitivesRegistry.shared.setPrimitive(byId: context.primitiveId, withData: primitive)
         }
         
+        var uniform = UniformBuffer(projection: Projection.current)
+        
         RendererDelegate.renderEncoder.setRenderPipelineState(pipelineState)
         RendererDelegate.renderEncoder.setVertexBuffer(primitive.vertexBuffer!, offset: 0, index: 0)
+        RendererDelegate.renderEncoder.setVertexBytes(&uniform, length: UniformBuffer.stride, index: 1)
         RendererDelegate.renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: 6, indexType: .uint16, indexBuffer: primitive.indexBuffer!, indexBufferOffset: 0)
     }
 }
