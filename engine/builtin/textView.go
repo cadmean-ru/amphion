@@ -5,6 +5,7 @@ import (
 	"github.com/cadmean-ru/amphion/common/atext"
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
+	"math"
 )
 
 // TextView component displays the given text
@@ -22,6 +23,7 @@ type TextView struct {
 	aText         *atext.Text
 	aFont         *atext.Font
 	aFace         *atext.Face
+	padding       float32
 }
 
 func (t *TextView) OnInit(ctx engine.InitContext) {
@@ -29,11 +31,12 @@ func (t *TextView) OnInit(ctx engine.InitContext) {
 
     t.aFont, _ = atext.ParseFont(atext.DefaultFontData)
     t.aFace = t.aFont.NewFace(int(t.FontSize))
+	t.calculatePadding()
 
     t.layoutText()
 }
 
-func (t *TextView) OnUpdate(_ engine.UpdateContext) {
+func (t *TextView) OnLateUpdate(_ engine.UpdateContext) {
 	if !t.ShouldDraw() && t.prevTransform.ActualEquals(t.SceneObject.Transform) {
 		return
 	}
@@ -61,11 +64,12 @@ func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 }
 
 func (t *TextView) MeasureContents() a.Vector3 {
-	return t.aText.GetSize().ToFloat3()
+	return t.aText.GetSize().ToFloat3().Add(a.NewVector3(t.padding*2, t.padding*2, 0))
 }
 
 func (t *TextView) layoutText() {
 	bounds := t.SceneObject.Transform.GlobalRect()
+	bounds.Shrink(a.NewVector3(t.padding, t.padding, 0))
 	wantedSize := t.SceneObject.Transform.WantedSize()
 	if wantedSize.X == a.WrapContent {
 		bounds.X.Max = atext.Unbounded
@@ -73,12 +77,15 @@ func (t *TextView) layoutText() {
 	if wantedSize.Y == a.WrapContent {
 		bounds.Y.Max = atext.Unbounded
 	}
-	engine.LogDebug("Text bounds: %+v", bounds)
 	t.aText = atext.LayoutRunes(t.aFace, []rune(t.Text), bounds, atext.LayoutOptions{
 		VTextAlign: t.VTextAlign,
 		HTextAlign: t.HTextAlign,
 		SingleLine: t.SingleLine,
 	})
+}
+
+func (t *TextView) calculatePadding() {
+	t.padding = float32(math.Ceil(float64(t.FontSize) * 0.15))
 }
 
 // SetText sets the text equal to the specified value, forcing the view to redraw and requesting rendering.
@@ -113,6 +120,7 @@ func (t *TextView) SetFontSize(fontSize byte) {
 	t.FontSize = fontSize
 	t.ShouldRedraw = true
 	t.aFace = t.aFont.NewFace(int(fontSize))
+	t.calculatePadding()
 	engine.RequestRendering()
 }
 

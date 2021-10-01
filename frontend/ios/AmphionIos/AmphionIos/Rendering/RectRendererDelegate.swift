@@ -19,14 +19,6 @@ class RectRendererDelegate : BasePrimitiveRendererDelegate {
         let rectFragmentFunction = library.makeFunction(name: "rect_fragment")!
         
         let rectPipelineDescriptor = makeDefaultRenderPipelineDescriptor(rectVertexFunction, rectFragmentFunction)
-//        rectPipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-//        rectPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
-//        rectPipelineDescriptor.colorAttachments[0].alphaBlendOperation = .add
-//        rectPipelineDescriptor.colorAttachments[0].rgbBlendOperation = .add
-//        rectPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
-//        rectPipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .sourceAlpha
-//        rectPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceColor
-//        rectPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
         
         let rectVertexDescriptor = MTLVertexDescriptor()
         rectVertexDescriptor.attributes[0].format = .float3

@@ -7,7 +7,7 @@ import (
 )
 
 type MouseMover struct {
-	engine.ComponentImpl
+	engine.UpdatingComponentImpl
 	dragging bool
 	mousePos a.IntVector2
 }
@@ -30,7 +30,6 @@ func (m *MouseMover) handleMouseDown(e engine.AmphionEvent) bool {
 	m.Engine.RequestUpdate()
 	return true
 }
-
 
 func (m *MouseMover) handleMouseUp(_ engine.AmphionEvent) bool {
 	m.dragging = false

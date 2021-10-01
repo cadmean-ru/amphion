@@ -8,7 +8,7 @@ import (
 )
 
 type ClipArea struct {
-	engine.ComponentImpl
+	engine.UpdatingComponentImpl
 	Shape shape.Kind `state:"shape"`
 }
 

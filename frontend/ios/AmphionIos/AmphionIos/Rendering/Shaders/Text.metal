@@ -23,17 +23,13 @@ vertex TextOut text_vertex(const TextIn textIn [[stage_in]], constant Uniform& u
     TextOut textOut;
     textOut.position = uniform.projection * float4(textIn.position, 1);
     textOut.texCoord = textIn.texCoord;
-    textOut.color = textIn.color;
+    textOut.color = float4(textIn.color.a/255, textIn.color.b/255, textIn.color.b/255, 1);
     
     return textOut;
 }
 
 fragment float4 text_fragment(TextOut textIn [[stage_in]], texture2d<uint> texture [[texture(0)]], sampler mySampler [[sampler(0)]]) {
-    uint4 sampled = texture.sample(mySampler, textIn.texCoord);
-//    if (sampled.x < 0.5) {
-//        discard_fragment();
-//    }
-    
-    return float4(textIn.color.xyz, float(sampled.x)/255*textIn.color.w);
+    float4 sampled = float4(1, 1, 1, float(texture.sample(mySampler, textIn.texCoord).r)/255);
+    return textIn.color * sampled;
 }
 

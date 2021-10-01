@@ -38,24 +38,30 @@ func (b *RectBoundary) Move(by a.Vector3) {
 	b.Z.Move(by.Z)
 }
 
+//Shrink shrinks all dimensions of the rect by the given vector.
+func (b *RectBoundary) Shrink(by a.Vector3) {
+	b.X.Shrink(by.X)
+	b.Y.Shrink(by.Y)
+	b.Z.Shrink(by.Z)
+}
+
+//Min returns the min (top-left) point of the rect.
 func (b *RectBoundary) Min() a.Vector3 {
 	return a.NewVector3(b.X.Min, b.Y.Min, b.Z.Min)
 }
 
+//Max returns the max (bottom-right) point of the rect.
 func (b *RectBoundary) Max() a.Vector3 {
 	return a.NewVector3(b.X.Max, b.Y.Max, b.Z.Max)
 }
 
+//Size returns the size of the rect.
 func (b *RectBoundary) Size() a.Vector3 {
 	return a.NewVector3(b.X.GetLength(), b.Y.GetLength(), b.Z.GetLength())
 }
 
-func (b *RectBoundary) ToString() string {
-	return fmt.Sprintf("(%s %s %s)", b.X.ToString(), b.Y.ToString(), b.Z.ToString())
-}
-
 func (b *RectBoundary) String() string {
-	return b.ToString()
+	return fmt.Sprintf("(%s %s %s)", b.X.String(), b.Y.String(), b.Z.String())
 }
 
 func NewRectBoundary(minX, maxX, minY, maxY, minZ, maxZ float32) *RectBoundary {

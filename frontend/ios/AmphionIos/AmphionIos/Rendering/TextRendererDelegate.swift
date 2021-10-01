@@ -29,14 +29,6 @@ class TextRendererDelegate: BasePrimitiveRendererDelegate {
         let textFragemntFunction = library.makeFunction(name: "text_fragment")!
         
         let textPipelineDescriptor = makeDefaultRenderPipelineDescriptor(textVertexFunction, textFragemntFunction)
-        textPipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-        textPipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
-        textPipelineDescriptor.colorAttachments[0].alphaBlendOperation = .add
-        textPipelineDescriptor.colorAttachments[0].rgbBlendOperation = .add
-        textPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
-        textPipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .sourceAlpha
-        textPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceColor
-        textPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
         
         let textVertexDescriptor = MTLVertexDescriptor()
         textVertexDescriptor.attributes[0].format = .float3
@@ -44,11 +36,11 @@ class TextRendererDelegate: BasePrimitiveRendererDelegate {
         textVertexDescriptor.attributes[0].bufferIndex = 0
         
         textVertexDescriptor.attributes[1].format = .float2
-        textVertexDescriptor.attributes[1].offset = MemoryLayout<SIMD3<Float>>.stride
+        textVertexDescriptor.attributes[1].offset = MemoryLayout<SIMD3<Float>>.size
         textVertexDescriptor.attributes[1].bufferIndex = 0
         
         textVertexDescriptor.attributes[2].format = .float4
-        textVertexDescriptor.attributes[2].offset = MemoryLayout<SIMD3<Float>>.stride + MemoryLayout<SIMD2<Float>>.stride
+        textVertexDescriptor.attributes[2].offset = MemoryLayout<SIMD3<Float>>.size + MemoryLayout<SIMD2<Float>>.size
         textVertexDescriptor.attributes[2].bufferIndex = 0
 
         textVertexDescriptor.layouts[0].stride = MemoryLayout<TextVertexDescriptor>.stride
@@ -96,15 +88,15 @@ class TextRendererDelegate: BasePrimitiveRendererDelegate {
                 let tlp = CliNewVector3(Float(char.getX()), Float(char.getY()), 0)!
                 let brp = CliNewVector3(tlp.x + Float(glyph.getWidth()), tlp.y + Float(glyph.getHeight()), 0)!
                 
-                let simdColor = SIMD4<Float>(color.x, color.y, color.z, color.w)
+//                let simdColor = SIMD4<Float>(color.x, color.y, color.z, color.w)
                 
-                print("Color: {\(color.x), \(color.y), \(color.z), \(color.w)} simd: {\(simdColor.x), \(simdColor.y), \(simdColor.z), \(simdColor.w)}")
+//                print("Color: {\(color.x), \(color.y), \(color.z), \(color.w)} simd: {\(simdColor.x), \(simdColor.y), \(simdColor.z), \(simdColor.w)}")
                 
                 let vertices: [TextVertexDescriptor] = [
-                    TextVertexDescriptor(position: SIMD3<Float>(tlp.x, tlp.y, 0), texCoord: SIMD2<Float>(0, 0), color: simdColor),
-                    TextVertexDescriptor(position: SIMD3<Float>(tlp.x, brp.y, 0), texCoord: SIMD2<Float>(0, 1), color: simdColor),
-                    TextVertexDescriptor(position: SIMD3<Float>(brp.x, brp.y, 0), texCoord: SIMD2<Float>(1, 1), color: simdColor),
-                    TextVertexDescriptor(position: SIMD3<Float>(brp.x, tlp.y, 0), texCoord: SIMD2<Float>(1, 0), color: simdColor),
+                    TextVertexDescriptor(position: SIMD3<Float>(tlp.x, tlp.y, 0), texCoord: SIMD2<Float>(0, 0), color: color.simd),
+                    TextVertexDescriptor(position: SIMD3<Float>(tlp.x, brp.y, 0), texCoord: SIMD2<Float>(0, 1), color: color.simd),
+                    TextVertexDescriptor(position: SIMD3<Float>(brp.x, brp.y, 0), texCoord: SIMD2<Float>(1, 1), color: color.simd),
+                    TextVertexDescriptor(position: SIMD3<Float>(brp.x, tlp.y, 0), texCoord: SIMD2<Float>(1, 0), color: color.simd),
                 ]
                 
                 let indicies: [UInt16] = [
@@ -113,7 +105,7 @@ class TextRendererDelegate: BasePrimitiveRendererDelegate {
                 ]
                 
                 primitive.vertexBuffers.append(device.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<TextVertexDescriptor>.stride, options: [])!)
-                primitive.indexBuffers.append(device.makeBuffer(bytes: indicies, length: indicies.count * MemoryLayout<UInt16>.size, options: [])!)
+                primitive.indexBuffers.append(device.makeBuffer(bytes: indicies, length: indicies.count * MemoryLayout<UInt16>.stride, options: [])!)
                 
                 print("redraw text \(text.text)")
             }

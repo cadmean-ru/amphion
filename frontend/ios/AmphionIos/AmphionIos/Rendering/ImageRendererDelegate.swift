@@ -21,14 +21,6 @@ class ImageRendererDelegate: BasePrimitiveRendererDelegate {
         let imageFragmentFunction = library.makeFunction(name: "image_fragment")!
         
         let imagePipelineDescriptor = makeDefaultRenderPipelineDescriptor(imageVertexFunction, imageFragmentFunction)
-        imagePipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-        imagePipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
-//        imagePipelineDescriptor.colorAttachments[0].alphaBlendOperation = .add
-//        imagePipelineDescriptor.colorAttachments[0].rgbBlendOperation = .add
-//        imagePipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .blendAlpha
-//        imagePipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .blendAlpha
-//        imagePipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
-//        imagePipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
         
         let imageVertexDescriptor = MTLVertexDescriptor()
         imageVertexDescriptor.attributes[0].format = .float3

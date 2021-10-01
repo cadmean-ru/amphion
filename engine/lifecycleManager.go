@@ -163,6 +163,31 @@ func (m *sceneLifecycleManager) onLayoutSceneObject(o *SceneObject) {
 	instance.currentComponent = nil
 }
 
+func (m *sceneLifecycleManager) loopLateUpdate(obj *SceneObject, ctx UpdateContext) {
+	if !obj.enabled {
+		return
+	}
+
+	for _, c := range obj.children {
+		m.loopLateUpdate(c, ctx)
+	}
+
+	m.onLateUpdateSceneObject(obj, ctx)
+}
+
+func (m *sceneLifecycleManager) onLateUpdateSceneObject(o *SceneObject, ctx UpdateContext) {
+	for _, c := range o.updatingComponents {
+		if c.IsDirty() || !c.started {
+			continue
+		}
+
+		instance.currentComponent = c.component
+		c.component.(UpdatingComponent).OnLateUpdate(ctx)
+	}
+
+	instance.currentComponent = nil
+}
+
 func (m *sceneLifecycleManager) loopRender(obj *SceneObject) {
 	obj.TraversePreOrder(func(object *SceneObject) bool {
 		m.onDrawSceneObject(object, newDrawingContext(object))

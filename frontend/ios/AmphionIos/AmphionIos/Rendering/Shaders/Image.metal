@@ -8,7 +8,7 @@
 #include "Common.metal"
 
 struct ImageIn {
-    float4 position [[attribute(0)]];
+    float3 position [[attribute(0)]];
     float2 texCoord [[attribute(1)]];
 };
 
@@ -19,7 +19,7 @@ struct ImageOut {
 
 vertex ImageOut image_vertex(const ImageIn imageIn [[stage_in]], constant Uniform& uniform [[buffer(1)]]) {
     ImageOut imageOut;
-    imageOut.position = uniform.projection * imageIn.position;
+    imageOut.position = uniform.projection * float4(imageIn.position, 1);
     imageOut.texCoord = imageIn.texCoord;
     
     return imageOut;

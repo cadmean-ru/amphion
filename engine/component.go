@@ -24,6 +24,7 @@ type Component interface {
 type UpdatingComponent interface {
 	Component
 	OnUpdate(ctx UpdateContext)
+	OnLateUpdate(ctx UpdateContext)
 }
 
 // ViewComponent is an interface for views.

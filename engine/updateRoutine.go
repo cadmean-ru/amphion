@@ -200,6 +200,7 @@ func (r *updateRoutine) performUpdateIfNeeded() {
 
 	r.loopUpdate(instance.currentScene, ctx)
 	r.loopLayout(instance.currentScene)
+	r.loopLateUpdate(instance.currentScene, ctx)
 }
 
 func (r *updateRoutine) performRenderingIdNeeded() {

@@ -3,7 +3,7 @@ package builtin
 import "github.com/cadmean-ru/amphion/engine"
 
 type UpdateFunc struct {
-	engine.ComponentImpl
+	engine.UpdatingComponentImpl
 	action func(ctx engine.UpdateContext)
 }
 

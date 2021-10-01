@@ -30,14 +30,22 @@ func (v *ViewImpl) OnStart() {
 	v.Redraw()
 }
 
-func (v *ViewImpl) OnStop() {
-	v.Context.GetRenderingNode().RemovePrimitive(v.PrimitiveId)
-	v.ShouldRedraw = true
-	v.PrimitiveId = -1
+func (v *ViewImpl) OnUpdate(_ UpdateContext) {
+
+}
+
+func (v *ViewImpl) OnLateUpdate(_ UpdateContext) {
+
 }
 
 func (v *ViewImpl) OnDraw(_ DrawingContext) {
 
+}
+
+func (v *ViewImpl) OnStop() {
+	v.Context.GetRenderingNode().RemovePrimitive(v.PrimitiveId)
+	v.ShouldRedraw = true
+	v.PrimitiveId = -1
 }
 
 func (v *ViewImpl) Redraw() {

@@ -34,6 +34,10 @@ func (s *Scroll) OnUpdate(_ engine.UpdateContext) {
 	s.SceneObject.GetRenderingNode().SetClipArea2D(rendering.NewClipArea2D(shape.Rectangle, s.SceneObject.Transform.GlobalRect()))
 }
 
+func (s *Scroll) OnLateUpdate(_ engine.UpdateContext) {
+
+}
+
 func (s *Scroll) OnStop() {
 	engine.UnbindEventHandler(engine.EventMouseScroll, s.handleScroll)
 	s.SceneObject.GetRenderingNode().RemoveClipArea2D()

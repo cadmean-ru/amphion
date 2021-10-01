@@ -8,7 +8,7 @@
 #include "Common.metal"
 
 struct RectIn {
-    float4 position [[attribute(0)]];
+    float3 position [[attribute(0)]];
     float4 color [[attribute(1)]];
 };
 
@@ -19,8 +19,7 @@ struct RectOut {
 
 vertex RectOut rect_vertex(const RectIn rectIn [[stage_in]], constant Uniform& uniform [[buffer(1)]]) {
     RectOut rectOut;
-    rectOut.position = uniform.projection * rectIn.position;
-//    rectOut.color = float4(0, 1, 0, 1);
+    rectOut.position = uniform.projection * float4(rectIn.position, 1);
     rectOut.color = rectIn.color / 255;
     
     return rectOut;
