@@ -106,7 +106,7 @@ func (s *Scroll) handleScroll(event engine.AmphionEvent) bool {
 	dScrollX := scrollAmount.X
 
 	var realArea = s.measureChildren()
-	var sceneRect = s.SceneObject.Transform.Rect()
+	var viewPort = s.SceneObject.Transform.GlobalRect()
 
 	//engine.LogDebug("%+v", realArea)
 
