@@ -17,21 +17,42 @@ enum PrimitiveKind {
     case Unset
 }
 
-struct MetalPrimitive {
+class MetalPrimitive {
     var data: Any?
-    var redraw: Bool
-    var z: Float
     var kind: PrimitiveKind
-    var vertexBuffer: MTLBuffer?
-    var indexBuffer: MTLBuffer?
+    var vertexBuffers: [MTLBuffer] = []
+    var indexBuffers: [MTLBuffer] = []
     var textures: [MTLTexture]?
     var sampler: MTLSamplerState?
-    var uniformBuffer: MTLBuffer?
     
     init() {
         data = nil
-        redraw = false
-        z = 0
         kind = .Unset
+    }
+    
+    var vertexBuffer: MTLBuffer? {
+        get {
+            vertexBuffers.first
+        }
+        set {
+            if vertexBuffers.isEmpty {
+                vertexBuffers.append(newValue!)
+            } else {
+                vertexBuffers[0] = newValue!
+            }
+        }
+    }
+    
+    var indexBuffer: MTLBuffer? {
+        get {
+            indexBuffers.first
+        }
+        set {
+            if indexBuffers.isEmpty {
+                indexBuffers.append(newValue!)
+            } else {
+                indexBuffers[0] = newValue!
+            }
+        }
     }
 }

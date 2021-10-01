@@ -206,10 +206,16 @@ func (t *Transform) ToRenderingTransform() rendering.Transform {
 	return rt
 }
 
-//Equals checks if the properties of this Transform are the same as the ones of the given Transform.
+//WantedEquals checks if the properties of this Transform are the same as the ones of the given Transform.
 //The wanted position, wanted size, pivot and rotation are compared.
-func (t *Transform) Equals(other Transform) bool {
+func (t *Transform) WantedEquals(other Transform) bool {
 	return t.position.Equals(other.position) && t.size.Equals(other.size) && t.pivot.Equals(other.pivot) && t.rotation.Equals(other.rotation)
+}
+
+//ActualEquals checks if the properties of this Transform are the same as the ones of the given Transform.
+//The actual position, wanted size, pivot and rotation are compared.
+func (t *Transform) ActualEquals(other Transform) bool {
+	return t.actualPosition.Equals(other.actualPosition) && t.actualSize.Equals(other.actualSize) && t.pivot.Equals(other.pivot) && t.rotation.Equals(other.rotation)
 }
 
 // Calculates the rect boundary of the transform given the top left point's position.

@@ -21,6 +21,14 @@ class ImageRendererDelegate: BasePrimitiveRendererDelegate {
         let imageFragmentFunction = library.makeFunction(name: "image_fragment")!
         
         let imagePipelineDescriptor = makeDefaultRenderPipelineDescriptor(imageVertexFunction, imageFragmentFunction)
+        imagePipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+        imagePipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
+//        imagePipelineDescriptor.colorAttachments[0].alphaBlendOperation = .add
+//        imagePipelineDescriptor.colorAttachments[0].rgbBlendOperation = .add
+//        imagePipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .blendAlpha
+//        imagePipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .blendAlpha
+//        imagePipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+//        imagePipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
         
         let imageVertexDescriptor = MTLVertexDescriptor()
         imageVertexDescriptor.attributes[0].format = .float3
@@ -59,15 +67,11 @@ class ImageRendererDelegate: BasePrimitiveRendererDelegate {
                     textureDescriptor.width = bitmap.getWidth()
                     textureDescriptor.height = bitmap.getHeight()
 
-                    let texture = device.makeTexture(descriptor: textureDescriptor)!
-                    let texturePointer = textureData.withUnsafeBytes { (unsafePointer: UnsafeRawBufferPointer) -> UnsafeRawPointer in
-                        return unsafePointer.baseAddress!
-                    }
-
-                    let region = MTLRegion(origin: MTLOrigin(x: 0, y: 0, z: 0), size: MTLSize(width: bitmap.getWidth(), height: bitmap.getHeight(), depth: 1))
-                    texture.replace(region: region, mipmapLevel: 0, withBytes: texturePointer, bytesPerRow: bitmap.getWidth() * 4)
+                    let texture = device.makeTexture(descriptor: textureDescriptor, pixels: textureData, width: bitmap.getWidth(), height: bitmap.getHeight(), bytesPerPixel: 4)
                     
                     primitive.textures!.append(texture)
+                    
+                    bitmap.dispose()
                 }
                 
 //                print("Generated textures \(primitive.textures!.count)")

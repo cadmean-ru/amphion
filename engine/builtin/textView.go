@@ -34,7 +34,7 @@ func (t *TextView) OnInit(ctx engine.InitContext) {
 }
 
 func (t *TextView) OnUpdate(_ engine.UpdateContext) {
-	if !t.ShouldDraw() && t.prevTransform.Equals(t.SceneObject.Transform) {
+	if !t.ShouldDraw() && t.prevTransform.ActualEquals(t.SceneObject.Transform) {
 		return
 	}
 
@@ -73,6 +73,7 @@ func (t *TextView) layoutText() {
 	if wantedSize.Y == a.WrapContent {
 		bounds.Y.Max = atext.Unbounded
 	}
+	engine.LogDebug("Text bounds: %+v", bounds)
 	t.aText = atext.LayoutRunes(t.aFace, []rune(t.Text), bounds, atext.LayoutOptions{
 		VTextAlign: t.VTextAlign,
 		HTextAlign: t.HTextAlign,

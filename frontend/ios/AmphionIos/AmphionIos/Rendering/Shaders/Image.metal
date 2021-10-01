@@ -17,12 +17,12 @@ struct ImageOut {
     float2 texCoord;
 };
 
-vertex ImageOut image_vertex(const ImageIn ImageIn [[stage_in]], constant Uniform& uniform [[buffer(1)]]) {
-    ImageOut ImageOut;
-    ImageOut.position = uniform.projection * ImageIn.position;
-    ImageOut.texCoord = ImageIn.texCoord;
+vertex ImageOut image_vertex(const ImageIn imageIn [[stage_in]], constant Uniform& uniform [[buffer(1)]]) {
+    ImageOut imageOut;
+    imageOut.position = uniform.projection * imageIn.position;
+    imageOut.texCoord = imageIn.texCoord;
     
-    return ImageOut;
+    return imageOut;
 }
 
 fragment float4 image_fragment(ImageOut imageIn [[stage_in]], texture2d<uint> texture [[texture(0)]], sampler mySampler [[sampler(0)]]) {

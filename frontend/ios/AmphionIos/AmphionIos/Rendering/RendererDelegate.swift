@@ -48,7 +48,7 @@ class RendererDelegate : NSObject, CliRendererDelegateProtocol {
         
         IosCliRegisterPrimitiveRendererDelegate(CliPrimitiveRectangle, RectRendererDelegate(library, device))
         IosCliRegisterPrimitiveRendererDelegate(CliPrimitiveImage, ImageRendererDelegate(library, device))
-//        IosCliRegisterPrimitiveRendererDelegate(CliPrimitiveText, TextRendererDelegate(library, device))
+        IosCliRegisterPrimitiveRendererDelegate(CliPrimitiveText, TextRendererDelegate(library, device))
     }
     
     func onPerformRenderingStart() {
