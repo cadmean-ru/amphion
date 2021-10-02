@@ -83,3 +83,11 @@ func NewRectBoundary2D(minX, maxX, minY, maxY, z float32) *RectBoundary {
 func NewRectBoundaryFromPositionAndSize(position a.Vector3, size a.Vector3) *RectBoundary {
 	return NewRectBoundary(position.X, position.X + size.X, position.Y, position.Y + size.Y, position.Z, position.Z + size.Z)
 }
+
+func NewRectBoundaryFromMinMaxPositions(min a.Vector3, max a.Vector3) *RectBoundary {
+	return NewRectBoundary(min.X, max.X, min.Y, max.Y, min.Z, max.Z)
+}
+
+func NewZeroBoundary() *RectBoundary {
+	return NewRectBoundary(0, 0, 0, 0, 0, 0)
+}

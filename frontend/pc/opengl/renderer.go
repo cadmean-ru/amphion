@@ -2,7 +2,7 @@
 // +build !android
 // +build !ios
 
-package pc
+package opengl
 
 import (
 	"fmt"
@@ -12,20 +12,20 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
-// OpenGLRenderer implements the RendererDelegate interface for pc
-type OpenGLRenderer struct {
-	window     *glfw.Window
-	wSize      a.IntVector3
+//Renderer implements the RendererDelegate interface for pc
+type Renderer struct {
+	Window     *glfw.Window
+	WSize      a.IntVector3
+	ARenderer  *rendering.ARenderer
 	projection a.Matrix4
-	front      *Frontend
 	renderers  []*glPrimitiveRenderer
 	clipArea   *rendering.ClipArea2D
 }
 
-func (r *OpenGLRenderer) OnPrepare() {
+func (r *Renderer) OnPrepare() {
 	var err error
 
-	r.window.MakeContextCurrent()
+	r.Window.MakeContextCurrent()
 
 	if err = gl.Init(); err != nil {
 		panic(err)
@@ -35,7 +35,7 @@ func (r *OpenGLRenderer) OnPrepare() {
 	fmt.Println(gl.GoStr(gl.GetString(gl.VENDOR)))
 	fmt.Println(gl.GoStr(gl.GetString(gl.RENDERER)))
 
-	//gl.Viewport(0, 0, int32(r.wSize.X), int32(r.wSize.Y))
+	//gl.Viewport(0, 0, int32(r.WSize.X), int32(r.WSize.Y))
 
 	gl.Enable(gl.BLEND)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
@@ -57,13 +57,15 @@ func (r *OpenGLRenderer) OnPrepare() {
 	triangleRenderer := &TriangleRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
 	lineRenderer := &LineRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
 	imageRenderer := &ImageRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
+	polygonRenderer := &PolygonRenderer{glPrimitiveRenderer: &glPrimitiveRenderer{}}
 
-	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveText, textRenderer)
-	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveRectangle, rectangleRenderer)
-	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveEllipse, ellipseRenderer)
-	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveTriangle, triangleRenderer)
-	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveLine, lineRenderer)
-	r.front.renderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveImage, imageRenderer)
+	r.ARenderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveText, textRenderer)
+	r.ARenderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveRectangle, rectangleRenderer)
+	r.ARenderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveEllipse, ellipseRenderer)
+	r.ARenderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveTriangle, triangleRenderer)
+	r.ARenderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveLine, lineRenderer)
+	r.ARenderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveImage, imageRenderer)
+	r.ARenderer.RegisterPrimitiveRendererDelegate(rendering.PrimitivePolygon, polygonRenderer)
 
 	r.renderers = []*glPrimitiveRenderer{
 		textRenderer.glPrimitiveRenderer,
@@ -77,45 +79,45 @@ func (r *OpenGLRenderer) OnPrepare() {
 	r.clipArea = rendering.NewClipArea2DEmpty()
 }
 
-func (r *OpenGLRenderer) OnCreatePrimitiveRenderingContext(ctx *rendering.PrimitiveRenderingContext) {
+func (r *Renderer) OnCreatePrimitiveRenderingContext(ctx *rendering.PrimitiveRenderingContext) {
 	ctx.Projection = r.projection
 }
 
-func (r *OpenGLRenderer) OnPerformRenderingStart() {
+func (r *Renderer) OnPerformRenderingStart() {
 	//fmt.Println("Start Rendering")
 	//fmt.Println(engine.GetInstance().GetCurrentScene().Transform.size)
-	//fmt.Println(r.wSize)
+	//fmt.Println(r.WSize)
 
-	//gl.Viewport(0, 0, int32(r.wSize.X), int32(r.wSize.Y))
+	//gl.Viewport(0, 0, int32(r.WSize.X), int32(r.WSize.Y))
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 }
 
-func (r *OpenGLRenderer) OnPerformRenderingEnd() {
-	r.window.SwapBuffers()
+func (r *Renderer) OnPerformRenderingEnd() {
+	r.Window.SwapBuffers()
 
 	//fmt.Println("End rendering")
 }
 
-func (r *OpenGLRenderer) OnClear() {
+func (r *Renderer) OnClear() {
 	fmt.Println("OpenGL renderer clear")
 
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 }
 
-func (r *OpenGLRenderer) OnStop() {
+func (r *Renderer) OnStop() {
 	fmt.Println("OpenGL renderer stop")
 }
 
-func (r *OpenGLRenderer) handleWindowResize(w, h int) {
-	//r.wSize = a.NewIntVector3(w, h, 0)
+func (r *Renderer) HandleWindowResize(w, h int) {
+	//r.WSize = a.NewIntVector3(w, h, 0)
 	//fmt.Printf("OpenGL renderer: handle resize: %d, %d\n", w, h)
 	gl.Viewport(0, 0, int32(w), int32(h))
 	r.calculateProjection()
 }
 
-func (r *OpenGLRenderer) calculateProjection() {
-	xs := float32(r.wSize.X)
-	ys := float32(r.wSize.Y)
+func (r *Renderer) calculateProjection() {
+	xs := float32(r.WSize.X)
+	ys := float32(r.WSize.Y)
 	zs := float32(2)
 	c1 := 2 / xs
 	c2 := -2 / ys
@@ -130,6 +132,6 @@ func (r *OpenGLRenderer) calculateProjection() {
 
 	//fmt.Println(r.projection)
 	//
-	//fmt.Println(r.projection.MulVector(a.NewVector4(float32(r.wSize.X), float32(r.wSize.X), 0, 1)))
+	//fmt.Println(r.projection.MulVector(a.NewVector4(float32(r.WSize.X), float32(r.WSize.X), 0, 1)))
 	//fmt.Println(r.projection.MulVector(a.NewVector4(250, 250, 0, 1)))
 }

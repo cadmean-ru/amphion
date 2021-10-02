@@ -2,7 +2,7 @@
 // +build !android
 // +build !ios
 
-package pc
+package opengl
 
 import (
 	"github.com/go-gl/gl/v3.3-core/gl"

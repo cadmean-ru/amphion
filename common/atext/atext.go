@@ -9,6 +9,7 @@ import (
 
 // Text contains the layered out text. Read only.
 type Text struct {
+	face        *Face
 	lines       []*Line
 	width       int
 	height      int
@@ -22,7 +23,7 @@ func (t *Text) append(line *Line) {
 		t.width = line.width
 	}
 
-	t.height += line.face.GetLineHeight()
+	t.height += t.face.GetLineHeight()
 }
 
 // ForEachChar iterates over each character in this text.
@@ -86,6 +87,12 @@ func (t *Text) GetLinesCount() int {
 
 func (t *Text) GetLineAt(index int) *Line {
 	return t.lines[index]
+}
+
+func (t *Text) GetLines() []*Line {
+	linesCopy := make([]*Line, len(t.lines))
+	copy(linesCopy, t.lines)
+	return linesCopy
 }
 
 // GetSize returns the calculated text size.

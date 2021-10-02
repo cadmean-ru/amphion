@@ -1,4 +1,4 @@
-package pc
+package opengl
 
 import (
 	"fmt"

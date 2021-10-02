@@ -31,3 +31,7 @@ const (
 	KeyEscape       KeyName = "Escape"
 	KeyFn           KeyName = "Fn"
 )
+
+type KeyEventData struct {
+	KeyName KeyName
+}

@@ -2,7 +2,7 @@
 // +build !android
 // +build !ios
 
-package pc
+package opengl
 
 import (
 	"github.com/cadmean-ru/amphion/rendering"

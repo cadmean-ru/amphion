@@ -1,6 +1,9 @@
 package engine
 
-import "github.com/cadmean-ru/amphion/common/a"
+import (
+	"github.com/cadmean-ru/amphion/common/a"
+	"runtime"
+)
 
 type InputManager struct {
 	lastReportedMousePosition a.IntVector2
@@ -51,6 +54,25 @@ func (m *InputManager) IsKeyPressed(name KeyName) bool {
 		}
 	}
 	return false
+}
+
+func (m *InputManager) IsMainCombinationKeyPressed() bool {
+	if runtime.GOOS == "darwin" {
+		return m.IsSuperPressed()
+	}
+	return m.IsControlPressed()
+}
+
+func (m *InputManager) IsControlPressed() bool {
+	return m.IsKeyPressed(KeyLeftControl) || m.IsKeyPressed(KeyRightControl)
+}
+
+func (m *InputManager) IsShiftPressed() bool {
+	return m.IsKeyPressed(KeyLeftShift) || m.IsKeyPressed(KeyRightShift)
+}
+
+func (m *InputManager) IsSuperPressed() bool {
+	return m.IsKeyPressed(KeyLeftSuper) || m.IsKeyPressed(KeyRightSuper)
 }
 
 func newInputManager() *InputManager {

@@ -263,6 +263,19 @@ func (o *SceneObject) GetComponentsByName(n string, includeDirty ...bool) []Comp
 	return arr
 }
 
+//HasComponent checks if the SceneObject contains a component with the given name.
+func (o *SceneObject) HasComponent(n string, includeDirty ...bool) bool {
+	dirty := getDirty(includeDirty...)
+
+	for _, c := range o.components {
+		if o.componentMatcher(c, n, dirty) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (o *SceneObject) componentMatcher(container *ComponentContainer, name string, dirty bool) bool {
 	return (dirty || !container.IsDirty()) && ComponentNameMatches(NameOfComponent(container.GetComponent()), name)
 }

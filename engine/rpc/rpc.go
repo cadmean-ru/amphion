@@ -1,4 +1,4 @@
-// This package is a wrapper around github.com/cadmean-ru/goRPCKit library adapted for Amphion tasks system.
+// Package rpc is a wrapper around github.com/cadmean-ru/goRPCKit library adapted for Amphion tasks system.
 package rpc
 
 import (

@@ -2,7 +2,7 @@
 //+build !ios
 //+build !android
 
-package pc
+package opengl
 
 import (
 	"github.com/cadmean-ru/amphion/common/a"

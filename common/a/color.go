@@ -10,7 +10,7 @@ type Color struct {
 	R, G, B, A byte
 }
 
-// Creates new Color struct using the specified arguments.
+// NewColor creates new Color struct using the specified arguments.
 // This function can accept the following arguments:
 // - a color hex string,
 // - 1 byte value for grayscale color,
@@ -53,7 +53,7 @@ func NewColor(params ...interface{}) Color {
 	}
 }
 
-// Parses color hex string in format #rrggbbaa, #rrggbb, #rgba or #rgb to a Color struct.
+// ParseHexColor parses color hex string in format #rrggbbaa, #rrggbb, #rgba or #rgb to a Color struct.
 func ParseHexColor(hex string) Color {
 	c := Black()
 
@@ -78,7 +78,7 @@ func ParseHexColor(hex string) Color {
 	return c
 }
 
-// Returns a color hex string in format #rrggbbaa or #rrggbb.
+// GetHex returns a color hex string in format #rrggbbaa or #rrggbb.
 func (c *Color) GetHex() string {
 	if c.A == 255 {
 		return fmt.Sprintf("#%02x%02x%02x", c.R, c.G, c.B)
@@ -142,12 +142,21 @@ func (c *Color) EncodeToByteArray() []byte {
 	return arr
 }
 
-// Returns Vector4 with normalized color values.
+// Normalize returns Vector4 with normalized color values.
 func (c *Color) Normalize() Vector4 {
 	x := float32(c.R) / 255
 	y := float32(c.G) / 255
 	z := float32(c.B) / 255
 	w := float32(c.A) / 255
+	return NewVector4(x, y, z, w)
+}
+
+// ToFloat4 returns Vector4 with color values.
+func (c *Color) ToFloat4() Vector4 {
+	x := float32(c.R)
+	y := float32(c.G)
+	z := float32(c.B)
+	w := float32(c.A)
 	return NewVector4(x, y, z, w)
 }
 

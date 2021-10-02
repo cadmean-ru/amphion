@@ -6,7 +6,6 @@ layout (location = 4) in float vStrokeWeight;
 layout (location = 5) in vec4 vStrokeColor;
 layout (location = 6) in float vCornerRadius;
 
-
 out vec4 fPosition;
 flat out vec3 fTlPosition;
 flat out vec3 fBrPosition;

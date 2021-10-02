@@ -7,7 +7,8 @@ import (
 
 // Char is a representation of a character of text on the screen.
 type Char struct {
-	face  *Face
+	line  *Line
+	index int
 	rune  rune
 	glyph *Glyph
 	pos   a.IntVector2
@@ -44,7 +45,11 @@ func (c *Char) GetSize() a.IntVector2 {
 		return c.glyph.GetSize()
 	}
 
-	return a.NewIntVector2(c.face.GetSize() / 4, c.face.GetSize())
+	if c.rune == ' ' {
+		return a.NewIntVector2(c.line.text.face.GetSize() / 4, c.line.text.face.GetSize())
+	}
+
+	return a.NewIntVector2(0, c.line.text.face.GetSize())
 }
 
 //GetRect returns the rect of the char.
@@ -55,6 +60,16 @@ func (c *Char) GetRect() *common.RectBoundary {
 // IsVisible tells if the character has a visual representation.
 func (c *Char) IsVisible() bool {
 	return c.glyph != nil && c.rune != ' ' && c.rune != '\n'
+}
+
+//GetLine returns the line containing this char.
+func (c *Char) GetLine() *Line {
+	return c.line
+}
+
+//GetIndex returns the index of the char in the whole text.
+func (c *Char) GetIndex() int {
+	return c.index
 }
 
 func (c *Char) String() string {

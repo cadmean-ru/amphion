@@ -10,6 +10,7 @@ import (
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/frontend"
+	"github.com/cadmean-ru/amphion/frontend/pc/opengl"
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"gopkg.in/yaml.v2"
@@ -23,7 +24,7 @@ const SleepTimeS = 1.0 / 60.0
 type Frontend struct {
 	window           *glfw.Window
 	wSize            a.IntVector3
-	rendererDelegate *OpenGLRenderer
+	rendererDelegate *opengl.Renderer
 	renderer         *rendering.ARenderer
 	initialized      bool
 	context          frontend.Context
@@ -60,8 +61,9 @@ func (f *Frontend) Init() {
 
 	f.context.ScreenInfo = common.NewScreenInfo(f.wSize.X, f.wSize.Y)
 
-	f.rendererDelegate.window = f.window
-	f.rendererDelegate.wSize = f.wSize
+	f.rendererDelegate.Window = f.window
+	f.rendererDelegate.WSize = f.wSize
+	f.rendererDelegate.ARenderer = f.renderer
 
 	f.renderer.Prepare()
 
@@ -165,9 +167,9 @@ func (f *Frontend) mouseButtonCallback(w *glfw.Window, button glfw.MouseButton, 
 func (f *Frontend) frameBufferSizeCallback(_ *glfw.Window, _ int, _ int) {
 	w, h := f.window.GetSize()
 	f.wSize = a.NewIntVector3(w, h, 0)
-	f.rendererDelegate.wSize = f.wSize
+	f.rendererDelegate.WSize = f.wSize
 	f.context.ScreenInfo = common.NewScreenInfo(w, h)
-	f.rendererDelegate.handleWindowResize(w, h)
+	f.rendererDelegate.HandleWindowResize(w, h)
 	f.disp.SendMessage(dispatch.NewMessage(frontend.CallbackContextChange))
 }
 
@@ -267,9 +269,7 @@ func NewFrontend() *Frontend {
 		msgChan:  dispatch.NewMessageQueue(1000),
 		resMan:   newResourceManager(),
 	}
-	f.rendererDelegate = &OpenGLRenderer{
-		front:      f,
-	}
+	f.rendererDelegate = &opengl.Renderer{}
 	f.renderer = rendering.NewARenderer(f.rendererDelegate, f)
 	return f
 }

@@ -30,6 +30,8 @@ func DefaultAppearance() Appearance {
 	}
 }
 
+//TextAppearance
+//Deprecated
 type TextAppearance struct {
 	Font     string
 	FontSize byte

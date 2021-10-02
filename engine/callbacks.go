@@ -116,7 +116,7 @@ func handleKeyDown(callback *dispatch.Message) {
 		code = EventKeyUp
 		instance.inputManager.reportKeyReleased(KeyName(callback.StrData))
 	}
-	event := NewAmphionEvent(instance, code, callback.StrData)
+	event := NewAmphionEvent(instance, code, KeyEventData{KeyName: KeyName(callback.StrData)})
 	instance.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 

@@ -52,6 +52,10 @@ func (e AmphionEvent) MouseEventData() MouseEventData {
 	return e.Data.(MouseEventData)
 }
 
+func (e AmphionEvent) KeyEventData() KeyEventData {
+	return e.Data.(KeyEventData)
+}
+
 func NewAmphionEvent(from interface{}, code int, data interface{}) AmphionEvent {
 	return AmphionEvent{
 		Sender: from,
@@ -114,11 +118,6 @@ func newEventBinder() *EventBinder {
 	return &EventBinder{
 		handlers: make(map[int][]EventHandler),
 	}
-}
-
-//Deprecated
-type KeyEventData struct {
-	Key, Code string
 }
 
 // Represents file data returned as a result of the user selecting file or dragging it.

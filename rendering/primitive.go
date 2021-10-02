@@ -11,4 +11,5 @@ const (
 	PrimitiveImage
 	PrimitiveBezier
 	PrimitiveGlyph
+	PrimitivePolygon
 )

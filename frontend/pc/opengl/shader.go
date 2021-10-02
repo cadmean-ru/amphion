@@ -2,7 +2,7 @@
 // +build !android
 // +build !ios
 
-package pc
+package opengl
 
 import (
 	_ "embed"
@@ -46,3 +46,9 @@ var CommonVertexShaderStr string
 
 //go:embed shaders/CommonFragmentShader.glsl
 var CommonFragmentShaderStr string
+
+//go:embed shaders/PolygonVertex.glsl
+var PolygonVertexShaderStr string
+
+//go:embed shaders/PolygonFragment.glsl
+var PolygonFragmentShaderStr string

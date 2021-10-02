@@ -2,7 +2,7 @@
 // +build !android
 // +build !ios
 
-package pc
+package opengl
 
 import (
 	"github.com/cadmean-ru/amphion/common/a"
@@ -10,21 +10,20 @@ import (
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
-type EllipseRenderer struct {
+type TriangleRenderer struct {
 	*glPrimitiveRenderer
 }
 
-func (r *EllipseRenderer) OnStart() {
-	r.program = NewGlProgram(ShapeVertexShaderStr, EllipseFragShaderStr, "ellipse")
+func (r *TriangleRenderer) OnStart() {
+	r.program = NewGlProgram(ShapeVertexShaderStr, TriangleFragShaderStr, "triangle")
 	r.program.CompileAndLink()
 }
 
-func (r *EllipseRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
+func (r *TriangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 	r.glPrimitiveRenderer.OnRender(ctx)
 
 	gp := ctx.Primitive.(*rendering.GeometryPrimitive)
 	state := ctx.State.(*glPrimitiveState)
-
 	state.gen()
 
 	if ctx.Redraw {
@@ -32,6 +31,7 @@ func (r *EllipseRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 
 		ntlPos := gp.Transform.Position.ToFloat()
 		nbrPos := gp.Transform.Position.Add(gp.Transform.Size).ToFloat()
+		midX := ntlPos.X + ((nbrPos.X - ntlPos.X) / 2)
 
 		color := gp.Appearance.FillColor
 		r1 := float32(color.R)
@@ -48,19 +48,17 @@ func (r *EllipseRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		var stroke = a.NewIntVector3(int(gp.Appearance.StrokeWeight), int(gp.Appearance.StrokeWeight), int(gp.Appearance.StrokeWeight))
 		var nStroke = stroke.ToFloat().Add(a.OneVector())
 
-		vertices := []float32{
-			ntlPos.X, ntlPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2,
-			ntlPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2,
-			nbrPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2,
-			nbrPos.X, ntlPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2,
+		vertices := []float32 {
+			ntlPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, 0,
+			midX,     ntlPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, 0,
+			nbrPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, 0,
 		}
 
 		indices := []uint32 {
 			0, 1, 2,
-			0, 3, 2,
 		}
 
-		const stride int32 = 72
+		const stride int32 = 76
 
 		gl.BindBuffer(gl.ARRAY_BUFFER, state.vbo)
 		gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
@@ -86,11 +84,14 @@ func (r *EllipseRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		gl.VertexAttribPointer(5, 4, gl.FLOAT, false, stride, gl.PtrOffset(56))
 		gl.EnableVertexAttribArray(5)
 
+		gl.VertexAttribPointer(6, 1, gl.FLOAT, false, stride, gl.PtrOffset(72))
+		gl.EnableVertexAttribArray(6)
+
 		gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 		gl.BindVertexArray(0)
 	}
 
 	gl.BindVertexArray(state.vao)
 
-	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
+	gl.DrawElements(gl.TRIANGLES, 3, gl.UNSIGNED_INT, nil)
 }
