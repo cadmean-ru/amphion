@@ -49,7 +49,7 @@ func createTestScene() *SceneObject {
 	test2.Bruh2 = 2
 	test2.Color = a.Green()
 	test2.Arr = []int {42, 69}
-	test2.Hand = func(_ AmphionEvent) bool {
+	test2.Hand = func(_ Event) bool {
 		fmt.Println("Handle breh")
 		return false
 	}

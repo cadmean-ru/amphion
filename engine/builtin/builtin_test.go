@@ -14,12 +14,12 @@ func TestFocusEvent(t *testing.T) {
 	atest.RunEngineTestWithScene(t, func(e *engine.AmphionEngine, testScene, testObject *engine.SceneObject) {
 		testObject.AddComponent(NewShapeView(ShapeRectangle))
 		testObject.AddComponent(NewRectBoundary())
-		testObject.AddComponent(NewEventListener(engine.EventFocusGain, func(event engine.AmphionEvent) bool {
+		testObject.AddComponent(NewEventListener(engine.EventFocusGain, func(event engine.Event) bool {
 			engine.LogInfo("Focus gained")
 			gained = true
 			return true
 		}))
-		testObject.AddComponent(NewEventListener(engine.EventFocusLoose, func(event engine.AmphionEvent) bool {
+		testObject.AddComponent(NewEventListener(engine.EventFocusLose, func(event engine.Event) bool {
 			engine.LogInfo("Focus lost")
 			lost = true
 			return true
@@ -41,7 +41,7 @@ func TestClickEvent(t *testing.T) {
 	var clicked bool
 	atest.RunEngineTestWithScene(t, func(e *engine.AmphionEngine, testScene, testObject *engine.SceneObject) {
 		testObject.AddComponent(NewRectBoundary())
-		testObject.AddComponent(NewEventListener(engine.EventMouseDown, func(event engine.AmphionEvent) bool {
+		testObject.AddComponent(NewEventListener(engine.EventMouseDown, func(event engine.Event) bool {
 			engine.LogInfo("Clicked")
 			clicked = true
 			atest.Stop()

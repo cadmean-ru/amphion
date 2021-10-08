@@ -6,4 +6,6 @@ const (
 	MessageNavigate
 	MessageTitle
 	MessageEngineStopped
+	MessageSetStandardCursor
+	MessageClipboardPaste
 )

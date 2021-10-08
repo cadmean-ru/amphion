@@ -4,7 +4,9 @@ import (
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/atext"
+	"github.com/cadmean-ru/amphion/common/dispatch"
 	"github.com/cadmean-ru/amphion/engine"
+	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
 	"math"
 	"time"
@@ -52,12 +54,15 @@ func (r *Selection) IndexInSelection(index int) bool {
 
 type TextInput struct {
 	engine.ViewImpl
+	CursorColor        a.Color `state:"cursorColor"`
+	SelectionColor     a.Color `state:"selectionColor"`
 	currentSelection   *Selection
 	currentText        []rune
 	aFont              *atext.Font
 	aFace              *atext.Face
 	aText              *atext.Text
 	selectionPrimitive int
+	cursorPrimitive    int
 	prevTransform      engine.Transform
 	selectionOffset    a.Vector3
 	mousePressed       bool
@@ -66,6 +71,9 @@ type TextInput struct {
 	padding            float32
 	backspacePressed   bool
 	backspaceTime      time.Time
+	currentCursorColor a.Color
+	blinkTime          time.Time
+	blinkFlag          bool
 }
 
 func (s *TextInput) OnInit(ctx engine.InitContext) {
@@ -81,6 +89,8 @@ func (s *TextInput) OnInit(ctx engine.InitContext) {
 	if !s.SceneObject.HasComponent("RectBoundary") {
 		s.SceneObject.AddComponent(NewRectBoundary())
 	}
+
+	s.currentCursorColor = s.CursorColor
 }
 
 func (s *TextInput) OnStart() {
@@ -92,6 +102,29 @@ func (s *TextInput) OnStart() {
 
 	s.PrimitiveId = s.SceneObject.GetRenderingNode().AddPrimitive()
 	s.selectionPrimitive = s.SceneObject.GetRenderingNode().AddPrimitive()
+	s.cursorPrimitive = s.SceneObject.GetRenderingNode().AddPrimitive()
+}
+
+func (s *TextInput) OnMessage(msg *dispatch.Message) bool {
+	if !engine.IsBuiltinEventMessage(msg) {
+		return true
+	}
+
+	event := engine.EventFromMessage(msg)
+	if event.Sender != s.SceneObject {
+		return true
+	}
+
+	switch event.Code {
+	case engine.EventMouseIn:
+		s.handleMouseIn(event)
+	case engine.EventMouseOut:
+		s.handleMouseOut(event)
+	case engine.EventFocusLose:
+		s.handleFocusLose(event)
+	}
+
+	return false
 }
 
 func (s *TextInput) OnUpdate(_ engine.UpdateContext) {
@@ -101,6 +134,9 @@ func (s *TextInput) OnUpdate(_ engine.UpdateContext) {
 
 	s.handleMouseDrag()
 	s.handleKeyHold()
+	s.handleCursorBlink()
+
+	engine.RequestUpdate()
 }
 
 func (s *TextInput) handleMouseDrag() {
@@ -139,10 +175,24 @@ func (s *TextInput) handleKeyHold() {
 			s.handleBackspace()
 			s.ShouldRedraw = true
 			engine.RequestRendering()
-		} else {
-			engine.RequestUpdate()
 		}
 	}
+}
+
+func (s *TextInput) handleCursorBlink() {
+	if time.Since(s.blinkTime) < 500 * time.Millisecond {
+		return
+	}
+
+	s.blinkTime = time.Now()
+	s.blinkFlag = !s.blinkFlag
+	if s.blinkFlag {
+		s.currentCursorColor = a.Transparent()
+	} else {
+		s.currentCursorColor = s.CursorColor
+	}
+	s.ShouldRedraw = true
+	engine.RequestRendering()
 }
 
 func (s *TextInput) OnLateUpdate(_ engine.UpdateContext) {
@@ -166,12 +216,12 @@ func (s *TextInput) OnDraw(ctx engine.DrawingContext) {
 
 	//globalRect := s.SceneObject.Transform.GlobalRect()
 
-	//gp := rendering.NewGeometryPrimitive(rendering.PrimitiveRectangle)
-	//gp.Transform.Position = s.selectionOffset.Round()
-	//gp.Transform.Size = a.NewIntVector3(2, s.aFace.GetSize(), 0)
-	//gp.Appearance.FillColor = a.NewColor(0, 0, 255, 100)
-	//gp.Appearance.StrokeWeight = 0
-	//ctx.GetRenderingNode().SetPrimitive(s.selectionPrimitive, gp)
+	gp := rendering.NewGeometryPrimitive(rendering.PrimitiveRectangle)
+	gp.Transform.Position = s.selectionOffset.Round()
+	gp.Transform.Size = a.NewIntVector3(2, s.aFace.GetSize(), 0)
+	gp.Appearance.FillColor = s.currentCursorColor
+	gp.Appearance.StrokeWeight = 0
+	ctx.GetRenderingNode().SetPrimitive(s.cursorPrimitive, gp)
 
 	pp := rendering.NewPolygonPrimitive()
 	pp.Transform = s.SceneObject.Transform.ToRenderingTransform()
@@ -190,6 +240,7 @@ func (s *TextInput) OnDraw(ctx engine.DrawingContext) {
 			0, 1, 2,
 			1, 3, 2,
 		)
+		pp.Appearance.FillColor = a.Transparent()
 	} else {
 		startChar := s.aText.GetCharAt(s.currentSelection.Start)
 		var rectsCount uint = 0
@@ -200,13 +251,15 @@ func (s *TextInput) OnDraw(ctx engine.DrawingContext) {
 			c := s.aText.GetCharAt(i)
 			if i == s.currentSelection.End-1 || c.GetLine().GetIndex() != line {
 				endChar := c
-				if c.GetLine().GetIndex() != line {
+				if c.GetLine().GetIndex() != line &&  i != s.currentSelection.End-1 {
 					endChar = prevChar
 				}
 
 				startPos := a.NewVector3(float32(startChar.GetPosition().X), float32(startChar.GetLine().GetPosition().Y), 0)
-				endPos := endChar.GetPosition().Add(a.NewIntVector2(endChar.GetSize().X, s.aFace.GetSize())).ToFloat3()
+				endPos := a.NewVector3(float32(endChar.GetPosition().X + endChar.GetSize().X), float32(endChar.GetLine().GetY() + s.aFace.GetSize()), 0)
 				boundary := common.NewRectBoundaryFromMinMaxPositions(startPos, endPos)
+
+				engine.LogDebug("%v %v", startPos, endPos)
 
 				pp.Vertices = append(pp.Vertices,
 					a.NewVector3(boundary.X.Min, boundary.Y.Min, z),
@@ -230,14 +283,15 @@ func (s *TextInput) OnDraw(ctx engine.DrawingContext) {
 				if i == s.currentSelection.End-1 {
 					break
 				} else {
-					startChar = s.aText.GetCharAt(i + 1)
+					startChar = c
 				}
 			}
 			prevChar = c
 		}
+
+		pp.Appearance.FillColor = s.SelectionColor
 	}
 
-	pp.Appearance.FillColor = a.NewColor(0, 0, 255, 100)
 	ctx.GetRenderingNode().SetPrimitive(s.selectionPrimitive, pp)
 
 	s.ShouldRedraw = false
@@ -252,9 +306,10 @@ func (s *TextInput) OnStop() {
 
 	s.SceneObject.GetRenderingNode().RemovePrimitive(s.PrimitiveId)
 	s.SceneObject.GetRenderingNode().RemovePrimitive(s.selectionPrimitive)
+	s.SceneObject.GetRenderingNode().RemovePrimitive(s.cursorPrimitive)
 }
 
-func (s *TextInput) handleKeyDown(event engine.AmphionEvent) bool {
+func (s *TextInput) handleKeyDown(event engine.Event) bool {
 	if !s.SceneObject.IsFocused() {
 		return true
 	}
@@ -267,7 +322,7 @@ func (s *TextInput) handleKeyDown(event engine.AmphionEvent) bool {
 		s.handleBackspace()
 	case engine.KeyDelete:
 		s.handleDelete()
-	case engine.KeyEnter:
+	case engine.KeyEnter, engine.KeyNumEnter:
 		s.handleRune([]rune("\n"))
 	case engine.KeyLeftArrow:
 		s.handleArrow(-1)
@@ -284,7 +339,7 @@ func (s *TextInput) handleKeyDown(event engine.AmphionEvent) bool {
 	return true
 }
 
-func (s *TextInput) handleKeyUp(event engine.AmphionEvent) bool {
+func (s *TextInput) handleKeyUp(event engine.Event) bool {
 	keyEvent := event.KeyEventData()
 	switch keyEvent.KeyName {
 	case engine.KeyBackspace:
@@ -322,7 +377,7 @@ func (s *TextInput) handleDelete() {
 	}
 }
 
-func (s *TextInput) handleTextInput(event engine.AmphionEvent) bool {
+func (s *TextInput) handleTextInput(event engine.Event) bool {
 	s.handleRune([]rune(event.StringData()))
 	s.ShouldRedraw = true
 	engine.RequestRendering()
@@ -378,7 +433,7 @@ func (s *TextInput) handleSelectAll() {
 	s.currentSelection.End = len(s.currentText)
 }
 
-func (s *TextInput) handleClick(event engine.AmphionEvent) bool {
+func (s *TextInput) handleClick(event engine.Event) bool {
 	mouseEvent := event.MouseEventData()
 	pos := mouseEvent.MousePosition.ToFloat3()
 	if mouseEvent.MouseButton != engine.MouseLeft || !s.SceneObject.Transform.GlobalRect().IsPointInside2D(pos) {
@@ -398,7 +453,7 @@ func (s *TextInput) handleClick(event engine.AmphionEvent) bool {
 	return true
 }
 
-func (s *TextInput) handleMouseUp(event engine.AmphionEvent) bool {
+func (s *TextInput) handleMouseUp(event engine.Event) bool {
 	mouseEvent := event.MouseEventData()
 	if mouseEvent.MouseButton != engine.MouseLeft {
 		return true
@@ -407,6 +462,32 @@ func (s *TextInput) handleMouseUp(event engine.AmphionEvent) bool {
 	s.mousePressed = false
 	s.shouldDrag = false
 
+	return true
+}
+
+func (s *TextInput) handleMouseIn(_ engine.Event) bool {
+	msg := dispatch.NewMessage(frontend.MessageSetStandardCursor)
+	msg.IntData = engine.StandardCursorIBeam
+
+	s.Engine.GetFrontend().GetMessageDispatcher().SendMessage(msg)
+
+	return true
+}
+
+func (s *TextInput) handleMouseOut(_ engine.Event) bool {
+	msg := dispatch.NewMessage(frontend.MessageSetStandardCursor)
+	msg.IntData = engine.StandardCursorArrow
+
+	s.Engine.GetFrontend().GetMessageDispatcher().SendMessage(msg)
+
+	return true
+}
+
+func (s *TextInput) handleFocusLose(_ engine.Event) bool {
+	s.currentCursorColor = s.CursorColor
+	s.blinkFlag = false
+	s.ShouldRedraw = true
+	engine.RequestRendering()
 	return true
 }
 
@@ -469,5 +550,8 @@ func (s *TextInput) calculatePadding() {
 }
 
 func NewTextInput() *TextInput {
-	return &TextInput{}
+	return &TextInput{
+		CursorColor: a.NewColor(0, 0, 255, 255),
+		SelectionColor: a.NewColor(0, 0, 255, 100),
+	}
 }

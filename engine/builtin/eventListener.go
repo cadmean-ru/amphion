@@ -18,7 +18,7 @@ func (l *EventListener) OnMessage(msg *dispatch.Message) bool {
 		return true
 	}
 
-	event := msg.AnyData.(engine.AmphionEvent)
+	event := msg.AnyData.(engine.Event)
 
 	if event.Code != l.EventCode || event.Sender != l.SceneObject {
 		return true

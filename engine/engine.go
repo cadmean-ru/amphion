@@ -291,7 +291,7 @@ func (engine *AmphionEngine) UnbindEventHandler(code int, handler EventHandler) 
 }
 
 // RaiseEvent raises a new event.
-func (engine *AmphionEngine) RaiseEvent(event AmphionEvent) {
+func (engine *AmphionEngine) RaiseEvent(event Event) {
 	engine.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 

@@ -71,13 +71,13 @@ func TestSetComponentState(t *testing.T) {
 
 	fmt.Printf("%+v\n", comp)
 
-	comp.Hand(AmphionEvent{})
+	comp.Hand(Event{})
 
 	assertions.Equal("abc", comp.Bruh)
 	assertions.Equal(6.9, comp.Bruh2)
 }
 
-func handleTest(_ AmphionEvent) bool {
+func handleTest(_ Event) bool {
 	fmt.Println("Handled")
 	return false
 }

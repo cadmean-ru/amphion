@@ -19,7 +19,7 @@ func (m *MouseMover) OnStart() {
 	engine.BindEventHandler(engine.EventTouchUp, m.handleMouseUp)
 }
 
-func (m *MouseMover) handleMouseDown(e engine.AmphionEvent) bool {
+func (m *MouseMover) handleMouseDown(e engine.Event) bool {
 	eventData := e.Data.(engine.MouseEventData)
 	if eventData.SceneObject != m.SceneObject {
 		return true
@@ -31,7 +31,7 @@ func (m *MouseMover) handleMouseDown(e engine.AmphionEvent) bool {
 	return true
 }
 
-func (m *MouseMover) handleMouseUp(_ engine.AmphionEvent) bool {
+func (m *MouseMover) handleMouseUp(_ engine.Event) bool {
 	m.dragging = false
 	return true
 }

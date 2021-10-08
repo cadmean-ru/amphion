@@ -63,7 +63,7 @@ func (engine *AmphionEngine) handleClickEvent(mouseEventData MouseEventData, cod
 				dispatch.NewMessageFromWithAnyData(
 					engine,
 					MessageBuiltinEvent,
-					NewAmphionEvent(engine.sceneContext.focusedObject, EventFocusLoose, nil),
+					NewAmphionEvent(engine.sceneContext.focusedObject, EventFocusLose, nil),
 				),
 			)
 		}
@@ -80,7 +80,7 @@ func (engine *AmphionEngine) handleClickEvent(mouseEventData MouseEventData, cod
 				dispatch.NewMessageFromWithAnyData(
 					engine,
 					MessageBuiltinEvent,
-					NewAmphionEvent(engine.sceneContext.focusedObject, EventFocusLoose, nil),
+					NewAmphionEvent(engine.sceneContext.focusedObject, EventFocusLose, nil),
 				),
 			)
 		}

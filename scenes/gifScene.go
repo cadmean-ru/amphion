@@ -30,7 +30,7 @@ func GifScene(_ *AmphionEngine) *SceneObject {
 	image.AddComponent(imageView)
 	scene.AddChild(image)
 
-	handlePlayClick := func(event AmphionEvent) bool {
+	handlePlayClick := func(event Event) bool {
 		imageView.StartAnimation()
 		return true
 	}
@@ -49,7 +49,7 @@ func GifScene(_ *AmphionEngine) *SceneObject {
 	playButton.AddChild(playButtonText)
 	buttonBar.AddChild(playButton)
 
-	handlePauseClick := func(event AmphionEvent) bool {
+	handlePauseClick := func(event Event) bool {
 		imageView.StopAnimation()
 		return true
 	}
@@ -68,7 +68,7 @@ func GifScene(_ *AmphionEngine) *SceneObject {
 	pauseButton.AddChild(pauseButtonText)
 	buttonBar.AddChild(pauseButton)
 
-	handleResumeClick := func(event AmphionEvent) bool {
+	handleResumeClick := func(event Event) bool {
 		imageView.ResumeAnimation()
 		return true
 	}
@@ -88,7 +88,7 @@ func GifScene(_ *AmphionEngine) *SceneObject {
 	resumeButton.AddChild(resumeButtonText)
 	buttonBar.AddChild(resumeButton)
 
-	handleChangeClick := func(event AmphionEvent) bool {
+	handleChangeClick := func(event Event) bool {
 		imageView.SetResId(Res_images_giphy)
 		return true
 	}
@@ -107,7 +107,7 @@ func GifScene(_ *AmphionEngine) *SceneObject {
 	changeButton.AddChild(changeButtonText)
 	buttonBar.AddChild(changeButton)
 
-	handleRemoveClick := func(event AmphionEvent) bool {
+	handleRemoveClick := func(event Event) bool {
 		scene.RemoveChild(image)
 		return true
 	}

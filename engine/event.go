@@ -5,59 +5,52 @@ import (
 )
 
 const (
-	//Deprecated
-	EventUpdate            = -1
-	//Deprecated
-	EventRender            = -2
-	//Deprecated
-	EventCloseScene        = -3
-
-	EventMouseDown         = -4
-	EventDoubleClick       = -5
-	EventNavigate          = -6
-	EventStop              = -7
-	EventKeyDown           = -8
-	EventMouseUp           = -9
-	EventAppHide           = -10
-	EventAppShow           = -11
-	EventPaste             = -12
-	EventCopy              = -13
-	EventMouseIn           = -14
-	EventMouseOut          = -15
-	EventDropFile          = -16
-	EventMouseMove         = -17
-	EventAppLoaded         = -18
-	EventFocusGain         = -19
-	EventFocusLoose        = -20
-	EventMouseScroll       = -21
-	EventTouchDown         = -22
-	EventTouchUp           = -23
-	EventTouchMove         = -24
-	EventKeyUp             = -25
-	EventTextInput         = -26
-	EventOrientationChange = -27
+	EventEmpty = -1 - iota
+	EventMouseDown
+	EventNavigate
+	EventStop
+	EventKeyDown
+	EventMouseUp
+	EventAppHide
+	EventAppShow
+	EventClipboardPaste
+	EventClipboardCopy
+	EventMouseIn
+	EventMouseOut
+	EventDropFile
+	EventMouseMove
+	EventAppLoaded
+	EventFocusGain
+	EventFocusLose
+	EventMouseScroll
+	EventTouchDown
+	EventTouchUp
+	EventTouchMove
+	EventKeyUp
+	EventTextInput
+	EventOrientationChange
 )
 
-type AmphionEvent struct {
+type Event struct {
 	Sender interface{}
 	Code   int
 	Data   interface{}
 }
 
-func (e AmphionEvent) StringData() string {
+func (e Event) StringData() string {
 	return e.Data.(string)
 }
 
-func (e AmphionEvent) MouseEventData() MouseEventData {
+func (e Event) MouseEventData() MouseEventData {
 	return e.Data.(MouseEventData)
 }
 
-func (e AmphionEvent) KeyEventData() KeyEventData {
+func (e Event) KeyEventData() KeyEventData {
 	return e.Data.(KeyEventData)
 }
 
-func NewAmphionEvent(from interface{}, code int, data interface{}) AmphionEvent {
-	return AmphionEvent{
+func NewAmphionEvent(from interface{}, code int, data interface{}) Event {
+	return Event{
 		Sender: from,
 		Code:   code,
 		Data:   data,
@@ -65,7 +58,7 @@ func NewAmphionEvent(from interface{}, code int, data interface{}) AmphionEvent 
 }
 
 // EventHandler handles event. Returns whether to continue event propagation or not.
-type EventHandler func(event AmphionEvent) bool
+type EventHandler func(event Event) bool
 
 type EventBinder struct {
 	handlers map[int][]EventHandler
@@ -106,7 +99,7 @@ func (b *EventBinder) GetHandlers(code int) []EventHandler {
 	return make([]EventHandler, 0)
 }
 
-func (b *EventBinder) InvokeHandlers(event AmphionEvent) {
+func (b *EventBinder) InvokeHandlers(event Event) {
 	for _, h := range b.GetHandlers(event.Code) {
 		if !h(event) {
 			break

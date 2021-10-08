@@ -47,7 +47,7 @@ func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	text.AddComponent(textComponent)
 	text.AddComponent(builtin.NewRectBoundary())
 	//text.AddComponent(builtin.NewBoundaryView())
-	//text.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+	//text.AddComponent(builtin.NewOnClickListener(func(event engine.Event) bool {
 	//	e.GetLogger().Info(nil, "close")
 	//	e.Stop()
 	//	return false
@@ -62,7 +62,7 @@ func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	//	textComponent1.Appearance.FillColor = common.Black()
 	//	text1.AddComponent(textComponent1)
 	//	text1.AddComponent(builtin.NewBoundaryView())
-	//	text1.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+	//	text1.AddComponent(builtin.NewOnClickListener(func(event engine.Event) bool {
 	//		e.GetLogger().Info(nil, fmt.Sprintf("BIG CLICK ON %s", text1.GetName()))
 	//		return false
 	//	}))
@@ -161,7 +161,7 @@ func Scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	textScene2Renderer.TextColor = a.Black()
 	textScene2.AddComponent(textScene2Renderer)
 	textScene2.AddComponent(builtin.NewRectBoundary())
-	//textScene2.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+	//textScene2.AddComponent(builtin.NewOnClickListener(func(event engine.Event) bool {
 	//	fmt.Println("Click")
 	//	textScene2Renderer.SetText(strconv.Itoa(counter))
 	//	textScene2Renderer.Redraw()
@@ -183,7 +183,7 @@ func Scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	dropdownView := builtin.NewDropdownView([]string {"opt1", "opt2", "opt3"})
 	dropdown.AddComponent(dropdownView)
 	dropdown.AddComponent(builtin.NewRectBoundary())
-	dropdown.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+	dropdown.AddComponent(builtin.NewOnClickListener(func(event engine.Event) bool {
 		dropdownView.HandleClick()
 		return true
 	}))
@@ -194,7 +194,7 @@ func Scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	dropdownView1 := builtin.NewDropdownView([]string {"bruh1", "bruh2", "bruh3"})
 	dropdown1.AddComponent(dropdownView1)
 	dropdown1.AddComponent(builtin.NewRectBoundary())
-	dropdown1.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+	dropdown1.AddComponent(builtin.NewOnClickListener(func(event engine.Event) bool {
 		dropdownView1.HandleClick()
 		return true
 	}))
@@ -254,7 +254,7 @@ func (c *TestController) GetName() string {
 //endregion
 
 func HandleCircleClick(e *engine.AmphionEngine) engine.EventHandler {
-	return func(event engine.AmphionEvent) bool {
+	return func(event engine.Event) bool {
 		var mousePos = event.Data.(a.IntVector3)
 		e.GetLogger().Info(nil, fmt.Sprintf("BIG CLICK ON CIRCLE. Mouse pos: %d %d", mousePos.X, mousePos.Y))
 		return false
@@ -300,7 +300,7 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	addBtnText.AddComponent(addBtnTextView)
 	addBtn.AddChild(addBtnText)
 	addBtn.AddComponent(builtin.NewRectBoundary())
-	addBtn.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+	addBtn.AddComponent(builtin.NewOnClickListener(func(event engine.Event) bool {
 		color := a.NewColor(byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), 255)
 		rect := MakeRect(fmt.Sprintf("Rect"), 0, 0, 100, float32(rand.Intn(300)), color)
 		rect.AddComponent(builtin.NewRectBoundary())
@@ -319,7 +319,7 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 
 		return false
 	}))
-	addBtn.AddComponent(builtin.NewEventListener(engine.EventMouseIn, func(event engine.AmphionEvent) bool {
+	addBtn.AddComponent(builtin.NewEventListener(engine.EventMouseIn, func(event engine.Event) bool {
 		engine.LogInfo("Mouse in")
 		shape := addBtn.GetComponentByName(".+ShapeView").(*builtin.ShapeView)
 		shape.FillColor = a.Pink()
@@ -327,7 +327,7 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 		engine.RequestRendering()
 		return false
 	}))
-	addBtn.AddComponent(builtin.NewEventListener(engine.EventMouseOut, func(event engine.AmphionEvent) bool {
+	addBtn.AddComponent(builtin.NewEventListener(engine.EventMouseOut, func(event engine.Event) bool {
 		engine.LogInfo("Mouse out")
 		shape := addBtn.GetComponentByName(".+ShapeView").(*builtin.ShapeView)
 		shape.FillColor = a.Green()
@@ -345,7 +345,7 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	//rmvButtonText.AddComponent(builtin.NewBoundaryView())
 	rmvButton.AddChild(rmvButtonText)
 	rmvButton.AddComponent(builtin.NewRectBoundary())
-	rmvButton.AddComponent(builtin.NewOnClickListener(func(event engine.AmphionEvent) bool {
+	rmvButton.AddComponent(builtin.NewOnClickListener(func(event engine.Event) bool {
 		children := scene.GetChildren()
 		last := children[len(children)-1]
 		scene.RemoveChild(last)
@@ -355,12 +355,12 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	scene.AddChild(addBtn)
 	scene.AddChild(rmvButton)
 
-	e.BindEventHandler(engine.EventKeyDown, func(event engine.AmphionEvent) bool {
+	e.BindEventHandler(engine.EventKeyDown, func(event engine.Event) bool {
 		engine.LogDebug(fmt.Sprintf("%+v\n", event.Data))
 		return false
 	})
 
-	e.BindEventHandler(engine.EventMouseDown, func(event engine.AmphionEvent) bool {
+	e.BindEventHandler(engine.EventMouseDown, func(event engine.Event) bool {
 		data := event.Data.(engine.MouseEventData)
 		if data.SceneObject == nil {
 			engine.LogDebug("Clicked on nothing")
@@ -372,7 +372,7 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	})
 
 	var offset a.Vector3
-	engine.BindEventHandler(engine.EventMouseScroll, func(event engine.AmphionEvent) bool {
+	engine.BindEventHandler(engine.EventMouseScroll, func(event engine.Event) bool {
 		o := event.Data.(a.Vector2)
 		dOffset := a.NewVector3(o.X, o.Y, 0)
 
@@ -473,7 +473,7 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 	return scene
 }
 
-func navigateOnClick(_ engine.AmphionEvent) bool {
+func navigateOnClick(_ engine.Event) bool {
 	engine.LogDebug("Big click")
 
 	err := engine.Navigate("second", nil)
@@ -483,7 +483,7 @@ func navigateOnClick(_ engine.AmphionEvent) bool {
 	return true
 }
 
-func navigateOnClick2(_ engine.AmphionEvent) bool {
+func navigateOnClick2(_ engine.Event) bool {
 	engine.LogDebug("Big click")
 
 	err := engine.Navigate("main", nil)

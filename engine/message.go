@@ -94,3 +94,11 @@ func newMessageDispatcherForScene(scene *SceneObject) *MessageDispatcher {
 		root: scene,
 	}
 }
+
+func IsBuiltinEventMessage(msg *dispatch.Message) bool {
+	return msg.What == MessageBuiltinEvent
+}
+
+func EventFromMessage(msg *dispatch.Message) Event {
+	return msg.AnyData.(Event)
+}

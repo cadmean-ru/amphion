@@ -9,6 +9,7 @@ import (
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/dispatch"
+	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/frontend/pc/opengl"
 	"github.com/cadmean-ru/amphion/rendering"
@@ -124,6 +125,8 @@ func (f *Frontend) processMessage(msg *dispatch.Message) time.Duration {
 		}
 	case frontend.MessageTitle:
 		f.window.SetTitle(msg.StrData)
+	case frontend.MessageSetStandardCursor:
+		f.setStandardCursor(msg.IntData)
 	}
 
 	processingTime := time.Since(processingStart)
@@ -193,6 +196,20 @@ func (f *Frontend) cursorPosCallback(_ *glfw.Window, x float64, y float64) {
 
 func (f *Frontend) scrollCallback(_ *glfw.Window, xoff float64, yoff float64) {
 	f.disp.SendMessage(dispatch.NewMessageWithStringData(frontend.CallbackMouseScroll, fmt.Sprintf("%f:%f", xoff, yoff)))
+}
+
+func (f *Frontend) setStandardCursor(cursorType int) {
+	cursorsMap := map[int]glfw.StandardCursor{
+		engine.StandardCursorArrow: glfw.ArrowCursor,
+		engine.StandardCursorIBeam: glfw.IBeamCursor,
+		engine.StandardCursorHand: glfw.HandCursor,
+		engine.StandardCursorCrosshair: glfw.CrosshairCursor,
+		engine.StandardCursorHResize: glfw.HResizeCursor,
+		engine.StandardCursorVResize: glfw.VResizeCursor,
+	}
+
+	cursor := glfw.CreateStandardCursor(cursorsMap[cursorType])
+	f.window.SetCursor(cursor)
 }
 
 func (f *Frontend) Stop() {

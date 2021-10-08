@@ -61,7 +61,7 @@ func (d *DropdownView) OnStart() {
 		itemTextView.FontSize = 14
 		item.AddComponent(itemTextView)
 		item.AddComponent(NewRectBoundary())
-		item.AddComponent(NewOnClickListener(func(event engine.AmphionEvent) bool {
+		item.AddComponent(NewOnClickListener(func(event engine.Event) bool {
 			newSelectedItem := itemText
 			d.selectedItem = newSelectedItem
 			d.textView.SetText(newSelectedItem)

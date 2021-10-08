@@ -45,7 +45,7 @@ func ScrollScene(_ *AmphionEngine) *SceneObject {
 	rect2.AddComponent(rect2View)
 	grid.AddChild(rect2)
 
-	BindEventHandler(EventKeyUp, func(event AmphionEvent) bool {
+	BindEventHandler(EventKeyUp, func(event Event) bool {
 		textView.SetText(textView.Text + event.StringData())
 		return true
 	})

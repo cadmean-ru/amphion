@@ -65,7 +65,7 @@ func UnbindEventHandler(eventCode int, handler EventHandler) {
 }
 
 //RaiseEvent raises a new event to be processed in the event goroutine.
-func RaiseEvent(event AmphionEvent) {
+func RaiseEvent(event Event) {
 	instance.RaiseEvent(event)
 }
 

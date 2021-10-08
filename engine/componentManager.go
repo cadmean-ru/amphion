@@ -321,6 +321,6 @@ func getFunctionName(i interface{}) string {
 	return runtime.FuncForPC(v.Pointer()).Name()
 }
 
-func eh(_ AmphionEvent) bool {
+func eh(_ Event) bool {
 	return true
 }

@@ -13,6 +13,7 @@ type Message struct {
 	Id      int
 	What    int
 	StrData string
+	IntData int
 	AnyData interface{}
 	Sender  interface{}
 }

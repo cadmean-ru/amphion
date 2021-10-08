@@ -47,7 +47,7 @@ func (l *PrefabController) OnInit(ctx engine.InitContext) {
 func (l *PrefabController) OnStart() {
 	engine.LogDebug("Start")
 	l1 := l.SceneObject.GetComponentByName("github.com/cadmean-ru/amphion/engine/builtin.OnClickListener").(*builtin.OnClickListener)
-	l1.OnClick = func(event engine.AmphionEvent) bool {
+	l1.OnClick = func(event engine.Event) bool {
 		engine.LogDebug("Breh")
 		return true
 	}

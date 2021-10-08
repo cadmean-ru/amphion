@@ -81,7 +81,7 @@ func (s *Scroll) IsSolid() bool {
 	return false
 }
 
-func (s *Scroll) handleScroll(event engine.AmphionEvent) bool {
+func (s *Scroll) handleScroll(event engine.Event) bool {
 	if !s.SceneObject.IsHovered() {
 		return true
 	}

@@ -70,7 +70,7 @@ func (r *updateRoutine) waitForStop() {
 	}
 }
 
-func (r *updateRoutine) enqueueEventAndRequestUpdate(event AmphionEvent) {
+func (r *updateRoutine) enqueueEventAndRequestUpdate(event Event) {
 	r.eventQueue.Enqueue(dispatch.NewMessageWithAnyData(0, event))
 	r.requestUpdate()
 }
@@ -171,7 +171,7 @@ func (r *updateRoutine) handleEvents() {
 
 	for !r.eventQueue.IsEmpty() {
 		msg := r.eventQueue.Dequeue()
-		event := msg.AnyData.(AmphionEvent)
+		event := msg.AnyData.(Event)
 
 		if event.Code == EventStop {
 			if instance.canStop() {
