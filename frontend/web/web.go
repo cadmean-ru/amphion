@@ -110,7 +110,7 @@ func (f *Frontend) Init() {
 		//
 		//kind := item.Get("kind").String()
 		//mime := item.Get("type").String()
-		//data := engine.NewClipboardData()
+		//data := engine.NewClipboardEntry()
 
 		fmt.Println("pasted")
 

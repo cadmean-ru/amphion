@@ -1,20 +1,16 @@
 package engine
 
-import "github.com/cadmean-ru/amphion/frontend"
+type FeatureCode int
+
+const (
+	FeatureUnknown = iota
+	FeatureClipboardManager
+)
 
 //FeaturesManager is responsible for keeping track of what frontend features are available and invoking them.
 //Frontend should register all features that it provides. Then those features become available and can be invoked.
 type FeaturesManager struct {
-	features map[FeatureCode]frontend.FeatureDelegate
-}
-
-//InvokeFeature invokes the feature with the specified FeatureCode if is available.
-//Passes the specified data to the feature delegate and returns the result.
-func (f *FeaturesManager) InvokeFeature(code FeatureCode, data interface{}) interface{} {
-	if feat, ok := f.features[code]; ok {
-		return feat.OnInvoke(data)
-	}
-	return nil
+	features map[FeatureCode]interface{}
 }
 
 //IsFeatureAvailable checks if feature with the specified FeatureCode is available (provided by the frontend).
@@ -24,10 +20,18 @@ func (f *FeaturesManager) IsFeatureAvailable(code FeatureCode) bool {
 }
 
 //RegisterFeatureDelegate should be called by the frontend.
-func (f *FeaturesManager) RegisterFeatureDelegate(code FeatureCode, delegate frontend.FeatureDelegate) {
+func (f *FeaturesManager) RegisterFeatureDelegate(code FeatureCode, delegate interface{}) {
 	f.features[code] = delegate
 }
 
+//GetFeature returns the feature with the given code.
+//Returns nil if feature is not available.
+func (f *FeaturesManager) GetFeature(code FeatureCode) interface{} {
+	return f.features[code]
+}
+
 func newFeaturesManager() *FeaturesManager {
-	return &FeaturesManager{features: map[FeatureCode]frontend.FeatureDelegate{}}
+	return &FeaturesManager{
+		features: map[FeatureCode]interface{}{},
+	}
 }

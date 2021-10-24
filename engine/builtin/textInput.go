@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+//region Selection
+
 type Selection struct {
 	Start, End int
 }
@@ -51,6 +53,8 @@ func (r *Selection) Length() int {
 func (r *Selection) IndexInSelection(index int) bool {
 	return index >= r.Start && index <= r.End
 }
+
+//endregion
 
 type TextInput struct {
 	engine.ViewImpl
@@ -127,6 +131,8 @@ func (s *TextInput) OnMessage(msg *dispatch.Message) bool {
 	return false
 }
 
+//region Update
+
 func (s *TextInput) OnUpdate(_ engine.UpdateContext) {
 	if !s.SceneObject.IsFocused() {
 		return
@@ -195,6 +201,8 @@ func (s *TextInput) handleCursorBlink() {
 	engine.RequestRendering()
 }
 
+//endregion
+
 func (s *TextInput) OnLateUpdate(_ engine.UpdateContext) {
 	if !s.SceneObject.IsFocused() || !s.ShouldDraw() && s.prevTransform.ActualEquals(s.SceneObject.Transform) {
 		return
@@ -259,7 +267,7 @@ func (s *TextInput) OnDraw(ctx engine.DrawingContext) {
 				endPos := a.NewVector3(float32(endChar.GetPosition().X + endChar.GetSize().X), float32(endChar.GetLine().GetY() + s.aFace.GetSize()), 0)
 				boundary := common.NewRectBoundaryFromMinMaxPositions(startPos, endPos)
 
-				engine.LogDebug("%v %v", startPos, endPos)
+				//engine.LogDebug("%v %v", startPos, endPos)
 
 				pp.Vertices = append(pp.Vertices,
 					a.NewVector3(boundary.X.Min, boundary.Y.Min, z),
@@ -330,6 +338,10 @@ func (s *TextInput) handleKeyDown(event engine.Event) bool {
 		s.handleArrow(1)
 	case "a":
 		s.handleSelectAll()
+	case "c":
+		s.handleCopy()
+	case "v":
+		s.handlePaste()
 	default:
 	}
 
@@ -350,7 +362,7 @@ func (s *TextInput) handleKeyUp(event engine.Event) bool {
 }
 
 func (s *TextInput) handleBackspace() {
-	if s.currentSelection.Start == 0 {
+	if s.currentSelection.Start == 0 && s.currentSelection.Length() == 0 {
 		return
 	}
 
@@ -366,7 +378,7 @@ func (s *TextInput) handleBackspace() {
 }
 
 func (s *TextInput) handleDelete() {
-	if s.currentSelection.End >= len(s.currentText) {
+	if s.currentSelection.End >= len(s.currentText) && s.currentSelection.Length() == 0 {
 		return
 	}
 
@@ -386,20 +398,13 @@ func (s *TextInput) handleTextInput(event engine.Event) bool {
 }
 
 func (s *TextInput) handleRune(appendingText []rune) {
-	if s.currentSelection.Length() > 0 {
-		s.replaceSelection(appendingText)
-	} else {
-		if s.currentSelection.Start == 0 {
-			s.currentText = append(appendingText, s.currentText...)
-		} else {
-			s.currentText = append(s.currentText[:s.currentSelection.Start], s.currentText[s.currentSelection.Start-1:]...)
-			s.currentText[s.currentSelection.Start] = appendingText[0]
-		}
-		s.currentSelection.Move(1)
-	}
+	s.replaceSelection(appendingText)
 }
 
 func (s *TextInput) replaceSelection(newText []rune) {
+	if s.currentSelection.Start + len(newText) > len(s.currentText) {
+		s.currentText = append(s.currentText, make([]rune, s.currentSelection.Start + len(newText) - len(s.currentText))...)
+	}
 	s.currentText = append(s.currentText[:s.currentSelection.Start+len(newText)], s.currentText[s.currentSelection.End:]...)
 	for i := s.currentSelection.Start; i < s.currentSelection.Start+len(newText); i++ {
 		s.currentText[i] = newText[i-s.currentSelection.Start]
@@ -491,6 +496,32 @@ func (s *TextInput) handleFocusLose(_ engine.Event) bool {
 	return true
 }
 
+func (s *TextInput) handleCopy() {
+	if !engine.GetInputManager().IsMainCombinationKeyPressed() || s.currentSelection.Length() == 0 {
+		return
+	}
+
+	text := s.GetSelectedText()
+
+	cm := engine.GetFeaturesManager().GetFeature(engine.FeatureClipboardManager).(*engine.ClipboardManager)
+	entry := engine.NewClipboardEntry(engine.ClipboardEntryString, []byte(text))
+	cm.Write(entry)
+}
+
+func (s *TextInput) handlePaste() {
+	if !engine.GetInputManager().IsMainCombinationKeyPressed() {
+		return
+	}
+
+	cm := engine.GetFeaturesManager().GetFeature(engine.FeatureClipboardManager).(*engine.ClipboardManager)
+	entry := cm.Read(engine.ClipboardEntryString)
+	if entry == nil {
+		return
+	}
+
+	s.handleRune([]rune(string(entry.Data())))
+}
+
 func (s *TextInput) globalPositionToSelectionIndex(pos a.Vector3) int {
 	for i, c := range s.aText.GetAllChars() {
 		charRect := common.NewRectBoundaryFromPositionAndSize(c.GetPosition().ToFloat3(), c.GetSize().ToFloat3())
@@ -547,6 +578,15 @@ func (s *TextInput) layoutText() {
 
 func (s *TextInput) calculatePadding() {
 	s.padding = float32(math.Ceil(float64(s.aFace.GetSize()) * 0.15))
+}
+
+func (s *TextInput) GetSelectedText() string {
+	if s.currentSelection.Length() == 0 {
+		return ""
+	}
+
+	selected := s.currentText[s.currentSelection.Start:s.currentSelection.End]
+	return string(selected)
 }
 
 func NewTextInput() *TextInput {

@@ -10,16 +10,20 @@ const (
 
 //Message holds an int message code and some data.
 type Message struct {
-	Id      int
-	What    int
-	StrData string
-	IntData int
-	AnyData interface{}
-	Sender  interface{}
+	Id        int
+	What      int
+	IntData   int
+	BytesData []byte
+	AnyData   interface{}
+	Sender    interface{}
+}
+
+func (m *Message) StringData() string {
+	return string(m.BytesData)
 }
 
 func (m *Message) String() string {
-	return fmt.Sprintf("What: %d, StrData: %s, AnyData: %v", m.What, m.StrData, m.AnyData)
+	return fmt.Sprintf("What: %d, StrData: %s, AnyData: %v", m.What, m.BytesData, m.AnyData)
 }
 
 func NewMessage(what int) *Message {
@@ -38,7 +42,7 @@ func NewMessageFrom(from interface{}, what int) *Message {
 func NewMessageWithStringData(what int, data string) *Message {
 	return &Message{
 		What:    what,
-		StrData: data,
+		BytesData: []byte(data),
 	}
 }
 

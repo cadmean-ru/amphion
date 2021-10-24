@@ -7,5 +7,4 @@ const (
 	MessageTitle
 	MessageEngineStopped
 	MessageSetStandardCursor
-	MessageClipboardPaste
 )

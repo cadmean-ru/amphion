@@ -42,8 +42,7 @@ type AmphionEngine struct {
 	inputManager       *InputManager
 	startingWg         *sync.WaitGroup
 	callbackHandler    dispatch.MessageDispatcher
-
-	*FeaturesManager
+	featuresManager    *FeaturesManager
 }
 
 const (
@@ -77,7 +76,7 @@ func Initialize(front frontend.Frontend) *AmphionEngine {
 		front:             front,
 		inputManager:      newInputManager(),
 		startingWg:        &sync.WaitGroup{},
-		FeaturesManager:   newFeaturesManager(),
+		featuresManager:   newFeaturesManager(),
 		callbackHandler:   newFrontendCallbackHandler(),
 	}
 	instance.startingWg.Add(2)
@@ -100,9 +99,10 @@ func GetInstance() *AmphionEngine {
 // Must be called, before any interaction with the engine.
 func (engine *AmphionEngine) Start() {
 	engine.startingWg.Wait()
+	engine.tasksRoutine.start()
+	engine.registerCommonFeatures()
 	engine.started = true
 	engine.state = StateStarted
-	engine.tasksRoutine.start()
 	engine.logger.Info(engine, "Amphion started")
 }
 
@@ -515,5 +515,9 @@ func (engine *AmphionEngine) SetWindowTitle(title string) {
 
 //GetFeaturesManager returns the current FeaturesManager.
 func (engine *AmphionEngine) GetFeaturesManager() *FeaturesManager {
-	return engine.FeaturesManager
+	return engine.featuresManager
+}
+
+func (engine *AmphionEngine) registerCommonFeatures() {
+	engine.featuresManager.RegisterFeatureDelegate(FeatureClipboardManager, newClipBoardManager())
 }

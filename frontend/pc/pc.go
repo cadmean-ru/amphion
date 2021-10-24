@@ -124,7 +124,7 @@ func (f *Frontend) processMessage(msg *dispatch.Message) time.Duration {
 			}
 		}
 	case frontend.MessageTitle:
-		f.window.SetTitle(msg.StrData)
+		f.window.SetTitle(msg.StringData())
 	case frontend.MessageSetStandardCursor:
 		f.setStandardCursor(msg.IntData)
 	}

@@ -20,7 +20,7 @@ func (c *frontendCallbackHandler) SendMessage(message *dispatch.Message) {
 }
 
 func handleMouseDown(callback *dispatch.Message) {
-	mouseData := parseMouseEventData(callback.StrData)
+	mouseData := parseMouseEventData(callback.StringData())
 	instance.inputManager.reportCursorPosition(mouseData.MousePosition)
 	var eventCode int
 	if callback.What == frontend.CallbackMouseDown {
@@ -32,7 +32,7 @@ func handleMouseDown(callback *dispatch.Message) {
 }
 
 func handleMouseUp(callback *dispatch.Message) {
-	mouseData := parseMouseEventData(callback.StrData)
+	mouseData := parseMouseEventData(callback.StringData())
 	instance.inputManager.reportCursorPosition(mouseData.MousePosition)
 	var eventCode int
 	if callback.What == frontend.CallbackMouseUp {
@@ -45,7 +45,7 @@ func handleMouseUp(callback *dispatch.Message) {
 }
 
 func handleMouseMove(callback *dispatch.Message) {
-	pos := parseCursorPositionData(callback.StrData)
+	pos := parseCursorPositionData(callback.StringData())
 	instance.inputManager.reportCursorPosition(pos)
 	var eventCode int
 	if callback.What == frontend.CallbackMouseMove {
@@ -111,17 +111,17 @@ func handleKeyDown(callback *dispatch.Message) {
 	var code int
 	if callback.What == frontend.CallbackKeyDown {
 		code = EventKeyDown
-		instance.inputManager.reportKeyPressed(KeyName(callback.StrData))
+		instance.inputManager.reportKeyPressed(KeyName(callback.StringData()))
 	} else {
 		code = EventKeyUp
-		instance.inputManager.reportKeyReleased(KeyName(callback.StrData))
+		instance.inputManager.reportKeyReleased(KeyName(callback.StringData()))
 	}
-	event := NewAmphionEvent(instance, code, KeyEventData{KeyName: KeyName(callback.StrData)})
+	event := NewAmphionEvent(instance, code, KeyEventData{KeyName: KeyName(callback.StringData())})
 	instance.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 
 func handleRuneInput(callback *dispatch.Message) {
-	event := NewAmphionEvent(instance, EventTextInput, callback.StrData)
+	event := NewAmphionEvent(instance, EventTextInput, callback.StringData())
 	instance.updateRoutine.enqueueEventAndRequestUpdate(event)
 }
 
@@ -138,7 +138,7 @@ func handleAppShow(_ *dispatch.Message) {
 
 func handleMouseScroll(callback *dispatch.Message) {
 	var x, y float32
-	n, err := fmt.Sscanf(callback.StrData, "%f:%f", &x, &y)
+	n, err := fmt.Sscanf(callback.StringData(), "%f:%f", &x, &y)
 	if n != 2 || err != nil {
 		panic("Invalid scroll callback data")
 	}
@@ -151,7 +151,7 @@ func handleFrontendReady(_ *dispatch.Message) {
 }
 
 func handleOrientationChange(callback *dispatch.Message) {
-	atoi, err := strconv.Atoi(callback.StrData)
+	atoi, err := strconv.Atoi(callback.StringData())
 	if err != nil {
 		panic("invalid callback")
 	}
