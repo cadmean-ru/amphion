@@ -11,6 +11,9 @@ func InputScene(_ *AmphionEngine) *SceneObject {
 	input := NewSceneObject("input")
 	input.Transform.SetSize(500, 300)
 	inputView := NewTextInput()
+	inputView.SetOnChangeListener(func(newValue string) {
+		LogDebug("Text change: %s", newValue)
+	})
 	input.AddComponent(inputView)
 	scene.AddChild(input)
 

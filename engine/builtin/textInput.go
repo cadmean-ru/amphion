@@ -16,7 +16,7 @@ import (
 
 type Selection struct {
 	Start, End int
-	Direction byte
+	Direction  byte
 }
 
 func (r *Selection) Move(by int) {
@@ -63,8 +63,10 @@ func (r *Selection) IndexInSelection(index int) bool {
 
 type TextInput struct {
 	engine.ViewImpl
-	CursorColor        a.Color `state:"cursorColor"`
-	SelectionColor     a.Color `state:"selectionColor"`
+	CursorColor        a.Color             `state:"cursorColor"`
+	SelectionColor     a.Color             `state:"selectionColor"`
+	InitialText        string              `state:"initialText"`
+	OnChangeListener   engine.EventHandler `state:"onChangeListener"`
 	currentSelection   *Selection
 	currentText        []rune
 	aFont              *atext.Font
@@ -100,6 +102,8 @@ func (s *TextInput) OnInit(ctx engine.InitContext) {
 	}
 
 	s.currentCursorColor = s.CursorColor
+
+	s.currentText = []rune(s.InitialText)
 }
 
 func (s *TextInput) OnStart() {
@@ -183,7 +187,7 @@ func (s *TextInput) handleMouseDrag() {
 
 func (s *TextInput) handleKeyHold() {
 	if s.backspacePressed {
-		if time.Since(s.backspaceTime) > time.Second {
+		if time.Since(s.backspaceTime) > time.Millisecond * 100 {
 			s.backspaceTime = time.Now()
 			s.handleBackspace()
 			s.ShouldRedraw = true
@@ -193,7 +197,7 @@ func (s *TextInput) handleKeyHold() {
 }
 
 func (s *TextInput) handleCursorBlink() {
-	if time.Since(s.blinkTime) < 500 * time.Millisecond {
+	if time.Since(s.blinkTime) < 500*time.Millisecond {
 		return
 	}
 
@@ -266,12 +270,12 @@ func (s *TextInput) OnDraw(ctx engine.DrawingContext) {
 			c := s.aText.GetCharAt(i)
 			if i == s.currentSelection.End-1 || c.GetLine().GetIndex() != line {
 				endChar := c
-				if c.GetLine().GetIndex() != line &&  i != s.currentSelection.End-1 {
+				if c.GetLine().GetIndex() != line && i != s.currentSelection.End-1 {
 					endChar = prevChar
 				}
 
 				startPos := a.NewVector3(float32(startChar.GetPosition().X), float32(startChar.GetLine().GetPosition().Y), 0)
-				endPos := a.NewVector3(float32(endChar.GetPosition().X + endChar.GetSize().X), float32(endChar.GetLine().GetY() + s.aFace.GetSize()), 0)
+				endPos := a.NewVector3(float32(endChar.GetPosition().X+endChar.GetSize().X), float32(endChar.GetLine().GetY()+s.aFace.GetSize()), 0)
 				boundary := common.NewRectBoundaryFromMinMaxPositions(startPos, endPos)
 
 				//engine.LogDebug("%v %v", startPos, endPos)
@@ -382,6 +386,8 @@ func (s *TextInput) handleBackspace() {
 
 	s.backspaceTime = time.Now()
 	s.backspacePressed = true
+
+	s.handleTextChange()
 }
 
 func (s *TextInput) handleDelete() {
@@ -394,6 +400,8 @@ func (s *TextInput) handleDelete() {
 	} else {
 		s.currentText = append(s.currentText[:s.currentSelection.End], s.currentText[s.currentSelection.End+1:]...)
 	}
+
+	s.handleTextChange()
 }
 
 func (s *TextInput) handleTextInput(event engine.Event) bool {
@@ -406,11 +414,12 @@ func (s *TextInput) handleTextInput(event engine.Event) bool {
 
 func (s *TextInput) handleRune(appendingText []rune) {
 	s.replaceSelection(appendingText)
+	s.handleTextChange()
 }
 
 func (s *TextInput) replaceSelection(newText []rune) {
-	if s.currentSelection.Start + len(newText) > len(s.currentText) {
-		s.currentText = append(s.currentText, make([]rune, s.currentSelection.Start + len(newText) - len(s.currentText))...)
+	if s.currentSelection.Start+len(newText) > len(s.currentText) {
+		s.currentText = append(s.currentText, make([]rune, s.currentSelection.Start+len(newText)-len(s.currentText))...)
 	}
 	s.currentText = append(s.currentText[:s.currentSelection.Start+len(newText)], s.currentText[s.currentSelection.End:]...)
 	for i := s.currentSelection.Start; i < s.currentSelection.Start+len(newText); i++ {
@@ -533,6 +542,16 @@ func (s *TextInput) handlePaste() {
 	s.handleRune([]rune(string(entry.Data())))
 }
 
+func (s *TextInput) handleTextChange() {
+	s.InitialText = string(s.currentText)
+
+	if s.OnChangeListener == nil {
+		return
+	}
+
+	s.OnChangeListener(engine.NewAmphionEvent(s, 0, s.InitialText))
+}
+
 func (s *TextInput) globalPositionToSelectionIndex(pos a.Vector3) int {
 	for i, c := range s.aText.GetAllChars() {
 		charRect := common.NewRectBoundaryFromPositionAndSize(c.GetPosition().ToFloat3(), c.GetSize().ToFloat3())
@@ -600,9 +619,27 @@ func (s *TextInput) GetSelectedText() string {
 	return string(selected)
 }
 
+func (s *TextInput) SetOnChangeListener(listener func(newValue string)) {
+	s.OnChangeListener = func(event engine.Event) bool {
+		listener(event.StringData())
+		return true
+	}
+}
+
+func (s *TextInput) GetText() string {
+	return string(s.currentText)
+}
+
+func (s *TextInput) SetText(newText string) {
+	s.currentText = []rune(newText)
+	s.handleTextChange()
+	s.ShouldRedraw = true
+	engine.RequestRendering()
+}
+
 func NewTextInput() *TextInput {
 	return &TextInput{
-		CursorColor: a.NewColor(0, 0, 255, 255),
+		CursorColor:    a.NewColor(0, 0, 255, 255),
 		SelectionColor: a.NewColor(0, 0, 255, 50),
 	}
 }
