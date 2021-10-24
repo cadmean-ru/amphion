@@ -16,16 +16,19 @@ import (
 
 type Selection struct {
 	Start, End int
+	Direction byte
 }
 
 func (r *Selection) Move(by int) {
 	r.Start += by
 	r.End += by
+	r.Direction = 0
 }
 
 func (r *Selection) SetPosition(pos int) {
 	r.Start = pos
 	r.End = pos
+	r.Direction = 0
 }
 
 func (r *Selection) MoveEnd(by int) {
@@ -35,6 +38,7 @@ func (r *Selection) MoveEnd(by int) {
 	}
 
 	r.End += by
+	r.Direction = 2
 }
 
 func (r *Selection) MoveStart(by int) {
@@ -44,6 +48,7 @@ func (r *Selection) MoveStart(by int) {
 	}
 
 	r.Start += by
+	r.Direction = 1
 }
 
 func (r *Selection) Length() int {
@@ -167,8 +172,10 @@ func (s *TextInput) handleMouseDrag() {
 
 	if index > s.currentSelection.End {
 		s.currentSelection.End = index
+		s.currentSelection.Direction = 2
 	} else if index < s.currentSelection.Start {
 		s.currentSelection.Start = index
+		s.currentSelection.Direction = 1
 	}
 	s.ShouldRedraw = true
 	engine.RequestRendering()
@@ -423,7 +430,11 @@ func (s *TextInput) handleArrow(dir int) {
 	}
 
 	if engine.GetInputManager().IsShiftPressed() {
-		s.currentSelection.MoveEnd(dir)
+		if s.currentSelection.Direction == 1 {
+			s.currentSelection.MoveStart(dir)
+		} else {
+			s.currentSelection.MoveEnd(dir)
+		}
 	} else {
 		s.currentSelection.Move(dir)
 	}
@@ -549,7 +560,7 @@ func (s *TextInput) getSelectionOffset() a.Vector3 {
 		line := s.aText.GetLineAt(l)
 
 		for c := 0; c < line.GetCharsCount(); c++ {
-			if i == s.currentSelection.Start-1 {
+			if s.currentSelection.Direction < 2 && i == s.currentSelection.Start-1 || s.currentSelection.Direction == 2 && i == s.currentSelection.End-1 {
 				char := line.GetCharAt(c)
 				return a.NewVector3(float32(char.GetX()+char.GetSize().X), y, 0)
 			}
@@ -592,6 +603,6 @@ func (s *TextInput) GetSelectedText() string {
 func NewTextInput() *TextInput {
 	return &TextInput{
 		CursorColor: a.NewColor(0, 0, 255, 255),
-		SelectionColor: a.NewColor(0, 0, 255, 100),
+		SelectionColor: a.NewColor(0, 0, 255, 50),
 	}
 }
