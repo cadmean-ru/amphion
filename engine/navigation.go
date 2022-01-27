@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Opens the SceneObject corresponding to the specified path.
+// Navigate opens the SceneObject corresponding to the specified path.
 // Path "/" corresponds to the app's main SceneObject.
 // Other paths correspond to the SceneObject path in the SceneObject folder.
 // For example "res/scenes/test.SceneObject" corresponds to "/test", "res/scenes/hello/test.SceneObject" to "/hello/test".
@@ -22,7 +22,7 @@ func Navigate(path string, args a.SiMap) (err error) {
 	var scenePath string
 
 	if path == "/" {
-		scenePath = "scenes/" + instance.currentApp.MainScene + ".SceneObject"
+		scenePath = "scenes/" + instance.currentApp.MainScene + ".scene"
 	} else {
 		pathTokens := strings.Split(path, "/")
 
@@ -47,14 +47,13 @@ func Navigate(path string, args a.SiMap) (err error) {
 			}
 		}
 
-		scenePath = "scenes/" + strings.Join(pathTokens, "/") + ".SceneObject"
+		scenePath = "scenes/" + strings.Join(pathTokens, "/") + ".scene"
 	}
-
 
 	sceneId := instance.GetResourceManager().IdOf(scenePath)
 
 	if sceneId == -1 {
-		err = errors.New("SceneObject not found")
+		err = errors.New("scene not found")
 		return
 	}
 
