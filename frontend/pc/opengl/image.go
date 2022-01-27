@@ -1,3 +1,4 @@
+//go:build (windows || linux || darwin) && !android && !ios
 // +build windows linux darwin
 // +build !android
 // +build !ios
@@ -7,7 +8,6 @@ package opengl
 import (
 	"github.com/cadmean-ru/amphion/rendering"
 	"github.com/go-gl/gl/v3.3-core/gl"
-
 )
 
 type ImageRenderer struct {

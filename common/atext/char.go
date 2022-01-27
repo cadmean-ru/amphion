@@ -53,8 +53,8 @@ func (c *Char) GetSize() a.IntVector2 {
 }
 
 //GetRect returns the rect of the char.
-func (c *Char) GetRect() *common.RectBoundary {
-	return common.NewRectBoundaryFromPositionAndSize(c.GetPosition().ToFloat3(), c.GetGlyph().GetSize().ToFloat3())
+func (c *Char) GetRect() *common.Rect {
+	return common.NewRectFromPositionAndSize(c.GetPosition().ToFloat3(), c.GetGlyph().GetSize().ToFloat3())
 }
 
 // IsVisible tells if the character has a visual representation.

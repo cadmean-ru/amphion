@@ -128,7 +128,6 @@ func (p *GlProgram) SetClipArea2DUniforms(area *rendering.ClipArea2D) {
 	clipRectUniform := p.GetUniformLocation("uClipArea2dRect")
 	clipShapeUniform := p.GetUniformLocation("uClipArea2dShape")
 
-
 	wSize := engine.GetScreenSize3()
 	tl := a.NewIntVector3(int(area.Rect.X.Min), int(area.Rect.Y.Min), 0).Ndc(wSize)
 	br := a.NewIntVector3(int(area.Rect.X.Max), int(area.Rect.Y.Max), 0).Ndc(wSize)

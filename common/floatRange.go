@@ -52,6 +52,12 @@ func (r *FloatRange) Shrink(d float32) {
 	r.Max -= d
 }
 
+//ShrinkMax shrinks the range by the given value on the max end.
+func (r *FloatRange) ShrinkMax(d float32) {
+	d = float32(math.Min(float64(d), float64(r.GetLength()/2)))
+	r.Max -= d
+}
+
 func (r *FloatRange) String() string {
 	return fmt.Sprintf("[%f %f]", r.Min, r.Max)
 }

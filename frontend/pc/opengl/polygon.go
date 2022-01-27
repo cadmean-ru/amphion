@@ -1,6 +1,7 @@
-//+build windows linux darwin
-//+build !android
-//+build !ios
+//go:build (windows || linux || darwin) && !android && !ios
+// +build windows linux darwin
+// +build !android
+// +build !ios
 
 package opengl
 
@@ -34,7 +35,7 @@ func (r *PolygonRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		const stride int32 = 28
 		const floatsPerVertex = 7
 
-		vertices := make([]float32, int32(len(pp.Vertices)) * floatsPerVertex)
+		vertices := make([]float32, int32(len(pp.Vertices))*floatsPerVertex)
 		for i, v := range pp.Vertices {
 			j := int32(i) * floatsPerVertex
 			vertices[j] = v.X
@@ -50,21 +51,6 @@ func (r *PolygonRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		for i, index := range pp.Indexes {
 			indices[i] = uint32(index)
 		}
-
-		//vertices := []float32{
-		//	0, 0, 0, 0, 0, 0, 255,
-		//	500, 0, 0, 0, 0, 0, 255,
-		//	69, 69, 0, 0, 0, 0, 255,
-		//	420, 69, 0, 0, 0, 0, 255,
-		//	//0.1, 0.1, 0, 0, 0, 0, 255,
-		//	//1, 1, 0, 0, 0, 0, 255,
-		//	//0, 0, 0, 0, 0, 0, 255,
-		//}
-		//
-		//indices := []uint32{
-		//	0, 1, 2,
-		//	1, 3, 2,
-		//}
 
 		gl.BindBuffer(gl.ARRAY_BUFFER, state.vbo)
 		gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)

@@ -12,7 +12,7 @@ type layoutManager struct {
 	currentLine      *Line
 	face             *Face
 	allChars         []*Char
-	bounds           *common.RectBoundary
+	bounds           *common.Rect
 	options          LayoutOptions
 	runes            []rune
 }
@@ -147,7 +147,7 @@ func (m *layoutManager) spaceWidth() int {
 	return m.face.size / 4
 }
 
-func newLayoutManager(face *Face, runes []rune, bounds *common.RectBoundary, options LayoutOptions) *layoutManager {
+func newLayoutManager(face *Face, runes []rune, bounds *common.Rect, options LayoutOptions) *layoutManager {
 	m := layoutManager{}
 	m.text = &Text{
 		face:        face,

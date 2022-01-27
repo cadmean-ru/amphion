@@ -13,7 +13,7 @@ type Text struct {
 	lines       []*Line
 	width       int
 	height      int
-	initialRect *common.RectBoundary
+	initialRect *common.Rect
 }
 
 func (t *Text) append(line *Line) {
@@ -100,12 +100,12 @@ func (t *Text) GetSize() a.IntVector2 {
 	return a.NewIntVector2(t.width, t.height)
 }
 
-func (t *Text) GetInitialRect() *common.RectBoundary {
+func (t *Text) GetInitialRect() *common.Rect {
 	return t.initialRect
 }
 
-func (t *Text) GetActualRect() *common.RectBoundary {
-	return common.NewRectBoundaryFromPositionAndSize(t.initialRect.Min(), a.NewVector3(float32(t.width), float32(t.height), 0))
+func (t *Text) GetActualRect() *common.Rect {
+	return common.NewRectFromPositionAndSize(t.initialRect.Min(), a.NewVector3(float32(t.width), float32(t.height), 0))
 }
 
 func (t *Text) GetAText() *Text {

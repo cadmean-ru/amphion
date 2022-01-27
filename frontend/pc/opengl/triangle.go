@@ -1,3 +1,4 @@
+//go:build (windows || linux || darwin) && !android && !ios
 // +build windows linux darwin
 // +build !android
 // +build !ios
@@ -48,13 +49,13 @@ func (r *TriangleRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		var stroke = a.NewIntVector3(int(gp.Appearance.StrokeWeight), int(gp.Appearance.StrokeWeight), int(gp.Appearance.StrokeWeight))
 		var nStroke = stroke.ToFloat().Add(a.OneVector())
 
-		vertices := []float32 {
+		vertices := []float32{
 			ntlPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, 0,
-			midX,     ntlPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, 0,
+			midX, ntlPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, 0,
 			nbrPos.X, nbrPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2, 0,
 		}
 
-		indices := []uint32 {
+		indices := []uint32{
 			0, 1, 2,
 		}
 

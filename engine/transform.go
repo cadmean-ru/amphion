@@ -182,12 +182,12 @@ func (t *Transform) GlobalTopLeftPosition() a.Vector3 {
 }
 
 // Rect calculates local rect of this transform.
-func (t *Transform) Rect() *common.RectBoundary {
+func (t *Transform) Rect() *common.Rect {
 	return t.calculateRect(a.ZeroVector(), t.actualSize)
 }
 
 // GlobalRect calculates global rect of this transform.
-func (t *Transform) GlobalRect() *common.RectBoundary {
+func (t *Transform) GlobalRect() *common.Rect {
 	return t.calculateRect(t.GlobalTopLeftPosition(), t.actualSize)
 }
 
@@ -219,8 +219,8 @@ func (t *Transform) ActualEquals(other Transform) bool {
 }
 
 // Calculates the rect boundary of the transform given the top left point's position.
-func (t *Transform) calculateRect(tlp, size a.Vector3) *common.RectBoundary {
-	return common.NewRectBoundaryFromPositionAndSize(tlp, size)
+func (t *Transform) calculateRect(tlp, size a.Vector3) *common.Rect {
+	return common.NewRectFromPositionAndSize(tlp, size)
 }
 
 func (t *Transform) positionForMeasurement() a.Vector3 {

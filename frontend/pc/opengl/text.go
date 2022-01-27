@@ -1,6 +1,7 @@
-//+build windows linux darwin
-//+build !ios
-//+build !android
+//go:build (windows || linux || darwin) && !ios && !android
+// +build windows linux darwin
+// +build !ios
+// +build !android
 
 package opengl
 
@@ -13,8 +14,8 @@ import (
 
 type TextRenderer struct {
 	*glPrimitiveRenderer
-	fonts map[string]*atext.Font
-	charsTextures  map[int]map[rune]uint32
+	fonts         map[string]*atext.Font
+	charsTextures map[int]map[rune]uint32
 }
 
 func (r *TextRenderer) OnStart() {

@@ -383,8 +383,8 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 
 		s := e.GetCurrentScene()
 		ss := s.Transform.ActualSize()
-		visibleArea := common.NewRectBoundary(-offset.X, -offset.X + ss.X, -offset.Y, -offset.Y + ss.Y, -999, 999)
-		realArea := common.NewRectBoundary(0, 0, 0, 0, -999, 999)
+		visibleArea := common.NewRect(-offset.X, -offset.X + ss.X, -offset.Y, -offset.Y + ss.Y, -999, 999)
+		realArea := common.NewRect(0, 0, 0, 0, -999, 999)
 		s.ForEachObject(func(object *engine.SceneObject) {
 			rect := object.Transform.GlobalRect()
 			if rect.X.Min < realArea.X.Min {

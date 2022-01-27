@@ -6,18 +6,18 @@ import (
 )
 
 type ClipArea2D struct {
-	Rect  *common.RectBoundary
+	Rect  *common.Rect
 	Shape shape.Kind
 }
 
 func NewClipArea2DEmpty() *ClipArea2D {
 	return &ClipArea2D{
-		Rect:  common.NewRectBoundary(0, 0, 0, 0, 0, 0),
+		Rect:  common.NewRect(0, 0, 0, 0, 0, 0),
 		Shape: shape.Empty,
 	}
 }
 
-func NewClipArea2D(kind shape.Kind, rect *common.RectBoundary) *ClipArea2D {
+func NewClipArea2D(kind shape.Kind, rect *common.Rect) *ClipArea2D {
 	return &ClipArea2D{
 		Rect:  rect,
 		Shape: kind,

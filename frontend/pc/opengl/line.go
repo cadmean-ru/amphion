@@ -1,3 +1,4 @@
+//go:build (windows || linux || darwin) && !android && !ios
 // +build windows linux darwin
 // +build !android
 // +build !ios
@@ -32,7 +33,7 @@ func (r *LineRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 		nPos := gp.Transform.Position.ToFloat()
 		nSize := gp.Transform.Position.Add(gp.Transform.Size).ToFloat()
 
-		vertices := []float32 {
+		vertices := []float32{
 			nPos.X, nPos.Y, 0,
 			nSize.X, nSize.Y, 0,
 		}

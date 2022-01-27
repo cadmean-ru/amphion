@@ -6,7 +6,7 @@ import (
 )
 
 type RectangleShape struct {
-	rect *common.RectBoundary
+	rect *common.Rect
 }
 
 func (r *RectangleShape) IsPointInside(point a.Vector3) bool {
@@ -21,6 +21,6 @@ func (r *RectangleShape) Kind() Kind {
 	return Rectangle
 }
 
-func NewRectangleShape(boundary *common.RectBoundary) *RectangleShape {
+func NewRectangleShape(boundary *common.Rect) *RectangleShape {
 	return &RectangleShape{rect: boundary}
 }

@@ -140,14 +140,14 @@ func (l *GridLayout) RemoveColumnAt(index int) {
 	engine.RequestRendering()
 }
 
-//RemoveRow removes the last row of the grid. Objects in that row will no linger be visible.
+//RemoveRow removes the last row of the grid. Objects in that row will no longer be visible.
 func (l *GridLayout) RemoveRow() {
 	l.RemoveRowAt(len(l.Rows) - 1)
 
 	engine.RequestRendering()
 }
 
-//RemoveColumn removes the last column if the grid. Objects in that column will no linger be visible.
+//RemoveColumn removes the last column if the grid. Objects in that column will no longer be visible.
 func (l *GridLayout) RemoveColumn() {
 	l.RemoveColumnAt(len(l.Columns) - 1)
 
@@ -187,7 +187,7 @@ func (l *GridLayout) SetColumnWidth(colIndex int, width float32) {
 }
 
 //GetRows returns the slice of all row definitions.
-//Modifying the returned slice wont modify the actual rows of the grid.
+//Modifying the returned slice won't modify the actual rows of the grid.
 func (l *GridLayout) GetRows() []*GridRowDefinition {
 	rowsCopy := make([]*GridRowDefinition, len(l.Rows))
 	copy(rowsCopy, l.Rows)
@@ -195,7 +195,7 @@ func (l *GridLayout) GetRows() []*GridRowDefinition {
 }
 
 //GetColumns returns the slice of all column definitions.
-//Modifying the returned slice wont modify the actual columns of the grid.
+//Modifying the returned slice won't modify the actual columns of the grid.
 func (l *GridLayout) GetColumns() []*GridColumnDefinition {
 	colsCopy := make([]*GridColumnDefinition, len(l.Columns))
 	copy(colsCopy, l.Columns)

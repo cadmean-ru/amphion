@@ -1,6 +1,7 @@
-//+build windows linux darwin
-//+build !android
-//+build !ios
+//go:build (windows || linux || darwin) && !android && !ios
+// +build windows linux darwin
+// +build !android
+// +build !ios
 
 package opengl
 

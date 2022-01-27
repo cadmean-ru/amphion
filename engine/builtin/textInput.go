@@ -85,6 +85,7 @@ type TextInput struct {
 	currentCursorColor a.Color
 	blinkTime          time.Time
 	blinkFlag          bool
+	firstFrame         bool
 }
 
 func (s *TextInput) OnInit(ctx engine.InitContext) {
@@ -97,13 +98,15 @@ func (s *TextInput) OnInit(ctx engine.InitContext) {
 	s.aFace = s.aFont.NewFace(20)
 	s.layoutText()
 
-	if !s.SceneObject.HasComponent("RectBoundary") {
+	if !s.SceneObject.HasComponent("Rect") {
 		s.SceneObject.AddComponent(NewRectBoundary())
 	}
 
 	s.currentCursorColor = s.CursorColor
 
 	s.currentText = []rune(s.InitialText)
+
+	s.firstFrame = true
 }
 
 func (s *TextInput) OnStart() {
@@ -187,7 +190,7 @@ func (s *TextInput) handleMouseDrag() {
 
 func (s *TextInput) handleKeyHold() {
 	if s.backspacePressed {
-		if time.Since(s.backspaceTime) > time.Millisecond * 100 {
+		if time.Since(s.backspaceTime) > time.Millisecond*100 {
 			s.backspaceTime = time.Now()
 			s.handleBackspace()
 			s.ShouldRedraw = true
@@ -215,10 +218,11 @@ func (s *TextInput) handleCursorBlink() {
 //endregion
 
 func (s *TextInput) OnLateUpdate(_ engine.UpdateContext) {
-	if !s.SceneObject.IsFocused() || !s.ShouldDraw() && s.prevTransform.ActualEquals(s.SceneObject.Transform) {
+	if !s.firstFrame && (!s.SceneObject.IsFocused() || !s.ShouldDraw() && s.prevTransform.ActualEquals(s.SceneObject.Transform)) {
 		return
 	}
 
+	s.firstFrame = false
 	s.prevTransform = s.SceneObject.Transform
 
 	s.layoutText()
@@ -226,14 +230,14 @@ func (s *TextInput) OnLateUpdate(_ engine.UpdateContext) {
 }
 
 func (s *TextInput) OnDraw(ctx engine.DrawingContext) {
+	rt := s.SceneObject.Transform.ToRenderingTransform()
+
 	tp := rendering.NewTextPrimitive(string(s.currentText), s.aText)
-	tp.Transform = s.SceneObject.Transform.ToRenderingTransform()
+	tp.Transform = rt
 	tp.Appearance = rendering.Appearance{
 		FillColor: a.Black(),
 	}
 	ctx.GetRenderingNode().SetPrimitive(s.PrimitiveId, tp)
-
-	//globalRect := s.SceneObject.Transform.GlobalRect()
 
 	gp := rendering.NewGeometryPrimitive(rendering.PrimitiveRectangle)
 	gp.Transform.Position = s.selectionOffset.Round()
@@ -276,7 +280,7 @@ func (s *TextInput) OnDraw(ctx engine.DrawingContext) {
 
 				startPos := a.NewVector3(float32(startChar.GetPosition().X), float32(startChar.GetLine().GetPosition().Y), 0)
 				endPos := a.NewVector3(float32(endChar.GetPosition().X+endChar.GetSize().X), float32(endChar.GetLine().GetY()+s.aFace.GetSize()), 0)
-				boundary := common.NewRectBoundaryFromMinMaxPositions(startPos, endPos)
+				boundary := common.NewRectFromMinMaxPositions(startPos, endPos)
 
 				//engine.LogDebug("%v %v", startPos, endPos)
 
@@ -554,7 +558,7 @@ func (s *TextInput) handleTextChange() {
 
 func (s *TextInput) globalPositionToSelectionIndex(pos a.Vector3) int {
 	for i, c := range s.aText.GetAllChars() {
-		charRect := common.NewRectBoundaryFromPositionAndSize(c.GetPosition().ToFloat3(), c.GetSize().ToFloat3())
+		charRect := common.NewRectFromPositionAndSize(c.GetPosition().ToFloat3(), c.GetSize().ToFloat3())
 		if charRect.IsPointInside2D(pos) {
 			if pos.X < charRect.X.Min+charRect.X.GetLength()/2 {
 				return i
@@ -569,10 +573,10 @@ func (s *TextInput) globalPositionToSelectionIndex(pos a.Vector3) int {
 
 func (s *TextInput) getSelectionOffset() a.Vector3 {
 	if s.aText.GetCharsCount() == 0 {
-		return a.ZeroVector()
+		return s.SceneObject.Transform.GlobalTopLeftPosition()
 	}
 
-	var y float32 = 0
+	var y float32 = float32(s.aText.GetCharAt(0).GetY())
 	i := 0
 
 	for l := 0; l < s.aText.GetLinesCount(); l++ {
@@ -590,7 +594,7 @@ func (s *TextInput) getSelectionOffset() a.Vector3 {
 		y += float32(line.GetSize().Y)
 	}
 
-	return a.ZeroVector()
+	return s.SceneObject.Transform.GlobalTopLeftPosition()
 }
 
 func (s *TextInput) layoutText() {

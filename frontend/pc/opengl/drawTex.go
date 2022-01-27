@@ -1,3 +1,4 @@
+//go:build (windows || linux || darwin) && !android && !ios
 // +build windows linux darwin
 // +build !android
 // +build !ios
@@ -17,14 +18,14 @@ func drawTex(ctx *rendering.PrimitiveRenderingContext, nPos, nbrPos a.Vector3, t
 	if ctx.Redraw || alwaysRedraw {
 		gl.BindVertexArray(state.vao)
 
-		vertices := []float32 {
-			nPos.X,   nPos.Y,   0,	0, 0, // top left
-			nPos.X,   nbrPos.Y, 0,	0, 1, // bottom left
-			nbrPos.X, nbrPos.Y, 0,	1, 1, // top right
-			nbrPos.X, nPos.Y,   0,	1, 0, // bottom right
+		vertices := []float32{
+			nPos.X, nPos.Y, 0, 0, 0, // top left
+			nPos.X, nbrPos.Y, 0, 0, 1, // bottom left
+			nbrPos.X, nbrPos.Y, 0, 1, 1, // top right
+			nbrPos.X, nPos.Y, 0, 1, 0, // bottom right
 		}
 
-		indices := []uint32 {
+		indices := []uint32{
 			0, 1, 2,
 			0, 3, 2,
 		}

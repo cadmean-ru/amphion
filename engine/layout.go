@@ -60,6 +60,8 @@ func (l *LayoutImpl) SecondPass(object *SceneObject) {
 	}
 }
 
+//MeasureObject measures the measured size of the object based on wanted size and size of its children.
+//Writes the measures size to the object's transform.
 func (l *LayoutImpl) MeasureObject(object *SceneObject) {
 	if !l.ObjectNeedsToBeMeasured(object) {
 		return
@@ -86,7 +88,7 @@ func (l *LayoutImpl) MeasureObject(object *SceneObject) {
 	}
 
 	for _, c := range object.children {
-		childRect := common.NewRectBoundaryFromPositionAndSize(c.Transform.positionForMeasurement(), c.Transform.actualSize)
+		childRect := common.NewRectFromPositionAndSize(c.Transform.positionForMeasurement(), c.Transform.actualSize)
 		if childRect.X.Max > size.X {
 			size.X = childRect.X.Max
 		}
@@ -101,6 +103,8 @@ func (l *LayoutImpl) MeasureObject(object *SceneObject) {
 	object.Transform.measuredSize = size
 }
 
+//ObjectNeedsToBeMeasured returns if the given object needs to be measured before layout.
+//The object needs to be measured if its size in any dimension equals WrapContent.
 func (l *LayoutImpl) ObjectNeedsToBeMeasured(object *SceneObject) bool {
 	return object.Transform.size.X == a.WrapContent ||
 		object.Transform.size.Y == a.WrapContent ||

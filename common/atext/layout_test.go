@@ -20,25 +20,25 @@ func TestLayoutRunes(t *testing.T) {
 
 	testCases := []struct{
 		input string
-		rect *common.RectBoundary
+		rect *common.Rect
 		options LayoutOptions
 		nLines int
 	} {
 		{
 			"Hello bruh",
-			common.NewRectBoundary2D(0, 100, 0, 100, 0),
+			common.NewRect2D(0, 100, 0, 100, 0),
 			LayoutOptions{},
 			1,
 		},
 		{
 			"Hello\nbruh",
-			common.NewRectBoundary2D(0, 100, 0, 100, 0),
+			common.NewRect2D(0, 100, 0, 100, 0),
 			LayoutOptions{},
 			2,
 		},
 		{
 			"Hello\nbruh",
-			common.NewRectBoundary2D(0, 100, 0, 100, 0),
+			common.NewRect2D(0, 100, 0, 100, 0),
 			LayoutOptions{SingleLine: true},
 			1,
 		},

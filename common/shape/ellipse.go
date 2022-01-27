@@ -6,7 +6,7 @@ import (
 )
 
 type EllipseShape struct {
-	rect *common.RectBoundary
+	rect *common.Rect
 }
 
 func (e *EllipseShape) IsPointInside(point a.Vector3) bool {
@@ -33,7 +33,7 @@ func (e *EllipseShape) Kind() Kind {
 	return Ellipse
 }
 
-func NewEllipseShape(boundary *common.RectBoundary) *EllipseShape {
+func NewEllipseShape(boundary *common.Rect) *EllipseShape {
 	return &EllipseShape{rect: boundary}
 }
 

@@ -1,3 +1,4 @@
+//go:build (windows || linux || darwin) && !android && !ios
 // +build windows linux darwin
 // +build !android
 // +build !ios
@@ -55,7 +56,7 @@ func (r *EllipseRenderer) OnRender(ctx *rendering.PrimitiveRenderingContext) {
 			nbrPos.X, ntlPos.Y, 0, ntlPos.X, ntlPos.Y, 0, nbrPos.X, nbrPos.Y, 0, r1, g1, b1, a1, nStroke.X, r2, g2, b2, a2,
 		}
 
-		indices := []uint32 {
+		indices := []uint32{
 			0, 1, 2,
 			0, 3, 2,
 		}

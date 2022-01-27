@@ -7,7 +7,7 @@ import (
 )
 
 type TriangleShape struct {
-	rect *common.RectBoundary
+	rect *common.Rect
 }
 
 func (t *TriangleShape) IsPointInside(point a.Vector3) bool {
@@ -47,7 +47,7 @@ func (t *TriangleShape) length(a, b a.Vector3) float32 {
 	return float32(math.Sqrt(x*x + y*y))
 }
 
-func NewTriangleShape(boundary *common.RectBoundary) *TriangleShape {
+func NewTriangleShape(boundary *common.Rect) *TriangleShape {
 	return &TriangleShape{rect: boundary}
 }
 

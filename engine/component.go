@@ -107,6 +107,7 @@ type BoundaryComponent interface {
 
 // StatefulComponent is an interface for components, that can persist state.
 type StatefulComponent interface {
+	Component
 	GetInstanceState() a.SiMap
 	SetInstanceState(state a.SiMap)
 }

@@ -155,7 +155,7 @@ func (s *Scroll) handleScroll(event engine.Event) bool {
 	return true
 }
 
-func (s *Scroll) measureChildren() *common.RectBoundary {
+func (s *Scroll) measureChildren() *common.Rect {
 	realArea := s.SceneObject.Transform.GlobalRect()
 
 	s.SceneObject.ForEachChild(func(object *engine.SceneObject) {

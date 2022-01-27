@@ -1,3 +1,4 @@
+//go:build (windows || linux || darwin) && !android && !ios
 // +build windows linux darwin
 // +build !android
 // +build !ios
@@ -123,11 +124,11 @@ func (r *Renderer) calculateProjection() {
 	c2 := -2 / ys
 	c3 := -2 / zs
 
-	r.projection = a.Matrix4 {
-		c1, 0,  0, -1,
-		0,  c2, 0,  1,
-		0,  0,  c3, 0,
-		0,  0,  0,  1,
+	r.projection = a.Matrix4{
+		c1, 0, 0, -1,
+		0, c2, 0, 1,
+		0, 0, c3, 0,
+		0, 0, 0, 1,
 	}
 
 	//fmt.Println(r.projection)

@@ -7,7 +7,7 @@ type Shape interface {
 	Kind() Kind
 }
 
-func New(kind Kind, boundary *common.RectBoundary) Shape {
+func New(kind Kind, boundary *common.Rect) Shape {
 	switch kind {
 	case Ellipse:
 		return NewEllipseShape(boundary)
