@@ -19,10 +19,10 @@ func TestFunc(t *testing.T) {
 		Func("sum").Then(func(res interface{}) {
 			fmt.Printf("%+v\n", res)
 			actual = res.(float64)
-			e.Stop()
 		}).Err(func(err error) {
 			fmt.Printf("%+v\n", err)
 			actualError = err
+		}).Finally(func() {
 			e.Stop()
 		}).Call(2, 67)
 

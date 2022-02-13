@@ -22,6 +22,7 @@ type FunctionCallBuilder struct {
 	fName     string
 	onSuccess func(res interface{})
 	onError   func(err error)
+	finally   func()
 }
 
 //Then specifies callback to be called when the RPC call finishes successfully.
@@ -33,6 +34,12 @@ func (f *FunctionCallBuilder) Then(onSuccess func(res interface{})) *FunctionCal
 //Err specifies callback to be called when the RPC call finishes with an error.
 func (f *FunctionCallBuilder) Err(onError func(err error)) *FunctionCallBuilder {
 	f.onError = onError
+	return f
+}
+
+//Finally specifies callback to be called when the RPC call is completed regardless of the result.
+func (f *FunctionCallBuilder) Finally(finally func()) *FunctionCallBuilder {
+	f.finally = finally
 	return f
 }
 
@@ -51,7 +58,7 @@ func (f *FunctionCallBuilder) Call(args ...interface{}) {
 		if f.onError != nil {
 			f.onError(err)
 		}
-	}).Build())
+	}).Finally(f.finally).Build())
 }
 
 //Func creates a new call builder to call an RPC function with the specified name.
