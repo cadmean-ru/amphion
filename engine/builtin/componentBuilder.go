@@ -3,15 +3,11 @@ package builtin
 import "github.com/cadmean-ru/amphion/engine"
 
 type BuilderComponent struct {
+	engine.ComponentImpl
 	name     string
-	eng      *engine.AmphionEngine
 	onStart  func()
 	onStop   func()
 	onUpdate func(ctx engine.UpdateContext)
-}
-
-func (c *BuilderComponent) OnInit(ctx engine.InitContext) {
-	c.eng = ctx.GetEngine()
 }
 
 func (c *BuilderComponent) OnStart() {

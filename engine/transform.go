@@ -263,9 +263,11 @@ func (t *Transform) DumpToMap() a.SiMap {
 
 func (t *Transform) FromMap(siMap a.SiMap) {
 	t.position = a.NewVector3FromMap(t.decodeSpecialValuesInVector(a.RequireSiMap(siMap["position"])))
+	t.actualPosition = t.vectorWithoutSpecialValues(t.position)
 	t.pivot = a.NewVector3FromMap(a.RequireSiMap(siMap["pivot"]))
 	t.rotation = a.NewVector3FromMap(a.RequireSiMap(siMap["rotation"]))
 	t.size = a.NewVector3FromMap(t.decodeSpecialValuesInVector(a.RequireSiMap(siMap["size"])))
+	t.actualSize = t.vectorWithoutSpecialValues(t.size)
 }
 
 func NewTransformFromMap(siMap a.SiMap) Transform {

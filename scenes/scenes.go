@@ -24,7 +24,7 @@ func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 
 	circle := engine.NewSceneObject("circle")
 	circle.Transform.SetSize(50, 50)
-	circle.Transform.SetPosition(10, 10 , 1)
+	circle.Transform.SetPosition(10, 10, 1)
 	circleRenderer := builtin.NewShapeView(builtin.ShapeEllipse)
 	circleRenderer.StrokeWeight = 0
 	circleRenderer.FillColor = a.Green()
@@ -33,7 +33,6 @@ func Scene1(e *engine.AmphionEngine) *engine.SceneObject {
 	circle.AddComponent(builtin.NewOnClickListener(HandleCircleClick(e)))
 
 	rect.AddChild(circle)
-
 
 	scene.AddChild(rect)
 
@@ -141,6 +140,8 @@ func RegisterComponents(e *engine.AmphionEngine) {
 	cm.RegisterComponentType(&builtin.ImageView{})
 	cm.RegisterComponentType(&builtin.MouseMover{})
 	cm.RegisterComponentType(&builtin.BuilderComponent{})
+	cm.RegisterComponentType(&builtin.AbsoluteLayout{})
+	cm.RegisterComponentType(&builtin.GridLayout{})
 	cm.RegisterComponentType(&TestController{})
 	cm.RegisterComponentType(&PrefabController{})
 
@@ -180,7 +181,7 @@ func Scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	dropdown := engine.NewSceneObject("dropdown")
 	dropdown.Transform.SetPosition(10, 10, 2)
 	dropdown.Transform.SetSize(100, 35, 0)
-	dropdownView := builtin.NewDropdownView([]string {"opt1", "opt2", "opt3"})
+	dropdownView := builtin.NewDropdownView([]string{"opt1", "opt2", "opt3"})
 	dropdown.AddComponent(dropdownView)
 	dropdown.AddComponent(builtin.NewRectBoundary())
 	dropdown.AddComponent(builtin.NewOnClickListener(func(event engine.Event) bool {
@@ -191,14 +192,13 @@ func Scene2(e *engine.AmphionEngine) *engine.SceneObject {
 	dropdown1 := engine.NewSceneObject("dropdown1")
 	dropdown1.Transform.SetPosition(10, 50, 1)
 	dropdown1.Transform.SetSize(450, 35)
-	dropdownView1 := builtin.NewDropdownView([]string {"bruh1", "bruh2", "bruh3"})
+	dropdownView1 := builtin.NewDropdownView([]string{"bruh1", "bruh2", "bruh3"})
 	dropdown1.AddComponent(dropdownView1)
 	dropdown1.AddComponent(builtin.NewRectBoundary())
 	dropdown1.AddComponent(builtin.NewOnClickListener(func(event engine.Event) bool {
 		dropdownView1.HandleClick()
 		return true
 	}))
-
 
 	box := engine.NewSceneObject("Moving box")
 	box.Transform.SetPosition(10, 100, 10)
@@ -383,7 +383,7 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 
 		s := e.GetCurrentScene()
 		ss := s.Transform.ActualSize()
-		visibleArea := common.NewRect(-offset.X, -offset.X + ss.X, -offset.Y, -offset.Y + ss.Y, -999, 999)
+		visibleArea := common.NewRect(-offset.X, -offset.X+ss.X, -offset.Y, -offset.Y+ss.Y, -999, 999)
 		realArea := common.NewRect(0, 0, 0, 0, -999, 999)
 		s.ForEachObject(func(object *engine.SceneObject) {
 			rect := object.Transform.GlobalRect()
@@ -439,7 +439,7 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 				} else if scrollingUp && !canScrollUp { // up
 					canScrollUp = rect.Y.Min < visibleArea.Y.Min || rect.Y.Max < visibleArea.Y.Min
 					if canScrollUp {
-						m := float32(math.Min(math.Abs(float64(visibleArea.Y.Min - rect.Y.Min)), math.Abs(float64(visibleArea.Y.Min - rect.Y.Max))))
+						m := float32(math.Min(math.Abs(float64(visibleArea.Y.Min-rect.Y.Min)), math.Abs(float64(visibleArea.Y.Min-rect.Y.Max))))
 						if minOutY == -1 || m < minOutY {
 							minOutY = m
 						}
@@ -449,14 +449,14 @@ func GridScene(e *engine.AmphionEngine) *engine.SceneObject {
 		})
 
 		if scrollingDown {
-			if !canScrollDown{
+			if !canScrollDown {
 				dOffset.Y = 0
 			} else {
 				dOffset.Y = float32(math.Min(float64(dOffset.Y), float64(-minOutY)))
 			}
 		}
 		if scrollingUp {
-			if !canScrollUp{
+			if !canScrollUp {
 				dOffset.Y = 0
 			} else {
 				dOffset.Y = float32(math.Min(float64(dOffset.Y), float64(minOutY)))
