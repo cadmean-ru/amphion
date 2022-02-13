@@ -1,9 +1,9 @@
-//+build js
+//go:build js
+// +build js
 
 package web
 
 import (
-	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/rendering"
 )
 
@@ -71,6 +71,7 @@ func drawTriangle(p5 *p5, primitive rendering.Primitive) {
 }
 
 var prevFontSize byte
+
 func drawText(p5 *p5, primitive rendering.Primitive) {
 	t := primitive.GetTransform()
 	pos := t.Position
@@ -87,20 +88,24 @@ func drawText(p5 *p5, primitive rendering.Primitive) {
 	p5.text(tp.Text, pos.X, pos.Y, size.X, size.Y)
 }
 
-var images = map[string]*p5image{}
+var images = map[*rendering.Bitmap]*p5image{}
+
 func drawImage(p5 *p5, primitive rendering.Primitive) {
 	t := primitive.GetTransform()
 	pos := t.Position
 	size := t.Size
 
 	ip := primitive.(*rendering.ImagePrimitive)
-	if img, ok := images[ip.ImageUrl]; ok {
-		if img.ready {
-			p5.image(img, pos.X, pos.Y, size.X, size.Y)
-		}
+	b := ip.Bitmaps[ip.Index]
+
+	var i *p5image
+	if img, ok := images[b]; ok {
+		i = img
 	} else {
-		images[ip.ImageUrl] = p5.loadImage(ip.ImageUrl, func() {
-			engine.GetInstance().RequestRendering()
-		})
+		i = p5.createImage(b.Width, b.Height)
+		images[b] = i
+		i.SetBitmap(p5, b)
 	}
+
+	p5.image(i, pos.X, pos.Y, size.X, size.Y)
 }

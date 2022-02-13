@@ -1,4 +1,5 @@
-//+build js
+//go:build js
+// +build js
 
 package main
 
@@ -19,7 +20,7 @@ func main() {
 
 	go func() {
 		e.Start()
-		_ = e.ShowScene(scenes.GridScene(e))
+		_ = e.ShowScene(scenes.InputScene(e))
 		//e.LoadApp()
 		e.WaitForStop()
 	}()

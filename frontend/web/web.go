@@ -1,4 +1,5 @@
-//+build js
+//go:build js
+// +build js
 
 // Package web provides implementation of web frontend.
 package web
@@ -233,10 +234,10 @@ func (f *Frontend) handleMessage(msg *dispatch.Message) {
 			}
 		}
 	case frontend.MessageTitle:
-		setWindowTitle(msg.StrData)
+		setWindowTitle(msg.String())
 	case frontend.MessageNavigate:
-		if msg.StrData != "" {
-			setWindowLocation(msg.StrData)
+		if msg.String() != "" {
+			setWindowLocation(msg.String())
 		}
 	}
 }
@@ -256,7 +257,7 @@ func getWindowSize() a.IntVector2 {
 	w := js.Global().Get("innerWidth").Int()
 	h := js.Global().Get("innerHeight").Int()
 
-	return a.IntVector2{w, h}
+	return a.IntVector2{X: w, Y: h}
 }
 
 func setWindowTitle(title string) {

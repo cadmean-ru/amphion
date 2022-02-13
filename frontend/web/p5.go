@@ -1,9 +1,11 @@
+//go:build js
 // +build js
 
 package web
 
 import (
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/rendering"
 	"syscall/js"
 )
 
@@ -26,6 +28,8 @@ type p5 struct {
 	loadImageJs      js.Value
 	imageJs          js.Value
 	textAlignJs      js.Value
+	createImageJs    js.Value
+	colorJs          js.Value
 	onDraw           func(p5 *p5)
 }
 
@@ -48,6 +52,8 @@ func (p *p5) prepare() {
 	p.loadImageJs = js.Global().Get("loadImage")
 	p.imageJs = js.Global().Get("image")
 	p.textAlignJs = js.Global().Get("textAlign")
+	p.createImageJs = js.Global().Get("createImage")
+	p.colorJs = js.Global().Get("color")
 	js.Global().Set("goDraw", js.FuncOf(p.goDraw))
 }
 
@@ -84,8 +90,8 @@ func (p *p5) rect(x, y, sizeX, sizeY, cornerRadius int) {
 }
 
 func (p *p5) ellipse(x, y, sizeX, sizeY int) {
-	x1 := x + sizeX / 2
-	y1 := y + sizeY / 2
+	x1 := x + sizeX/2
+	y1 := y + sizeY/2
 	p.ellipseJs.Invoke(x1, y1, sizeX, sizeY)
 }
 
@@ -144,6 +150,16 @@ func (p *p5) image(img *p5image, x, y, w, h int) {
 	p.imageJs.Invoke(img.value, x, y, w, h)
 }
 
+func (p *p5) createImage(x, y int) *p5image {
+	return &p5image{
+		value: p.createImageJs.Invoke(x, y),
+	}
+}
+
+func (p *p5) color(r, g, b, a int) js.Value {
+	return p.colorJs.Invoke(r, g, b, a)
+}
+
 func (p *p5) redraw() {
 	p.redrawJs.Invoke()
 }
@@ -156,6 +172,7 @@ func (p *p5) goDraw(_ js.Value, _ []js.Value) interface{} {
 type p5image struct {
 	value js.Value
 	ready bool
+	frame int
 }
 
 func (i *p5image) GetWidth() int {
@@ -164,4 +181,26 @@ func (i *p5image) GetWidth() int {
 
 func (i *p5image) GetHeight() int {
 	return i.value.Get("height").Int()
+}
+
+func (i *p5image) LoadPixels() {
+	i.value.Call("loadPixels")
+}
+
+func (i *p5image) UpdatePixels() {
+	i.value.Call("updatePixels")
+}
+
+func (i *p5image) SetPixel(x, y int, color js.Value) {
+	i.value.Call("set", x, y, color)
+}
+
+func (i *p5image) SetBitmap(p5 *p5, b *rendering.Bitmap) {
+	i.LoadPixels()
+	for j := 0; j < i.GetWidth(); j++ {
+		for k := 0; k < i.GetHeight(); k++ {
+			i.SetPixel(j, k, p5.color(0, 0, 0, 1))
+		}
+	}
+	i.UpdatePixels()
 }

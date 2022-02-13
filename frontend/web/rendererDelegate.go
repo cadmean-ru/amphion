@@ -1,4 +1,5 @@
-//+build js
+//go:build js
+// +build js
 
 package web
 
@@ -20,6 +21,9 @@ func (r *P5RendererDelegate) OnPrepare() {
 	r.aRenderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveTriangle, newP5PrimitiveRendererDelegate(r.p5, drawTriangle))
 	r.aRenderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveText, newP5PrimitiveRendererDelegate(r.p5, drawText))
 	r.aRenderer.RegisterPrimitiveRendererDelegate(rendering.PrimitiveImage, newP5PrimitiveRendererDelegate(r.p5, drawImage))
+}
+
+func (r *P5RendererDelegate) OnCreatePrimitiveRenderingContext(ctx *rendering.PrimitiveRenderingContext) {
 }
 
 func (r *P5RendererDelegate) OnPerformRenderingStart() {
@@ -47,6 +51,6 @@ func (r *P5RendererDelegate) drawP5(p5 *p5) {
 
 func newP5RendererDelegate() *P5RendererDelegate {
 	return &P5RendererDelegate{
-		p5:       &p5{},
+		p5: &p5{},
 	}
 }
