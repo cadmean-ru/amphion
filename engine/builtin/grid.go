@@ -3,15 +3,15 @@ package builtin
 import (
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
-	"github.com/cadmean-ru/amphion/common/require"
 	"github.com/cadmean-ru/amphion/engine"
+	"github.com/cadmean-ru/require"
 	"math"
 )
 
 type GridRowDefinition struct {
 	Height     float32
 	maxHeight  float32
-	fillHeight  float32
+	fillHeight float32
 }
 
 func (r *GridRowDefinition) ToMap() a.SiMap {
@@ -43,7 +43,7 @@ func (r *GridRowDefinition) actualHeight() float32 {
 type GridColumnDefinition struct {
 	Width     float32
 	maxWidth  float32
-	fillWidth  float32
+	fillWidth float32
 }
 
 func (c *GridColumnDefinition) ToMap() a.SiMap {
@@ -90,14 +90,14 @@ const (
 //For a.FillParent the row/col will try to fill all the available space not occupied by other rows/cols.
 type GridLayout struct {
 	engine.LayoutImpl
-	Orientation     byte                   `state:"orientation"`
-	AutoExpansion   bool                   `state:"autoExpansion"`
-	AutoShrinking   bool                   `state:"autoShrinking"`
-	AutoSizeAdjust  bool                   `state:"autoSizeAdjust"`
-	RowPadding      float32                 `state:"rowPadding"`
-	ColumnPadding   float32                 `state:"columnPadding"`
-	Rows            []*GridRowDefinition    `state:"rows"`
-	Columns         []*GridColumnDefinition `state:"columns"`
+	Orientation    byte                    `state:"orientation"`
+	AutoExpansion  bool                    `state:"autoExpansion"`
+	AutoShrinking  bool                    `state:"autoShrinking"`
+	AutoSizeAdjust bool                    `state:"autoSizeAdjust"`
+	RowPadding     float32                 `state:"rowPadding"`
+	ColumnPadding  float32                 `state:"columnPadding"`
+	Rows           []*GridRowDefinition    `state:"rows"`
+	Columns        []*GridColumnDefinition `state:"columns"`
 }
 
 //AddRow add new row definition with the given height to the grid.
@@ -240,8 +240,8 @@ func (l *GridLayout) MeasureContents() a.Vector3 {
 		}
 	}
 
-	size.X += l.ColumnPadding * float32(len(l.Columns) - 1)
-	size.Y += l.RowPadding * float32(len(l.Rows) - 1)
+	size.X += l.ColumnPadding * float32(len(l.Columns)-1)
+	size.Y += l.RowPadding * float32(len(l.Rows)-1)
 
 	return size
 }

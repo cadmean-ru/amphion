@@ -3,8 +3,8 @@ package engine
 import (
 	"github.com/cadmean-ru/amphion/common"
 	"github.com/cadmean-ru/amphion/common/a"
-	"github.com/cadmean-ru/amphion/common/require"
 	"github.com/cadmean-ru/amphion/rendering"
+	"github.com/cadmean-ru/require"
 )
 
 // Transform describes how a SceneObject object is positioned on the screen.

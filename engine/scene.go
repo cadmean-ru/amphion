@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
 	"github.com/cadmean-ru/amphion/common/dispatch"
-	"github.com/cadmean-ru/amphion/common/require"
 	"github.com/cadmean-ru/amphion/rendering"
+	"github.com/cadmean-ru/require"
 	"gopkg.in/yaml.v2"
 	"reflect"
 )
@@ -15,23 +15,23 @@ const MaxSceneObjects = 1000
 
 // SceneObject is an object in the SceneObject. The SceneObject itself is also a SceneObject.
 type SceneObject struct {
-	id                  int
-	name                string
-	children            []*SceneObject
-	components          []*ComponentContainer
-	messageListeners    []*ComponentContainer
-	updatingComponents  []*ComponentContainer
-	boundaryComponents  []*ComponentContainer
-	view                *ComponentContainer
-	layout              *ComponentContainer
-	renderingNode       *rendering.Node
-	Transform           Transform
-	parent              *SceneObject
-	enabled             bool
-	initialized         bool
-	started             bool
-	inCurrentScene      bool
-	willBeRemoved       bool
+	id                 int
+	name               string
+	children           []*SceneObject
+	components         []*ComponentContainer
+	messageListeners   []*ComponentContainer
+	updatingComponents []*ComponentContainer
+	boundaryComponents []*ComponentContainer
+	view               *ComponentContainer
+	layout             *ComponentContainer
+	renderingNode      *rendering.Node
+	Transform          Transform
+	parent             *SceneObject
+	enabled            bool
+	initialized        bool
+	started            bool
+	inCurrentScene     bool
+	willBeRemoved      bool
 }
 
 //GetName returns the name of the SceneObject object.
@@ -770,7 +770,7 @@ func (o *SceneObject) ToMap() a.SiMap {
 			state = instance.GetComponentsManager().GetComponentState(c.component)
 		}
 
-		cMap := map[string]interface{} {
+		cMap := map[string]interface{}{
 			"name":  NameOfComponent(c.GetComponent()),
 			"state": state,
 		}
@@ -779,11 +779,11 @@ func (o *SceneObject) ToMap() a.SiMap {
 	}
 
 	return map[string]interface{}{
-		"name": o.name,
-		"id": o.id,
-		"children": mChildren,
+		"name":       o.name,
+		"id":         o.id,
+		"children":   mChildren,
 		"components": mComponents,
-		"transform": o.Transform.ToMap(),
+		"transform":  o.Transform.ToMap(),
 	}
 }
 
@@ -801,27 +801,27 @@ func (o *SceneObject) DumpToMap() a.SiMap {
 			state = instance.GetComponentsManager().GetComponentState(c.component)
 		}
 
-		cMap := map[string]interface{} {
-			"name":  NameOfComponent(c.GetComponent()),
-			"state": state,
+		cMap := map[string]interface{}{
+			"name":        NameOfComponent(c.GetComponent()),
+			"state":       state,
 			"initialized": c.initialized,
-			"started": c.started,
-			"enabled": c.enabled,
+			"started":     c.started,
+			"enabled":     c.enabled,
 		}
 
 		mComponents[i] = cMap
 	}
 
 	return map[string]interface{}{
-		"name": o.name,
-		"id": o.id,
-		"initialized": o.initialized,
-		"started": o.started,
-		"enabled": o.enabled,
-		"willBeRemoved": o.willBeRemoved,
-		"children": mChildren,
-		"components": mComponents,
-		"transform": o.Transform.DumpToMap(),
+		"name":               o.name,
+		"id":                 o.id,
+		"initialized":        o.initialized,
+		"started":            o.started,
+		"enabled":            o.enabled,
+		"willBeRemoved":      o.willBeRemoved,
+		"children":           mChildren,
+		"components":         mComponents,
+		"transform":          o.Transform.DumpToMap(),
 		"renderingTransform": o.Transform.ToRenderingTransform().ToMap(),
 	}
 }

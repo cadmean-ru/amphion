@@ -1,6 +1,6 @@
 package a
 
-import "github.com/cadmean-ru/amphion/common/require"
+import "github.com/cadmean-ru/require"
 
 // SiMap provides an abstraction over Go's map[string]interface{}.
 type SiMap map[string]interface{}

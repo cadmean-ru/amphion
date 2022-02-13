@@ -3,7 +3,7 @@ package engine
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/common/a"
-	"github.com/cadmean-ru/amphion/common/require"
+	"github.com/cadmean-ru/require"
 	"reflect"
 	"runtime"
 )
