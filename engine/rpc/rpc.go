@@ -2,11 +2,12 @@
 package rpc
 
 import (
+	"fmt"
 	"github.com/cadmean-ru/amphion/engine"
-	rpckit "github.com/cadmean-ru/goRPCKit/rpc"
+	"github.com/cadmean-ru/go-rpc/rpc"
 )
 
-var instance *rpckit.Client
+var instance *rpc.Client
 
 // Initialize creates a new instance of rpc client with specified url.
 func Initialize(url string) {
@@ -14,7 +15,7 @@ func Initialize(url string) {
 		return
 	}
 
-	instance = rpckit.NewClient(url)
+	instance = rpc.NewClient(url, rpc.DefaultConfiguration())
 }
 
 type FunctionCallBuilder struct {
@@ -23,25 +24,28 @@ type FunctionCallBuilder struct {
 	onError   func(err error)
 }
 
-// Specifies callback to be called when the RPC call finishes successfully.
+//Then specifies callback to be called when the RPC call finishes successfully.
 func (f *FunctionCallBuilder) Then(onSuccess func(res interface{})) *FunctionCallBuilder {
 	f.onSuccess = onSuccess
 	return f
 }
 
-// Specifies callback to be called when the RPC call finishes with an error.
+//Err specifies callback to be called when the RPC call finishes with an error.
 func (f *FunctionCallBuilder) Err(onError func(err error)) *FunctionCallBuilder {
 	f.onError = onError
 	return f
 }
 
-// Creates and runs task, calling the RPC function with given arguments.
+//Call creates and runs task, calling the RPC function with given arguments.
 func (f *FunctionCallBuilder) Call(args ...interface{}) {
 	engine.RunTask(engine.NewTaskBuilder().Run(func() (interface{}, error) {
-		return instance.F(f.fName).Call(args...)
+		return instance.Func(f.fName).Call(args...)
 	}).Then(func(res interface{}) {
-		if f.onSuccess != nil {
-			f.onSuccess(res)
+		output := res.(*rpc.FunctionOutput)
+		if output.Error == 0 && f.onSuccess != nil {
+			f.onSuccess(output.Result)
+		} else if f.onError != nil {
+			f.onError(rpc.NewError(output.Error, fmt.Sprintf("function exited with code %d", output.Error)))
 		}
 	}).Err(func(err error) {
 		if f.onError != nil {
@@ -50,9 +54,9 @@ func (f *FunctionCallBuilder) Call(args ...interface{}) {
 	}).Build())
 }
 
-// Creates a new call builder to call an RPC function with the specified name.
-func F(fName string) *FunctionCallBuilder {
+//Func creates a new call builder to call an RPC function with the specified name.
+func Func(fName string) *FunctionCallBuilder {
 	return &FunctionCallBuilder{
-		fName:     fName,
+		fName: fName,
 	}
 }

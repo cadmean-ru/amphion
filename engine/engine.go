@@ -22,14 +22,14 @@ type AmphionEngine struct {
 	started  bool
 	state    byte
 
-	loadedScene        *SceneObject
-	currentScene       *SceneObject
-	sceneContext       *SceneContext
-	currentApp         *frontend.App
-	appContext         *AppContext
-	stopChan           chan bool
+	loadedScene  *SceneObject
+	currentScene *SceneObject
+	sceneContext *SceneContext
+	currentApp   *frontend.App
+	appContext   *AppContext
+	stopChan     chan bool
 
-	updateRoutine      *updateRoutine
+	updateRoutine *updateRoutine
 
 	globalContext      frontend.Context
 	forceRedraw        bool
@@ -50,9 +50,9 @@ const (
 )
 
 const (
-	StateStopped = 0
-	StateStarted = 1
-	StateUpdating = 2
+	StateStopped   = 0
+	StateStarted   = 1
+	StateUpdating  = 2
 	StateRendering = 3
 )
 
@@ -108,7 +108,11 @@ func (engine *AmphionEngine) Start() {
 
 // Stop closes the current SceneObject if any, and stops the engine.
 func (engine *AmphionEngine) Stop() {
-	engine.updateRoutine.enqueueEventAndRequestUpdate(NewAmphionEvent(engine, EventStop, nil))
+	if engine.canStop() {
+		engine.handleStop()
+	} else {
+		engine.updateRoutine.enqueueEventAndRequestUpdate(NewAmphionEvent(engine, EventStop, nil))
+	}
 }
 
 // WaitForStop blocks the calling goroutine until the engine is stopped.
@@ -199,7 +203,6 @@ func (engine *AmphionEngine) ShowScene(scene *SceneObject) error {
 	}
 
 	engine.logger.Info(engine, fmt.Sprintf("Starting SceneObject %s", scene.name))
-
 
 	newScene := engine.prepareScene(scene)
 	engine.configureScene(newScene)
@@ -397,7 +400,7 @@ func (engine *AmphionEngine) handleStop() {
 
 	engine.logger.Info(engine, "Amphion stopped")
 
-	engine.stopChan<-true
+	engine.stopChan <- true
 	close(engine.stopChan)
 
 	engine.front.GetMessageDispatcher().SendMessage(dispatch.NewMessage(frontend.MessageEngineStopped))

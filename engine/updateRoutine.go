@@ -8,17 +8,17 @@ import (
 
 type updateRoutine struct {
 	sceneLifecycleManager
-	running            bool
-	updateChan         *dispatch.MessageQueue
-	eventQueue         *dispatch.MessageQueue
-	updateRequested    bool
-	renderingRequested bool
-	eventBinder        *EventBinder
-	dt                 time.Duration
-	lastFrameTime      time.Time
-	updateTime         time.Duration
-	renderingTime      time.Duration
-	updateWasRequested bool
+	running               bool
+	updateChan            *dispatch.MessageQueue
+	eventQueue            *dispatch.MessageQueue
+	updateRequested       bool
+	renderingRequested    bool
+	eventBinder           *EventBinder
+	dt                    time.Duration
+	lastFrameTime         time.Time
+	updateTime            time.Duration
+	renderingTime         time.Duration
+	updateWasRequested    bool
 	renderingWasRequested bool
 }
 
@@ -56,6 +56,10 @@ func (r *updateRoutine) requestRendering() {
 }
 
 func (r *updateRoutine) stop() {
+	if !r.running {
+		return
+	}
+
 	r.updateChan.Enqueue(dispatch.NewMessage(MessageUpdateStop))
 }
 
@@ -71,6 +75,10 @@ func (r *updateRoutine) waitForStop() {
 }
 
 func (r *updateRoutine) enqueueEventAndRequestUpdate(event Event) {
+	if !r.running {
+		return
+	}
+
 	r.eventQueue.Enqueue(dispatch.NewMessageWithAnyData(0, event))
 	r.requestUpdate()
 }
@@ -173,16 +181,12 @@ func (r *updateRoutine) handleEvents() {
 		msg := r.eventQueue.Dequeue()
 		event := msg.AnyData.(Event)
 
-		if event.Code == EventStop {
-			if instance.canStop() {
-				instance.logger.Info(nil, "Stopping")
-				break
-			} else {
-				instance.handleStop()
-			}
-		}
-
 		r.eventBinder.InvokeHandlers(event)
+
+		if event.Code == EventStop {
+			instance.handleStop()
+			break
+		}
 	}
 
 	r.eventQueue.UnlockMainChannel()
@@ -268,6 +272,6 @@ func (r *updateRoutine) GetName() string {
 
 func newUpdateRoutine() *updateRoutine {
 	return &updateRoutine{
-		eventBinder:       newEventBinder(),
+		eventBinder: newEventBinder(),
 	}
 }
