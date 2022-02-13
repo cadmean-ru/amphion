@@ -40,6 +40,16 @@ func RequestRendering() {
 	instance.RequestRendering()
 }
 
+// IsUpdateRequested returns whether rendering is requested for the next update cycle.
+func IsUpdateRequested() bool {
+	return instance.IsUpdateRequested()
+}
+
+// IsRenderingRequested returns whether rendering is requested for the next update cycle.
+func IsRenderingRequested() bool {
+	return instance.IsRenderingRequested()
+}
+
 // LoadPrefab - shortcut for (engine *AmphionEngine) LoadPrefab(resId int) (*SceneObject, error).
 func LoadPrefab(resId a.ResId) (*SceneObject, error) {
 	return instance.LoadPrefab(resId)
@@ -70,7 +80,7 @@ func RaiseEvent(event Event) {
 }
 
 // ExecuteOnFrontendThread - shortcut for (engine *AmphionEngine) ExecuteOnFrontendThread(action func()).
-// Executes the specified action on frontend thread. 
+// Executes the specified action on frontend thread.
 func ExecuteOnFrontendThread(action func()) {
 	instance.ExecuteOnFrontendThread(action)
 }
@@ -228,4 +238,14 @@ func NameOfComponent(component interface{}) string {
 //GetMessageDispatcher returns the MessageDispatcher for the current scene.
 func GetMessageDispatcher() *MessageDispatcher {
 	return instance.GetMessageDispatcher()
+}
+
+// GetState returns the current engine state.
+func GetState() byte {
+	return instance.GetState()
+}
+
+// GetStateString returns the current engine state as string.
+func GetStateString() string {
+	return instance.GetStateString()
 }
