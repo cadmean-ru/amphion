@@ -171,5 +171,24 @@ func (l *LayoutImpl) FinalizePosition(object *SceneObject) {
 }
 
 func (l *LayoutImpl) MeasureContents() a.Vector3 {
-	return a.ZeroVector()
+	size := a.ZeroVector()
+
+	l.SceneObject.ForEachObject(func(c *SceneObject) {
+		if c == l.SceneObject {
+			return
+		}
+
+		childRect := c.Transform.Rect()
+		if childRect.X.Max > size.X {
+			size.X = childRect.X.Max
+		}
+		if childRect.Y.Max > size.Y {
+			size.Y = childRect.Y.Max
+		}
+		if childRect.Z.Max > size.Z {
+			size.Z = childRect.Z.Max
+		}
+	})
+
+	return size
 }
