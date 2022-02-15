@@ -183,7 +183,7 @@ func (t *Transform) GlobalTopLeftPosition() a.Vector3 {
 
 // Rect calculates local rect of this transform.
 func (t *Transform) Rect() *common.Rect {
-	return t.calculateRect(a.ZeroVector(), t.actualSize)
+	return t.calculateRect(t.TopLeftPosition(), t.actualSize)
 }
 
 // GlobalRect calculates global rect of this transform.

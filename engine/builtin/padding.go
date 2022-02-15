@@ -18,7 +18,7 @@ func (s *Padding) LayoutChildren() {
 
 	for _, c := range s.SceneObject.GetChildren() {
 		childRect := c.Transform.Rect()
-		if childRect.IsRectInside(innerRect) {
+		if innerRect.IsRectInside(childRect) {
 			continue
 		}
 
@@ -33,6 +33,8 @@ func (s *Padding) LayoutChildren() {
 		childSize.Y = common.ClampFloat32(childSize.Y, 0, innerRect.Y.Max-childPos.Y)
 		childSize.Z = common.ClampFloat32(childSize.Z, 0, innerRect.Z.Max-childPos.Z)
 		c.Transform.SetSize(childSize)
+
+		c.Redraw()
 	}
 }
 
@@ -45,6 +47,11 @@ func (s *Padding) calculateInnerRect() *common.Rect {
 	rect.Move(a.NewVector3(s.EdgeInsets.Left, s.EdgeInsets.Top, 0))
 	rect.ShrinkMax(a.NewVector3(s.EdgeInsets.Left+s.EdgeInsets.Right, s.EdgeInsets.Top+s.EdgeInsets.Bottom, 0))
 	return rect
+}
+
+func (s *Padding) SetPadding(padding *common.EdgeInsets) {
+	s.EdgeInsets = padding
+	engine.RequestRendering()
 }
 
 func NewPadding(insets *common.EdgeInsets) *Padding {
