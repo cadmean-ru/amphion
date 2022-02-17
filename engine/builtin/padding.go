@@ -9,6 +9,7 @@ import (
 type Padding struct {
 	engine.LayoutImpl
 	EdgeInsets *common.EdgeInsets `state:"edgeInsets"`
+	AutoAdjust bool               `state:"autoAdjust"`
 }
 
 func (s *Padding) LayoutChildren() {
@@ -22,17 +23,21 @@ func (s *Padding) LayoutChildren() {
 			continue
 		}
 
-		childPos := c.Transform.LocalPosition()
-		childPos.X = common.ClampFloat32(childPos.X, innerRect.X.Min, innerRect.X.Max)
-		childPos.Y = common.ClampFloat32(childPos.Y, innerRect.Y.Min, innerRect.Y.Max)
-		childPos.Z = common.ClampFloat32(childPos.Z, innerRect.Z.Min, innerRect.Z.Max)
-		c.Transform.SetPosition(childPos)
+		if s.AutoAdjust {
+			c.Transform.SetRect(innerRect)
+		} else {
+			childPos := c.Transform.LocalPosition()
+			childPos.X = common.ClampFloat32(childPos.X, innerRect.X.Min, innerRect.X.Max)
+			childPos.Y = common.ClampFloat32(childPos.Y, innerRect.Y.Min, innerRect.Y.Max)
+			childPos.Z = common.ClampFloat32(childPos.Z, innerRect.Z.Min, innerRect.Z.Max)
+			c.Transform.SetPosition(childPos)
 
-		childSize := c.Transform.ActualSize()
-		childSize.X = common.ClampFloat32(childSize.X, 0, innerRect.X.Max-childPos.X)
-		childSize.Y = common.ClampFloat32(childSize.Y, 0, innerRect.Y.Max-childPos.Y)
-		childSize.Z = common.ClampFloat32(childSize.Z, 0, innerRect.Z.Max-childPos.Z)
-		c.Transform.SetSize(childSize)
+			childSize := c.Transform.ActualSize()
+			childSize.X = common.ClampFloat32(childSize.X, 0, innerRect.X.Max-childPos.X)
+			childSize.Y = common.ClampFloat32(childSize.Y, 0, innerRect.Y.Max-childPos.Y)
+			childSize.Z = common.ClampFloat32(childSize.Z, 0, innerRect.Z.Max-childPos.Z)
+			c.Transform.SetSize(childSize)
+		}
 
 		c.Redraw()
 	}
@@ -54,8 +59,14 @@ func (s *Padding) SetPadding(padding *common.EdgeInsets) {
 	engine.RequestRendering()
 }
 
+func (s *Padding) SetAutoAdjust(adjust bool) {
+	s.AutoAdjust = adjust
+	engine.RequestRendering()
+}
+
 func NewPadding(insets *common.EdgeInsets) *Padding {
 	return &Padding{
 		EdgeInsets: insets,
+		AutoAdjust: true,
 	}
 }

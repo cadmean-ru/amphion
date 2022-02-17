@@ -146,6 +146,12 @@ func (t *Transform) SetSizeMatchParent() {
 	t.SetSize(a.NewVector3(a.MatchParent, a.MatchParent, a.MatchParent))
 }
 
+//SetRect sets position and size of the object from the given Rect.
+func (t *Transform) SetRect(rect *common.Rect) {
+	t.SetPosition(rect.Min())
+	t.SetSize(rect.Size())
+}
+
 // ActualSize calculates the actual absolute size of the object without the special values.
 func (t *Transform) ActualSize() a.Vector3 {
 	return t.actualSize
