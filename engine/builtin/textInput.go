@@ -8,7 +8,6 @@ import (
 	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/amphion/frontend"
 	"github.com/cadmean-ru/amphion/rendering"
-	"math"
 	"time"
 )
 
@@ -67,6 +66,10 @@ type TextInput struct {
 	SelectionColor     a.Color             `state:"selectionColor"`
 	InitialText        string              `state:"initialText"`
 	OnChangeListener   engine.EventHandler `state:"onChangeListener"`
+	FontSize           byte                `state:"fontSize"`
+	HTextAlign         a.TextAlign         `state:"hTextAlign"`
+	VTextAlign         a.TextAlign         `state:"vTextAlign"`
+	SingleLine         bool                `state:"singleLine"`
 	currentSelection   *Selection
 	currentText        []rune
 	aFont              *atext.Font
@@ -79,7 +82,6 @@ type TextInput struct {
 	mousePressed       bool
 	mouseDownPosition  a.IntVector2
 	shouldDrag         bool
-	padding            float32
 	backspacePressed   bool
 	backspaceTime      time.Time
 	currentCursorColor a.Color
@@ -95,7 +97,10 @@ func (s *TextInput) OnInit(ctx engine.InitContext) {
 	s.currentSelection = &Selection{}
 
 	s.aFont, _ = atext.ParseFont(atext.DefaultFontData)
-	s.aFace = s.aFont.NewFace(20)
+	if s.FontSize == 0 {
+		s.FontSize = 14
+	}
+	s.aFace = s.aFont.NewFace(int(s.FontSize))
 	s.layoutText()
 
 	if !s.SceneObject.HasComponent("Rect") {
@@ -320,6 +325,13 @@ func (s *TextInput) OnDraw(ctx engine.DrawingContext) {
 	s.ShouldRedraw = false
 }
 
+func (s *TextInput) MeasureContents() a.Vector3 {
+	if s.aText == nil {
+		return a.ZeroVector()
+	}
+	return s.aText.GetSize().ToFloat3()
+}
+
 func (s *TextInput) OnStop() {
 	engine.UnbindEventHandler(engine.EventKeyDown, s.handleKeyDown)
 	engine.UnbindEventHandler(engine.EventKeyUp, s.handleKeyUp)
@@ -346,7 +358,7 @@ func (s *TextInput) handleKeyDown(event engine.Event) bool {
 	case engine.KeyDelete:
 		s.handleDelete()
 	case engine.KeyEnter, engine.KeyNumEnter:
-		s.handleRune([]rune("\n"))
+		s.handleEnter()
 	case engine.KeyLeftArrow:
 		s.handleArrow(-1)
 	case engine.KeyRightArrow:
@@ -414,6 +426,14 @@ func (s *TextInput) handleTextInput(event engine.Event) bool {
 	engine.RequestRendering()
 
 	return true
+}
+
+func (s *TextInput) handleEnter() {
+	if s.SingleLine {
+		return
+	}
+
+	s.handleRune([]rune("\n"))
 }
 
 func (s *TextInput) handleRune(appendingText []rune) {
@@ -576,7 +596,7 @@ func (s *TextInput) getSelectionOffset() a.Vector3 {
 		return s.SceneObject.Transform.GlobalTopLeftPosition()
 	}
 
-	var y float32 = float32(s.aText.GetCharAt(0).GetY())
+	var y = s.SceneObject.Transform.GlobalTopLeftPosition().Y
 	i := 0
 
 	for l := 0; l < s.aText.GetLinesCount(); l++ {
@@ -599,7 +619,6 @@ func (s *TextInput) getSelectionOffset() a.Vector3 {
 
 func (s *TextInput) layoutText() {
 	bounds := s.SceneObject.Transform.GlobalRect()
-	bounds.Shrink(a.NewVector3(s.padding, s.padding, 0))
 	wantedSize := s.SceneObject.Transform.WantedSize()
 	if wantedSize.X == a.WrapContent {
 		bounds.X.Max = atext.Unbounded
@@ -607,11 +626,11 @@ func (s *TextInput) layoutText() {
 	if wantedSize.Y == a.WrapContent {
 		bounds.Y.Max = atext.Unbounded
 	}
-	s.aText = atext.LayoutRunes(s.aFace, s.currentText, bounds, atext.LayoutOptions{})
-}
-
-func (s *TextInput) calculatePadding() {
-	s.padding = float32(math.Ceil(float64(s.aFace.GetSize()) * 0.15))
+	s.aText = atext.LayoutRunes(s.aFace, s.currentText, bounds, atext.LayoutOptions{
+		HTextAlign: s.HTextAlign,
+		VTextAlign: s.VTextAlign,
+		SingleLine: s.SingleLine,
+	})
 }
 
 func (s *TextInput) GetSelectedText() string {
@@ -637,6 +656,31 @@ func (s *TextInput) GetText() string {
 func (s *TextInput) SetText(newText string) {
 	s.currentText = []rune(newText)
 	s.handleTextChange()
+	s.ShouldRedraw = true
+	engine.RequestRendering()
+}
+
+func (s *TextInput) SetFontSize(fontSize byte) {
+	s.FontSize = fontSize
+	s.aFace = s.aFont.NewFace(int(s.FontSize))
+	s.ShouldRedraw = true
+	engine.RequestRendering()
+}
+
+func (s *TextInput) SetHTextAlign(align a.TextAlign) {
+	s.HTextAlign = align
+	s.ShouldRedraw = true
+	engine.RequestRendering()
+}
+
+func (s *TextInput) SetVTextAlign(align a.TextAlign) {
+	s.VTextAlign = align
+	s.ShouldRedraw = true
+	engine.RequestRendering()
+}
+
+func (s *TextInput) SetSingleLine(singleLine bool) {
+	s.SingleLine = singleLine
 	s.ShouldRedraw = true
 	engine.RequestRendering()
 }
