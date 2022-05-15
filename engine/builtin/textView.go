@@ -64,6 +64,9 @@ func (t *TextView) OnDraw(ctx engine.DrawingContext) {
 }
 
 func (t *TextView) MeasureContents() a.Vector3 {
+	if t.aText == nil {
+		return a.ZeroVector()
+	}
 	return t.aText.GetSize().ToFloat3().Add(a.NewVector3(t.padding*2, t.padding*2, 0))
 }
 

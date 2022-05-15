@@ -61,7 +61,7 @@ func (l *LayoutImpl) SecondPass(object *SceneObject) {
 }
 
 //MeasureObject measures the measured size of the object based on wanted size and size of its children.
-//Writes the measures size to the object's transform.
+//Writes the measured size to the object's transform.
 func (l *LayoutImpl) MeasureObject(object *SceneObject) {
 	if !l.ObjectNeedsToBeMeasured(object) {
 		return
