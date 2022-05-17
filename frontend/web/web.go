@@ -237,7 +237,7 @@ func (f *Frontend) handleMessage(msg *dispatch.Message) {
 		setWindowTitle(msg.String())
 	case frontend.MessageNavigate:
 		if msg.String() != "" {
-			setWindowLocation(msg.String())
+			setWindowLocation(msg.StringData())
 		}
 	}
 }
