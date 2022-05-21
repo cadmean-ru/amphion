@@ -117,7 +117,6 @@ func (m *sceneLifecycleManager) onStartSceneObject(o *SceneObject) {
 	instance.currentComponent = nil
 }
 
-
 func (m *sceneLifecycleManager) loopUpdate(obj *SceneObject, ctx UpdateContext) {
 	if !obj.enabled {
 		return
@@ -145,7 +144,7 @@ func (m *sceneLifecycleManager) onUpdateSceneObject(o *SceneObject, ctx UpdateCo
 
 func (m *sceneLifecycleManager) loopLayout(obj *SceneObject) {
 	obj.TraversePostOrder(func(object *SceneObject) {
-		if !object.HasLayout() {
+		if !object.HasLayout() || object.IsDirty() {
 			return
 		}
 
