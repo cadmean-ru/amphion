@@ -1,6 +1,6 @@
 module github.com/cadmean-ru/amphion
 
-go 1.16
+go 1.18
 
 require (
 	github.com/cadmean-ru/go-rpc v0.1.3

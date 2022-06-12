@@ -1,6 +1,4 @@
-// +build windows linux darwin
-// +build !android
-// +build !ios
+//go:build (windows || linux || darwin) && !android && !ios
 
 package pc
 
@@ -81,7 +79,7 @@ func (f *Frontend) Run() {
 		msgTime := f.processMessages()
 
 		timeToWait := 0.0
-		if SleepTimeS - msgTime.Seconds() > 0 {
+		if SleepTimeS-msgTime.Seconds() > 0 {
 			timeToWait = SleepTimeS - msgTime.Seconds()
 		}
 
@@ -200,12 +198,12 @@ func (f *Frontend) scrollCallback(_ *glfw.Window, xoff float64, yoff float64) {
 
 func (f *Frontend) setStandardCursor(cursorType int) {
 	cursorsMap := map[int]glfw.StandardCursor{
-		engine.StandardCursorArrow: glfw.ArrowCursor,
-		engine.StandardCursorIBeam: glfw.IBeamCursor,
-		engine.StandardCursorHand: glfw.HandCursor,
+		engine.StandardCursorArrow:     glfw.ArrowCursor,
+		engine.StandardCursorIBeam:     glfw.IBeamCursor,
+		engine.StandardCursorHand:      glfw.HandCursor,
 		engine.StandardCursorCrosshair: glfw.CrosshairCursor,
-		engine.StandardCursorHResize: glfw.HResizeCursor,
-		engine.StandardCursorVResize: glfw.VResizeCursor,
+		engine.StandardCursorHResize:   glfw.HResizeCursor,
+		engine.StandardCursorVResize:   glfw.VResizeCursor,
 	}
 
 	cursor := glfw.CreateStandardCursor(cursorsMap[cursorType])
@@ -282,9 +280,9 @@ func (f *Frontend) GetLaunchArgs() a.SiMap {
 
 func NewFrontend() *Frontend {
 	f := &Frontend{
-		wSize: a.NewIntVector3(500, 500, 0),
-		msgChan:  dispatch.NewMessageQueue(1000),
-		resMan:   newResourceManager(),
+		wSize:   a.NewIntVector3(500, 500, 0),
+		msgChan: dispatch.NewMessageQueue(1000),
+		resMan:  newResourceManager(),
 	}
 	f.rendererDelegate = &opengl.Renderer{}
 	f.renderer = rendering.NewARenderer(f.rendererDelegate, f)

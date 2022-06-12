@@ -2,18 +2,13 @@ package a
 
 import (
 	"fmt"
+	"github.com/cadmean-ru/require"
 	"math"
 )
 
-// Represents a point in 3D space
+// Vector3 represents a point in 3D space using float32.
 type Vector3 struct {
 	X, Y, Z float32
-}
-
-func (v Vector3) SetXYZ(x, y, z float32) {
-	v.X = x
-	v.Y = y
-	v.Z = z
 }
 
 func NewVector3(x, y, z float32) Vector3 {
@@ -33,16 +28,16 @@ func (v Vector3) ToMap() SiMap {
 }
 
 func (v *Vector3) FromMap(siMap SiMap) {
-	v.X = requireFloat32(siMap["x"])
-	v.Y = requireFloat32(siMap["y"])
-	v.Z = requireFloat32(siMap["z"])
+	v.X = require.Float32(siMap["x"])
+	v.Y = require.Float32(siMap["y"])
+	v.Z = require.Float32(siMap["z"])
 }
 
 func (v Vector3) String() string {
 	return fmt.Sprintf("(%f, %f, %f)", v.X, v.Y, v.Z)
 }
 
-// Returns a new vector - the sum of two vectors
+// Add returns a new vector - the sum of two vectors.
 func (v Vector3) Add(v2 Vector3) Vector3 {
 	return Vector3{
 		X: v.X + v2.X,
@@ -51,7 +46,7 @@ func (v Vector3) Add(v2 Vector3) Vector3 {
 	}
 }
 
-// Returns a new vector - v-v2
+// Sub Returns a new vector - v-v2.
 func (v Vector3) Sub(v2 Vector3) Vector3 {
 	return Vector3{
 		X: v.X - v2.X,
@@ -60,7 +55,7 @@ func (v Vector3) Sub(v2 Vector3) Vector3 {
 	}
 }
 
-// Returns new vector - multiplication of two vectors
+// Multiply returns new vector - multiplication of two vectors.
 func (v Vector3) Multiply(v2 Vector3) Vector3 {
 	return Vector3{
 		X: v.X * v2.X,
@@ -69,7 +64,16 @@ func (v Vector3) Multiply(v2 Vector3) Vector3 {
 	}
 }
 
-// Rounds the valued of the vector
+//MultiplyScalar multiplies the vector by a scalar.
+func (v Vector3) MultiplyScalar(x float32) Vector3 {
+	return Vector3{
+		X: v.X * x,
+		Y: v.Y * x,
+		Z: v.Z * x,
+	}
+}
+
+// Round rounds the values of the vector.
 func (v Vector3) Round() IntVector3 {
 	return IntVector3{
 		X: int(math.Round(float64(v.X))),
@@ -78,7 +82,7 @@ func (v Vector3) Round() IntVector3 {
 	}
 }
 
-// Transforms vector ro normalized device coordinates vector
+// Ndc transforms vector ro normalized device coordinates vector.
 func (v Vector3) Ndc(screen Vector3) Vector3 {
 	xs := screen.X
 	ys := screen.Y
@@ -86,13 +90,13 @@ func (v Vector3) Ndc(screen Vector3) Vector3 {
 	y0 := screen.Y / 2
 	x := v.X
 	y := v.Y
-	newX := (2*(x-x0))/xs
-	newY := (-2*(y-y0))/ys
+	newX := (2 * (x - x0)) / xs
+	newY := (-2 * (y - y0)) / ys
 
 	return Vector3{newX, newY, 0}
 }
 
-// Checks if the vector is the same as other vector
+//Equals checks if the vector is the same as other vector
 func (v Vector3) Equals(other interface{}) bool {
 	switch other.(type) {
 	case Vector3:
@@ -127,23 +131,4 @@ func NewVector3FromMap(siMap SiMap) Vector3 {
 	var v Vector3
 	v.FromMap(siMap)
 	return v
-}
-
-func requireFloat32(num interface{}) float32 {
-	switch num.(type) {
-	case byte:
-		return float32(num.(byte))
-	case int:
-		return float32(num.(int))
-	case int32:
-		return float32(num.(int32))
-	case int64:
-		return float32(num.(int64))
-	case float32:
-		return num.(float32)
-	case float64:
-		return float32(num.(float64))
-	default:
-		return 0
-	}
 }

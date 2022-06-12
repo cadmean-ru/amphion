@@ -4,15 +4,9 @@ import (
 	"fmt"
 )
 
-// Represents a point in 3D space only in integer values
+//IntVector3 represents a point in 3D using int.
 type IntVector3 struct {
 	X, Y, Z int
-}
-
-func (v IntVector3) SetXYZ(x, y, z int) {
-	v.X = x
-	v.Y = y
-	v.Z = z
 }
 
 func NewIntVector3(x, y, z int) IntVector3 {
@@ -35,7 +29,7 @@ func (v IntVector3) ToString() string {
 	return fmt.Sprintf("(%d, %d, %d)", v.X, v.Y, v.Z)
 }
 
-// Returns a new vector - the sum of two vectors
+//Add returns a new vector - the sum of two vectors.
 func (v IntVector3) Add(v2 IntVector3) IntVector3 {
 	return IntVector3{
 		X: v.X + v2.X,
@@ -44,7 +38,7 @@ func (v IntVector3) Add(v2 IntVector3) IntVector3 {
 	}
 }
 
-// Returns a new vector - v-v2
+//Sub returns a new vector - v-v2.
 func (v IntVector3) Sub(v2 IntVector3) IntVector3 {
 	return IntVector3{
 		X: v.X - v2.X,
@@ -53,7 +47,7 @@ func (v IntVector3) Sub(v2 IntVector3) IntVector3 {
 	}
 }
 
-// Returns new vector - multiplication of two vectors
+//Multiply returns new vector - multiplication of two vectors.
 func (v IntVector3) Multiply(v2 IntVector3) IntVector3 {
 	return IntVector3{
 		X: v.X * v2.X,
@@ -62,10 +56,21 @@ func (v IntVector3) Multiply(v2 IntVector3) IntVector3 {
 	}
 }
 
+//MultiplyScalar returns new vector - multiplication of two vectors.
+func (v IntVector3) MultiplyScalar(x int) IntVector3 {
+	return IntVector3{
+		X: v.X * x,
+		Y: v.Y * x,
+		Z: v.Z * x,
+	}
+}
+
+//ToFloat converts the vector to float32 vector.
 func (v IntVector3) ToFloat() Vector3 {
 	return NewVector3(float32(v.X), float32(v.Y), float32(v.Z))
 }
 
+//ToInt32 converts the vector to int32 vector.
 func (v IntVector3) ToInt32() Int32Vector3 {
 	return Int32Vector3{
 		X: int32(v.X),
@@ -74,7 +79,7 @@ func (v IntVector3) ToInt32() Int32Vector3 {
 	}
 }
 
-// Transforms vector ro normalized device coordinates vector
+//Ndc transforms vector ro normalized device coordinates vector
 func (v IntVector3) Ndc(screen IntVector3) Vector3 {
 	xs := float32(screen.X)
 	ys := float32(screen.Y)
@@ -82,13 +87,13 @@ func (v IntVector3) Ndc(screen IntVector3) Vector3 {
 	y0 := float32(screen.Y) / 2
 	x := float32(v.X)
 	y := float32(v.Y)
-	newX := (2*(x-x0))/xs
-	newY := (-2*(y-y0))/ys
+	newX := (2 * (x - x0)) / xs
+	newY := (-2 * (y - y0)) / ys
 
 	return Vector3{newX, newY, 0}
 }
 
-// Checks if the vector is the same as other vector
+//Equals checks if the vector is the same as other vector
 func (v IntVector3) Equals(other interface{}) bool {
 	switch other.(type) {
 	case IntVector3:
