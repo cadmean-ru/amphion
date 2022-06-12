@@ -222,7 +222,7 @@ func (m *sceneLifecycleManager) loopStop(obj *SceneObject) {
 
 func (m *sceneLifecycleManager) onStopSceneObject(o *SceneObject) {
 	for _, c := range o.components {
-		if !c.enabled || !c.started {
+		if !c.enabled && !c.started {
 			continue
 		}
 		instance.currentComponent = c.component

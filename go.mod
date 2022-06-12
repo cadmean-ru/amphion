@@ -15,3 +15,12 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
 )
+
+require (
+	github.com/davecgh/go-spew v1.1.0 // indirect
+	github.com/mitchellh/mapstructure v1.4.2 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
+	golang.org/x/mobile v0.0.0-20210716004757-34ab1303b554 // indirect
+	golang.org/x/sys v0.0.0-20210510120138-977fb7262007 // indirect
+)

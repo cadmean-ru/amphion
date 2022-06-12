@@ -35,14 +35,33 @@ func NewLifecycleTester() *LifecycleTester {
 
 func TestComponentLifecycle(t *testing.T) {
 	lifecycleTester := NewLifecycleTester()
+	childLifecycleTester := NewLifecycleTester()
 	var err error
 
 	atest.RunEngineTest(t, func(e *engine.AmphionEngine) {
 		scene := engine.NewSceneObject("lifecycle test scene")
 		scene.AddComponent(lifecycleTester)
 		err = e.ShowScene(scene)
+		if err != nil {
+			return
+		}
 
 		time.Sleep(3 * time.Second)
+
+		testObj := engine.NewSceneObject("lifecycle test object")
+		testObj.AddComponent(childLifecycleTester)
+		scene.AddChild(testObj)
+
+		time.Sleep(3 * time.Second)
+
+		testObj.SetEnabled(false)
+
+		time.Sleep(3 * time.Second)
+
+		testObj.SetEnabled(true)
+
+		time.Sleep(3 * time.Second)
+
 		e.Stop()
 	})
 
@@ -50,4 +69,5 @@ func TestComponentLifecycle(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, 3, lifecycleTester.counter)
+	assert.Equal(t, 5, childLifecycleTester.counter)
 }
