@@ -39,9 +39,9 @@ func (c *ComponentContainer) stop() {
 		return
 	}
 
-	instance.currentComponent = c.component
+	instance.updateRoutine.currentComponent = c
 	c.component.OnStop()
-	instance.currentComponent = nil
+	instance.updateRoutine.currentComponent = nil
 }
 
 func NewComponentContainer(sceneObject *SceneObject, component Component) *ComponentContainer {

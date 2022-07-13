@@ -6,6 +6,8 @@ import (
 	"github.com/cadmean-ru/require"
 	"reflect"
 	"runtime"
+	"strings"
+	"unsafe"
 )
 
 //ComponentsManager keeps track  of types of components and event handlers. that are present in the application.
@@ -73,7 +75,7 @@ func (m *ComponentsManager) NameOfComponent(component interface{}) string {
 
 	t := reflect.TypeOf(component)
 
-	if t.Kind() == reflect.Ptr {
+	if t.Kind() == reflect.Ptr && component != nil {
 		t = reflect.Indirect(reflect.ValueOf(component)).Type()
 	}
 
@@ -179,11 +181,12 @@ func (m *ComponentsManager) SetComponentState(component Component, state a.SiMap
 
 //stateTagMatches checks if the given struct field name matches the given state map key
 func (m *ComponentsManager) stateTagMatches(sf reflect.StructField, key string) bool {
-	return sf.Tag == "state" && sf.Name == key || sf.Tag.Get("state") == key
+	return sf.Tag == "state" && strings.ToLower(sf.Name) == strings.ToLower(key) ||
+		strings.ToLower(sf.Tag.Get("state")) == strings.ToLower(key)
 }
 
 // Sets the reflect.Value vf (field) of a struct equal to the specified value trying to convert it to the field's type.
-func (m *ComponentsManager) setReflectValue(vf reflect.Value, value interface{}) {
+func (m *ComponentsManager) setReflectValue(vf reflect.Value, value any) {
 	var newValue reflect.Value
 
 	switch vf.Kind() {
@@ -247,7 +250,16 @@ func (m *ComponentsManager) setReflectStringValue(_ reflect.Value, value interfa
 func (m *ComponentsManager) setReflectStructValue(vf reflect.Value, value interface{}) reflect.Value {
 	structValue := reflect.New(vf.Type())
 
-	if structValue.Type().Implements(reflect.TypeOf((*a.Unstringable)(nil)).Elem()) {
+	//reactiveType := reflect.TypeOf((*ReactiveProperty)(nil)).Elem()
+	//
+
+	n := vf.Type().Name()
+	fmt.Println(n)
+	if strings.HasPrefix(n, "ReactiveProperty") {
+		reactiveValueField := vf.FieldByName("value")
+		reactiveValueField = reflect.NewAt(reactiveValueField.Type(), unsafe.Pointer(reactiveValueField.UnsafeAddr())).Elem()
+		m.setReflectValue(reactiveValueField, value)
+	} else if structValue.Type().Implements(reflect.TypeOf((*a.Unstringable)(nil)).Elem()) {
 		structValue.Interface().(a.Unstringable).FromString(require.String(value))
 	} else if structValue.Type().Implements(reflect.TypeOf((*a.Unmappable)(nil)).Elem()) {
 		structValue.Interface().(a.Unmappable).FromMap(a.RequireSiMap(value))

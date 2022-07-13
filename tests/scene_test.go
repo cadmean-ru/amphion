@@ -1,16 +1,17 @@
-package engine
+package tests
 
 import (
 	"fmt"
 	"github.com/cadmean-ru/amphion/atest"
 	"github.com/cadmean-ru/amphion/common/a"
+	"github.com/cadmean-ru/amphion/engine"
 	"github.com/cadmean-ru/require"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 type testComponent struct {
-	ComponentImpl
+	engine.ComponentImpl
 	num int
 }
 
@@ -33,15 +34,15 @@ func (m *testComponent) SetInstanceState(state a.SiMap) {
 }
 
 func (m *testComponent) GetName() string {
-	return NameOfComponent(m)
+	return engine.NameOfComponent(m)
 }
 
-func createTestScene() *SceneObject {
-	scene := NewSceneObject("Test SceneObject")
+func createTestScene() *engine.SceneObject {
+	scene := engine.NewSceneObject("Test SceneObject")
 
-	rect := NewSceneObject("rect")
-	rect.Transform.size = a.NewVector3(100, 100, 100)
-	rect.Transform.position = a.NewVector3(100, 100, -2)
+	rect := engine.NewSceneObject("rect")
+	rect.Transform.SetSize(100, 100, 100)
+	rect.Transform.SetPosition(100, 100, -2)
 	test := &testComponent{}
 	test.num = 69
 	test2 := &testStatefulWithTags{}
@@ -49,16 +50,16 @@ func createTestScene() *SceneObject {
 	test2.Bruh2 = 2
 	test2.Color = a.Green()
 	test2.Arr = []int{42, 69}
-	test2.Hand = func(_ Event) bool {
+	test2.Hand = func(_ engine.Event) bool {
 		fmt.Println("Handle breh")
 		return false
 	}
 	rect.AddComponent(test)
 	rect.AddComponent(test2)
 
-	circle := NewSceneObject("circle")
-	circle.Transform.size = a.NewVector3(50, 50, 0)
-	circle.Transform.position = a.NewVector3(10, 10, 1)
+	circle := engine.NewSceneObject("circle")
+	circle.Transform.SetSize(50, 50, 0)
+	circle.Transform.SetPosition(10, 10, 1)
 
 	rect.AddChild(circle)
 	scene.AddChild(rect)
@@ -157,13 +158,13 @@ transform:
    z: 1
 `
 
-	atest.RunEngineTest(t, func(e *AmphionEngine) {
+	atest.RunEngineTest(t, func(e *engine.AmphionEngine) {
 		cm := e.GetComponentsManager()
 		cm.RegisterComponentType(&testComponent{})
 		cm.RegisterComponentType(&testStatefulWithTags{})
 
 		data := []byte(srcYaml)
-		SceneObject := &SceneObject{}
+		SceneObject := &engine.SceneObject{}
 
 		err := SceneObject.DecodeFromYaml(data)
 		if err != nil {
@@ -186,7 +187,7 @@ transform:
 func TestSceneObject_GetComponentByName(t *testing.T) {
 	ass := assert.New(t)
 
-	o := NewSceneObjectForTesting("Testing object")
+	o := engine.NewSceneObjectForTesting("Testing object")
 	component := &testComponent{}
 	o.AddComponent(component)
 
@@ -201,14 +202,14 @@ func TestSceneObject_GetComponentByName(t *testing.T) {
 }
 
 func TestSceneObject_FindObjectByName(t *testing.T) {
-	o1 := NewSceneObjectForTesting("Testing object 1")
-	o2 := NewSceneObjectForTesting("Testing object 2")
+	o1 := engine.NewSceneObjectForTesting("Testing object 1")
+	o2 := engine.NewSceneObjectForTesting("Testing object 2")
 	o1.AddChild(o2)
-	o3 := NewSceneObjectForTesting("Testing object 3")
+	o3 := engine.NewSceneObjectForTesting("Testing object 3")
 	o1.AddChild(o3)
-	o4 := NewSceneObjectForTesting("Testing object 4")
+	o4 := engine.NewSceneObjectForTesting("Testing object 4")
 	o2.AddChild(o4)
-	o5 := NewSceneObjectForTesting("Testing object 5")
+	o5 := engine.NewSceneObjectForTesting("Testing object 5")
 	o2.AddChild(o5)
 
 	ass := assert.New(t)
@@ -227,16 +228,16 @@ func TestSceneObject_FindObjectByName(t *testing.T) {
 }
 
 func TestSceneObject_FindComponentByName(t *testing.T) {
-	o1 := NewSceneObjectForTesting("Testing object 1")
-	o2 := NewSceneObjectForTesting("Testing object 2")
+	o1 := engine.NewSceneObjectForTesting("Testing object 1")
+	o2 := engine.NewSceneObjectForTesting("Testing object 2")
 	o1.AddChild(o2)
-	o3 := NewSceneObjectForTesting("Testing object 3")
+	o3 := engine.NewSceneObjectForTesting("Testing object 3")
 	o1.AddChild(o3)
-	o4 := NewSceneObjectForTesting("Testing object 4")
+	o4 := engine.NewSceneObjectForTesting("Testing object 4")
 	o2.AddChild(o4)
 
 	target := &testComponent{}
-	o5 := NewSceneObjectForTesting("Testing object 5", target)
+	o5 := engine.NewSceneObjectForTesting("Testing object 5", target)
 	o2.AddChild(o5)
 
 	found := o1.FindComponentByName("testComponent")
@@ -245,9 +246,9 @@ func TestSceneObject_FindComponentByName(t *testing.T) {
 }
 
 func TestSceneObject_DeepCopy(t *testing.T) {
-	o := NewSceneObjectForTesting("Test object")
-	o.Transform.size = a.NewVector3(69, 69, 69)
-	o1 := NewSceneObjectForTesting("Test object 2", &testComponent{})
+	o := engine.NewSceneObjectForTesting("Test object")
+	o.Transform.SetSize(69, 69, 69)
+	o1 := engine.NewSceneObjectForTesting("Test object 2", &testComponent{})
 	o.AddChild(o1)
 
 	c := o.Copy("Copy of test object")

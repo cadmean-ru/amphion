@@ -1,7 +1,4 @@
 //go:build (windows || darwin || linux) && !android && !ios
-// +build windows darwin linux
-// +build !android
-// +build !ios
 
 package main
 
@@ -60,7 +57,7 @@ func main() {
 	go func() {
 		e.Start()
 
-		if err := e.ShowScene(scenes.InputScene(e)); err != nil {
+		if err := e.ShowScene(scenes.ClickScene(e)); err != nil {
 			log.Println(err)
 		}
 

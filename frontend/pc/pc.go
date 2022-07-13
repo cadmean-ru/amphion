@@ -278,6 +278,10 @@ func (f *Frontend) GetLaunchArgs() a.SiMap {
 	return args
 }
 
+func (f *Frontend) SimulateCallback(callback *dispatch.Message) {
+	f.disp.SendMessage(callback)
+}
+
 func NewFrontend() *Frontend {
 	f := &Frontend{
 		wSize:   a.NewIntVector3(500, 500, 0),

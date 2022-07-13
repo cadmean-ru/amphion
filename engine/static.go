@@ -9,22 +9,22 @@ import (
 )
 
 // LogInfo prints a message to the log from the current component, formatting the msg using fmt.Sprintf.
-func LogInfo(msg string, values ...interface{}) {
-	instance.logger.Info(NameOfComponent(instance.currentComponent), fmt.Sprintf(msg, values...))
+func LogInfo(msg string, values ...any) {
+	instance.logger.Info(NameOfComponent(instance.updateRoutine.getCurrentComponent()), fmt.Sprintf(msg, values...))
 }
 
 // LogWarning prints a warning to the log from the current component, formatting the msg using fmt.Sprintf.
-func LogWarning(msg string, values ...interface{}) {
-	instance.logger.Warning(instance.currentComponent, fmt.Sprintf(msg, values...))
+func LogWarning(msg string, values ...any) {
+	instance.logger.Warning(NameOfComponent(instance.updateRoutine.getCurrentComponent()), fmt.Sprintf(msg, values...))
 }
 
 // LogError prints an error to the log from the current component, formatting the msg using fmt.Sprintf.
-func LogError(msg string, values ...interface{}) {
-	instance.logger.Error(instance.currentComponent, fmt.Sprintf(msg, values...))
+func LogError(msg string, values ...any) {
+	instance.logger.Error(NameOfComponent(instance.updateRoutine.getCurrentComponent()), fmt.Sprintf(msg, values...))
 }
 
 // LogDebug is same as LogInfo, but prints only if app is in debug mode.
-func LogDebug(msg string, values ...interface{}) {
+func LogDebug(msg string, values ...any) {
 	if instance.currentApp == nil || instance.currentApp.Debug {
 		LogInfo(msg, values...)
 	}
@@ -231,7 +231,7 @@ func GetComponentsManager() *ComponentsManager {
 }
 
 // NameOfComponent return the name of the given component suitable for serialization.
-func NameOfComponent(component interface{}) string {
+func NameOfComponent(component any) string {
 	return instance.GetComponentsManager().NameOfComponent(component)
 }
 
@@ -248,4 +248,13 @@ func GetState() byte {
 // GetStateString returns the current engine state as string.
 func GetStateString() string {
 	return instance.GetStateString()
+}
+
+//UpdateObject forces redraw of the given SceneObject and requests rendering.
+//It also updates the given variable with the newValue.
+func UpdateObject[T any](obj *SceneObject, varPtr *T, newValue T) {
+	if varPtr != nil {
+		*varPtr = newValue
+	}
+	obj.Redraw()
 }

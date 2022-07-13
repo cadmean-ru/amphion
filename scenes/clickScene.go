@@ -25,7 +25,8 @@ func ClickScene(_ *AmphionEngine) *SceneObject {
 	scene.AddChild(container)
 
 	text := NewSceneObject("text")
-	textView := NewTextView("")
+	text.Transform.SetSize(100, 100)
+	textView := NewTextView("1")
 	text.AddComponent(textView)
 	scene.AddChild(text)
 
@@ -38,9 +39,7 @@ func ClickScene(_ *AmphionEngine) *SceneObject {
 	rect1.AddComponent(NewRectBoundary())
 	rect1.AddComponent(NewEventListener(EventMouseDown, func(event Event) bool {
 		LogDebug("Click")
-		textView.Text += "1"
-		textView.Redraw()
-		RequestRendering()
+		UpdateObject(text, &textView.Text, textView.Text+"1")
 		return true
 	}))
 	container.AddChild(rect1)
@@ -55,21 +54,15 @@ func ClickScene(_ *AmphionEngine) *SceneObject {
 	circle1.AddComponent(NewRectBoundary())
 	circle1.AddComponent(NewEventListener(EventMouseDown, func(event Event) bool {
 		LogDebug("Click")
-		textView.Text += "2"
-		textView.Redraw()
-		RequestRendering()
+		UpdateObject(text, &textView.Text, textView.Text+"2")
 		return true
 	}))
 	circle1.AddComponent(NewEventListener(EventMouseIn, func(event Event) bool {
-		circle1Shape.StrokeColor = Blue()
-		circle1Shape.Redraw()
-		RequestRendering()
+		UpdateObject(circle1, &circle1Shape.StrokeColor, Blue())
 		return true
 	}))
 	circle1.AddComponent(NewEventListener(EventMouseOut, func(event Event) bool {
-		circle1Shape.StrokeColor = Black()
-		circle1Shape.Redraw()
-		RequestRendering()
+		UpdateObject(circle1, &circle1Shape.StrokeColor, Black())
 		return true
 	}))
 	container.AddChild(circle1)

@@ -7,6 +7,7 @@ type sceneLifecycleManager struct {
 	startSceneObjects *dispatch.MessageQueue
 	stopSceneObjects  *dispatch.MessageQueue
 	componentsToStop  *dispatch.MessageQueue
+	currentComponent  *ComponentContainer
 }
 
 func (m *sceneLifecycleManager) start() {
@@ -80,13 +81,13 @@ func (m *sceneLifecycleManager) onInitSceneObject(o *SceneObject, ctx InitContex
 		if c.initialized {
 			continue
 		}
-		instance.currentComponent = c.component
+		m.currentComponent = c
 		c.component.OnInit(ctx)
 		c.initialized = true
 	}
 
 	o.initialized = true
-	instance.currentComponent = nil
+	m.currentComponent = nil
 }
 
 func (m *sceneLifecycleManager) loopStart(obj *SceneObject) {
@@ -108,13 +109,13 @@ func (m *sceneLifecycleManager) onStartSceneObject(o *SceneObject) {
 		if c.IsDirty() || c.started {
 			continue
 		}
-		instance.currentComponent = c.component
+		m.currentComponent = c
 		c.component.OnStart()
 		c.started = true
 	}
 
 	o.started = true
-	instance.currentComponent = nil
+	m.currentComponent = nil
 }
 
 func (m *sceneLifecycleManager) loopUpdate(obj *SceneObject, ctx UpdateContext) {
@@ -135,11 +136,11 @@ func (m *sceneLifecycleManager) onUpdateSceneObject(o *SceneObject, ctx UpdateCo
 			continue
 		}
 
-		instance.currentComponent = c.component
+		m.currentComponent = c
 		c.component.(UpdatingComponent).OnUpdate(ctx)
 	}
 
-	instance.currentComponent = nil
+	m.currentComponent = nil
 }
 
 func (m *sceneLifecycleManager) loopLayout(obj *SceneObject) {
@@ -157,9 +158,9 @@ func (m *sceneLifecycleManager) onLayoutSceneObject(o *SceneObject) {
 		return
 	}
 
-	instance.currentComponent = o.layout.component
+	m.currentComponent = o.layout
 	o.layout.component.(Layout).LayoutChildren()
-	instance.currentComponent = nil
+	m.currentComponent = nil
 }
 
 func (m *sceneLifecycleManager) loopLateUpdate(obj *SceneObject, ctx UpdateContext) {
@@ -180,11 +181,11 @@ func (m *sceneLifecycleManager) onLateUpdateSceneObject(o *SceneObject, ctx Upda
 			continue
 		}
 
-		instance.currentComponent = c.component
+		m.currentComponent = c
 		c.component.(UpdatingComponent).OnLateUpdate(ctx)
 	}
 
-	instance.currentComponent = nil
+	m.currentComponent = nil
 }
 
 func (m *sceneLifecycleManager) loopRender(obj *SceneObject) {
@@ -201,7 +202,7 @@ func (m *sceneLifecycleManager) onDrawSceneObject(o *SceneObject, ctx DrawingCon
 		}
 
 		view := o.view.component.(ViewComponent)
-		instance.currentComponent = o.view.component
+		m.currentComponent = o.view
 
 		if !view.ShouldDraw() {
 			return
@@ -209,7 +210,7 @@ func (m *sceneLifecycleManager) onDrawSceneObject(o *SceneObject, ctx DrawingCon
 
 		view.OnDraw(ctx)
 	}
-	instance.currentComponent = nil
+	m.currentComponent = nil
 }
 
 func (m *sceneLifecycleManager) loopStop(obj *SceneObject) {
@@ -225,10 +226,28 @@ func (m *sceneLifecycleManager) onStopSceneObject(o *SceneObject) {
 		if !c.enabled && !c.started {
 			continue
 		}
-		instance.currentComponent = c.component
+		m.currentComponent = c
 		c.component.OnStop()
 		c.started = false
 	}
 	o.started = false
-	instance.currentComponent = nil
+	m.currentComponent = nil
+}
+
+func (m *sceneLifecycleManager) onMessageSceneObject(o *SceneObject, message *dispatch.Message) bool {
+	continuePropagation := true
+	for _, l := range o.messageListeners {
+		if !l.enabled && !l.started {
+			continue
+		}
+
+		m.currentComponent = l
+		continuePropagation = l.component.(MessageListenerComponent).OnMessage(message)
+		if !continuePropagation {
+			break
+		}
+	}
+
+	m.currentComponent = nil
+	return continuePropagation
 }

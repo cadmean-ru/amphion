@@ -34,7 +34,6 @@ type AmphionEngine struct {
 	globalContext      frontend.Context
 	forceRedraw        bool
 	componentsManager  *ComponentsManager
-	currentComponent   Component
 	closeSceneCallback func()
 	tasksRoutine       *TasksRoutine
 	front              frontend.Frontend
@@ -329,8 +328,8 @@ func (engine *AmphionEngine) recover() {
 		engine.logger.Error(engine, "Fatal error.")
 		engine.logger.Error(engine, fmt.Sprintf("Current state: %s", engine.GetStateString()))
 		reason := "Kernel panic"
-		if engine.currentComponent != nil {
-			reason = fmt.Sprintf("Error in component %s", NameOfComponent(engine.currentComponent))
+		if engine.updateRoutine != nil && engine.updateRoutine.currentComponent != nil {
+			reason = fmt.Sprintf("Error in component %s", NameOfComponent(engine.updateRoutine.currentComponent.component))
 			engine.logger.Error(engine, reason)
 		}
 		engine.front.CommencePanic(reason, fmt.Sprintf("%v", err))

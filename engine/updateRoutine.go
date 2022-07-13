@@ -90,6 +90,13 @@ func (r *updateRoutine) close() {
 	}
 }
 
+func (r *updateRoutine) getCurrentComponent() any {
+	if r.currentComponent != nil {
+		return r.currentComponent.component
+	}
+	return nil
+}
+
 //endregion
 
 //region Loop

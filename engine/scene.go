@@ -444,14 +444,7 @@ func (o *SceneObject) OnMessage(message *dispatch.Message) bool {
 		return true
 	}
 
-	continuePropagation := true
-	for _, l := range o.messageListeners {
-		if !l.component.(MessageListenerComponent).OnMessage(message) {
-			continuePropagation = false
-		}
-	}
-
-	return continuePropagation
+	return instance.updateRoutine.onMessageSceneObject(o, message)
 }
 
 func (o *SceneObject) RenderTraverse(action func(node *rendering.Node), afterChildrenAction func(node *rendering.Node)) {
