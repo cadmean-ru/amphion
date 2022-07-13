@@ -15,7 +15,7 @@ func InputScene(_ *AmphionEngine) *SceneObject {
 	input.Transform.SetSize(500, a.WrapContent)
 	inputView := NewTextInput()
 	inputView.FontSize = 30
-	inputView.SingleLine = true
+	//inputView.SingleLine = true
 	inputView.SetOnChangeListener(func(newValue string) {
 		LogDebug("Text change: %s", newValue)
 	})

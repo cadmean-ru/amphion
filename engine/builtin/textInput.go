@@ -350,7 +350,7 @@ func (s *TextInput) handleKeyDown(event engine.Event) bool {
 	}
 
 	data := event.KeyEventData()
-	//engine.LogDebug("%v", data.KeyName)
+	engine.LogDebug("%v", data.KeyName)
 
 	switch data.KeyName {
 	case engine.KeyBackspace:
@@ -421,6 +421,10 @@ func (s *TextInput) handleDelete() {
 }
 
 func (s *TextInput) handleTextInput(event engine.Event) bool {
+	if !s.SceneObject.IsFocused() {
+		return true
+	}
+
 	s.handleRune([]rune(event.StringData()))
 	s.ShouldRedraw = true
 	engine.RequestRendering()
